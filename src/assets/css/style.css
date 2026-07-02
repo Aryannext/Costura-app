@@ -1,0 +1,396 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Tailored Precision Colors */
+  --surface: #fcf8ff;
+  --surface-dim: #dcd8e5;
+  --surface-bright: #fcf8ff;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f5f2ff;
+  --surface-container: #f0ecf9;
+  --surface-container-high: #eae6f4;
+  --surface-container-highest: #e4e1ee;
+  
+  --on-surface: #1b1b24;
+  --on-surface-variant: #464555;
+  
+  --outline: #777587;
+  --outline-variant: #c7c4d8;
+  
+  --primary: #3525cd;
+  --on-primary: #ffffff;
+  --primary-container: #4f46e5;
+  --on-primary-container: #dad7ff;
+  
+  --secondary: #4648d4;
+  --on-secondary: #ffffff;
+  --secondary-container: #6063ee;
+  --on-secondary-container: #fffbff;
+  
+  --error: #ba1a1a;
+  --on-error: #ffffff;
+  --error-container: #ffdad6;
+  --on-error-container: #93000a;
+  
+  --background: #F8FAFC; /* User specified background level 0 */
+  --on-background: #1b1b24;
+
+  /* Semantic Colors (Status) */
+  --success-color: #10b981;
+  --success-bg: #d1fae5;
+  --success-text: #065f46;
+  
+  --warning-color: #f59e0b;
+  --warning-bg: #fef3c7;
+  --warning-text: #92400e;
+  
+  --error-bg: #fee2e2;
+  --error-text: #991b1b;
+
+  --info-color: #3b82f6;
+  --info-bg: #dbeafe;
+  --info-text: #1e40af;
+
+  /* UI Geometry & Spacing */
+  --radius-sm: 4px;
+  --radius-md: 8px; /* Standard buttons/inputs */
+  --radius-lg: 16px; /* Cards/Modals */
+  --radius-pill: 9999px;
+  
+  --spacing-base: 4px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  /* Elevation Shadows */
+  --shadow-level-1: 0px 1px 3px rgba(0,0,0,0.05);
+  --shadow-level-2: 0px 10px 15px -3px rgba(0,0,0,0.1);
+}
+
+
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--background);
+  color: var(--on-surface);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent; /* Remove Android grey tap highlight */
+  user-select: none; /* Prevents text selection on long press */
+  -webkit-user-select: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Typography Classes with iOS tracking */
+.display-lg {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 38px;
+  letter-spacing: -0.03em;
+}
+.headline-md {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+  letter-spacing: -0.02em;
+}
+.headline-sm {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 24px;
+  letter-spacing: -0.02em;
+}
+.body-lg {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+.body-md {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+.label-md {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.01em;
+}
+.label-sm {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 14px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  color: var(--on-surface);
+}
+
+/* Page transition animations */
+.page-slide-enter-active,
+.page-slide-leave-active {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+.page-slide-enter-from {
+  opacity: 0;
+  transform: translateX(20px);
+}
+.page-slide-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+/* List Transitions for TransitionGroup */
+.stagger-move, /* apply transition to moving elements */
+.stagger-enter-active,
+.stagger-leave-active {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.stagger-enter-from,
+.stagger-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+/* ensure leaving items are taken out of layout flow so that moving
+   animations can be calculated correctly. */
+.stagger-leave-active {
+  position: absolute;
+}
+
+/* Stagger List Animation */
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.stagger-list > * {
+  animation: slideUpFade 0.3s ease forwards;
+  opacity: 0;
+}
+.stagger-list > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-list > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-list > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-list > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-list > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-list > *:nth-child(n+6) { animation-delay: 0.3s; }
+
+/* Buttons */
+button {
+  background-color: var(--primary);
+  color: var(--on-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  min-height: 44px; /* Hit target */
+}
+
+button:hover:not(:disabled) {
+  background-color: var(--primary-container);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-level-2);
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--outline-variant);
+  color: var(--on-surface-variant);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 1px solid var(--outline-variant);
+  color: var(--primary);
+}
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--surface-container-low);
+  box-shadow: none;
+}
+
+.btn-ghost {
+  background-color: transparent;
+  border: none;
+  color: var(--on-surface-variant);
+}
+.btn-ghost:hover:not(:disabled) {
+  background-color: var(--surface-container);
+  color: var(--on-surface);
+  box-shadow: none;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 12px;
+  min-height: 32px;
+}
+
+.icon-btn {
+  background: var(--surface-container-lowest);
+  color: var(--on-surface-variant);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-md);
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-btn:hover {
+  background: var(--surface-container);
+  color: var(--primary);
+}
+
+.btn-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.icon-btn .btn-icon {
+  margin-right: 0;
+}
+
+/* Forms */
+input, select, textarea {
+  background-color: var(--surface-container-lowest);
+  color: var(--on-surface);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  width: 100%;
+  font-family: inherit;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  min-height: 44px;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-fixed);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--outline);
+}
+
+label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  color: var(--on-surface-variant);
+  font-weight: 500;
+  font-size: 12px;
+}
+
+/* Cards (Level 1) */
+.card {
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--surface-container-high);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  box-shadow: var(--shadow-level-1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card.interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-level-2);
+  cursor: pointer;
+  border-color: var(--outline-variant);
+}
+
+/* Badge / Pills */
+.badge {
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Modals (Level 2) */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(27, 27, 36, 0.4);
+  backdrop-filter: blur(2px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--surface-container-lowest);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-level-2);
+}
+
+/* Modal Vue Transition */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+.modal-enter-active .modal-content,
+.modal-leave-active .modal-content {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+.modal-enter-from .modal-content,
+.modal-leave-to .modal-content {
+  transform: translateY(20px) scale(0.95);
+}
+
+/* Loading Skeleton */
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-container) 25%, var(--surface-container-high) 50%, var(--surface-container) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-md);
+  height: 20px;
+  width: 100%;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
