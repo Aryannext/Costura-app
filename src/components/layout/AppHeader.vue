@@ -8,7 +8,7 @@
       <button class="btn-ghost icon-btn-header" aria-label="Notifications" @click="toggleNotifications">
         <div class="icon-wrapper">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-          <span v-if="urgentOrders.length > 0" class="badge-indicator">{{ urgentOrders.length }}</span>
+          <span v-if="totalNotifications > 0" class="badge-indicator" :class="{'update-badge': updateAvailable}">{{ totalNotifications }}</span>
         </div>
       </button>
     </div>
@@ -22,11 +22,23 @@
         </div>
         
         <div class="panel-body">
-          <div v-if="urgentOrders.length === 0" class="empty-state">
-            <p class="body-sm">No tienes órdenes atrasadas o por vencer pronto.</p>
+          <div v-if="totalNotifications === 0" class="empty-state">
+            <p class="body-sm">No tienes notificaciones pendientes.</p>
           </div>
           
           <div v-else class="notification-list">
+            <!-- OTA Update Notification -->
+            <div 
+              v-if="updateAvailable"
+              class="notification-item update-item"
+              @click="triggerUpdate"
+            >
+              <div class="notif-content">
+                <strong>✨ Nueva versión disponible (v{{ updateVersion }})</strong>
+                <p class="body-sm text-success">¡Toca aquí para actualizar la app!</p>
+              </div>
+            </div>
+
             <div 
               v-for="orden in urgentOrders" 
               :key="orden.id_orden" 
@@ -50,9 +62,11 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useOrdenes } from '../../composables/useOrdenes.js';
+import { useUpdates } from '../../composables/useUpdates.js';
 
 const router = useRouter();
 const { ordenes, fetchOrdenes } = useOrdenes();
+const { updateAvailable, updateVersion, promptUpdate } = useUpdates();
 const showNotifications = ref(false);
 
 onMounted(() => {
@@ -75,6 +89,10 @@ const urgentOrders = computed(() => {
     // Include if past due or due within 3 days
     return entregaDate < futureDate;
   }).sort((a, b) => new Date(a.fecha_entrega_estimada) - new Date(b.fecha_entrega_estimada));
+});
+
+const totalNotifications = computed(() => {
+  return urgentOrders.value.length + (updateAvailable.value ? 1 : 0);
 });
 
 function isAtrasada(orden) {
@@ -100,6 +118,11 @@ function toggleNotifications() {
 function goToOrder(id) {
   showNotifications.value = false;
   router.push(`/ordenes/${id}`);
+}
+
+function triggerUpdate() {
+  showNotifications.value = false;
+  promptUpdate();
 }
 </script>
 
@@ -240,8 +263,21 @@ h1 {
   transition: background-color 0.2s ease;
 }
 
+.update-item {
+  background-color: #f0fdf4; /* Light green */
+  border-color: var(--success-color, #10b981);
+}
+
+.update-badge {
+  background-color: var(--success-color, #10b981) !important;
+}
+
 .notification-item:hover {
   background-color: var(--surface-container);
+}
+
+.update-item:hover {
+  background-color: #dcfce7;
 }
 
 .notif-content strong {
@@ -257,6 +293,11 @@ h1 {
 
 .text-warning {
   color: #d97706; /* A slightly darker yellow/orange for warning */
+  font-weight: 500;
+}
+
+.text-success {
+  color: var(--success-color, #10b981);
   font-weight: 500;
 }
 

@@ -29,29 +29,7 @@
       </div>
 
       <!-- Visual Timeline Progress Bar -->
-      <div class="timeline-progress card" v-if="ordenActual.id_estado_orden !== 5">
-        <div class="progress-steps">
-          <div class="step" :class="{ completed: ordenActual.id_estado_orden >= 1, active: ordenActual.id_estado_orden === 1 }">
-            <div class="step-circle" :class="{ 'status-active-pulse': ordenActual.id_estado_orden === 1 }">1</div>
-            <span class="step-label">Recibida</span>
-          </div>
-          <div class="step-line" :class="{ completed: ordenActual.id_estado_orden >= 2 }"></div>
-          <div class="step" :class="{ completed: ordenActual.id_estado_orden >= 2, active: ordenActual.id_estado_orden === 2 }">
-            <div class="step-circle" :class="{ 'status-active-pulse': ordenActual.id_estado_orden === 2 }">2</div>
-            <span class="step-label">Proceso</span>
-          </div>
-          <div class="step-line" :class="{ completed: ordenActual.id_estado_orden >= 3 }"></div>
-          <div class="step" :class="{ completed: ordenActual.id_estado_orden >= 3, active: ordenActual.id_estado_orden === 3 }">
-            <div class="step-circle" :class="{ 'status-active-pulse': ordenActual.id_estado_orden === 3 }">3</div>
-            <span class="step-label">Lista</span>
-          </div>
-          <div class="step-line" :class="{ completed: ordenActual.id_estado_orden >= 4 }"></div>
-          <div class="step" :class="{ completed: ordenActual.id_estado_orden >= 4, active: ordenActual.id_estado_orden === 4 }">
-            <div class="step-circle" :class="{ 'status-active-pulse': ordenActual.id_estado_orden === 4 }">✓</div>
-            <span class="step-label">Entregada</span>
-          </div>
-        </div>
-      </div>
+      <TimelineProgressBar v-if="ordenActual && ordenActual.id_estado_orden !== 5" :estadoOrden="ordenActual.id_estado_orden" />
 
       <!-- Pestañas -->
       <div class="tabs">
@@ -98,76 +76,31 @@
     </div>
 
     <!-- Modals -->
-    <transition name="modal">
-      <div v-if="showPrendaForm" class="modal-overlay">
-        <div class="modal-content card">
-          <h3>Añadir Prenda</h3>
-          <PrendaForm 
-            :tiposPrenda="tiposPrenda"
-            :loading="prendasLoading" 
-            :error="prendasError"
-            @submit="handleAddPrenda"
-            @cancel="showPrendaForm = false"
-          />
-        </div>
-      </div>
-    </transition>
-
-    <transition name="modal">
-      <div v-if="showPagoForm" class="modal-overlay">
-        <div class="modal-content card">
-          <h3>Registrar Pago</h3>
-          <PagoForm 
-            :metodosPago="metodosPago"
-            :saldoPendiente="ordenActual.saldo_pendiente"
-            :loading="pagosLoading" 
-            :error="pagosError"
-            @submit="handleAddPago"
-            @cancel="showPagoForm = false"
-          />
-        </div>
-      </div>
-    </transition>
-
-    <!-- Confirm Modal -->
-    <transition name="modal">
-      <div v-if="showConfirmModal" class="modal-overlay">
-        <div class="modal-content card confirm-modal">
-          <h3>Confirmación</h3>
-          <p>{{ confirmMessage }}</p>
-          <div class="confirm-actions">
-            <button class="btn-secondary" @click="cancelConfirm">Cancelar</button>
-            <button class="btn-primary telegram-btn-modal" @click="executeConfirm">
-              <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-              Sí, Notificar
-            </button>
-          </div>
-        </div>
-      </div>
-    </transition>
-
-    <!-- Prompt Modal -->
-    <transition name="modal">
-      <div v-if="showPromptModal" class="modal-overlay">
-        <div class="modal-content card confirm-modal">
-          <h3>Añadir Observación</h3>
-          <p>{{ promptMessage }}</p>
-          <textarea v-model="promptInput" rows="3" placeholder="Escribe aquí..."></textarea>
-          <div class="confirm-actions" style="margin-top: 16px;">
-            <button class="btn-secondary" @click="cancelPrompt">Cancelar</button>
-            <button class="btn-primary" @click="executePrompt">Guardar</button>
-          </div>
-        </div>
-      </div>
-    </transition>
-
-    <!-- iOS Action Sheet -->
-    <IosActionSheet 
-      v-model="showActionSheet" 
-      :title="actionSheetTitle"
-      :message="actionSheetMessage"
-      :actions="actionSheetActions"
-      @action="handleSheetAction"
+    <OrdenModals 
+      v-model:showPrendaForm="showPrendaForm"
+      v-model:showPagoForm="showPagoForm"
+      v-model:showActionSheet="showActionSheet"
+      :tiposPrenda="tiposPrenda"
+      :prendasLoading="prendasLoading"
+      :prendasError="prendasError"
+      :metodosPago="metodosPago"
+      :saldoPendiente="ordenActual ? ordenActual.saldo_pendiente : 0"
+      :pagosLoading="pagosLoading"
+      :pagosError="pagosError"
+      :showConfirmModal="showConfirmModal"
+      :confirmMessage="confirmMessage"
+      :showPromptModal="showPromptModal"
+      :promptMessage="promptMessage"
+      :actionSheetTitle="actionSheetTitle"
+      :actionSheetMessage="actionSheetMessage"
+      :actionSheetActions="actionSheetActions"
+      @submitPrenda="handleAddPrenda"
+      @submitPago="handleAddPago"
+      @cancelConfirm="cancelConfirm"
+      @executeConfirm="executeConfirm"
+      @cancelPrompt="cancelPrompt"
+      @executePrompt="executePrompt"
+      @sheetAction="handleSheetAction"
     />
   </div>
 </template>
@@ -181,17 +114,14 @@ import { usePagos } from '../composables/usePagos.js';
 import { useNotificaciones } from '../composables/useNotificaciones.js';
 import StatusBadge from '../components/common/StatusBadge.vue';
 import PrendaCard from '../components/prendas/PrendaCard.vue';
-import PrendaForm from '../components/prendas/PrendaForm.vue';
-import PagoForm from '../components/pagos/PagoForm.vue';
 import SkeletonLoader from '../components/common/SkeletonLoader.vue';
 import SwipeItem from '../components/common/SwipeItem.vue';
-import IosActionSheet from '../components/common/IosActionSheet.vue';
-import { useTelegramBot } from '../composables/useTelegramBot.js';
 import TabDetalle from '../components/ordenes/TabDetalle.vue';
 import TabPrendas from '../components/ordenes/TabPrendas.vue';
 import TabPagos from '../components/ordenes/TabPagos.vue';
-import { Share } from '@capacitor/share';
-
+import TimelineProgressBar from '../components/ordenes/TimelineProgressBar.vue';
+import OrdenModals from '../components/ordenes/OrdenModals.vue';
+import { useOrdenTelegram } from '../composables/useOrdenTelegram.js';
 const route = useRoute();
 const router = useRouter();
 const toast = inject('toast');
@@ -215,7 +145,7 @@ const {
 } = usePagos();
 
 // Telegram Bot Logic
-const { sendTelegramMessage } = useTelegramBot();
+const { enviarAlertaOrdenListaBot, generarReciboTelegram, generarReciboNativo, notificarTelegram } = useOrdenTelegram(ordenActual);
 
 // Notificaciones logic
 const { notificaciones, fetchNotificaciones, saveNotificacion } = useNotificaciones();
@@ -292,108 +222,6 @@ async function cambiarEstado(id_estado, nombre) {
   }
 }
 
-async function enviarAlertaOrdenListaBot() {
-  if (!ordenActual.value) return;
-  const cliente = ordenActual.value.cliente_nombre;
-  const telefono = ordenActual.value.cliente_telefono || '';
-  const saldo = ordenActual.value.saldo_pendiente;
-  const idOrden = ordenActual.value.id_orden;
-
-  // Build WhatsApp link
-  let wpText = `Hola ${cliente}, te informamos que tu orden #${idOrden} ya está lista para recoger en el Atelier.`;
-  if (saldo > 0) wpText += ` Recuerda que tienes un saldo pendiente de $${saldo}.`;
-  const wpLink = `https://wa.me/${telefono.replace(/\+/g, '')}?text=${encodeURIComponent(wpText)}`;
-
-  const mensajeBot = `✅ *Orden Lista*\n\nLa orden #${idOrden} de *${cliente}* ya está terminada.\nSaldo pendiente: *$${saldo}*\n\n[📲 Toca aquí para avisarle por WhatsApp](${wpLink})`;
-
-  const success = await sendTelegramMessage(mensajeBot, 'Markdown');
-  if (success) {
-    toast('Alerta enviada a tu Telegram.', 'success');
-    await saveNotificacion("Alerta Telegram enviada", idOrden, 2);
-  } else {
-    toast('Error enviando alerta por Telegram.', 'error');
-  }
-}
-
-async function generarReciboTelegram() {
-  if (!ordenActual.value) return;
-  const o = ordenActual.value;
-  let recibo = `🧾 *RECIBO DIGITAL - ATELIER*\n\n`;
-  recibo += `*Orden:* #${o.id_orden}\n`;
-  recibo += `*Cliente:* ${o.cliente_nombre}\n`;
-  recibo += `*Fecha de Recepción:* ${formatDate(o.fecha_recepcion)}\n`;
-  recibo += `*Entrega Estimada:* ${formatDate(o.fecha_entrega_estimada)}\n\n`;
-  recibo += `*Estado:* ${o.estado_nombre}\n\n`;
-  recibo += `💰 *PRESUPUESTO*\n`;
-  recibo += `Total: $${o.precio_total}\n`;
-  recibo += `Abono: $${o.abono_inicial}\n`;
-  recibo += `*Saldo:* $${o.saldo_pendiente}\n`;
-
-  const success = await sendTelegramMessage(recibo, 'Markdown');
-  if (success) {
-    toast('Recibo generado en tu Telegram.', 'success');
-  } else {
-    toast('Error enviando recibo a Telegram.', 'error');
-  }
-}
-
-async function generarReciboNativo() {
-  if (!ordenActual.value) return;
-  const o = ordenActual.value;
-  let recibo = `🧾 RECIBO DIGITAL - ATELIER\n\n`;
-  recibo += `Orden: #${o.id_orden}\n`;
-  recibo += `Cliente: ${o.cliente_nombre}\n`;
-  recibo += `Fecha de Recepción: ${formatDate(o.fecha_recepcion)}\n`;
-  recibo += `Entrega Estimada: ${formatDate(o.fecha_entrega_estimada)}\n\n`;
-  recibo += `Estado: ${o.estado_nombre}\n\n`;
-  recibo += `💰 PRESUPUESTO\n`;
-  recibo += `Total: $${o.precio_total}\n`;
-  recibo += `Abono: $${o.abono_inicial}\n`;
-  recibo += `Saldo: $${o.saldo_pendiente}\n`;
-
-  try {
-    await Share.share({
-      title: 'Recibo de Orden',
-      text: recibo,
-      dialogTitle: 'Compartir recibo con el cliente',
-    });
-  } catch (e) {
-    if (e.message !== 'Share canceled') {
-      toast('Error al compartir o tu plataforma no lo soporta', 'error');
-      console.error(e);
-    }
-  }
-}
-
-async function notificarTelegram(tipo) {
-  if (!ordenActual.value) return;
-  const o = ordenActual.value;
-  const cliente = o.cliente_nombre;
-  const telefono = o.cliente_telefono || '';
-  const idOrden = o.id_orden;
-  const saldo = o.saldo_pendiente;
-
-  let wpText = '';
-  let mensajeBot = '';
-
-  if (tipo === 'LISTA_ENTREGA') {
-    wpText = `Hola ${cliente}, te informamos que tu orden #${idOrden} ya está lista para recoger en el Atelier.`;
-    if (saldo > 0) wpText += ` Recuerda que tienes un saldo pendiente de $${saldo}.`;
-    const wpLink = `https://wa.me/${telefono.replace(/\+/g, '')}?text=${encodeURIComponent(wpText)}`;
-    mensajeBot = `✅ *Aviso de Orden Lista*\n\nToca aquí para avisar a *${cliente}* que su orden #${idOrden} está terminada:\n\n[📲 Enviar WhatsApp](${wpLink})`;
-  } else if (tipo === 'RECORDATORIO_PAGO') {
-    wpText = `Hola ${cliente}, te escribimos del Atelier para recordarte que tienes un saldo pendiente de $${saldo} en tu orden #${idOrden}.`;
-    const wpLink = `https://wa.me/${telefono.replace(/\+/g, '')}?text=${encodeURIComponent(wpText)}`;
-    mensajeBot = `💸 *Recordatorio de Pago*\n\nToca aquí para cobrarle a *${cliente}* el saldo de *$${saldo}*:\n\n[📲 Enviar WhatsApp de Cobro](${wpLink})`;
-  }
-
-  const success = await sendTelegramMessage(mensajeBot, 'Markdown');
-  if (success) {
-    toast('Enlace enviado a tu Telegram.', 'success');
-  } else {
-    toast('Error enviando mensaje a Telegram.', 'error');
-  }
-}
 
 
 async function handleAddPrenda(prendaData) {
@@ -451,7 +279,6 @@ async function handleTakePhoto(id_prenda) {
 
 const showPromptModal = ref(false);
 const promptMessage = ref('');
-const promptInput = ref('');
 let onPromptAction = null;
 
 function requestPrompt(message, action) {
@@ -461,8 +288,8 @@ function requestPrompt(message, action) {
   showPromptModal.value = true;
 }
 
-function executePrompt() {
-  if (onPromptAction) onPromptAction(promptInput.value);
+function executePrompt(input) {
+  if (onPromptAction) onPromptAction(input);
   showPromptModal.value = false;
 }
 
@@ -720,104 +547,4 @@ function handleSheetAction(action) {
   font-size: 0.85em;
 }
 
-/* Confirm Modal Styles */
-.confirm-modal {
-  text-align: center;
-  padding: 30px 20px;
-}
-.confirm-modal h3 {
-  margin-top: 0;
-  color: var(--on-surface);
-}
-.confirm-modal p {
-  color: var(--on-surface-variant);
-  margin-bottom: 24px;
-}
-.confirm-actions {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-}
-.telegram-btn-modal {
-  background-color: #2AABEE;
-  color: white;
-}
-
-/* Premium Timeline Progress Bar */
-.timeline-progress {
-  padding: 24px 16px;
-  margin-bottom: 20px;
-  background-color: var(--surface-container-low);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--surface-container-highest);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-}
-.progress-steps {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-}
-.step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 2;
-  width: 60px;
-}
-.step-circle {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background-color: var(--surface-container-highest);
-  border: 2px solid var(--outline-variant);
-  color: var(--on-surface-variant);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 0.95rem;
-  margin-bottom: 8px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.step-label {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--on-surface-variant);
-  text-align: center;
-  white-space: nowrap;
-  transition: color 0.3s ease;
-}
-.step-line {
-  flex-grow: 1;
-  height: 4px;
-  background-color: var(--surface-container-highest);
-  margin-top: -24px;
-  z-index: 1;
-  border-radius: 2px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.step.completed .step-circle {
-  background-color: var(--primary);
-  border-color: var(--primary);
-  color: var(--on-primary);
-}
-.step.completed .step-label {
-  color: var(--primary);
-  font-weight: 600;
-}
-.step-line.completed {
-  background-color: var(--primary);
-}
-.step.active .step-circle {
-  background-color: var(--primary-container);
-  border-color: var(--primary);
-  color: var(--primary);
-  box-shadow: 0 0 0 4px var(--surface-container);
-  transform: scale(1.1);
-}
-.step.active .step-label {
-  color: var(--primary);
-  font-weight: 700;
-}
 </style>

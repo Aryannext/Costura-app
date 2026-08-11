@@ -8,11 +8,80 @@
       </button>
     </div>
 
-    <div v-if="loading" class="loading-state" style="padding-top: 20px;">
-      <SkeletonLoader :count="4" height="100px" />
+    <!-- Buscador Global -->
+    <div class="global-search-container">
+      <div class="search-input-wrapper">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input 
+          type="text" 
+          class="input-field global-search-input" 
+          v-model="globalQuery" 
+          @input="handleSearch"
+          placeholder="Buscar cliente, teléfono o # de orden..." 
+        />
+      </div>
     </div>
 
-    <div v-else class="dashboard-content">
+    <div v-if="globalQuery" class="search-results">
+      <div v-if="searchLoading" class="loading-state" style="padding-top: 20px;">
+        <SkeletonLoader :count="3" height="60px" />
+      </div>
+      <div v-else>
+        <!-- Resultados Clientes -->
+        <div class="section" v-if="searchResults.clientes.length > 0">
+          <h3 class="headline-sm mb-2" style="display: flex; align-items: center; gap: 8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            Clientes encontrados
+          </h3>
+          <div class="ordenes-list stagger-list">
+            <div class="list-card" v-for="c in searchResults.clientes" :key="c.id_cliente" @click="router.push(`/clientes/${c.id_cliente}`)">
+              <div class="list-card-content">
+                <div class="list-card-title">{{ c.nombre }}</div>
+                <div class="list-card-subtitle">{{ c.telefono || 'Sin teléfono' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resultados Órdenes -->
+        <div class="section" v-if="searchResults.ordenes.length > 0">
+          <h3 class="headline-sm mb-2" style="display: flex; align-items: center; gap: 8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+            Órdenes encontradas
+          </h3>
+          <div class="ordenes-list stagger-list">
+            <div class="list-card" v-for="o in searchResults.ordenes" :key="o.id_orden" @click="goToDetail(o.id_orden)">
+              <div class="list-card-content">
+                <div class="list-card-title">#{{ o.id_orden }} - {{ o.cliente_nombre }}</div>
+                <div class="list-card-subtitle">Estado: {{ o.estado_nombre }}</div>
+              </div>
+              <div class="badge" :class="getBadgeClass(o.id_estado_orden)">{{ o.estado_nombre }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="searchResults.clientes.length === 0 && searchResults.ordenes.length === 0" class="empty-state card">
+          <p class="body-md">No se encontraron resultados para "{{ globalQuery }}"</p>
+        </div>
+      </div>
+    </div>
+
+    <div v-else>
+      <div v-if="loading" class="loading-state" style="padding-top: 20px;">
+        <SkeletonLoader :count="4" height="100px" />
+      </div>
+
+      <div v-else class="dashboard-content">
       <!-- KPIs -->
       <div class="kpi-grid">
         <div class="kpi-card highlight-blue">
@@ -83,16 +152,18 @@
           </div>
         </transition-group>
       </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, inject } from 'vue';
+import { ref, onMounted, inject } from 'vue';
 import { useRouter } from 'vue-router';
 import { useReportes } from '../composables/useReportes.js';
 import { useNotificaciones } from '../composables/useNotificaciones.js';
 import { useNotificacionesLocales } from '../composables/useNotificacionesLocales.js';
+import { globalSearch } from '../database/queries/search.js';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import SkeletonLoader from '../components/common/SkeletonLoader.vue';
@@ -102,6 +173,32 @@ const toast = inject('toast');
 const { kpis, proximasEntregas, ordenesRecientes, loading, fetchDashboardData } = useReportes();
 const { loading: notifLoading, triggerRecordatorios } = useNotificaciones();
 const { requestPermissions, scheduleDailyReminders } = useNotificacionesLocales();
+
+// Búsqueda Global
+const globalQuery = ref('');
+const searchLoading = ref(false);
+const searchResults = ref({ clientes: [], ordenes: [] });
+let searchTimeout = null;
+
+function handleSearch() {
+  if (searchTimeout) clearTimeout(searchTimeout);
+  
+  if (!globalQuery.value.trim()) {
+    searchResults.value = { clientes: [], ordenes: [] };
+    return;
+  }
+
+  searchLoading.value = true;
+  searchTimeout = setTimeout(async () => {
+    try {
+      searchResults.value = await globalSearch(globalQuery.value);
+    } catch (error) {
+      console.error('Error en búsqueda global:', error);
+    } finally {
+      searchLoading.value = false;
+    }
+  }, 400); // Debounce de 400ms
+}
 
 onMounted(async () => {
   await fetchDashboardData();
@@ -156,6 +253,42 @@ function getBadgeClass(idEstado) {
 }
 .header h2 {
   color: var(--on-surface);
+}
+
+.global-search-container {
+  margin-bottom: 24px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  color: var(--on-surface-variant);
+}
+
+.global-search-input {
+  width: 100%;
+  font-size: 16px;
+  padding: 14px 16px 14px 44px;
+  border-radius: var(--radius-lg);
+  background-color: var(--surface-container-lowest);
+  border: 1px solid var(--surface-container-high);
+  box-shadow: var(--shadow-level-1);
+}
+
+.global-search-input:focus {
+  border-color: var(--primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.mb-2 {
+  margin-bottom: 12px;
 }
 
 .kpi-grid {
