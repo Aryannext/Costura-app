@@ -6,6 +6,14 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    exclude: [
+      'node_modules',
+      'dist',
+      '.idea',
+      '.git',
+      '.cache',
+      'tests/e2e/**'
+    ],
     coverage: {
       provider: 'v8',
       all: true,
