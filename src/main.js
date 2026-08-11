@@ -7,6 +7,7 @@ import { setupDefaultUser } from './database/queries/auth.js';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Capacitor } from '@capacitor/core';
+import { useUpdates } from './composables/useUpdates.js';
 
 async function bootstrap() {
     try {
@@ -14,12 +15,17 @@ async function bootstrap() {
         await setupDefaultUser();
     } catch (e) {
         console.error("Failed to initialize database", e);
+        alert("Error de BD: " + (e.message || JSON.stringify(e)));
         // We could render an error page here if DB fails
     }
     
     const app = createApp(App);
     app.use(router);
     app.mount('#app');
+
+    // Initialize Capgo OTA Updates
+    const { initUpdates } = useUpdates();
+    initUpdates();
 
     // Configure Native Polish (Status Bar & Splash Screen)
     if (Capacitor.isNativePlatform()) {

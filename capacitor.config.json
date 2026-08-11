@@ -1,5 +1,13 @@
 {
   "appId": "com.costura.app",
   "appName": "CosturaApp",
-  "webDir": "dist"
+  "webDir": "dist",
+  "plugins": {
+    "CapacitorSQLite": {
+      "androidIsEncryption": false
+    },
+    "CapacitorUpdater": {
+      "autoUpdate": true
+    }
+  }
 }
