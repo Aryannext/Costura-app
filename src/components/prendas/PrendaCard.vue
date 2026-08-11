@@ -133,7 +133,7 @@ async function saveEdit() {
     isEditing.value = false;
     emit('estado-changed'); // Trigger refresh in parent
   } catch (e) {
-    alert("Error al editar: " + e.message);
+    // Error is natively handled by useAsyncAction
   }
 }
 
@@ -192,9 +192,8 @@ async function onDeleteFoto(id_fotografia) {
     try {
       await removeFoto(id_fotografia);
       fotos.value = await fetchFotos(props.prenda.id_prenda);
-      toast('Fotografía eliminada', 'success');
     } catch (e) {
-      toast('Error al eliminar fotografía', 'error');
+      // Error natively handled
     }
   }
 }

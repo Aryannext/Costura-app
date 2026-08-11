@@ -2,6 +2,7 @@ import { ref } from 'vue';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { validators } from '../services/validators.js';
+import { useAsyncAction } from './useAsyncAction.js';
 import { 
     getTiposPrenda, 
     getPrendasByOrden, 
@@ -19,108 +20,92 @@ import {
 export function usePrendas() {
     const tiposPrenda = ref([]);
     const prendas = ref([]);
-    const loading = ref(false);
-    const error = ref(null);
+    const descripcionesFrecuentes = ref([]);
+
+    const { loading, error, execute } = useAsyncAction();
 
     const fetchTiposPrenda = async () => {
-        try {
+        return execute(async () => {
             tiposPrenda.value = await getTiposPrenda();
-        } catch (e) {
-            console.error("Error fetching tipos prenda", e);
-        }
+        });
     };
 
     const fetchPrendas = async (id_orden) => {
-        loading.value = true;
-        error.value = null;
-        try {
+        return execute(async () => {
             prendas.value = await getPrendasByOrden(id_orden);
-        } catch (e) {
-            error.value = "Error al cargar prendas: " + e.message;
-        } finally {
-            loading.value = false;
-        }
+        });
     };
 
     const savePrenda = async (prendaData) => {
-        loading.value = true;
-        error.value = null;
-        try {
+        return execute(async () => {
             validators.validatePrenda(prendaData);
             const id = await createPrenda(prendaData);
             await fetchPrendas(prendaData.id_orden); // refresh list
             return id;
-        } catch (e) {
-            error.value = e.message;
-            throw e;
-        } finally {
-            loading.value = false;
-        }
+        }, {
+            successMessage: 'Prenda añadida exitosamente',
+            toastError: true
+        });
     };
 
     const editPrenda = async (id_prenda, descripcion_arreglo, valor, id_orden) => {
-        loading.value = true;
-        error.value = null;
-        try {
+        return execute(async () => {
             if (valor <= 0) throw new Error("El valor debe ser mayor a cero");
             if (!descripcion_arreglo || descripcion_arreglo.trim() === '') throw new Error("La descripción es obligatoria");
             
             await updatePrenda(id_prenda, descripcion_arreglo, valor, id_orden);
             await fetchPrendas(id_orden);
-        } catch (e) {
-            error.value = e.message;
-            throw e;
-        } finally {
-            loading.value = false;
-        }
+        }, {
+            successMessage: 'Prenda actualizada exitosamente',
+            toastError: true
+        });
     };
 
     const changeEstado = async (id_prenda, id_estado_prenda, id_orden) => {
-        loading.value = true;
-        error.value = null;
-        try {
+        return execute(async () => {
             await updateEstadoPrenda(id_prenda, id_estado_prenda, id_orden);
             await fetchPrendas(id_orden);
-        } catch (e) {
-            error.value = "Error al cambiar estado de la prenda: " + e.message;
-            throw e;
-        } finally {
-            loading.value = false;
-        }
+        }, {
+            successMessage: 'Estado de la prenda actualizado',
+            toastError: true
+        });
     };
 
     const takePhoto = async (id_prenda) => {
-        try {
-            const image = await Camera.getPhoto({
-                quality: 60,
-                width: 1080,
-                allowEditing: false,
-                resultType: CameraResultType.Base64,
-                source: CameraSource.Prompt // Asks user: Camera or Gallery
-            });
+        return execute(async () => {
+            let image;
+            try {
+                image = await Camera.getPhoto({
+                    quality: 60,
+                    width: 1080,
+                    allowEditing: false,
+                    resultType: CameraResultType.Base64,
+                    source: CameraSource.Prompt
+                });
+            } catch (e) {
+                if (e.message === 'User cancelled photos app' || e.message === 'User cancelled') {
+                    // Normal user cancellation - do NOT throw, just return null.
+                    return null;
+                }
+                // Unexpected error from Camera plugin, throw it so execute catches and toasts it
+                throw e;
+            }
 
             let finalUri = '';
             
             if (image.base64String) {
-                // Generar nombre de archivo único
                 const fileName = `prenda_${id_prenda}_${new Date().getTime()}.jpeg`;
-                
-                // Guardar permanentemente en el disco del celular
                 await Filesystem.writeFile({
                     path: fileName,
                     data: image.base64String,
                     directory: Directory.Data
                 });
-                
-                // Obtener la URI nativa permanente
                 const stat = await Filesystem.getUri({
                     path: fileName,
                     directory: Directory.Data
                 });
-                
                 finalUri = stat.uri;
             } else if (image.webPath) {
-                // Fallback para pruebas web
                 finalUri = image.webPath;
             }
             
@@ -129,44 +114,47 @@ export function usePrendas() {
                 return finalUri;
             }
             return null;
-        } catch (e) {
-            if (e.message !== 'User cancelled photos app' && e.message !== 'User cancelled') {
-                console.error("Error taking photo", e);
-                throw new Error("Error al tomar o guardar la fotografía");
-            }
-            return null;
-        }
+        }, {
+            successMessage: 'Fotografía guardada',
+            toastError: true
+        });
     };
 
     const fetchFotos = async (id_prenda) => {
-        return await getFotografiasByPrenda(id_prenda);
+        return execute(async () => {
+            return await getFotografiasByPrenda(id_prenda);
+        });
     };
 
     const removeFoto = async (id_fotografia) => {
-        try {
+        return execute(async () => {
             await deleteFotografia(id_fotografia);
-        } catch (e) {
-            console.error("Error deleting photo", e);
-            throw new Error("Error al eliminar la fotografía");
-        }
+        }, {
+            successMessage: 'Fotografía eliminada',
+            toastError: 'Error al eliminar la fotografía'
+        });
     };
 
     const addNewObservacion = async (id_prenda, descripcion) => {
-        if (!descripcion || descripcion.trim() === '') return;
-        await addObservacion(id_prenda, descripcion);
+        return execute(async () => {
+            if (!descripcion || descripcion.trim() === '') return;
+            await addObservacion(id_prenda, descripcion);
+        }, {
+            successMessage: 'Observación añadida',
+            toastError: 'Error al añadir observación'
+        });
     };
 
     const fetchObservaciones = async (id_prenda) => {
-        return await getObservacionesByPrenda(id_prenda);
+        return execute(async () => {
+            return await getObservacionesByPrenda(id_prenda);
+        });
     };
 
-    const descripcionesFrecuentes = ref([]);
     const fetchDescripcionesFrecuentes = async () => {
-        try {
+        return execute(async () => {
             descripcionesFrecuentes.value = await getDescripcionesFrecuentes();
-        } catch (e) {
-            console.error("Error fetching descripciones frecuentes", e);
-        }
+        });
     };
 
     return {

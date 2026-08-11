@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 import { getDashboardData, getReporteFinanciero } from '../database/queries/reportes.js';
+import { useAsyncAction } from './useAsyncAction.js';
 
 export function useReportes() {
     const kpis = ref({
@@ -12,20 +13,18 @@ export function useReportes() {
     });
     const ordenesRecientes = ref([]);
     const proximasEntregas = ref([]);
-    const loading = ref(true);
+
+    // Initialize loading to true so that it acts like the original
+    const { loading, error, execute } = useAsyncAction();
+    loading.value = true;
 
     const fetchDashboardData = async () => {
-        try {
-            loading.value = true;
+        return execute(async () => {
             const data = await getDashboardData();
             kpis.value = data.kpis;
             ordenesRecientes.value = data.ordenesRecientes;
             proximasEntregas.value = data.proximasEntregas;
-        } catch (error) {
-            console.error("Error fetching dashboard data:", error);
-        } finally {
-            loading.value = false;
-        }
+        });
     };
 
     return {
@@ -33,6 +32,7 @@ export function useReportes() {
         ordenesRecientes,
         proximasEntregas,
         loading,
+        error,
         fetchDashboardData
     };
 }
