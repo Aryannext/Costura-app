@@ -43,3 +43,13 @@ android/captures
 android/.idea
 *.apk
 *.aab
+
+# Environment files
+.env
+.env.*
+.env.local
+.env.*.local
+
+# IDE and Gemini files
+.gemini/
+antigravity/
