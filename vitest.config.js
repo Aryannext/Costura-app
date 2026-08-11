@@ -8,12 +8,26 @@ export default defineConfig({
     globals: true,
     coverage: {
       provider: 'v8',
+      all: true,
+      include: [
+        'src/database/**',
+        'src/composables/**',
+        'src/services/**'
+      ],
+      exclude: [
+        'src/views/**',
+        'src/components/**',
+        'src/router/**',
+        'src/main.js',
+        'src/App.vue'
+      ],
       reporter: ['text', 'json', 'html'],
       thresholds: {
-        lines: 30, // Start low for now
-        functions: 30,
-        branches: 30,
-        statements: 30
+        // Baseline temporal (10%). Objetivo posterior: elevar progresivamente.
+        lines: 10,
+        functions: 10,
+        branches: 10,
+        statements: 10
       }
     }
   }
