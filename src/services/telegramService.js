@@ -29,8 +29,7 @@ export function generateTelegramLink(telefono, tipo, datos) {
 
 export function openTelegram(telefono, tipo, datos) {
     if (!telefono) {
-        alert("El cliente no tiene un teléfono registrado.");
-        return;
+        throw new Error("El cliente no tiene un teléfono registrado.");
     }
     const url = generateTelegramLink(telefono, tipo, datos);
     window.open(url, '_blank');

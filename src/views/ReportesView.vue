@@ -75,7 +75,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, inject } from 'vue';
 import { getReporteFinanciero } from '../database/queries/reportes.js';
 import { startOfDay, startOfWeek, startOfMonth, endOfDay, format } from 'date-fns';
 import {
@@ -101,6 +101,8 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+
+const toast = inject('toast');
 
 const filterType = ref('mes');
 const fechaInicio = ref('');
@@ -133,12 +135,12 @@ onMounted(() => {
 
 async function generarReporte() {
   if (!fechaInicio.value || !fechaFin.value) {
-    alert("Por favor selecciona ambas fechas.");
+    toast("Por favor selecciona ambas fechas.", "error");
     return;
   }
   
   if (new Date(fechaInicio.value) > new Date(fechaFin.value)) {
-    alert("La fecha de inicio no puede ser mayor que la fecha fin.");
+    toast("La fecha de inicio no puede ser mayor que la fecha fin.", "error");
     return;
   }
 
@@ -148,7 +150,7 @@ async function generarReporte() {
     reporteGenerado.value = true;
   } catch (e) {
     console.error(e);
-    alert("Error al generar el reporte.");
+    toast("Error al generar el reporte.", "error");
   } finally {
     loading.value = false;
   }
