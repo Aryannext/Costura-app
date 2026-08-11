@@ -32,7 +32,7 @@
         <button class="btn-secondary" @click="probarMensaje" :disabled="loading || !botToken || !chatId">
           Probar Mensaje
         </button>
-        <button class="btn-secondary" @click="respaldarBaseDatos" :disabled="loading || !botToken || !chatId">
+        <button class="btn-secondary" @click="openBackupModal" :disabled="loading || !botToken || !chatId">
           Respaldar BD
         </button>
         <button class="btn-secondary" @click="triggerRestore" :disabled="loading" style="border-color: var(--primary); color: var(--primary);">
@@ -46,6 +46,32 @@
       <!-- Hidden file input for DB restore -->
       <input type="file" ref="fileInput" accept=".json" style="display:none" @change="handleRestore" />
     </div>
+
+    <!-- Crypto Modal -->
+    <div v-if="showCryptoModal" class="modal-overlay">
+      <div class="modal-content card">
+        <h3>{{ cryptoModalMode === 'backup' ? 'Proteger Respaldo' : 'Restaurar Respaldo' }}</h3>
+
+        <div v-if="cryptoModalMode === 'backup'" class="alert-warning" style="background: #ffebee; color: #c62828; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 14px;">
+          ⚠️ <strong>Advertencia Crítica:</strong> Si olvidas esta contraseña será matemáticamente imposible recuperar los datos. No la guardamos en ningún lado.
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label>Contraseña Maestra</label>
+          <input type="password" class="input-field" v-model="cryptoPassword" :disabled="isCryptoProcessing" placeholder="Ej. mi-secreto-seguro-123" />
+        </div>
+
+        <p v-if="isCryptoProcessing" class="hint" style="color: var(--primary); font-weight: bold; margin-bottom: 12px;">⏳ Procesando cifrado de alta seguridad...</p>
+        <p v-if="cryptoError" class="hint" style="color: #c62828; font-weight: bold; margin-bottom: 12px;">{{ cryptoError }}</p>
+
+        <div class="modal-actions" style="display: flex; gap: 12px; justify-content: flex-end;">
+          <button class="btn-ghost" @click="closeCryptoModal" :disabled="isCryptoProcessing">Cancelar</button>
+          <button class="btn-primary" @click="executeCryptoAction" :disabled="!cryptoPassword || isCryptoProcessing">
+            {{ cryptoModalMode === 'backup' ? 'Cifrar y Enviar' : 'Descifrar e Importar' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -54,6 +80,7 @@ import { ref, onMounted, inject } from 'vue';
 import { useTelegramBot } from '../composables/useTelegramBot.js';
 import { exportDatabaseToJson, importDatabaseFromJson } from '../database/connection.js';
 import { useOrdenes } from '../composables/useOrdenes.js';
+import { cryptoService } from '../services/cryptoService.js';
 
 const botToken = ref('');
 const chatId = ref('');
@@ -63,9 +90,15 @@ const toast = inject('toast');
 const { sendTelegramMessage, sendTelegramDocument } = useTelegramBot();
 const { ordenes, fetchOrdenes } = useOrdenes();
 
+// Crypto Modal State
+const showCryptoModal = ref(false);
+const cryptoModalMode = ref('backup');
+const cryptoPassword = ref('');
+const isCryptoProcessing = ref(false);
+const cryptoError = ref('');
+let fileToRestore = null;
+
 onMounted(() => {
-    // In a real app we would load this from the 'configuracion' table in the DB.
-    // For now we will use localStorage as a fallback.
     botToken.value = localStorage.getItem('telegram_bot_token') || '';
     chatId.value = localStorage.getItem('telegram_chat_id') || '';
 });
@@ -92,65 +125,109 @@ async function probarMensaje() {
     }
 }
 
-async function respaldarBaseDatos() {
-    loading.value = true;
+function openBackupModal() {
+    cryptoModalMode.value = 'backup';
+    cryptoPassword.value = '';
+    cryptoError.value = '';
+    showCryptoModal.value = true;
+}
+
+function closeCryptoModal() {
+    showCryptoModal.value = false;
+    cryptoPassword.value = '';
+    cryptoError.value = '';
+    fileToRestore = null;
+}
+
+async function executeCryptoAction() {
+    cryptoError.value = '';
+    isCryptoProcessing.value = true;
+
     try {
-        toast('Generando respaldo...', 'info');
+        if (cryptoModalMode.value === 'backup') {
+            await respaldarBaseDatos(cryptoPassword.value);
+        } else if (cryptoModalMode.value === 'restore') {
+            await procesarRestauracion(cryptoPassword.value);
+        }
+        closeCryptoModal();
+    } catch (err) {
+        cryptoError.value = err.message;
+    } finally {
+        isCryptoProcessing.value = false;
+        cryptoPassword.value = '';
+    }
+}
+
+async function respaldarBaseDatos(password) {
+    loading.value = true;
+    toast('Cifrando respaldo...', 'info');
+    try {
         const jsonContent = await exportDatabaseToJson();
+
+        // Encrypt the JSON content
+        const encryptedBlobString = await cryptoService.encryptBackup(jsonContent, password);
+
         const dateStr = new Date().toISOString().split('T')[0];
-        const filename = `costura_backup_${dateStr}.json`;
-        
-        const success = await sendTelegramDocument(jsonContent, filename, "📦 Aquí tienes tu copia de seguridad de la base de datos. Para restaurarla, descarga el archivo JSON y usa el botón 'Restaurar BD'.");
-        
+        const filename = `costura_backup_secure_${dateStr}.json`;
+
+        const success = await sendTelegramDocument(encryptedBlobString, filename, "📦 Copia de seguridad CIFRADA de la base de datos.\nPara restaurarla usa el botón 'Restaurar BD' e ingresa tu contraseña maestra.");
+
         if (success) {
-            toast('Respaldo enviado por Telegram.', 'success');
+            toast('Respaldo seguro enviado por Telegram.', 'success');
         } else {
-            toast('Error al enviar el respaldo.', 'error');
+            throw new Error('Error al enviar el respaldo cifrado por Telegram.');
         }
     } catch (e) {
-        console.error(e);
-        toast('Error al generar respaldo.', 'error');
+        console.error("Backup error:", e);
+        throw new Error('Error de conexión o fallo al enviar el respaldo.');
     } finally {
         loading.value = false;
     }
 }
 
 function triggerRestore() {
-    if (confirm("⚠️ ADVERTENCIA: Restaurar una copia de seguridad sobrescribirá TODOS tus datos actuales. ¿Estás seguro de continuar?")) {
-        fileInput.value.click();
-    }
+    fileInput.value.click();
 }
 
-async function handleRestore(event) {
+function handleRestore(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    loading.value = true;
-    try {
-        toast('Leyendo archivo de respaldo...', 'info');
+    fileToRestore = file;
+    cryptoModalMode.value = 'restore';
+    cryptoPassword.value = '';
+    cryptoError.value = '';
+    showCryptoModal.value = true;
+
+    event.target.value = null; // reset input
+}
+
+async function procesarRestauracion(password) {
+    if (!fileToRestore) return;
+
+    return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = async (e) => {
             try {
-                const content = e.target.result;
-                await importDatabaseFromJson(content);
+                const encryptedContent = e.target.result;
+                const decryptedJson = await cryptoService.decryptBackup(encryptedContent, password);
+
+                toast('Descifrado exitoso, importando BD...', 'info');
+                await importDatabaseFromJson(decryptedJson);
+
                 toast('¡Base de datos restaurada con éxito! Reiniciando app...', 'success');
                 setTimeout(() => {
                     window.location.reload();
                 }, 2000);
+                resolve();
             } catch (err) {
-                console.error(err);
-                toast('Error al procesar el archivo JSON. Verifica que sea válido.', 'error');
-                loading.value = false;
+                console.error("Restore error:", err);
+                reject(new Error(err.message === 'Contraseña incorrecta o archivo corrupto.' ? err.message : 'Error al procesar el archivo JSON cifrado.'));
             }
         };
-        reader.readAsText(file);
-    } catch (err) {
-        toast('Error al leer el archivo.', 'error');
-        loading.value = false;
-    } finally {
-        // Clear input to allow uploading the same file again if needed
-        event.target.value = null;
-    }
+        reader.onerror = () => reject(new Error('Error al leer el archivo.'));
+        reader.readAsText(fileToRestore);
+    });
 }
 
 async function generarReporte() {
@@ -167,7 +244,7 @@ async function generarReporte() {
         if (atrasadas.length > 0) {
             reporte += `⚠️ *Órdenes Atrasadas:* ${atrasadas.length}\n`;
         }
-        
+
         const success = await sendTelegramMessage(reporte, 'Markdown');
         if (success) toast('Reporte diario enviado.', 'success');
         else toast('Error al enviar reporte.', 'error');
@@ -230,5 +307,32 @@ async function generarReporte() {
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin-top: 12px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal-content {
+  background: var(--surface);
+  padding: 24px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 18px;
+  color: var(--on-surface);
 }
 </style>
