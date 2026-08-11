@@ -15,7 +15,7 @@ export async function initDatabase() {
             await customElements.whenDefined('jeep-sqlite');
             await sqlite.initWebStore();
         }
-        
+
         // check connections consistency
         const ret = await sqlite.checkConnectionsConsistency();
         const isConn = (await sqlite.isConnection("costura_db", false)).result;
@@ -25,16 +25,18 @@ export async function initDatabase() {
         } else {
             db = await sqlite.createConnection("costura_db", false, "no-encryption", 1, false);
         }
-        
+
         await db.open();
-        
+
+        await db.execute('PRAGMA foreign_keys = ON;', false);
+
         // Initialize schema
         await runMigrations(db);
-        
+
         if (platform === 'web') {
             await sqlite.saveToStore("costura_db");
         }
-        
+
         return db;
     } catch (error) {
         console.error("Error initializing database", error);
@@ -75,16 +77,32 @@ export async function exportDatabaseToJson() {
 }
 
 export async function importDatabaseFromJson(jsonString) {
+    let snapshot = null;
     try {
-        // The capacitor-community-sqlite plugin expects a parsed JSON object for importFromJson
-        const jsonToImport = JSON.parse(jsonString);
-        await sqlite.importFromJson(jsonString); // The plugin documentation says importFromJson takes a stringified JSON
+        snapshot = await exportDatabaseToJson();
+    } catch (e) {
+        throw new Error("No se pudo crear el snapshot de seguridad antes de restaurar.");
+    }
+
+    try {
+        JSON.parse(jsonString);
+        await sqlite.importFromJson(jsonString);
         if (Capacitor.getPlatform() === 'web') {
             await sqlite.saveToStore("costura_db");
         }
         return true;
-    } catch (e) {
-        console.error("Error importing database:", e);
-        throw e;
+    } catch (importError) {
+        console.error("Error importando backup, iniciando Rollback...", importError);
+        try {
+            await sqlite.importFromJson(snapshot);
+            if (Capacitor.getPlatform() === 'web') {
+                await sqlite.saveToStore("costura_db");
+            }
+            console.warn("Rollback completado. La base de datos no sufrió daños.");
+        } catch (rollbackError) {
+            console.error("CRÍTICO: Fallo en importación Y en rollback.", rollbackError);
+            throw new Error("CRÍTICO: Corrupción de base de datos irrecuperable.");
+        }
+        throw new Error("Fallo la restauración del Backup. Se revirtieron los cambios.");
     }
 }

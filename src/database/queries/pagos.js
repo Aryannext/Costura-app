@@ -1,5 +1,4 @@
-import { db, saveDb } from '../connection.js';
-import { registrarHistorialActividad } from './ordenes.js';
+import { db } from '../connection.js';
 
 export async function getMetodosPago() {
     if (!db) throw new Error("Database not initialized");
@@ -10,7 +9,7 @@ export async function getMetodosPago() {
 export async function getPagosByOrden(id_orden) {
     if (!db) throw new Error("Database not initialized");
     const result = await db.query(`
-        SELECT p.*, m.nombre as metodo_nombre 
+        SELECT p.*, m.nombre as metodo_nombre
         FROM pago p
         JOIN metodo_pago m ON p.id_metodo_pago = m.id_metodo_pago
         WHERE p.id_orden = ?
@@ -21,23 +20,27 @@ export async function getPagosByOrden(id_orden) {
 
 export async function registrarPago(pago) {
     if (!db) throw new Error("Database not initialized");
-    
-    // 1. Register payment
-    const result = await db.run(
-        "INSERT INTO pago (valor, id_orden, id_metodo_pago) VALUES (?, ?, ?)",
-        [pago.valor, pago.id_orden, pago.id_metodo_pago]
-    );
-    const newId = result.changes.lastId;
 
-    // 2. Update order remaining balance
-    await db.run(
-        "UPDATE orden_trabajo SET saldo_pendiente = saldo_pendiente - ? WHERE id_orden = ?",
-        [pago.valor, pago.id_orden]
-    );
+    const set = [
+        {
+            // 1. Update order remaining balance
+            statement: "UPDATE orden_trabajo SET saldo_pendiente = saldo_pendiente - ? WHERE id_orden = ?",
+            values: [pago.valor, pago.id_orden]
+        },
+        {
+            // 2. Register history: 4 = Pago
+            statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
+            values: [`Abono de $${pago.valor} registrado`, pago.id_orden, 4]
+        },
+        {
+            // 3. Register payment (última sentencia para que lastId devuelva el id_pago)
+            statement: "INSERT INTO pago (valor, id_orden, id_metodo_pago) VALUES (?, ?, ?)",
+            values: [pago.valor, pago.id_orden, pago.id_metodo_pago]
+        }
+    ];
 
-    // 3. Register history: 4 = Pago
-    await registrarHistorialActividad(pago.id_orden, 4, `Abono de $${pago.valor} registrado`);
-    
-    await saveDb();
-    return newId;
+    // executeSet con transaction=true asegura atomicidad y autoSave a IndexedDB.
+    const result = await db.executeSet(set, true);
+
+    return result.changes.lastId;
 }

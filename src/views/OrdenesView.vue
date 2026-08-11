@@ -123,10 +123,9 @@ async function handleAddOrden(ordenData) {
   try {
     const id = await saveOrden(ordenData);
     closeForm();
-    toast('Orden creada exitosamente', 'success');
     goToDetail(id);
   } catch (err) {
-    // Error is handled in composable and passed to form
+    // Error is handled in composable and passes through useAsyncAction
   }
 }
 </script>

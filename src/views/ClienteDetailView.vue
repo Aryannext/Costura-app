@@ -154,10 +154,9 @@ async function handleEditCliente(clienteData) {
   try {
     await saveCliente(clienteData);
     showEditForm.value = false;
-    toast('Cliente actualizado exitosamente', 'success');
     fetchCliente(clienteData.id_cliente);
   } catch (err) {
-    // Error is handled in composable and passed to form
+    // Error is handled in composable natively
   }
 }
 </script>

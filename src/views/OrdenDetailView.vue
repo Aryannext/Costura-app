@@ -210,7 +210,6 @@ function cancelConfirm() {
 async function cambiarEstado(id_estado, nombre) {
   try {
     await changeEstado(ordenActual.value.id_orden, id_estado, nombre, ordenActual.value);
-    toast(`Estado actualizado a: ${nombre}`, 'success');
 
     if (id_estado === 3) {
       requestConfirm("¿Deseas usar el Bot de Telegram para enviarte el aviso de orden lista (con enlace a WhatsApp)?", () => {
@@ -218,7 +217,7 @@ async function cambiarEstado(id_estado, nombre) {
       });
     }
   } catch (err) {
-    toast(err.message, 'error');
+    // Error is handled natively by useAsyncAction
   }
 }
 
@@ -229,11 +228,10 @@ async function handleAddPrenda(prendaData) {
     prendaData.id_orden = ordenActual.value.id_orden;
     await savePrenda(prendaData);
     showPrendaForm.value = false;
-    toast('Prenda añadida exitosamente', 'success');
     // Refresh order totals and history
     fetchOrden(ordenActual.value.id_orden);
   } catch (err) {
-    toast(err.message, 'error');
+    // Error is handled natively by useAsyncAction
   }
 }
 
@@ -242,20 +240,18 @@ async function handleAddPago(pagoData) {
     pagoData.id_orden = ordenActual.value.id_orden;
     await savePago(pagoData, ordenActual.value.saldo_pendiente);
     showPagoForm.value = false;
-    toast('Pago registrado exitosamente', 'success');
     // Refresh order totals
     fetchOrden(ordenActual.value.id_orden);
   } catch (err) {
-    toast(err.message, 'error');
+    // Error is handled natively
   }
 }
 
 async function handleEstadoPrenda(id_prenda, id_estado) {
   try {
     await changeEstadoPrenda(id_prenda, id_estado, ordenActual.value.id_orden);
-    toast('Estado de la prenda actualizado', 'success');
   } catch (err) {
-    toast('Error al actualizar estado de la prenda', 'error');
+    // Error is handled natively
   }
 }
 
@@ -267,13 +263,12 @@ async function handleTakePhoto(id_prenda) {
   try {
     const uri = await takePhoto(id_prenda);
     if (uri) {
-      toast('Fotografía guardada', 'success');
       if (prendaRefs.value[id_prenda]) {
         if (tabPrendasRef.value && tabPrendasRef.value.prendaRefs) { tabPrendasRef.value.prendaRefs[id_prenda]?.refreshData(); }
       }
     }
   } catch (err) {
-    toast(err.message, 'error');
+    // Error is handled natively
   }
 }
 
@@ -303,12 +298,11 @@ async function openObsPrompt(id_prenda) {
     if (obs && obs.trim() !== '') {
       try {
         await addNewObservacion(id_prenda, obs.trim());
-        toast('Observación añadida', 'success');
         if (prendaRefs.value[id_prenda]) {
           if (tabPrendasRef.value && tabPrendasRef.value.prendaRefs) { tabPrendasRef.value.prendaRefs[id_prenda]?.refreshData(); }
         }
       } catch (err) {
-        toast('Error al añadir observación', 'error');
+        // Error is handled natively
       }
     }
   });

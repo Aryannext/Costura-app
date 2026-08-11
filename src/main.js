@@ -15,10 +15,32 @@ async function bootstrap() {
         await setupDefaultUser();
     } catch (e) {
         console.error("Failed to initialize database", e);
-        alert("Error de BD: " + (e.message || JSON.stringify(e)));
-        // We could render an error page here if DB fails
+        const errorDiv = document.createElement('div');
+        errorDiv.style.padding = '20px';
+        errorDiv.style.color = '#dc2626';
+        errorDiv.style.fontFamily = 'sans-serif';
+        errorDiv.style.textAlign = 'center';
+        errorDiv.style.marginTop = '50px';
+
+        const errorTitle = document.createElement('h2');
+        errorTitle.textContent = 'Error Crítico';
+
+        const errorSub = document.createElement('p');
+        errorSub.textContent = 'No se pudo inicializar la base de datos.';
+
+        const errorMsg = document.createElement('p');
+        const small = document.createElement('small');
+        small.textContent = e.message || JSON.stringify(e);
+        errorMsg.appendChild(small);
+
+        errorDiv.appendChild(errorTitle);
+        errorDiv.appendChild(errorSub);
+        errorDiv.appendChild(errorMsg);
+
+        document.body.appendChild(errorDiv);
+        return; // Halt bootstrap completely
     }
-    
+
     const app = createApp(App);
     app.use(router);
     app.mount('#app');
@@ -33,7 +55,7 @@ async function bootstrap() {
             // Set status bar to transparent/white and icons to dark
             await StatusBar.setStyle({ style: Style.Light });
             await StatusBar.setBackgroundColor({ color: '#ffffff' });
-            
+
             // Hide splash screen since app is now loaded
             await SplashScreen.hide();
         } catch (e) {

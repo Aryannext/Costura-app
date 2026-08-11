@@ -201,8 +201,11 @@ function handleSearch() {
 }
 
 onMounted(async () => {
-  await fetchDashboardData();
-  
+  try {
+    await fetchDashboardData();
+  } catch (err) {
+    // Error is handled natively by useAsyncAction
+  }
   // Set up native background tasks
   await requestPermissions();
   await scheduleDailyReminders();

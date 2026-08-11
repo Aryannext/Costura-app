@@ -78,10 +78,9 @@ async function handleAddCliente(clienteData) {
   try {
     const id = await saveCliente(clienteData);
     showAddForm.value = false;
-    toast('Cliente registrado exitosamente', 'success');
     goToDetail(id);
   } catch (err) {
-    // Error is handled in composable and passed to form
+    // Error is handled in composable natively
   }
 }
 </script>
