@@ -15,7 +15,7 @@ export async function initDatabase() {
             await customElements.whenDefined('jeep-sqlite');
             await sqlite.initWebStore();
         }
-        
+
         // check connections consistency
         const ret = await sqlite.checkConnectionsConsistency();
         const isConn = (await sqlite.isConnection("costura_db", false)).result;
@@ -25,16 +25,18 @@ export async function initDatabase() {
         } else {
             db = await sqlite.createConnection("costura_db", false, "no-encryption", 1, false);
         }
-        
+
         await db.open();
-        
+
+        await db.execute('PRAGMA foreign_keys = ON;', false);
+
         // Initialize schema
         await runMigrations(db);
-        
+
         if (platform === 'web') {
             await sqlite.saveToStore("costura_db");
         }
-        
+
         return db;
     } catch (error) {
         console.error("Error initializing database", error);
