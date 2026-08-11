@@ -57,6 +57,12 @@ const routes = [
         meta: { requiresAuth: true, index: 2 }
     },
     {
+        path: '/ayuda',
+        name: 'Ayuda',
+        component: () => import('../views/AyudaView.vue'),
+        meta: { requiresAuth: true, index: 1 }
+    },
+    {
         path: '/:pathMatch(.*)*',
         redirect: '/'
     }
