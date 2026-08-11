@@ -57,6 +57,14 @@ Gracias a Capacitor, nuestra página web (hecha en Vue) ahora tiene **Súper Pod
 - **Seguridad Antisección en Memoria RAM:** Para evitar el secuestro de sesión por restauración de segundo plano de Android, la sesión se almacena de forma volátil en la memoria RAM del motor Javascript, destruyéndose al 100% cada vez que se cierra la aplicación.
 - **El Vibrador (Haptics) y Barra de Estado:** Retroalimentación táctil al pulsar botones y coloreado nativo de la barra superior.
 - **El Disco Duro Nativo (SQLite):** Bóveda relacional local (`@capacitor-community/sqlite`) optimizada con índices de alto rendimiento (`idx_orden_fecha_entrega`, etc.).
+- **Actualizaciones Silenciosas OTA (Over-The-Air):** Gracias a `@capgo/capacitor-updater`, la aplicación se puede actualizar automáticamente en segundo plano sin necesidad de pasar por la revisión de las tiendas de aplicaciones (Play Store / App Store).
+
+---
+
+## 🛡️ Calidad de Código e Integración Continua (CI/CD)
+
+- **Pruebas Automatizadas:** El proyecto está configurado con **Vitest** y **Vue Test Utils** para garantizar que los componentes no se rompan a medida que la app crece.
+- **GitHub Actions (CI/CD):** Cada vez que se sube código al repositorio, un robot de GitHub verifica automáticamente la integridad, instala dependencias y corre las pruebas (`npm run test:unit`) para garantizar la máxima calidad antes de publicar.
 
 ---
 
