@@ -54,12 +54,8 @@ provide('toast', (msg, type) => {
   }
 });
 
-// Force logout when app goes to background
-CapacitorApp.addListener('appStateChange', ({ isActive }) => {
-  if (!isActive) {
-    logout();
-  }
-});
+// Removed aggressive logout on appStateChange to prevent session loss on web reloads.
+// The 15-minute inactivity timer in auth.js already handles security.
 </script>
 
 <style>
