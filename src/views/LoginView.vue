@@ -46,7 +46,7 @@
             Ingresar con Huella / FaceID
           </button>
           
-          <a v-if="!isNative" href="https://www.mediafire.com/file/xj7zf7yzoyeio1k/costura.apk/file" target="_blank" class="ios-button secondary-btn apk-btn">
+          <a v-if="!isNative" href="https://www.mediafire.com/file/ob3lxtfrwi57ek4/costura.apk/file" target="_blank" class="ios-button secondary-btn apk-btn">
             <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display:inline; width:20px; margin-right:8px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
             Descargar App (Android)
           </a>
