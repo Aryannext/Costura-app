@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 :root {
   /* Tailored Precision Colors */
@@ -10,40 +10,40 @@
   --surface-container: #f0ecf9;
   --surface-container-high: #eae6f4;
   --surface-container-highest: #e4e1ee;
-  
+
   --on-surface: #1b1b24;
   --on-surface-variant: #464555;
-  
+
   --outline: #777587;
   --outline-variant: #c7c4d8;
-  
+
   --primary: #3525cd;
   --on-primary: #ffffff;
   --primary-container: #4f46e5;
   --on-primary-container: #dad7ff;
-  
+
   --secondary: #4648d4;
   --on-secondary: #ffffff;
   --secondary-container: #6063ee;
   --on-secondary-container: #fffbff;
-  
+
   --error: #ba1a1a;
   --on-error: #ffffff;
   --error-container: #ffdad6;
   --on-error-container: #93000a;
-  
-  --background: #F8FAFC; /* User specified background level 0 */
+
+  --background: #f8fafc; /* User specified background level 0 */
   --on-background: #1b1b24;
 
   /* Semantic Colors (Status) */
   --success-color: #10b981;
   --success-bg: #d1fae5;
   --success-text: #065f46;
-  
+
   --warning-color: #f59e0b;
   --warning-bg: #fef3c7;
   --warning-text: #92400e;
-  
+
   --error-bg: #fee2e2;
   --error-text: #991b1b;
 
@@ -56,29 +56,42 @@
   --radius-md: 8px; /* Standard buttons/inputs */
   --radius-lg: 16px; /* Cards/Modals */
   --radius-pill: 9999px;
-  
+
   --spacing-base: 4px;
   --spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-md: 16px;
   --spacing-lg: 24px;
   --spacing-xl: 32px;
-  
+
   /* Elevation Shadows */
-  --shadow-level-1: 0px 1px 3px rgba(0,0,0,0.05);
-  --shadow-level-2: 0px 10px 15px -3px rgba(0,0,0,0.1);
+  --shadow-level-1: 0px 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-level-2: 0px 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
-
-
 
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
   background-color: var(--background);
   color: var(--on-surface);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent; /* Remove Android grey tap highlight */
-  user-select: none; /* Prevents text selection on long press */
+}
+
+/* Prevent accidental text selection on interactive elements */
+button,
+.icon-btn,
+.nav-item,
+.card.interactive {
+  user-select: none;
   -webkit-user-select: none;
 }
 
@@ -137,7 +150,12 @@ body {
   line-height: 14px;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin: 0;
   color: var(--on-surface);
 }
@@ -145,7 +163,9 @@ h1, h2, h3, h4, h5, h6 {
 /* Page transition animations */
 .page-slide-enter-active,
 .page-slide-leave-active {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s ease;
 }
 .page-slide-enter-from {
   opacity: 0;
@@ -175,20 +195,38 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Stagger List Animation */
 @keyframes slideUpFade {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .stagger-list > * {
   animation: slideUpFade 0.3s ease forwards;
   opacity: 0;
 }
-.stagger-list > *:nth-child(1) { animation-delay: 0.05s; }
-.stagger-list > *:nth-child(2) { animation-delay: 0.1s; }
-.stagger-list > *:nth-child(3) { animation-delay: 0.15s; }
-.stagger-list > *:nth-child(4) { animation-delay: 0.2s; }
-.stagger-list > *:nth-child(5) { animation-delay: 0.25s; }
-.stagger-list > *:nth-child(n+6) { animation-delay: 0.3s; }
+.stagger-list > *:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.stagger-list > *:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.stagger-list > *:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.stagger-list > *:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.stagger-list > *:nth-child(5) {
+  animation-delay: 0.25s;
+}
+.stagger-list > *:nth-child(n + 6) {
+  animation-delay: 0.3s;
+}
 
 /* Buttons */
 button {
@@ -280,7 +318,9 @@ button:disabled {
 }
 
 /* Forms */
-input, select, textarea {
+input,
+select,
+textarea {
   background-color: var(--surface-container-lowest);
   color: var(--on-surface);
   border: 1px solid var(--outline-variant);
@@ -293,13 +333,16 @@ input, select, textarea {
   min-height: 44px;
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 3px var(--primary-fixed);
 }
 
-input::placeholder, textarea::placeholder {
+input::placeholder,
+textarea::placeholder {
   color: var(--outline);
 }
 
@@ -319,7 +362,9 @@ label {
   padding: var(--spacing-md);
   margin-bottom: var(--spacing-md);
   box-shadow: var(--shadow-level-1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .card.interactive:hover {
@@ -343,7 +388,10 @@ label {
 /* Modals (Level 2) */
 .modal-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: rgba(27, 27, 36, 0.4);
   backdrop-filter: blur(2px);
   display: flex;
@@ -382,7 +430,12 @@ label {
 
 /* Loading Skeleton */
 .skeleton {
-  background: linear-gradient(90deg, var(--surface-container) 25%, var(--surface-container-high) 50%, var(--surface-container) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--surface-container) 25%,
+    var(--surface-container-high) 50%,
+    var(--surface-container) 75%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: var(--radius-md);
@@ -391,6 +444,10 @@ label {
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }

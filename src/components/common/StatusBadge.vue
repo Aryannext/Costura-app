@@ -38,32 +38,32 @@ const estadoClass = computed(() => {
 }
 
 .status-pendiente {
-  background-color: #ffb74d;
-  color: #3e2723;
+  background-color: var(--warning-bg);
+  color: var(--warning-text);
 }
 
 .status-proceso {
-  background-color: #4fc3f7;
-  color: #01579b;
+  background-color: var(--info-bg);
+  color: var(--info-text);
 }
 
 .status-lista {
-  background-color: #81c784;
-  color: #1b5e20;
+  background-color: var(--success-bg);
+  color: var(--success-text);
 }
 
 .status-entregada {
-  background-color: #9e9e9e;
-  color: #212121;
+  background-color: var(--surface-container-high);
+  color: var(--on-surface-variant);
 }
 
 .status-cancelada {
-  background-color: #e57373;
-  color: #b71c1c;
+  background-color: var(--error-bg);
+  color: var(--error-text);
 }
 
 .status-default {
-  background-color: #e0e0e0;
-  color: #424242;
+  background-color: var(--surface-container);
+  color: var(--on-surface-variant);
 }
 </style>

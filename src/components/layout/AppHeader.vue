@@ -264,12 +264,12 @@ h1 {
 }
 
 .update-item {
-  background-color: #f0fdf4; /* Light green */
-  border-color: var(--success-color, #10b981);
+  background-color: var(--success-bg); /* Light green */
+  border-color: var(--success-color);
 }
 
 .update-badge {
-  background-color: var(--success-color, #10b981) !important;
+  background-color: var(--success-color) !important;
 }
 
 .notification-item:hover {
@@ -277,7 +277,8 @@ h1 {
 }
 
 .update-item:hover {
-  background-color: #dcfce7;
+  background-color: var(--success-bg);
+  filter: brightness(0.95);
 }
 
 .notif-content strong {
@@ -292,12 +293,12 @@ h1 {
 }
 
 .text-warning {
-  color: #d97706; /* A slightly darker yellow/orange for warning */
+  color: var(--warning-color);
   font-weight: 500;
 }
 
 .text-success {
-  color: var(--success-color, #10b981);
+  color: var(--success-color);
   font-weight: 500;
 }
 
