@@ -49,25 +49,33 @@ export function useUpdates() {
 
   async function manualCheck() {
     try {
-      alert("Buscando actualización en la nube...");
-      const latest = await CapacitorUpdater.getLatest();
-      alert("Respuesta de la nube: " + JSON.stringify(latest));
+      // 1. Mostrar un mensaje inicial amigable
+      const initialAlert = "Buscando actualizaciones en la nube...";
       
+      const latest = await CapacitorUpdater.getLatest();
+      
+      // Capgo responde con una URL si hay algo nuevo que descargar
       if (latest && latest.url) {
-        alert("¡Actualización encontrada! Descargando...");
+        window.alert("¡Actualización encontrada! Descargando en segundo plano...");
         const bundle = await CapacitorUpdater.download({
           version: latest.version,
           url: latest.url
         });
-        alert("Descargado con éxito: " + JSON.stringify(bundle));
         updateAvailable.value = true;
         updateVersion.value = bundle.version;
         bundleIdToApply.value = bundle.id;
+        window.alert(`¡Descarga completada! (v${bundle.version})\nToca el icono de la campana para instalarla.`);
       } else {
-        alert("No hay actualización disponible según la nube.");
+        // Si no hay URL, es porque ya está actualizado o ya descargó la última
+        window.alert(`No hay actualizaciones disponibles.\nYa tienes la versión más reciente instalada.`);
       }
     } catch (e) {
-      alert("Error en Capgo (manualCheck): " + e.message);
+      // Filtrar el error de "up-to-date" que arroja Capgo a veces como excepción
+      if (e.message && e.message.includes('up_to_date')) {
+         window.alert(`No hay actualizaciones disponibles.\nEstás en la última versión.`);
+      } else {
+         window.alert("Ocurrió un problema al buscar actualizaciones.\nPor favor, verifica tu conexión a internet.");
+      }
     }
   }
 
