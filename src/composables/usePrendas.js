@@ -62,10 +62,21 @@ export function usePrendas() {
         });
     };
 
-    const changeEstado = async (id_prenda, id_estado_prenda, id_orden) => {
+    const changeEstado = async (id_prenda, id_estado_prenda, id_orden, currentOrdenStatus = 0) => {
         return execute(async () => {
             await updateEstadoPrenda(id_prenda, id_estado_prenda, id_orden);
             await fetchPrendas(id_orden);
+            
+            let shouldPromptCompletion = false;
+            // Regla de Negocio: Si la prenda pasa a lista (>=3) y la orden no está lista (<3)
+            if (id_estado_prenda >= 3 && currentOrdenStatus < 3) {
+                // Verificar si TODAS las prendas de esta orden están listas
+                const allReady = prendas.value.every(p => p.id_estado_prenda >= 3);
+                if (allReady) {
+                    shouldPromptCompletion = true;
+                }
+            }
+            return { shouldPromptCompletion };
         }, {
             successMessage: 'Estado de la prenda actualizado',
             toastError: true

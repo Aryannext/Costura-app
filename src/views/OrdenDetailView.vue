@@ -233,20 +233,18 @@ async function handleAddPago(pagoData) {
 
 async function handleEstadoPrenda(id_prenda, id_estado) {
   try {
-    await changeEstadoPrenda(id_prenda, id_estado, ordenActual.value.id_orden);
-    toast('Estado de la prenda actualizado', 'success');
+    const currentOrdenStatus = ordenActual.value ? ordenActual.value.id_estado_orden : 0;
+    const result = await changeEstadoPrenda(id_prenda, id_estado, ordenActual.value.id_orden, currentOrdenStatus);
     
-    // Automatización: Auto-completado de Orden
-    if (id_estado >= 3 && ordenActual.value && ordenActual.value.id_estado_orden < 3) {
-      const allReady = prendas.value.every(p => p.id_estado_prenda >= 3);
-      if (allReady) {
-        requestConfirm("¡Todas las prendas están terminadas! ¿Deseas marcar la orden como 'Lista para Entregar'?", async () => {
-          await cambiarEstado(3, 'Lista para Entregar');
-        });
-      }
+    // La capa de negocio (usePrendas) indica si debemos sugerir autocompletar
+    if (result && result.shouldPromptCompletion) {
+      requestConfirm("¡Todas las prendas están terminadas! ¿Deseas marcar la orden como 'Lista para Entregar'?", async () => {
+        await cambiarEstado(3, 'Lista para Entregar');
+      });
     }
   } catch (err) {
-    toast('Error al actualizar estado de la prenda', 'error');
+    // Errores ya son manejados por el useAsyncAction del composable
+    console.error(err);
   }
 }
 
