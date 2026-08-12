@@ -65,7 +65,7 @@ const emit = defineEmits(['submit', 'cancel']);
 
 const form = ref({
   id_metodo_pago: '',
-  valor: ''
+  valor: props.saldoPendiente
 });
 
 onMounted(() => {
