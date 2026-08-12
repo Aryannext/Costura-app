@@ -11,7 +11,7 @@ export function useTutorial() {
         if (toast) {
             toast('¡Misión Completada! 🌟', 'success');
         } else {
-            alert('¡Misión Completada! 🌟');
+            console.log('¡Misión Completada! 🌟');
         }
         router.push('/ayuda');
     };

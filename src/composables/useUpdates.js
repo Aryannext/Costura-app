@@ -59,7 +59,7 @@ export function useUpdates() {
 
       // Alertas de depuración (SOLO para ver por qué falla)
       CapacitorUpdater.addListener('downloadFailed', (event) => {
-        alert("Capgo Error - Descarga Fallida: " + JSON.stringify(event));
+        console.error("Capgo Error - Descarga Fallida: ", event);
       });
       
     } catch (e) {
