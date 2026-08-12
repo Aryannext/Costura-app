@@ -122,11 +122,21 @@ import TabPagos from '../components/ordenes/TabPagos.vue';
 import TimelineProgressBar from '../components/ordenes/TimelineProgressBar.vue';
 import OrdenModals from '../components/ordenes/OrdenModals.vue';
 import { useOrdenTelegram } from '../composables/useOrdenTelegram.js';
+import { useOrdenModals } from '../composables/useOrdenModals.js';
+
 const route = useRoute();
 const router = useRouter();
 const toast = inject('toast');
 
 const tab = ref('detalle');
+
+
+const {
+  showConfirmModal, confirmMessage, requestConfirm, executeConfirm, cancelConfirm,
+  showPromptModal, promptMessage, requestPrompt, executePrompt, cancelPrompt,
+  showActionSheet, actionSheetTitle, actionSheetMessage, actionSheetActions, openDeleteSheet, handleSheetAction
+} = useOrdenModals();
+
 
 // Ordenes logic
 const { ordenActual, historial, loading, fetchOrden, changeEstado } = useOrdenes();
@@ -174,42 +184,14 @@ watch(tab, async (newTab) => {
   }
 });
 
-function formatDate(dateStr) {
-  if (!dateStr) return '';
-  const dateOnly = dateStr.split('T')[0].split(' ')[0];
-  const [year, month, day] = dateOnly.split('-');
-  return `${day}/${month}/${year}`;
-}
 
-function formatTime(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  return d.toLocaleString();
-}
 
-const showConfirmModal = ref(false);
-const confirmMessage = ref('');
-let onConfirmAction = null;
 
-function requestConfirm(message, action) {
-  confirmMessage.value = message;
-  onConfirmAction = action;
-  showConfirmModal.value = true;
-}
-
-function executeConfirm() {
-  if (onConfirmAction) onConfirmAction();
-  showConfirmModal.value = false;
-}
-
-function cancelConfirm() {
-  onConfirmAction = null;
-  showConfirmModal.value = false;
-}
 
 async function cambiarEstado(id_estado, nombre) {
   try {
     await changeEstado(ordenActual.value.id_orden, id_estado, nombre, ordenActual.value);
+    toast(`Estado actualizado a: ${nombre}`, 'success');
 
     if (id_estado === 3) {
       requestConfirm("¿Deseas usar el Bot de Telegram para enviarte el aviso de orden lista (con enlace a WhatsApp)?", () => {
@@ -217,7 +199,7 @@ async function cambiarEstado(id_estado, nombre) {
       });
     }
   } catch (err) {
-    // Error is handled natively by useAsyncAction
+    toast(err.message, 'error');
   }
 }
 
@@ -228,10 +210,11 @@ async function handleAddPrenda(prendaData) {
     prendaData.id_orden = ordenActual.value.id_orden;
     await savePrenda(prendaData);
     showPrendaForm.value = false;
+    toast('Prenda añadida exitosamente', 'success');
     // Refresh order totals and history
     fetchOrden(ordenActual.value.id_orden);
   } catch (err) {
-    // Error is handled natively by useAsyncAction
+    toast(err.message, 'error');
   }
 }
 
@@ -240,18 +223,20 @@ async function handleAddPago(pagoData) {
     pagoData.id_orden = ordenActual.value.id_orden;
     await savePago(pagoData, ordenActual.value.saldo_pendiente);
     showPagoForm.value = false;
+    toast('Pago registrado exitosamente', 'success');
     // Refresh order totals
     fetchOrden(ordenActual.value.id_orden);
   } catch (err) {
-    // Error is handled natively
+    toast(err.message, 'error');
   }
 }
 
 async function handleEstadoPrenda(id_prenda, id_estado) {
   try {
     await changeEstadoPrenda(id_prenda, id_estado, ordenActual.value.id_orden);
+    toast('Estado de la prenda actualizado', 'success');
   } catch (err) {
-    // Error is handled natively
+    toast('Error al actualizar estado de la prenda', 'error');
   }
 }
 
@@ -263,88 +248,35 @@ async function handleTakePhoto(id_prenda) {
   try {
     const uri = await takePhoto(id_prenda);
     if (uri) {
+      toast('Fotografía guardada', 'success');
       if (prendaRefs.value[id_prenda]) {
         if (tabPrendasRef.value && tabPrendasRef.value.prendaRefs) { tabPrendasRef.value.prendaRefs[id_prenda]?.refreshData(); }
       }
     }
   } catch (err) {
-    // Error is handled natively
+    toast(err.message, 'error');
   }
 }
 
-const showPromptModal = ref(false);
-const promptMessage = ref('');
-let onPromptAction = null;
 
-function requestPrompt(message, action) {
-  promptMessage.value = message;
-  promptInput.value = '';
-  onPromptAction = action;
-  showPromptModal.value = true;
-}
-
-function executePrompt(input) {
-  if (onPromptAction) onPromptAction(input);
-  showPromptModal.value = false;
-}
-
-function cancelPrompt() {
-  onPromptAction = null;
-  showPromptModal.value = false;
-}
 
 async function openObsPrompt(id_prenda) {
   requestPrompt('Escribe la nueva observación:', async (obs) => {
     if (obs && obs.trim() !== '') {
       try {
         await addNewObservacion(id_prenda, obs.trim());
+        toast('Observación añadida', 'success');
         if (prendaRefs.value[id_prenda]) {
           if (tabPrendasRef.value && tabPrendasRef.value.prendaRefs) { tabPrendasRef.value.prendaRefs[id_prenda]?.refreshData(); }
         }
       } catch (err) {
-        // Error is handled natively
+        toast('Error al añadir observación', 'error');
       }
     }
   });
 }
 
-// Action Sheet Logic for Swipe to Delete
-const showActionSheet = ref(false);
-const actionSheetTitle = ref('');
-const actionSheetMessage = ref('');
-const actionSheetActions = ref([]);
-let currentDeletePayload = null;
 
-function openDeleteSheet(type, id) {
-  currentDeletePayload = { type, id };
-  
-  if (type === 'prenda') {
-    actionSheetTitle.value = 'Eliminar Prenda';
-    actionSheetMessage.value = '¿Estás seguro de que deseas eliminar esta prenda? Esta acción no se puede deshacer.';
-  } else {
-    actionSheetTitle.value = 'Eliminar Pago';
-    actionSheetMessage.value = '¿Deseas eliminar este pago? El saldo se recalculará automáticamente.';
-  }
-
-  actionSheetActions.value = [
-    { text: 'Eliminar', role: 'destructive', id: 'delete' }
-  ];
-  
-  showActionSheet.value = true;
-}
-
-function handleSheetAction(action) {
-  if (action.id === 'delete') {
-    if (currentDeletePayload.type === 'prenda') {
-      toast('Prenda eliminada', 'success');
-      // Here you would normally call deletePrenda(currentDeletePayload.id)
-    } else if (currentDeletePayload.type === 'pago') {
-      toast('Pago eliminado y saldo recalculado', 'success');
-      // Here you would normally call deletePago(currentDeletePayload.id)
-    }
-  }
-  currentDeletePayload = null;
-}
 </script>
 
 <style scoped>
