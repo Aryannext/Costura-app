@@ -1,6 +1,5 @@
 import { ref } from 'vue';
 import { CapacitorUpdater } from '@capgo/capacitor-updater';
-import { Dialog } from '@capacitor/dialog';
 
 // Global state para persistir en toda la app
 const updateAvailable = ref(false);
@@ -31,12 +30,9 @@ export function useUpdates() {
 
     const changelog = "• Mejoras visuales.\n• Corrección de errores menores.\n• Nuevas funciones disponibles.";
     
-    const { value } = await Dialog.confirm({
-      title: '¡Nueva Versión Disponible!',
-      message: `Hay una actualización lista para descargar (v${updateVersion.value}).\n\nNovedades:\n${changelog}\n\n¿Deseas descargarla e instalarla ahora?`,
-      okButtonTitle: 'Actualizar Ahora',
-      cancelButtonTitle: 'Más tarde'
-    });
+    const value = window.confirm(
+      `¡Nueva Versión Disponible!\n\nHay una actualización lista para descargar (v${updateVersion.value}).\n\nNovedades:\n${changelog}\n\n¿Deseas descargarla e instalarla ahora?`
+    );
     
     if (value) {
       try {

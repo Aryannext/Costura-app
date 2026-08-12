@@ -1,7 +1,7 @@
 {
   "name": "costura-temp",
   "private": true,
-  "version": "0.0.6",
+  "version": "0.0.7",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -15,7 +15,6 @@
     "@capacitor/android": "^8.4.0",
     "@capacitor/camera": "^8.2.0",
     "@capacitor/core": "^8.4.0",
-    "@capacitor/dialog": "^8.0.1",
     "@capacitor/filesystem": "^8.1.2",
     "@capacitor/haptics": "^8.0.2",
     "@capacitor/local-notifications": "^8.2.0",
