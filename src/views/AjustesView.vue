@@ -36,14 +36,37 @@
         </div>
       </div>
     </div>
+    <div class="version-info" style="text-align: center; margin-top: 32px; color: var(--on-surface-variant); font-size: 14px;">
+      <p style="margin: 4px 0;"><strong>Versión de la App:</strong> {{ currentVersion }}</p>
+      <p style="margin: 4px 0; font-size: 12px; font-family: monospace;" v-if="currentBundleId">ID: {{ currentBundleId }}</p>
+    </div>
   </div>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { logout } from '../services/auth.js';
+import { CapacitorUpdater } from '@capgo/capacitor-updater';
+import { Capacitor } from '@capacitor/core';
 
 const router = useRouter();
+const currentVersion = ref('1.0.0 (Local/Base)');
+const currentBundleId = ref('');
+
+onMounted(async () => {
+    if (Capacitor.isNativePlatform()) {
+        try {
+            const { bundle } = await CapacitorUpdater.current();
+            if (bundle) {
+                currentVersion.value = bundle.version;
+                currentBundleId.value = bundle.id;
+            }
+        } catch (e) {
+            console.warn("No se pudo obtener la versión de Capgo", e);
+        }
+    }
+});
 
 function handleLogout() {
     logout();
