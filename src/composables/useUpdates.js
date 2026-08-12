@@ -67,19 +67,18 @@ export function useUpdates() {
     }
   }
 
-  async function manualCheck() {
+  const showUpdatePrompt = ref(false);
+
+  async function manualCheck(toast) {
     if (isChecking.value) return;
     isChecking.value = true;
     try {
-      // 1. Mostrar un mensaje inicial amigable
-      const initialAlert = "Buscando actualizaciones en la nube...";
-      window.alert(initialAlert);
+      if (toast) toast("Buscando actualizaciones en la nube...", "info");
       
       const latest = await CapacitorUpdater.getLatest();
       
-      // Capgo responde con una URL si hay algo nuevo que descargar
       if (latest && latest.url) {
-        window.alert("¡Actualización encontrada! Descargando en segundo plano...");
+        if (toast) toast("¡Actualización encontrada! Descargando...", "info");
         const bundle = await CapacitorUpdater.download({
           version: latest.version,
           url: latest.url
@@ -87,41 +86,33 @@ export function useUpdates() {
         updateAvailable.value = true;
         updateVersion.value = bundle.version;
         bundleIdToApply.value = bundle.id;
-        window.alert(`¡Descarga completada! (v${bundle.version})\nToca el icono de la campana para instalarla.`);
+        if (toast) toast(`¡Descarga completada! (v${bundle.version}). Toca la campana para instalar.`, "success");
       } else {
-        // Si no hay URL, es porque ya está actualizado o ya descargó la última
-        window.alert(`No hay actualizaciones disponibles.\nYa tienes la versión más reciente instalada.`);
+        if (toast) toast("Ya tienes la versión más reciente instalada.", "info");
       }
     } catch (e) {
-      // Filtrar el error de "up-to-date" que arroja Capgo a veces como excepción
       if (e.message && e.message.includes('up_to_date')) {
-         window.alert(`No hay actualizaciones disponibles.\nEstás en la última versión.`);
+         if (toast) toast("Estás en la última versión.", "info");
       } else {
-         window.alert("Ocurrió un problema al buscar actualizaciones.\nPor favor, verifica tu conexión a internet.");
+         if (toast) toast("Error al buscar actualizaciones. Verifica tu conexión.", "error");
       }
     } finally {
       isChecking.value = false;
     }
   }
 
-  async function promptUpdate() {
+  function promptUpdate() {
     if (!updateAvailable.value || !bundleIdToApply.value) return;
+    showUpdatePrompt.value = true;
+  }
 
-    const changelog = "• Mejoras visuales.\n• Corrección de errores menores.\n• Nuevas funciones disponibles.";
-    
-    const value = window.confirm(
-      `¡Nueva Versión Disponible!\n\nHay una actualización lista para instalar (v${updateVersion.value}).\n\nNovedades:\n${changelog}\n\n¿Deseas reiniciar la app para aplicarla ahora?`
-    );
-    
-    if (value) {
-      try {
-        window.alert("Aplicando actualización... La app se reiniciará en un instante.");
-        // SE REQUIERE EL ID DEL BUNDLE, NO LA VERSION!
-        await CapacitorUpdater.set({ id: bundleIdToApply.value });
-      } catch (err) {
-        console.error("Error aplicando la actualización:", err);
-        window.alert("Hubo un error al aplicar la actualización: " + err.message);
-      }
+  async function applyUpdate() {
+    showUpdatePrompt.value = false;
+    try {
+      // toast must be passed if we want it here, but it's optional. It restarts anyway.
+      await CapacitorUpdater.set({ id: bundleIdToApply.value });
+    } catch (err) {
+      console.error("Error aplicando la actualización:", err);
     }
   }
 
@@ -129,7 +120,9 @@ export function useUpdates() {
     initUpdates,
     manualCheck,
     promptUpdate,
+    applyUpdate,
     updateAvailable,
-    updateVersion
+    updateVersion,
+    showUpdatePrompt
   };
 }

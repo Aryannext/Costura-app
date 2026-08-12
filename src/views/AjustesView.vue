@@ -60,14 +60,16 @@ import { logout } from '../services/auth.js';
 import { CapacitorUpdater } from '@capgo/capacitor-updater';
 import { Capacitor } from '@capacitor/core';
 import { useUpdates } from '../composables/useUpdates.js';
+import { inject } from 'vue';
 
 const router = useRouter();
 const currentVersion = ref('1.0.0 (Local/Base)');
 const currentBundleId = ref('');
 const { manualCheck } = useUpdates();
+const toast = inject('toast');
 
 function triggerManualUpdate() {
-  manualCheck();
+  manualCheck(toast);
 }
 
 onMounted(async () => {

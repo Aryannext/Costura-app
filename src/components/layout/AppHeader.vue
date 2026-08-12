@@ -55,19 +55,29 @@
         </div>
       </div>
     </div>
+    
+    <UpdateModal
+      :show="showUpdatePrompt"
+      :version="updateVersion"
+      changelog="• Mejoras visuales.&#10;• Corrección de errores menores.&#10;• Nuevas funciones disponibles."
+      @cancel="showUpdatePrompt = false"
+      @confirm="handleConfirmUpdate"
+    />
   </header>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, inject } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '../common/Icon.vue';
+import UpdateModal from '../updates/UpdateModal.vue';
 import { useOrdenes } from '../../composables/useOrdenes.js';
 import { useUpdates } from '../../composables/useUpdates.js';
 
 const router = useRouter();
+const toast = inject('toast');
 const { ordenes, fetchOrdenes } = useOrdenes();
-const { updateAvailable, updateVersion, promptUpdate } = useUpdates();
+const { updateAvailable, updateVersion, promptUpdate, applyUpdate, showUpdatePrompt } = useUpdates();
 const showNotifications = ref(false);
 
 onMounted(() => {
@@ -124,6 +134,11 @@ function goToOrder(id) {
 function triggerUpdate() {
   showNotifications.value = false;
   promptUpdate();
+}
+
+async function handleConfirmUpdate() {
+  if (toast) toast("Aplicando actualización... La app se reiniciará en un instante.");
+  await applyUpdate();
 }
 </script>
 
