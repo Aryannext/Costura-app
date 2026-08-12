@@ -1,7 +1,7 @@
 {
   "name": "costura-temp",
   "private": true,
-  "version": "0.0.7",
+  "version": "0.0.10",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -26,6 +26,7 @@
     "bcryptjs": "^3.0.3",
     "chart.js": "^4.5.1",
     "date-fns": "^4.4.0",
+    "driver.js": "^1.8.0",
     "jeep-sqlite": "^2.8.0",
     "sql.js": "^1.11.0",
     "vue": "^3.5.34",
