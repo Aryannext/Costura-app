@@ -35,6 +35,16 @@
           <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="var(--error)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
         </div>
       </div>
+
+      <div class="card setting-card" @click="triggerManualUpdate">
+        <div class="setting-info">
+          <h4 class="headline-sm" style="color: var(--primary);">Buscar Actualización</h4>
+          <p class="body-md">Verificar Capgo manualmente.</p>
+        </div>
+        <div class="setting-action">
+          <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="var(--primary)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+        </div>
+      </div>
     </div>
     <div class="version-info" style="text-align: center; margin-top: 32px; color: var(--on-surface-variant); font-size: 14px;">
       <p style="margin: 4px 0;"><strong>Versión de la App:</strong> {{ currentVersion }}</p>
@@ -49,10 +59,16 @@ import { useRouter } from 'vue-router';
 import { logout } from '../services/auth.js';
 import { CapacitorUpdater } from '@capgo/capacitor-updater';
 import { Capacitor } from '@capacitor/core';
+import { useUpdates } from '../composables/useUpdates.js';
 
 const router = useRouter();
 const currentVersion = ref('1.0.0 (Local/Base)');
 const currentBundleId = ref('');
+const { manualCheck } = useUpdates();
+
+function triggerManualUpdate() {
+  manualCheck();
+}
 
 onMounted(async () => {
     if (Capacitor.isNativePlatform()) {

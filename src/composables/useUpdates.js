@@ -36,9 +36,38 @@ export function useUpdates() {
           bundleIdToApply.value = event.bundle.id;
         }
       });
+
+      // Alertas de depuración (SOLO para ver por qué falla)
+      CapacitorUpdater.addListener('downloadFailed', (event) => {
+        alert("Capgo Error - Descarga Fallida: " + JSON.stringify(event));
+      });
       
     } catch (e) {
       console.error('Error al inicializar actualizaciones OTA:', e);
+    }
+  }
+
+  async function manualCheck() {
+    try {
+      alert("Buscando actualización en la nube...");
+      const latest = await CapacitorUpdater.getLatest();
+      alert("Respuesta de la nube: " + JSON.stringify(latest));
+      
+      if (latest && latest.url) {
+        alert("¡Actualización encontrada! Descargando...");
+        const bundle = await CapacitorUpdater.download({
+          version: latest.version,
+          url: latest.url
+        });
+        alert("Descargado con éxito: " + JSON.stringify(bundle));
+        updateAvailable.value = true;
+        updateVersion.value = bundle.version;
+        bundleIdToApply.value = bundle.id;
+      } else {
+        alert("No hay actualización disponible según la nube.");
+      }
+    } catch (e) {
+      alert("Error en Capgo (manualCheck): " + e.message);
     }
   }
 
@@ -65,6 +94,7 @@ export function useUpdates() {
 
   return { 
     initUpdates,
+    manualCheck,
     promptUpdate,
     updateAvailable,
     updateVersion
