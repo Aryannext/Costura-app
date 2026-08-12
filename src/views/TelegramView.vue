@@ -98,7 +98,11 @@ async function probarMensaje() {
     if (!botToken.value || !chatId.value) return;
     loading.value = true;
     try {
-        const success = await sendTelegramMessage("¡Hola! La integración de tu bot de Costura App está funcionando correctamente. ✅");
+        const success = await sendTelegramMessage(
+            "¡Hola! La integración de tu bot de Costura App está funcionando correctamente. ✅", 
+            'Markdown', 
+            { botToken: botToken.value, chatId: chatId.value }
+        );
         if (success) toast('Mensaje de prueba enviado a Telegram.', 'success');
         else toast('Error al enviar el mensaje.', 'error');
     } finally {
@@ -108,8 +112,11 @@ async function probarMensaje() {
 
 async function handleGenerarReporte() {
     loading.value = true;
-    await generarReporte();
-    loading.value = false;
+    try {
+        await generarReporte();
+    } finally {
+        loading.value = false;
+    }
 }
 </script>
 

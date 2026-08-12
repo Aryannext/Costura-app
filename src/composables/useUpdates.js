@@ -5,6 +5,7 @@ import { CapacitorUpdater } from '@capgo/capacitor-updater';
 const updateAvailable = ref(false);
 const updateVersion = ref('');
 const bundleIdToApply = ref('');
+const isChecking = ref(false);
 
 export function useUpdates() {
   async function initUpdates() {
@@ -32,7 +33,7 @@ export function useUpdates() {
         };
         
         // Buscar algún bundle descargado con éxito que sea MAYOR que el actual
-        const pendingBundle = bundles.find(b => 
+        const pendingBundle = bundles?.find(b => 
           b.id !== currentBundle.id && 
           b.status === 'success' && 
           isNewer(b.version, currentBundle.version)
@@ -67,9 +68,12 @@ export function useUpdates() {
   }
 
   async function manualCheck() {
+    if (isChecking.value) return;
+    isChecking.value = true;
     try {
       // 1. Mostrar un mensaje inicial amigable
       const initialAlert = "Buscando actualizaciones en la nube...";
+      window.alert(initialAlert);
       
       const latest = await CapacitorUpdater.getLatest();
       
@@ -95,6 +99,8 @@ export function useUpdates() {
       } else {
          window.alert("Ocurrió un problema al buscar actualizaciones.\nPor favor, verifica tu conexión a internet.");
       }
+    } finally {
+      isChecking.value = false;
     }
   }
 

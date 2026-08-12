@@ -9,8 +9,8 @@ export function useTelegramBot() {
         return { botToken, chatId };
     }
 
-    async function sendTelegramMessage(text, parseMode = 'Markdown') {
-        const { botToken, chatId } = getConfig();
+    async function sendTelegramMessage(text, parseMode = 'Markdown', configOverride = null) {
+        const { botToken, chatId } = configOverride || getConfig();
         if (!botToken || !chatId) {
             console.warn("Telegram no configurado. Ignorando mensaje.");
             return false;
