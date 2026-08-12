@@ -1,9 +1,9 @@
 <template>
   <div class="dashboard-view">
-    <div class="header" style="display: flex; justify-content: space-between; align-items: center;">
+    <div class="header flex-between align-center">
       <h2 class="display-lg">Resumen de tu taller</h2>
       <button class="btn-primary" @click="enviarRecordatorios" :disabled="notifLoading">
-        <svg v-if="!notifLoading" class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 20px; height: 20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <Icon v-if="!notifLoading" name="bell-ringing" className="btn-icon icon-sm" />
         {{ notifLoading ? 'Procesando...' : 'Enviar Recordatorios' }}
       </button>
     </div>
@@ -11,10 +11,7 @@
     <!-- Buscador Global -->
     <div class="global-search-container">
       <div class="search-input-wrapper">
-        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
+        <Icon name="search" className="search-icon icon-sm" />
         <input 
           type="text" 
           class="input-field global-search-input" 
@@ -26,17 +23,14 @@
     </div>
 
     <div v-if="globalQuery" class="search-results">
-      <div v-if="searchLoading" class="loading-state" style="padding-top: 20px;">
+      <div v-if="searchLoading" class="loading-state pt-4">
         <SkeletonLoader :count="3" height="60px" />
       </div>
       <div v-else>
         <!-- Resultados Clientes -->
         <div class="section" v-if="searchResults.clientes.length > 0">
-          <h3 class="headline-sm mb-2" style="display: flex; align-items: center; gap: 8px;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
+          <h3 class="headline-sm mb-2 flex-align-center gap-2">
+            <Icon name="user" className="icon-sm" />
             Clientes encontrados
           </h3>
           <div class="ordenes-list stagger-list">
@@ -51,12 +45,8 @@
 
         <!-- Resultados Órdenes -->
         <div class="section" v-if="searchResults.ordenes.length > 0">
-          <h3 class="headline-sm mb-2" style="display: flex; align-items: center; gap: 8px;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-              <line x1="8" y1="21" x2="16" y2="21"></line>
-              <line x1="12" y1="17" x2="12" y2="21"></line>
-            </svg>
+          <h3 class="headline-sm mb-2 flex-align-center gap-2">
+            <Icon name="monitor" className="icon-sm" />
             Órdenes encontradas
           </h3>
           <div class="ordenes-list stagger-list">
@@ -77,7 +67,7 @@
     </div>
 
     <div v-else>
-      <div v-if="loading" class="loading-state" style="padding-top: 20px;">
+      <div v-if="loading" class="loading-state pt-4">
         <SkeletonLoader :count="4" height="100px" />
       </div>
 
@@ -167,6 +157,7 @@ import { globalSearch } from '../database/queries/search.js';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import SkeletonLoader from '../components/common/SkeletonLoader.vue';
+import Icon from '../components/common/Icon.vue';
 
 const router = useRouter();
 const toast = inject('toast');
@@ -248,6 +239,14 @@ function getBadgeClass(idEstado) {
 </script>
 
 <style scoped>
+/* Utility Classes for this view */
+.flex-between { display: flex; justify-content: space-between; }
+.align-center { align-items: center; }
+.flex-align-center { display: flex; align-items: center; }
+.gap-2 { gap: 8px; }
+.pt-4 { padding-top: 20px; }
+.icon-sm { width: 20px; height: 20px; }
+
 .dashboard-view {
   padding: 24px 16px 80px 16px;
 }

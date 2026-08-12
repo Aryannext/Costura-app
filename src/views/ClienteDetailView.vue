@@ -147,7 +147,8 @@ function goToOrdenDetail(id) {
 }
 
 function goToNuevaOrden() {
-  router.push({ path: '/ordenes/crear', query: { cliente: clienteActual.value.id_cliente } });
+  if (!clienteActual.value) return;
+  router.push({ path: '/ordenes', query: { cliente: clienteActual.value.id_cliente } });
 }
 
 async function handleEditCliente(clienteData) {

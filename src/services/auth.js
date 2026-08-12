@@ -26,6 +26,7 @@ export async function login(username, password) {
         username: user.username,
         loginTime: Date.now()
     };
+    await Preferences.set({ key: 'auth_user', value: JSON.stringify(currentUser) });
 
     startInactivityTimer();
     return true;
@@ -42,6 +43,7 @@ export async function biometricLogin() {
         username: user.username,
         loginTime: Date.now()
     };
+    await Preferences.set({ key: 'auth_user', value: JSON.stringify(currentUser) });
 
     startInactivityTimer();
     return true;
@@ -49,6 +51,7 @@ export async function biometricLogin() {
 
 export async function logout() {
     currentUser = null;
+    await Preferences.remove({ key: 'auth_user' });
     stopInactivityTimer();
     if (router && router.currentRoute.value.path !== '/login') {
         router.push('/login');
@@ -56,6 +59,17 @@ export async function logout() {
 }
 
 export async function isAuthenticated() {
+    if (!currentUser) {
+        try {
+            const { value } = await Preferences.get({ key: 'auth_user' });
+            if (value) {
+                currentUser = JSON.parse(value);
+                startInactivityTimer();
+            }
+        } catch (e) {
+            console.error("Error loading session:", e);
+        }
+    }
     return !!currentUser;
 }
 
@@ -100,5 +114,8 @@ function resetInactivityTimer() {
 }
 
 export async function getCurrentUser() {
+    if (!currentUser) {
+        await isAuthenticated();
+    }
     return currentUser;
 }

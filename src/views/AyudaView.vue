@@ -1,6 +1,9 @@
 <template>
   <div class="ayuda-view">
     <div class="header-actions">
+      <button class="btn-ghost back-btn" @click="$router.back()" style="margin-bottom: 12px;">
+        ← Volver
+      </button>
       <h2>Centro de Ayuda</h2>
       <p class="subtitle">Guía rápida para sacarle el máximo provecho a Atelier Manager.</p>
     </div>

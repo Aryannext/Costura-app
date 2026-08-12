@@ -77,7 +77,7 @@ router.beforeEach(async (to, from, next) => {
     const isAuth = await isAuthenticated();
     
     if (to.meta.requiresAuth && !isAuth) {
-        next('/login');
+        next({ path: '/login', query: { redirect: to.fullPath } });
     } else if (to.path === '/login' && isAuth) {
         next('/');
     } else {

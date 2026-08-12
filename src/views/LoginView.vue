@@ -53,10 +53,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { login, biometricLogin } from '../services/auth.js';
 import { BiometricAuth } from '@aparajita/capacitor-biometric-auth';
 
+const route = useRoute();
 const router = useRouter();
 const username = ref('');
 const password = ref('');
@@ -69,7 +70,8 @@ async function handleLogin() {
   
   try {
     await login(username.value, password.value);
-    router.push('/');
+    const redirectPath = route.query.redirect || '/';
+    router.push(redirectPath);
   } catch (err) {
     error.value = err.message || 'Error al iniciar sesión';
   } finally {
@@ -108,7 +110,8 @@ async function handleBiometricLogin() {
     
     // Si no tira error, autenticó exitosamente
     await biometricLogin();
-    router.push('/');
+    const redirectPath = route.query.redirect || '/';
+    router.push(redirectPath);
   } catch (err) {
     console.error(err);
     if (err.message !== 'User cancelled') {
