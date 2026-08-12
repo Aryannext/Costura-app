@@ -27,27 +27,35 @@ export async function getOrdenById(id_orden) {
 export async function createOrden(orden) {
     if (!db) throw new Error("Database not initialized");
 
-    const set = [
-        {
-            // 1. Insert order
-            statement: "INSERT INTO orden_trabajo (fecha_entrega_estimada, valor_total, saldo_pendiente, id_cliente, id_estado_orden) VALUES (?, 0, 0, ?, 1)",
-            values: [orden.fecha_entrega_estimada, orden.id_cliente]
-        },
-        {
-            // 2. Register history using last_insert_rowid() to reference the newly created order
-            statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, last_insert_rowid(), 1)",
-            values: ["Orden creada en estado Pendiente"]
+    await db.beginTransaction();
+    try {
+        const resOrden = await db.run(
+            "INSERT INTO orden_trabajo (fecha_entrega_estimada, valor_total, saldo_pendiente, id_cliente, id_estado_orden) VALUES (?, 0, 0, ?, 1)",
+            [orden.fecha_entrega_estimada, orden.id_cliente],
+            false
+        );
+
+        const idOrden = resOrden.changes.lastId;
+
+        const set = [
+            {
+                statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, 1)",
+                values: ["Orden creada en estado Pendiente", idOrden]
+            }
+        ];
+
+        await db.executeSet(set, false);
+
+        await db.commitTransaction();
+        return idOrden;
+    } catch (error) {
+        try {
+            await db.rollbackTransaction();
+        } catch (rollbackError) {
+            console.error("Critical: Rollback failed after transaction error", rollbackError);
         }
-    ];
-
-    await db.executeSet(set, true);
-
-    // Dado que executeSet solo devuelve el lastId de la última sentencia (el historial),
-    // y no podemos invertir el orden por la restricción de llave foránea (orden_trabajo debe existir primero),
-    // la única forma segura en esta API de recuperar el id_orden es mediante una consulta posterior.
-    // En un entorno de usuario único (SQLite local), MAX(id_orden) es completamente seguro y determinista.
-    const maxResult = await db.query("SELECT MAX(id_orden) as last_id FROM orden_trabajo");
-    return maxResult.values[0].last_id;
+        throw error;
+    }
 }
 
 export async function changeEstado(id_orden, id_estado_orden, nombre_estado, current_orden) {
