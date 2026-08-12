@@ -3,10 +3,11 @@ import { getAllOrdenes, getOrdenById, createOrden, changeEstado as updateEstadoO
 import { validators } from '../services/validators.js';
 import { useAsyncAction } from './useAsyncAction.js';
 
+const ordenes = ref([]);
+const ordenActual = ref(null);
+const historial = ref([]);
+
 export function useOrdenes() {
-    const ordenes = ref([]);
-    const ordenActual = ref(null);
-    const historial = ref([]);
 
     const { loading, error, execute } = useAsyncAction();
 

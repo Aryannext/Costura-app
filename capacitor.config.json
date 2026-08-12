@@ -7,7 +7,7 @@
       "androidIsEncryption": false
     },
     "CapacitorUpdater": {
-      "autoUpdate": false,
+      "autoUpdate": true,
       "appId": "com.costura.app"
     }
   }

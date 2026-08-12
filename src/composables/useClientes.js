@@ -3,10 +3,11 @@ import { getAllClientes, getClienteById, createCliente, updateCliente, searchCli
 import { validators } from '../services/validators.js';
 import { useAsyncAction } from './useAsyncAction.js';
 
+const clientes = ref([]);
+const clienteActual = ref(null);
+const ordenesCliente = ref([]);
+
 export function useClientes() {
-    const clientes = ref([]);
-    const clienteActual = ref(null);
-    const ordenesCliente = ref([]);
 
     const { loading, error, execute } = useAsyncAction();
 

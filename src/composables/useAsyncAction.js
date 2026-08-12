@@ -3,6 +3,7 @@ import { ref, inject } from 'vue';
 export function useAsyncAction() {
     const loading = ref(false);
     const error = ref(null);
+    let activeCount = 0;
     let toast = null;
 
     // Inject can only be used inside setup(), so we try to get it.
@@ -28,7 +29,8 @@ export function useAsyncAction() {
             throwError = true
         } = options;
 
-        loading.value = true;
+        activeCount++;
+        loading.value = activeCount > 0;
         error.value = null;
 
         try {
@@ -50,7 +52,8 @@ export function useAsyncAction() {
                 throw err;
             }
         } finally {
-            loading.value = false;
+            activeCount--;
+            loading.value = activeCount > 0;
         }
     };
 

@@ -7,7 +7,7 @@
     <div class="header-actions">
       <button class="btn-ghost icon-btn-header" aria-label="Notifications" @click="toggleNotifications">
         <div class="icon-wrapper">
-          <Icon name="bell" />
+          <Icon name="bell" className="bell-svg" />
           <span v-if="totalNotifications > 0" class="badge-indicator" :class="{'update-badge': updateAvailable}">{{ totalNotifications }}</span>
         </div>
       </button>
@@ -171,6 +171,11 @@ h1 {
 .icon-wrapper {
   position: relative;
   display: flex;
+}
+
+.bell-svg {
+  width: 24px;
+  height: 24px;
 }
 
 .badge-indicator {

@@ -1,0 +1,19 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Ajusta esta ruta si tu carpeta se llama distinto
+  RewriteBase /costura/
+  
+  RewriteRule ^index\.html$ - [L]
+  
+  # Si el archivo o carpeta existe físicamente (ej. costura.apk), sírvelo normalmente
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  
+  # Si no existe, envía todo a index.html para que Vue Router lo maneje
+  RewriteRule . /costura/index.html [L]
+</IfModule>
+
+# Asegurar que los archivos APK se descarguen correctamente
+<IfModule mod_mime.c>
+  AddType application/vnd.android.package-archive .apk
+</IfModule>

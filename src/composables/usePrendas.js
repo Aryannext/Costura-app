@@ -17,10 +17,11 @@ import {
     getDescripcionesFrecuentes
 } from '../database/queries/prendas.js';
 
+const tiposPrenda = ref([]);
+const prendas = ref([]);
+const descripcionesFrecuentes = ref([]);
+
 export function usePrendas() {
-    const tiposPrenda = ref([]);
-    const prendas = ref([]);
-    const descripcionesFrecuentes = ref([]);
 
     const { loading, error, execute } = useAsyncAction();
 

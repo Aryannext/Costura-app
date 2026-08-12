@@ -10,8 +10,10 @@ export async function initDatabase() {
         const platform = Capacitor.getPlatform();
         if (platform === 'web') {
             jeepSqlite(window);
-            const jeepEl = document.createElement('jeep-sqlite');
-            document.body.appendChild(jeepEl);
+            if (!document.querySelector('jeep-sqlite')) {
+                const jeepEl = document.createElement('jeep-sqlite');
+                document.body.appendChild(jeepEl);
+            }
             await customElements.whenDefined('jeep-sqlite');
             await sqlite.initWebStore();
         }

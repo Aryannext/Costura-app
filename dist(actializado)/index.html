@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Costura App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="./assets/index-BITxfth1.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/_plugin-vue_export-helper-DH4grXso.js">
+    <link rel="modulepreload" crossorigin href="./assets/preload-helper-kNaey6uv.js">
+    <link rel="modulepreload" crossorigin href="./assets/dist-C7VWYBLB.js">
+    <link rel="stylesheet" crossorigin href="./assets/index-m1kFCPAt.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      // Forzar la desinstalación de cualquier Service Worker antiguo (caché fantasma)
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for(let registration of registrations) {
+            registration.unregister();
+            console.log('ServiceWorker antiguo eliminado.');
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
