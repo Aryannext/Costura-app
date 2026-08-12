@@ -3,7 +3,7 @@ import { exportDatabaseToJson, importDatabaseFromJson } from '../database/connec
 import { cryptoService } from '../services/cryptoService.js';
 import { useTelegramBot } from './useTelegramBot.js';
 
-export function useBackupRestore(toast) {
+export function useBackupRestore(toast, callbacks = {}) {
     const { sendTelegramDocument } = useTelegramBot();
     
     const showCryptoModal = ref(false);
@@ -56,6 +56,9 @@ export function useBackupRestore(toast) {
                 await respaldarBaseDatos(password);
             } else if (cryptoModalMode.value === 'restore') {
                 await procesarRestauracion(password);
+                if (callbacks.onRestoreSuccess) {
+                    callbacks.onRestoreSuccess();
+                }
             }
             closeCryptoModal();
         } catch (err) {
@@ -100,9 +103,6 @@ export function useBackupRestore(toast) {
                     await importDatabaseFromJson(decryptedJson);
 
                     toast('¡Base de datos restaurada con éxito! Reiniciando app...', 'success');
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000);
                     resolve();
                 } catch (err) {
                     console.error("Restore error:", err);

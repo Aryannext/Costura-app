@@ -59,7 +59,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject } from 'vue';
+import { ref, onMounted, onUnmounted, inject } from 'vue';
 import { useTelegramBot } from '../composables/useTelegramBot.js';
 import { useBackupRestore } from '../composables/useBackupRestore.js';
 import { useTelegramReports } from '../composables/useTelegramReports.js';
@@ -75,18 +75,31 @@ const {
   showCryptoModal, cryptoModalMode, isCryptoProcessing, cryptoError, 
   fileInput, openBackupModal, triggerRestore, handleRestore, 
   closeCryptoModal, executeCryptoAction 
-} = useBackupRestore(toast);
+} = useBackupRestore(toast, {
+  onRestoreSuccess: () => {
+    setTimeout(() => {
+      window.location.reload();
+    }, 2000);
+  }
+});
 
 const { generarReporte } = useTelegramReports(toast);
+
+let saveTimeout = null;
 
 onMounted(() => {
     botToken.value = localStorage.getItem('telegram_bot_token') || '';
     chatId.value = localStorage.getItem('telegram_chat_id') || '';
 });
 
+onUnmounted(() => {
+    if (saveTimeout) clearTimeout(saveTimeout);
+});
+
 function guardarConfiguracion() {
     loading.value = true;
-    setTimeout(() => {
+    if (saveTimeout) clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
         localStorage.setItem('telegram_bot_token', botToken.value);
         localStorage.setItem('telegram_chat_id', chatId.value);
         toast('Configuración guardada exitosamente.', 'success');
