@@ -9,9 +9,9 @@ export function useTutorial() {
 
     const handleTourCompletion = () => {
         if (toast) {
-            toast('¡Misión Completada! Has ganado 100 puntos de experiencia 🌟', 'success');
+            toast('¡Misión Completada! 🌟', 'success');
         } else {
-            alert('¡Misión Completada! Has ganado 100 puntos de experiencia 🌟');
+            alert('¡Misión Completada! 🌟');
         }
         router.push('/ayuda');
     };
