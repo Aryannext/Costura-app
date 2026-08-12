@@ -1,9 +1,20 @@
 import { driver } from 'driver.js';
 import 'driver.js/dist/driver.css';
 import { useRouter } from 'vue-router';
+import { inject } from 'vue';
 
 export function useTutorial() {
     const router = useRouter();
+    const toast = inject('toast');
+
+    const handleTourCompletion = () => {
+        if (toast) {
+            toast('¡Misión Completada! Has ganado 100 puntos de experiencia 🌟', 'success');
+        } else {
+            alert('¡Misión Completada! Has ganado 100 puntos de experiencia 🌟');
+        }
+        router.push('/ayuda');
+    };
 
     const getSvg = (name) => {
         const base = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 20px; height: 20px; margin-right: 8px; vertical-align: text-bottom; color: var(--primary);">`;
@@ -26,6 +37,7 @@ export function useTutorial() {
             nextBtnText: 'Siguiente',
             prevBtnText: 'Atrás',
             popoverClass: 'app-tutorial-popover',
+            onDestroyed: handleTourCompletion,
             steps: [
                 {
                     popover: { 
@@ -81,6 +93,7 @@ export function useTutorial() {
             nextBtnText: 'Siguiente',
             prevBtnText: 'Atrás',
             popoverClass: 'app-tutorial-popover',
+            onDestroyed: handleTourCompletion,
             steps: [
                 {
                     popover: { 
@@ -123,6 +136,7 @@ export function useTutorial() {
             nextBtnText: 'Siguiente',
             prevBtnText: 'Atrás',
             popoverClass: 'app-tutorial-popover',
+            onDestroyed: handleTourCompletion,
             steps: [
                 {
                     popover: { 

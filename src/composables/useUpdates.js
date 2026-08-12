@@ -17,8 +17,27 @@ export function useUpdates() {
         const { bundles } = await CapacitorUpdater.list();
         const { bundle: currentBundle } = await CapacitorUpdater.current();
         
-        // Buscar algún bundle descargado con éxito que no sea el actual
-        const pendingBundle = bundles.find(b => b.id !== currentBundle.id && b.status === 'success');
+        // Helper para comparar versiones semver (ej. "1.0.5" > "1.0.4")
+        const isNewer = (v1, v2) => {
+          if (!v1 || !v2) return false;
+          const p1 = v1.split('.').map(Number);
+          const p2 = v2.split('.').map(Number);
+          for (let i = 0; i < Math.max(p1.length, p2.length); i++) {
+            const num1 = p1[i] || 0;
+            const num2 = p2[i] || 0;
+            if (num1 > num2) return true;
+            if (num1 < num2) return false;
+          }
+          return false;
+        };
+        
+        // Buscar algún bundle descargado con éxito que sea MAYOR que el actual
+        const pendingBundle = bundles.find(b => 
+          b.id !== currentBundle.id && 
+          b.status === 'success' && 
+          isNewer(b.version, currentBundle.version)
+        );
+        
         if (pendingBundle) {
           updateAvailable.value = true;
           updateVersion.value = pendingBundle.version;
