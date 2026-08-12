@@ -5,28 +5,29 @@ import { Dialog } from '@capacitor/dialog';
 // Global state para persistir en toda la app
 const updateAvailable = ref(false);
 const updateVersion = ref('');
+const updateLatestObj = ref(null);
 
 export function useUpdates() {
   async function initUpdates() {
     try {
       await CapacitorUpdater.notifyAppReady();
 
-      // Cuando autoUpdate es true, Capgo descarga en segundo plano automáticamente.
-      // Escuchamos cuando termine para avisarle a la campanita.
-      CapacitorUpdater.addListener('download', (info) => {
-        if (info && info.version) {
-          updateAvailable.value = true;
-          updateVersion.value = info.version;
-        }
-      });
+      // Consultar si hay alguna versión más reciente disponible en Capgo
+      const latest = await CapacitorUpdater.getLatest();
+      
+      if (latest && latest.version) {
+        updateAvailable.value = true;
+        updateVersion.value = latest.version;
+        updateLatestObj.value = latest;
+      }
       
     } catch (e) {
-      console.error('Error al inicializar actualizaciones OTA:', e);
+      console.error('Error al inicializar/consultar actualizaciones OTA:', e);
     }
   }
 
   async function promptUpdate() {
-    if (!updateAvailable.value) return;
+    if (!updateAvailable.value || !updateLatestObj.value) return;
 
     const changelog = "• Mejoras visuales.\n• Corrección de errores menores.\n• Nuevas funciones disponibles.";
     
@@ -38,9 +39,13 @@ export function useUpdates() {
     });
     
     if (value) {
-      const bundle = await CapacitorUpdater.download({ version: updateVersion.value });
-      if (bundle) {
-        await CapacitorUpdater.set({ id: bundle.id });
+      try {
+        const bundle = await CapacitorUpdater.download(updateLatestObj.value);
+        if (bundle) {
+          await CapacitorUpdater.set(bundle);
+        }
+      } catch (err) {
+        console.error("Error descargando la actualización:", err);
       }
     }
   }

@@ -7,7 +7,7 @@
       "androidIsEncryption": false
     },
     "CapacitorUpdater": {
-      "autoUpdate": true
+      "autoUpdate": false
     }
   }
 }
