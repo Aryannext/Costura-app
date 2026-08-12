@@ -11,11 +11,11 @@ export function useUpdates() {
       // 1. Notifica a Capgo que la app cargó bien para evitar rollbacks
       await CapacitorUpdater.notifyAppReady();
 
-      // 2. Escuchar cuando Capgo termine de descargar automáticamente en segundo plano
-      CapacitorUpdater.addListener('download', (info) => {
-        if (info && info.version) {
+      // 2. Escuchar cuando Capgo termine de descargar la actualización
+      CapacitorUpdater.addListener('downloadComplete', (event) => {
+        if (event && event.bundle && event.bundle.version) {
           updateAvailable.value = true;
-          updateVersion.value = info.version;
+          updateVersion.value = event.bundle.version;
         }
       });
       
