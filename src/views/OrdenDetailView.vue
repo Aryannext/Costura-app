@@ -106,7 +106,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject, watch } from 'vue';
+import { ref, onMounted, onUnmounted, inject, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useOrdenes } from '../composables/useOrdenes.js';
 import { usePrendas } from '../composables/usePrendas.js';
@@ -139,13 +139,13 @@ const {
 
 
 // Ordenes logic
-const { ordenActual, historial, loading, fetchOrden, changeEstado } = useOrdenes();
+const { ordenActual, historial, loading, fetchOrden, changeEstado, clearCurrentState: clearOrdenState } = useOrdenes();
 
 // Prendas logic
 const { 
   tiposPrenda, prendas, loading: prendasLoading, error: prendasError,
   fetchTiposPrenda, fetchPrendas, savePrenda, changeEstado: changeEstadoPrenda,
-  takePhoto, addNewObservacion
+  takePhoto, addNewObservacion, clearCurrentState: clearPrendasState
 } = usePrendas();
 
 // Pagos logic
@@ -173,6 +173,11 @@ onMounted(async () => {
     await fetchMetodosPago();
     await fetchNotificaciones(id);
   }
+});
+
+onUnmounted(() => {
+  clearOrdenState();
+  clearPrendasState();
 });
 
 // Fetch prendas whenever we switch to the prendas tab

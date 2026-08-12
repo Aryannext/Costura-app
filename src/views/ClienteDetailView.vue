@@ -111,7 +111,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject } from 'vue';
+import { ref, onMounted, onUnmounted, inject } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useClientes } from '../composables/useClientes.js';
 import { useNotificaciones } from '../composables/useNotificaciones.js';
@@ -122,7 +122,7 @@ import StatusBadge from '../components/common/StatusBadge.vue';
 const route = useRoute();
 const router = useRouter();
 const toast = inject('toast');
-const { clienteActual, ordenesCliente, loading, error, fetchCliente, saveCliente } = useClientes();
+const { clienteActual, ordenesCliente, loading, error, fetchCliente, saveCliente, clearCurrentState } = useClientes();
 const { notificaciones, loading: notifLoading, fetchNotificacionesCliente } = useNotificaciones();
 
 const showEditForm = ref(false);
@@ -134,6 +134,10 @@ onMounted(() => {
     fetchCliente(id);
     fetchNotificacionesCliente(id);
   }
+});
+
+onUnmounted(() => {
+  clearCurrentState();
 });
 
 function formatDate(dateStr) {

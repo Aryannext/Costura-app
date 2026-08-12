@@ -169,6 +169,10 @@ export function usePrendas() {
         });
     };
 
+    const clearCurrentState = () => {
+        prendas.value = [];
+    };
+
     return {
         tiposPrenda,
         prendas,
@@ -185,6 +189,7 @@ export function usePrendas() {
         addNewObservacion,
         fetchObservaciones,
         descripcionesFrecuentes,
-        fetchDescripcionesFrecuentes
+        fetchDescripcionesFrecuentes,
+        clearCurrentState
     };
 }

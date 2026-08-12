@@ -16,7 +16,7 @@
           type="text" 
           class="input-field global-search-input" 
           v-model="globalQuery" 
-          @input="handleSearch"
+          @input="performSearch"
           placeholder="Buscar cliente, teléfono o # de orden..." 
         />
       </div>
@@ -153,7 +153,7 @@ import { useRouter } from 'vue-router';
 import { useReportes } from '../composables/useReportes.js';
 import { useNotificaciones } from '../composables/useNotificaciones.js';
 import { useNotificacionesLocales } from '../composables/useNotificacionesLocales.js';
-import { globalSearch } from '../database/queries/search.js';
+import { useSearch } from '../composables/useSearch.js';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import SkeletonLoader from '../components/common/SkeletonLoader.vue';
@@ -165,31 +165,8 @@ const { kpis, proximasEntregas, ordenesRecientes, loading, fetchDashboardData } 
 const { loading: notifLoading, triggerRecordatorios } = useNotificaciones();
 const { requestPermissions, scheduleDailyReminders } = useNotificacionesLocales();
 
-// Búsqueda Global
-const globalQuery = ref('');
-const searchLoading = ref(false);
-const searchResults = ref({ clientes: [], ordenes: [] });
-let searchTimeout = null;
-
-function handleSearch() {
-  if (searchTimeout) clearTimeout(searchTimeout);
-  
-  if (!globalQuery.value.trim()) {
-    searchResults.value = { clientes: [], ordenes: [] };
-    return;
-  }
-
-  searchLoading.value = true;
-  searchTimeout = setTimeout(async () => {
-    try {
-      searchResults.value = await globalSearch(globalQuery.value);
-    } catch (error) {
-      console.error('Error en búsqueda global:', error);
-    } finally {
-      searchLoading.value = false;
-    }
-  }, 400); // Debounce de 400ms
-}
+// Búsqueda Global (Delegada al composable para DIP)
+const { globalQuery, searchLoading, searchResults, performSearch } = useSearch();
 
 onMounted(async () => {
   try {

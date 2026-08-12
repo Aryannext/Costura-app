@@ -55,6 +55,11 @@ export function useOrdenes() {
         });
     };
 
+    const clearCurrentState = () => {
+        ordenActual.value = null;
+        historial.value = [];
+    };
+
     return {
         ordenes,
         loading,
@@ -64,6 +69,7 @@ export function useOrdenes() {
         fetchOrdenes,
         fetchOrden,
         saveOrden,
-        changeEstado
+        changeEstado,
+        clearCurrentState
     };
 }

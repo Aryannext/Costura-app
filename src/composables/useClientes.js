@@ -60,6 +60,11 @@ export function useClientes() {
         }).then((res) => res?.id);
     };
 
+    const clearCurrentState = () => {
+        clienteActual.value = null;
+        ordenesCliente.value = [];
+    };
+
     return {
         clientes,
         loading,
@@ -69,6 +74,7 @@ export function useClientes() {
         fetchClientes,
         fetchCliente,
         search,
-        saveCliente
+        saveCliente,
+        clearCurrentState
     };
 }
