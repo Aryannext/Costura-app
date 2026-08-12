@@ -1,4 +1,4 @@
-import { db } from '../connection.js';
+import { db, saveDb } from '../connection.js';
 
 export async function getAllOrdenes() {
     if (!db) throw new Error("Database not initialized");
@@ -28,6 +28,7 @@ export async function createOrden(orden) {
     if (!db) throw new Error("Database not initialized");
 
     await db.beginTransaction();
+    let isCommitted = false;
     try {
         const resOrden = await db.run(
             "INSERT INTO orden_trabajo (fecha_entrega_estimada, valor_total, saldo_pendiente, id_cliente, id_estado_orden) VALUES (?, 0, 0, ?, 1)",
@@ -47,12 +48,18 @@ export async function createOrden(orden) {
         await db.executeSet(set, false);
 
         await db.commitTransaction();
+        isCommitted = true;
+
+        await saveDb();
+
         return idOrden;
     } catch (error) {
-        try {
-            await db.rollbackTransaction();
-        } catch (rollbackError) {
-            console.error("Critical: Rollback failed after transaction error", rollbackError);
+        if (!isCommitted) {
+            try {
+                await db.rollbackTransaction();
+            } catch (rollbackError) {
+                console.error("Critical: Rollback failed after transaction error", rollbackError);
+            }
         }
         throw error;
     }
