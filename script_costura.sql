@@ -1,3 +1,16 @@
+-- =====================================================================
+--  ESQUEMA HISTÓRICO · NO USAR
+-- =====================================================================
+--  Este script corresponde a un diseño anterior y ya NO coincide con la
+--  base de datos real: le faltan las tablas `usuario`, `configuracion` y
+--  `schema_migrations`, y algunos tipos difieren.
+--
+--  La única fuente válida del esquema es:
+--      src/database/migrations.js
+--
+--  Se conserva únicamente como referencia del diseño original.
+-- =====================================================================
+
 CREATE DATABASE modista_db
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;

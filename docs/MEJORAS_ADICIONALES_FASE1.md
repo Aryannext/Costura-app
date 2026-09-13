@@ -1,5 +1,10 @@
 # Documento de Mejoras Adicionales y Características Premium (Fase 1)
 
+> **Nota de numeración.** El **RF-50** y los **RNF-24 a RNF-27** de este documento
+> son los válidos. La especificación de Fase 2 usaba esos mismos identificadores
+> con otro significado y fue renumerada a RF-61…RF-71 y RNF-28…RNF-31.
+> Ver [TRAZABILIDAD.md](TRAZABILIDAD.md).
+
 Este documento tiene como objetivo registrar de manera formal las funcionalidades y tecnologías implementadas en la versión actual de **Atelier Manager (Costura App)** que superan los requerimientos funcionales originales definidos en el documento `Costura.md`.
 
 Durante la etapa de desarrollo de la Fase 1, se aplicaron buenas prácticas de ingeniería de software para añadir "características de valor" (Valor Agregado) que mejoran significativamente la usabilidad, seguridad y rendimiento del sistema.
@@ -18,9 +23,13 @@ A continuación, se listan las mejoras principales implementadas en la Fase 1:
 ## 2. Panel Gráfico Estadístico (Reportes Visuales Avanzados)
 **Requisito Original:** Consultar total de ingresos y dinero pendiente por cobrar en un periodo determinado.
 **Mejora Implementada:** En lugar de mostrar simples textos con números, se construyó el módulo `ReportesView.vue` integrando la librería especializada **Chart.js**.
-- El sistema grafica automáticamente barras dinámicas mostrando los ingresos mes a mes.
-- Muestra gráficos circulares (tipo pastel) analizando con qué método de pago (Efectivo, Nequi, Daviplata, etc.) se recibe el dinero.
-- Permite una visualización ejecutiva del estado financiero del taller.
+- El sistema grafica los **ingresos por día** dentro del rango de fechas elegido.
+- Muestra un **gráfico de dona con la distribución de órdenes por estado** en ese mismo rango.
+- Presenta cuatro indicadores: ingresos totales, órdenes nuevas, prendas procesadas y ticket promedio.
+
+> *Corregido el 9 de septiembre de 2026.* Este apartado describía barras mensuales y
+> una torta por método de pago. Ninguna de las dos existe: el desglose por método de
+> pago no se grafica en ninguna pantalla.
 
 ## 3. Arquitectura "Offline-First" con Capacitor
 **Requisito Original:** El sistema debe estar disponible y usar la red local.

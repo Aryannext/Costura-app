@@ -1,49 +1,119 @@
-# Ficha Técnica y Especificaciones Técnicas
-**Nombre del Sistema:** Atelier Manager (Costura App)
-**Versión:** 1.0.0
-**Tipo de Aplicación:** Aplicación Móvil Híbrida (Web App empaquetada de forma nativa).
-**Plataforma Objetivo:** Android e iOS (Ejecución offline).
+# Ficha Técnica · Atelier Manager (Costura App)
+
+| | |
+| --- | --- |
+| **Versión** | 1.1.2 |
+| **Versión del esquema** | 1 |
+| **Tipo** | Aplicación móvil híbrida (web empaquetada de forma nativa) |
+| **Plataforma objetivo** | Android. El proyecto iOS no está generado |
+| **Modo de operación** | Offline-first, un solo dispositivo |
+| **Revisión de este documento** | 9 de septiembre de 2026, contra el código fuente |
 
 ---
 
-## 1. Arquitectura del Sistema
-El sistema está construido bajo el patrón de **Single Page Application (SPA)**, lo que significa que la interfaz gráfica se carga una sola vez y la navegación ocurre sin recargar la pantalla.
-No utiliza una arquitectura Cliente-Servidor tradicional web, sino una arquitectura **Descentralizada Local (Offline-First)**, donde el motor de base de datos reside directamente en el almacenamiento interno del dispositivo del usuario.
+## 1. Arquitectura
 
-## 2. Stack Tecnológico (Frontend)
-- **Framework Visual:** Vue.js 3 (Composition API / `<script setup>`).
-- **Empaquetador de Módulos:** Vite (Garantiza tiempos de compilación ultrarrápidos y optimización de assets).
-- **Estilos:** CSS3 Vanilla. Diseño responsivo con variables globales (Custom Properties) para soporte de temas y consistencia visual (Glassmorphism, animaciones fluidas).
-- **Enrutamiento:** Vue Router (Manejo de historial y transiciones de pantalla).
+**Single Page Application** sobre una arquitectura **local descentralizada**: el motor de base de datos vive en el almacenamiento interno del dispositivo y no existe servidor. No hay sincronización entre dispositivos, y es una decisión de diseño, no una carencia pendiente.
 
-## 3. Base de Datos y Almacenamiento
-- **Motor de Base de Datos:** SQLite.
-- **Implementación:** Plugin `@capacitor-community/sqlite` v8.x.
-- **Estructura Relacional:** 
-  - `clientes` (Manejo de contactos y métricas de pedidos).
-  - `ordenes` (Cabecera de pedidos con estados y finanzas).
-  - `prendas` (Detalles de los artículos a reparar/confeccionar).
-  - `fotografias_prenda` (Evidencia visual almacenada localmente).
-  - `pagos` (Historial financiero).
-  - `notificaciones` (Registro de interacciones con Telegram).
+El código se organiza en cuatro capas con dependencias en una sola dirección:
 
-## 4. Integración Nativa (Capacitor)
-El puente entre las tecnologías web y el hardware del teléfono se realiza a través de **Capacitor v8**. Los plugins nativos utilizados son:
-- **`@capacitor/camera`**: Acceso al lente de la cámara y galería del dispositivo. Las imágenes se almacenan temporal/permanentemente en formato WebP/JPEG optimizado.
-- **`@capacitor/haptics`**: Motor de vibración del teléfono para proveer retroalimentación táctil (micro-vibraciones) al realizar acciones (guardar, deslizar, eliminar).
-- **`@capacitor/status-bar` y `splash-screen`**: Modificación de la barra superior del sistema operativo para igualar la paleta de colores de la aplicación, brindando una experiencia inmersiva.
-- **`@capacitor/filesystem`**: Manejo de rutas de almacenamiento de fotografías.
+| Capa | Carpeta | Responsabilidad |
+| --- | --- | --- |
+| Presentación | `src/views/`, `src/components/` | Vue 3 con `<script setup>`. No ejecuta SQL |
+| Lógica de negocio | `src/composables/` | Estado reactivo, reglas y orquestación |
+| Acceso a datos | `src/database/queries/` | Una consulta por entidad |
+| Infraestructura | `src/database/connection.js`, `migrationRunner.js` | Conexión, migraciones, exportación e importación |
 
-## 5. Integraciones Externas (Cloud)
-- **API de Telegram (Bot API):**
-  - **Método de Conexión:** HTTP POST (API REST) vía Fetch.
-  - **Uso:** Envíos unidireccionales (Notificaciones "push" locales).
-  - **Seguridad:** El Token del Bot y el Chat ID se almacenan cifrados de manera local en `localStorage`.
+Transversalmente, `src/services/` agrupa lo que no pertenece a ninguna capa: `auth`, `cryptoService`, `validators`, `photoStorage`, `fechas` y `backupPayload`.
 
-## 6. Especificaciones de Despliegue
-- **Android:** Requiere SDK Mínimo 22 (Android 5.1 Lollipop), Recomendado SDK 34 (Android 14).
-- **Compilación:** Se utiliza Node.js para la construcción de los estáticos (`npm run build`), y Android Studio / Gradle para la firma y empaquetado del archivo final `.apk` o `.aab`.
+El plano completo está en [`docs/DIAGRAMAS.md`](docs/DIAGRAMAS.md).
 
-## 7. Rendimiento y Seguridad
-- **Cero Latencia:** Al no depender de solicitudes HTTPS a servidores externos para las operaciones CRUD, el tiempo de respuesta es casi instantáneo (< 50ms por transacción).
-- **Privacidad:** Los datos de los clientes y transacciones monetarias no abandonan el dispositivo del administrador, asegurando total confidencialidad. Las copias de seguridad (Backups) hacia Telegram están cifradas bajo los protocolos de la plataforma de mensajería.
+## 2. Stack
+
+- **Vue.js 3** · Composition API con `<script setup>`
+- **Vite 8** · empaquetado y servidor de desarrollo
+- **Vue Router 4** · enrutamiento con guardias de autenticación
+- **CSS3 vanilla** · variables globales, sin framework de estilos
+- **Chart.js + vue-chartjs** · gráficas del módulo de reportes
+- **bcryptjs** · hash de contraseñas
+- **driver.js** · tutorial guiado
+- **Vitest + Vue Test Utils** · 117 pruebas
+
+## 3. Base de datos
+
+- **Motor:** SQLite mediante `@capacitor-community/sqlite` v8
+- **Nombre:** `costura_db`, sin cifrado a nivel de fichero
+- **Integridad referencial:** `PRAGMA foreign_keys = ON`
+- **Versionado:** tabla `schema_migrations`; ver [Migraciones del esquema](README.md#-migraciones-del-esquema)
+
+**Diecisiete tablas.** Ocho de negocio, seis catálogos y tres de soporte:
+
+| Grupo | Tablas |
+| --- | --- |
+| Negocio | `cliente`, `orden_trabajo`, `prenda`, `observacion`, `fotografia`, `pago`, `notificacion`, `historial_actividad` |
+| Catálogos | `estado_orden`, `estado_prenda`, `tipo_prenda`, `metodo_pago`, `tipo_notificacion`, `tipo_actividad` |
+| Soporte | `usuario`, `configuracion`, `schema_migrations` |
+
+Ocho índices sobre claves foráneas y campos de búsqueda, incluido `idx_orden_fecha_entrega`.
+
+> El fichero `script_costura.sql` de la raíz es un **esquema histórico** que ya no corresponde a la base real. La única fuente válida es `src/database/migrations.js`.
+
+## 4. Plugins nativos (Capacitor 8)
+
+| Plugin | Uso |
+| --- | --- |
+| `@capacitor-community/sqlite` | Base de datos local |
+| `@capacitor/camera` | Fotografías de prendas · JPEG calidad 60, ancho 1080 |
+| `@capacitor/filesystem` | Almacenamiento permanente en `Directory.Data` |
+| `@aparajita/capacitor-biometric-auth` | Acceso y desbloqueo por huella o rostro |
+| `@capacitor/local-notifications` | Recordatorio diario de entregas |
+| `@capacitor/preferences` | Persistencia de la sesión |
+| `@capacitor/app` | Ciclo de vida, para el bloqueo al reanudar |
+| `@capacitor/share` | Compartir recibos por el menú nativo |
+| `@capacitor/haptics` | Retroalimentación táctil |
+| `@capacitor/status-bar`, `@capacitor/splash-screen` | Integración visual con el sistema |
+| `@capgo/capacitor-updater` | Actualizaciones OTA |
+
+## 5. Integraciones externas
+
+**Bot de Telegram** · HTTP POST contra `api.telegram.org` mediante `fetch`. Es el único destino de los respaldos y el canal de los recibos y avisos que la modista se envía a sí misma.
+
+El token y el chat id se guardan en la tabla `configuracion` de SQLite — **no en `localStorage`** — para que entren en el respaldo cifrado y sobrevivan a una limpieza de datos del WebView. Se guardan en claro dentro de la base local del dispositivo.
+
+**WhatsApp** · no hay integración con su API. La aplicación construye enlaces `wa.me` con el mensaje precargado; enviarlo es una acción manual.
+
+**Capgo** · actualizaciones OTA con `autoUpdate` activado.
+
+## 6. Seguridad
+
+| Aspecto | Implementación |
+| --- | --- |
+| Contraseñas | bcrypt con salt de 10 rondas |
+| Clave de fábrica | `admin`/`admin123`, con **cambio obligatorio** antes de acceder a ninguna pantalla |
+| Sesión | Persistida en `Preferences`; bloqueo al pasar a segundo plano y desbloqueo por huella o contraseña tras 2 minutos de ausencia |
+| Inactividad | Cierre de sesión automático a los 15 minutos |
+| Respaldos | AES-256-GCM con clave derivada por PBKDF2-SHA256 y 600 000 iteraciones. **El cifrado es propio, no el de Telegram** |
+| Datos en reposo | La base SQLite no está cifrada a nivel de fichero; la protección efectiva es la del sandbox de Android |
+| Privacidad | Los datos de clientes y las transacciones no salen del dispositivo, salvo el respaldo que la modista envía a su propio chat |
+
+## 7. Despliegue
+
+- **minSdk 24** (Android 7.0) · **targetSdk 36** · **compileSdk 36**
+- **Permisos:** `INTERNET`, `USE_BIOMETRIC`, `POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`
+- **Versionado:** `versionName` y `versionCode` se derivan de `package.json`; el `versionCode` se calcula como `mayor × 10000 + menor × 100 + parche`
+- **Firma:** las credenciales del keystore se leen del entorno o de `gradle.properties`, nunca del repositorio
+- **Guardia de compilación:** la tarea Gradle `verifyWebAssetsUpToDate` detiene el build si el bundle web empaquetado es más viejo que el código, para que no salga un APK con código antiguo
+
+El procedimiento completo está en el [README](README.md#5-compilar-para-producción-y-generar-apk-nativo-android).
+
+## 8. Calidad
+
+- **117 pruebas** con Vitest sobre la capa de datos, los composables y los servicios
+- **GitHub Actions** en cada push y pull request: `npm ci`, `npm run test:unit` y `npm run build`
+- **Trinquete de cobertura** fijado justo por debajo de la cobertura real: la CI falla si alguien la hace bajar
+
+## 9. Rendimiento
+
+Sin peticiones de red en las operaciones CRUD, la respuesta la marca el hardware local. Los índices mantienen las búsquedas en tiempo logarítmico al crecer el volumen.
+
+Salvedad conocida: `getPrendasByOrden` realiza dos consultas adicionales por prenda (problema N+1). Con una orden de doce prendas son veinticinco viajes al puente nativo. Registrado como P1-8 en [`docs/TRAZABILIDAD.md`](docs/TRAZABILIDAD.md).

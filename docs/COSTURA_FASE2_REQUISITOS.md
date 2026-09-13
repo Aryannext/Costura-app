@@ -1,5 +1,14 @@
 # Especificación de Requisitos - Costura App (Fase 2)
 
+> **Renumeración (9 de septiembre de 2026).** Esta especificación usaba RF-50 y
+> RNF-24 a RNF-27, que ya estaban ocupados por `MEJORAS_ADICIONALES_FASE1.md`
+> con otro significado. Para que la matriz de trazabilidad sea unívoca, los
+> requisitos de Fase 2 se desplazaron: **RF-50…RF-60 pasan a RF-61…RF-71** y
+> **RNF-24…RNF-27 pasan a RNF-28…RNF-31**. El contenido no cambió.
+>
+> Dos de ellos ya están implementados: **RF-68** (notificación local de entregas)
+> y **RF-70** (buscador global). Ver [TRAZABILIDAD.md](TRAZABILIDAD.md).
+
 Este documento contiene la formalización de los nuevos requisitos para la expansión del sistema Atelier Manager, asegurando la trazabilidad con la Fase 1 documentada en `Costura.md`.
 
 ## Nuevas Épicas del Proyecto
@@ -21,32 +30,32 @@ Como modista/dueña, quiero buscar información rápidamente en todo el sistema 
 ## Nuevos Requisitos Funcionales (RF)
 
 ### Gestión de Bodega / Papelería
-* **RF-50.** El sistema debe permitir trasladar una orden de trabajo (con más de 30 días en estado "Lista para entregar") al estado "Archivada/Bodega".
-* **RF-51.** El sistema debe permitir registrar la venta de una prenda que se encuentre en estado "Archivada/Bodega".
-* **RF-52.** El sistema debe registrar el ingreso económico de la venta de prendas en bodega y diferenciarlo de los ingresos por arreglos normales.
+* **RF-61.** El sistema debe permitir trasladar una orden de trabajo (con más de 30 días en estado "Lista para entregar") al estado "Archivada/Bodega".
+* **RF-62.** El sistema debe permitir registrar la venta de una prenda que se encuentre en estado "Archivada/Bodega".
+* **RF-63.** El sistema debe registrar el ingreso económico de la venta de prendas en bodega y diferenciarlo de los ingresos por arreglos normales.
 
 ### Exportación e Impresión
-* **RF-53.** El sistema debe permitir exportar los reportes de ingresos y cuentas por cobrar en formato Excel (.xlsx).
-* **RF-54.** El sistema debe permitir exportar los reportes de ingresos y cuentas por cobrar en formato PDF.
-* **RF-55.** El sistema debe permitir la conexión con impresoras térmicas portátiles mediante Bluetooth.
-* **RF-56.** El sistema debe imprimir un ticket con el detalle de la orden de trabajo, abonos y saldo mediante la impresora térmica configurada.
+* **RF-64.** El sistema debe permitir exportar los reportes de ingresos y cuentas por cobrar en formato Excel (.xlsx).
+* **RF-65.** El sistema debe permitir exportar los reportes de ingresos y cuentas por cobrar en formato PDF.
+* **RF-66.** El sistema debe permitir la conexión con impresoras térmicas portátiles mediante Bluetooth.
+* **RF-67.** El sistema debe imprimir un ticket con el detalle de la orden de trabajo, abonos y saldo mediante la impresora térmica configurada.
 
 ### Notificaciones Locales
-* **RF-57.** El sistema debe generar notificaciones locales en el dispositivo móvil indicando el número de órdenes próximas a vencer.
-* **RF-58.** El sistema debe permitir configurar la hora en la que se generarán las notificaciones locales diarias.
+* **RF-68.** El sistema debe generar notificaciones locales en el dispositivo móvil indicando el número de órdenes próximas a vencer.
+* **RF-69.** El sistema debe permitir configurar la hora en la que se generarán las notificaciones locales diarias.
 
 ### Búsqueda Global y Ajustes
-* **RF-59.** El sistema debe contar con un buscador global que permita localizar órdenes, prendas o clientes desde una única barra de búsqueda utilizando texto o números.
-* **RF-60.** El sistema debe permitir cambiar la interfaz gráfica entre Modo Claro y Modo Oscuro.
+* **RF-70.** El sistema debe contar con un buscador global que permita localizar órdenes, prendas o clientes desde una única barra de búsqueda utilizando texto o números.
+* **RF-71.** El sistema debe permitir cambiar la interfaz gráfica entre Modo Claro y Modo Oscuro.
 
 ---
 
 ## Nuevos Requisitos No Funcionales (RNF)
 
-* **RNF-24 (Rendimiento):** El sistema debe implementar paginación (virtual scrolling) en las listas de órdenes y prendas para soportar más de 5,000 registros sin exceder 2 segundos de tiempo de carga en la vista.
-* **RNF-25 (Compatibilidad):** El módulo de impresión térmica debe ser compatible con comandos estándar ESC/POS.
-* **RNF-26 (Usabilidad):** El Modo Oscuro debe cumplir con las directrices de contraste de accesibilidad WCAG 2.1 nivel AA.
-* **RNF-27 (Autonomía):** Las notificaciones locales no deben requerir conexión a internet para activarse, basándose exclusivamente en el reloj interno del dispositivo.
+* **RNF-28 (Rendimiento):** El sistema debe implementar paginación (virtual scrolling) en las listas de órdenes y prendas para soportar más de 5,000 registros sin exceder 2 segundos de tiempo de carga en la vista.
+* **RNF-29 (Compatibilidad):** El módulo de impresión térmica debe ser compatible con comandos estándar ESC/POS.
+* **RNF-30 (Usabilidad):** El Modo Oscuro debe cumplir con las directrices de contraste de accesibilidad WCAG 2.1 nivel AA.
+* **RNF-31 (Autonomía):** Las notificaciones locales no deben requerir conexión a internet para activarse, basándose exclusivamente en el reloj interno del dispositivo.
 
 ---
 

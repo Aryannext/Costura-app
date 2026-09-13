@@ -1,3 +1,14 @@
+> **Estado de esta especificación · 9 de septiembre de 2026**
+>
+> Documento **original** de Fase 1. Se conserva como referencia histórica y no se
+> edita. El estado real de cada requisito, verificado contra el código, está en
+> [TRAZABILIDAD.md](TRAZABILIDAD.md).
+>
+> Dos requisitos quedaron **derogados** al adoptarse la arquitectura offline-first:
+> **RNF-13** (disponibilidad de un computador servidor) y **RNF-14** (acceso
+> simultáneo desde dos dispositivos en red local). No hay servidor ni
+> sincronización, y no están en el alcance.
+
 Costura – app
 
 Centro Tecnológico de la Amazonia
