@@ -85,7 +85,9 @@ export async function changeEstado(id_orden, id_estado_orden, nombre_estado, cur
         });
     } else {
         set.push({
-            statement: "UPDATE orden_trabajo SET id_estado_orden = ? WHERE id_orden = ?",
+            // Cancelar o reabrir: la orden deja de estar Lista para Entregar (RN-37).
+            // Al entregar, en cambio, fecha_lista se conserva como dato histórico.
+            statement: "UPDATE orden_trabajo SET id_estado_orden = ?, fecha_lista = NULL WHERE id_orden = ?",
             values: [id_estado_orden, id_orden]
         });
     }

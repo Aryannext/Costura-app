@@ -2,8 +2,8 @@
 
 Correspondencia entre los requisitos especificados y el código que los implementa. Cada fila se verificó contra `src/`, no contra la intención original.
 
-> **Revisión:** 13 de septiembre de 2026 · versión 1.1.2 · esquema 4
-> **Suite de pruebas:** 273 · 272 en verde y 1 fallo esperado que documenta la única regla incumplida (`it.fails`, RN-37), 0 omitidas
+> **Revisión:** 13 de septiembre de 2026 · versión 1.1.2 · esquema 5
+> **Suite de pruebas:** 281 en verde, 0 fallos esperados, 0 omitidas
 
 Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · ❌ no implementado · 🚧 planificado
 
@@ -58,7 +58,7 @@ Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · 
 | --- | --- | --- |
 | RF-44, RF-45, RF-46, RF-48 | ✅ | `database/queries/reportes.js`, `views/ReportesView.vue` |
 | RF-43 · próximas a vencer | ✅ | `clasificarVencimiento` en `services/vencimientos.js` (RN-38). Los días se leen de `dias_anticipacion_vencer` y se cambian en **Ajustes → Aviso de entregas próximas** (0 a 30). Sólo cuentan órdenes activas (RN-04) |
-| RF-47 · sin reclamar más de 30 días | ⚠️ | El 30 está dentro del SQL y `dias_sin_reclamar` no se consulta. Además **mide mal**: cuenta desde la fecha estimada de entrega y RN-37 pide contar desde que la orden entró en *Lista para Entregar*. Ver P1-11 |
+| RF-47 · sin reclamar más de 30 días | ✅ | Se cuenta desde `orden_trabajo.fecha_lista`, sellada al entrar en *Lista para Entregar* (RN-37). Los días se leen de `dias_sin_reclamar`; no hay pantalla para cambiarlos |
 
 ### Valor añadido de Fase 1
 
@@ -113,10 +113,10 @@ Las cuarenta reglas de [Costura.md](Costura.md) son pruebas ejecutables en [`src
 | RN-34 · resumen con datos actuales | ✅ | Recibos y avisos releen la orden al enviarse |
 | RN-35 · todo cambio en el historial | ✅ | Incluidas observaciones y fotografías, escritas en la misma transacción que el cambio |
 | RN-36 | ✅ | |
-| RN-37 · sin reclamar | ❌ | P1-11 |
+| RN-37 · sin reclamar | ✅ | Medido desde la entrada en *Lista para Entregar*; la cuenta vuelve a cero si la orden sale de *Lista* |
 | RN-38 a RN-40 | ✅ | |
 
-**Resumen:** 39 cumplidas y 1 incumplida (RN-37, P1-11).
+**Resumen:** las 40 reglas se cumplen. Cualquier regresión rompe la CI.
 
 ---
 
@@ -147,7 +147,6 @@ Ninguno impide publicar ni pone datos en riesgo.
 | P1-6 | Las transiciones entre vistas nunca se activan: el `watch` observa el objeto `route` completo, así que `to` y `from` son la misma referencia | `App.vue` |
 | P1-7 | Alarmas exactas sin comprobar el permiso en Android 13+ | `useNotificacionesLocales.js` |
 | P1-8 | N+1 al cargar el detalle de una orden | `queries/prendas.js` |
-| P1-11 | RN-37 · "sin reclamar" cuenta desde la fecha estimada y no desde la entrada en *Lista para Entregar*; los 30 días no son configurables | `queries/reportes.js` |
 | P1-12 | HU-36 · no hay una vista de órdenes con saldo pendiente; sólo la cifra total en el panel | `views/OrdenesView.vue` |
 | P1-13 | Los distintivos de estado del panel usan un mapa desplazado en uno (4 se pinta como *Lista*, 5 como *Entregada*); el texto es correcto, el color no | `views/DashboardView.vue` |
 | P1-14 | Si cambiar el estado de una prenda falla por algo distinto de CP-18, el selector sigue mostrando el valor elegido hasta recargar | `components/prendas/PrendaCard.vue` |
@@ -171,6 +170,7 @@ Ninguno impide publicar ni pone datos en riesgo.
 - **P1-18** · RN-34: el recibo se armaba con la orden en memoria y leía `fecha_recepcion`, `precio_total` y `abono_inicial`, columnas que no existen; la fecha de recepción salía en blanco. Ahora recibos y avisos releen la orden al enviarse y el texto sale de una sola función, `construirRecibo`.
 - **P1-17** · RN-31: *Avisar Lista* estaba siempre visible y enviaba el aviso con la orden en cualquier estado. Ahora el botón sólo aparece con la orden *Lista para Entregar*, y `useOrdenTelegram` relee la orden y se niega a enviar si no lo está, también en la alerta que se ofrece tras la transición.
 - **P1-19** · RN-35: añadir una observación, añadir una fotografía o borrarla no dejaba rastro. Ahora cada una escribe su línea de historial en la misma transacción; si la escritura falla, tampoco queda el rastro.
+- **P1-11** · RN-37: "sin reclamar" contaba desde la fecha estimada de entrega, así que una orden atrasada que se terminaba hoy ya salía sin reclamar, y el 30 estaba escrito en el SQL. Ahora la migración 5 añade `orden_trabajo.fecha_lista`, que se sella al entrar en *Lista para Entregar* y se borra al salir de ese estado (se conserva al entregar). Las órdenes que ya estaban *Lista* toman su última entrada en ese estado según el historial y, si no la hay, la fecha estimada, que es lo que se medía antes. Los días salen de `dias_sin_reclamar`.
 
 ### Excepciones a la separación de capas
 

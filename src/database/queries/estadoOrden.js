@@ -44,7 +44,11 @@ function sentenciasHacia(id_orden, hacia) {
             ];
         case ESTADO_ORDEN.LISTA:
             return [
-                { statement: "UPDATE orden_trabajo SET id_estado_orden = 3 WHERE id_orden = ?", values: [id_orden] },
+                {
+                    // RN-37: desde aquí se cuentan los días sin reclamar.
+                    statement: "UPDATE orden_trabajo SET id_estado_orden = 3, fecha_lista = datetime('now','localtime') WHERE id_orden = ?",
+                    values: [id_orden]
+                },
                 {
                     statement: INSERT_HISTORIAL,
                     values: ["Estado cambiado automáticamente a Lista para Entregar porque todas las prendas están terminadas", id_orden, 3]
@@ -57,7 +61,8 @@ function sentenciasHacia(id_orden, hacia) {
             ];
         case ESTADO_ORDEN.EN_PROCESO:
             return [
-                { statement: "UPDATE orden_trabajo SET id_estado_orden = 2 WHERE id_orden = ?", values: [id_orden] },
+                // Deja de estar Lista: si vuelve, la cuenta de días empieza de nuevo.
+                { statement: "UPDATE orden_trabajo SET id_estado_orden = 2, fecha_lista = NULL WHERE id_orden = ?", values: [id_orden] },
                 {
                     statement: INSERT_HISTORIAL,
                     values: ["Estado cambiado automáticamente a En Proceso porque hay prendas pendientes o en proceso", id_orden, 3]
@@ -65,7 +70,7 @@ function sentenciasHacia(id_orden, hacia) {
             ];
         case ESTADO_ORDEN.PENDIENTE:
             return [
-                { statement: "UPDATE orden_trabajo SET id_estado_orden = 1 WHERE id_orden = ?", values: [id_orden] },
+                { statement: "UPDATE orden_trabajo SET id_estado_orden = 1, fecha_lista = NULL WHERE id_orden = ?", values: [id_orden] },
                 {
                     statement: INSERT_HISTORIAL,
                     values: ["Estado cambiado automáticamente a Pendiente porque la orden se quedó sin prendas", id_orden, 3]

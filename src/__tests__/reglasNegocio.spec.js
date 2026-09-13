@@ -705,14 +705,73 @@ describe('RN-36 · la fecha y hora de entrega se registran solas', () => {
 });
 
 describe('RN-37 · sin reclamar: más de 30 días en Lista para Entregar', () => {
-    // El panel cuenta desde la fecha estimada de entrega, no desde que la orden
-    // quedó lista: una orden atrasada que se termina hoy ya sale "sin reclamar".
-    it.fails('P1-11: una orden que quedó Lista hoy no está sin reclamar aunque su fecha estimada sea antigua', async () => {
+    const sinReclamar = async () => (await getDashboardData()).kpis.ordenesSinReclamar;
+
+    /** Simula que la orden lleva `dias` días Lista para Entregar. */
+    async function listaDesdeHace(id_orden, dias) {
+        await db.run(
+            "UPDATE orden_trabajo SET fecha_lista = datetime('now','localtime', ?) WHERE id_orden = ?",
+            [`-${dias} days`, id_orden]
+        );
+    }
+
+    it('P1-11: una orden que quedó Lista hoy no está sin reclamar aunque su fecha estimada sea antigua', async () => {
         const id = await createOrden({ id_cliente: await cliente(), fecha_entrega_estimada: enDias(-60) });
         const a = await prenda(id);
         await estadoPrenda(a, id, P.TERMINADA);
 
-        expect((await getDashboardData()).kpis.ordenesSinReclamar).toBe(0);
+        expect(await sinReclamar()).toBe(0);
+    });
+
+    it('con 30 días en Lista todavía no; con 31, sí', async () => {
+        const { id } = await ordenLista();
+
+        await listaDesdeHace(id, 30);
+        expect(await sinReclamar()).toBe(0);
+
+        await listaDesdeHace(id, 31);
+        expect(await sinReclamar()).toBe(1);
+    });
+
+    it('la fecha se sella al quedar Lista y se borra al salir de Lista', async () => {
+        const { id, a } = await ordenLista();
+        expect((await getOrdenById(id)).fecha_lista).toMatch(FECHA_HORA);
+
+        await estadoPrenda(a, id, P.EN_PROCESO);
+
+        expect((await getOrdenById(id)).fecha_lista).toBeNull();
+    });
+
+    it('una orden que vuelve a quedar Lista empieza la cuenta de cero', async () => {
+        const { id, a } = await ordenLista();
+        await listaDesdeHace(id, 40);
+        expect(await sinReclamar()).toBe(1);
+
+        await estadoPrenda(a, id, P.EN_PROCESO);
+        await estadoPrenda(a, id, P.TERMINADA);
+
+        expect(await sinReclamar()).toBe(0);
+    });
+
+    it('entregada o cancelada ya no cuenta', async () => {
+        const entregada = await ordenLista();
+        const cancelada = await ordenLista();
+        await listaDesdeHace(entregada.id, 40);
+        await listaDesdeHace(cancelada.id, 40);
+        expect(await sinReclamar()).toBe(2);
+
+        await cambiarOrden(entregada.id, O.ENTREGADA);
+        await cambiarOrden(cancelada.id, O.CANCELADA);
+
+        expect(await sinReclamar()).toBe(0);
+    });
+
+    it('los días salen de la configuración del negocio', async () => {
+        const { id } = await ordenLista();
+        await listaDesdeHace(id, 20);
+        await db.run("UPDATE configuracion SET valor = '15' WHERE clave = 'dias_sin_reclamar'");
+
+        expect(await sinReclamar()).toBe(1);
     });
 });
 

@@ -33,13 +33,25 @@ export function clasificarVencimiento(fechaEntregaEstimada, hoy, diasAnticipacio
     return null;
 }
 
+/** RN-37: días en Lista para Entregar a partir de los cuales una orden está sin reclamar. */
+export const DIAS_SIN_RECLAMAR_POR_DEFECTO = 30;
+export const DIAS_SIN_RECLAMAR_MAXIMO = 365;
+
 /** Valor guardado en `configuracion` → días válidos; si falta o está corrupto, el de por defecto. */
-export function interpretarDiasAnticipacion(valor) {
-    if (valor === null || valor === undefined || String(valor).trim() === '') {
-        return DIAS_ANTICIPACION_POR_DEFECTO;
-    }
+function interpretarDias(valor, { porDefecto, minimo, maximo }) {
+    if (valor === null || valor === undefined || String(valor).trim() === '') return porDefecto;
     const dias = Number(valor);
-    return Number.isInteger(dias) && dias >= 0 && dias <= DIAS_ANTICIPACION_MAXIMO
-        ? dias
-        : DIAS_ANTICIPACION_POR_DEFECTO;
+    return Number.isInteger(dias) && dias >= minimo && dias <= maximo ? dias : porDefecto;
+}
+
+export function interpretarDiasAnticipacion(valor) {
+    return interpretarDias(valor, {
+        porDefecto: DIAS_ANTICIPACION_POR_DEFECTO, minimo: 0, maximo: DIAS_ANTICIPACION_MAXIMO
+    });
+}
+
+export function interpretarDiasSinReclamar(valor) {
+    return interpretarDias(valor, {
+        porDefecto: DIAS_SIN_RECLAMAR_POR_DEFECTO, minimo: 1, maximo: DIAS_SIN_RECLAMAR_MAXIMO
+    });
 }

@@ -186,5 +186,23 @@ export const migrations = [
          END
        WHERE id_estado_orden IN (1, 2, 3);`
     ]
+  },
+  {
+    // RN-37 y P1-11: "sin reclamar" se mide desde que la orden quedó Lista para
+    // Entregar, no desde la fecha estimada. Desde aquí la transición a Lista
+    // sella `fecha_lista` (queries/estadoOrden.js) y salir de Lista la borra.
+    // Para las órdenes que ya están Lista se toma su última entrada en ese
+    // estado según el historial; si no hay ninguna, la fecha estimada de
+    // entrega, que es lo que se medía hasta ahora.
+    toVersion: 5,
+    statements: [
+      `ALTER TABLE orden_trabajo ADD COLUMN fecha_lista TEXT;`,
+      `UPDATE orden_trabajo SET fecha_lista = COALESCE(
+         (SELECT MAX(h.fecha_hora) FROM historial_actividad h
+          WHERE h.id_orden = orden_trabajo.id_orden
+            AND h.descripcion LIKE '%a Lista para Entregar%'),
+         fecha_entrega_estimada)
+       WHERE id_estado_orden = 3;`
+    ]
   }
 ];

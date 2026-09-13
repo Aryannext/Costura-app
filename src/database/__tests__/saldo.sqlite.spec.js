@@ -564,7 +564,7 @@ describe('Migraciones contra SQLite real', () => {
 
         const aplicadas = await runMigrations(db, migrations);
 
-        expect(aplicadas).toEqual([2, 3, 4]);
+        expect(aplicadas).toEqual([2, 3, 4, 5]);
         expect(await leerOrden(id_orden)).toEqual({ valor_total: 100, saldo_pendiente: 60 });
         expect(await leerOrden(vacia.lastId)).toEqual({ valor_total: 0, saldo_pendiente: 0 });
     });
@@ -608,7 +608,7 @@ describe('Migraciones contra SQLite real', () => {
         const abiertaTodoEntregado = await ordenCon(2, [4]);
 
         const aplicadas = await runMigrations(db, migrations);
-        expect(aplicadas).toEqual([4]);
+        expect(aplicadas).toEqual([4, 5]);
 
         const estadoDe = async (id) =>
             (await db.query('SELECT id_estado_orden FROM orden_trabajo WHERE id_orden = ?', [id])).values[0].id_estado_orden;
@@ -628,6 +628,41 @@ describe('Migraciones contra SQLite real', () => {
         expect(values[0].n).toBe(4);
         expect((await historial(listaConPendientes)).at(-1).descripcion)
             .toBe('Estado ajustado automáticamente a En Proceso: hay prendas pendientes o en proceso');
+    });
+
+    it('la v5 fecha las órdenes que ya estaban Lista con su última entrada en ese estado', async () => {
+        await runMigrations(db, migrations.filter(m => m.toVersion <= 4));
+
+        async function ordenEn(estado, fechaEstimada) {
+            const id_orden = await createOrden({ id_cliente: await crearCliente(), fecha_entrega_estimada: fechaEstimada });
+            await db.run('UPDATE orden_trabajo SET id_estado_orden = ? WHERE id_orden = ?', [estado, id_orden]);
+            return id_orden;
+        }
+        async function registrar(id_orden, descripcion, fecha_hora) {
+            await db.run(
+                'INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad, fecha_hora) VALUES (?, ?, 3, ?)',
+                [descripcion, id_orden, fecha_hora]
+            );
+        }
+
+        // Pasó por Lista dos veces: cuenta la última.
+        const conHistorial = await ordenEn(3, '2026-01-01');
+        await registrar(conHistorial, 'Estado cambiado a Lista para Entregar', '2026-01-05 10:00:00');
+        await registrar(conHistorial, 'Estado cambiado automáticamente a En Proceso porque hay prendas pendientes o en proceso', '2026-01-06 10:00:00');
+        await registrar(conHistorial, 'Estado cambiado automáticamente a Lista para Entregar porque todas las prendas están terminadas', '2026-01-08 10:00:00');
+        const ajustadaPorV4 = await ordenEn(3, '2026-01-15');
+        await registrar(ajustadaPorV4, 'Estado ajustado automáticamente a Lista para Entregar: todas las prendas están terminadas', '2026-01-20 08:00:00');
+        const sinHistorial = await ordenEn(3, '2026-02-01');
+        const enProceso = await ordenEn(2, '2026-03-01');
+
+        expect(await runMigrations(db, migrations)).toEqual([5]);
+
+        const fechaLista = async (id) =>
+            (await db.query('SELECT fecha_lista FROM orden_trabajo WHERE id_orden = ?', [id])).values[0].fecha_lista;
+        expect(await fechaLista(conHistorial)).toBe('2026-01-08 10:00:00');
+        expect(await fechaLista(ajustadaPorV4)).toBe('2026-01-20 08:00:00');
+        expect(await fechaLista(sinHistorial)).toBe('2026-02-01');
+        expect(await fechaLista(enProceso)).toBeNull();
     });
 
     it('una base nueva queda en la última versión', async () => {

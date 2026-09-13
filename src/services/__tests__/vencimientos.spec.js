@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
-    clasificarVencimiento, interpretarDiasAnticipacion, VENCIMIENTO, DIAS_ANTICIPACION_POR_DEFECTO
+    clasificarVencimiento, interpretarDiasAnticipacion, interpretarDiasSinReclamar,
+    VENCIMIENTO, DIAS_ANTICIPACION_POR_DEFECTO, DIAS_SIN_RECLAMAR_POR_DEFECTO
 } from '../vencimientos.js';
 
 // Mediodía, para que ninguna prueba dependa de la hora a la que se ejecute.
@@ -51,6 +52,19 @@ describe('interpretarDiasAnticipacion', () => {
     it('vacío, ausente o corrupto -> el valor por defecto', () => {
         for (const valor of [null, undefined, '', '  ', 'abc', '2.5', '-1', '31']) {
             expect(interpretarDiasAnticipacion(valor)).toBe(DIAS_ANTICIPACION_POR_DEFECTO);
+        }
+    });
+});
+
+describe('interpretarDiasSinReclamar (RN-37)', () => {
+    it('valor guardado válido', () => {
+        expect(interpretarDiasSinReclamar('30')).toBe(30);
+        expect(interpretarDiasSinReclamar('45')).toBe(45);
+    });
+
+    it('vacío, cero, negativo o corrupto -> 30', () => {
+        for (const valor of [null, '', '0', '-5', 'treinta', '400']) {
+            expect(interpretarDiasSinReclamar(valor)).toBe(DIAS_SIN_RECLAMAR_POR_DEFECTO);
         }
     });
 });

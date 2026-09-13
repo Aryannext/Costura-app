@@ -1,5 +1,6 @@
 import { db } from '../connection.js';
 import { fechaLocalISO } from '../../services/fechas.js';
+import { interpretarDiasSinReclamar } from '../../services/vencimientos.js';
 import { condicionOrdenActiva } from './estadoOrden.js';
 
 export async function getDashboardData() {
@@ -42,10 +43,17 @@ export async function getDashboardData() {
     );
     kpis.ordenesAtrasadas = resAtrasadas.values[0]?.total || 0;
 
-    // Ordenes Sin Reclamar (3=Lista para entrega y fecha de entrega estimada < hoy - 30 días)
+    // Órdenes sin reclamar (RN-37): más de N días desde que quedaron Lista para
+    // Entregar. Antes se contaba desde la fecha estimada de entrega, y una orden
+    // atrasada que se terminaba hoy ya salía "sin reclamar" (P1-11).
+    const resDias = await db.query("SELECT valor FROM configuracion WHERE clave = 'dias_sin_reclamar'");
+    const diasSinReclamar = interpretarDiasSinReclamar(resDias.values?.[0]?.valor);
     const resSinReclamar = await db.query(
-        "SELECT count(*) as total FROM orden_trabajo WHERE id_estado_orden = 3 AND date(fecha_entrega_estimada) < date(?, '-30 days')",
-        [today]
+        `SELECT count(*) as total FROM orden_trabajo
+         WHERE id_estado_orden = 3
+           AND fecha_lista IS NOT NULL
+           AND date(fecha_lista) < date(?, ?)`,
+        [today, `-${diasSinReclamar} days`]
     );
     kpis.ordenesSinReclamar = resSinReclamar.values[0]?.total || 0;
 

@@ -4,7 +4,7 @@ Planos del sistema **regenerados desde el código fuente**, no desde el diseño 
 
 Están escritos en Mermaid: GitHub y la mayoría de editores los dibujan solos.
 
-> **Versión del esquema documentada:** 4 (`schema_migrations`)
+> **Versión del esquema documentada:** 5 (`schema_migrations`)
 > **Última revisión contra el código:** 13 de septiembre de 2026
 
 ---
@@ -137,6 +137,7 @@ erDiagram
         TEXT fecha_creacion "DEFAULT localtime"
         TEXT fecha_entrega_estimada "NOT NULL"
         TEXT fecha_entrega_real
+        TEXT fecha_lista "desde cuándo está Lista"
         REAL valor_total "DEFAULT 0"
         REAL saldo_pendiente "DEFAULT 0"
         INTEGER id_cliente FK
@@ -418,6 +419,8 @@ Una orden *Entregada* o *Cancelada* no cambia por sus prendas.
 **Estado de pago** (RN-28, `estadoDePago`): *Pagada* si el saldo es cero o menor, *Pendiente* si queda saldo, ninguno si la orden todavía no vale nada. No es una columna: se deriva del saldo, que ya se recalcula en cada escritura.
 
 **Próxima a vencer** (RN-38, `clasificarVencimiento`): la fecha estimada cae entre hoy y hoy + N días, ambos incluidos, con N guardado en `configuracion.dias_anticipacion_vencer`.
+
+**Sin reclamar** (RN-37): la orden lleva más de N días *Lista para Entregar*, contados desde `orden_trabajo.fecha_lista`, con N en `configuracion.dias_sin_reclamar` (30 por defecto). La fecha se sella al entrar en *Lista*, se borra al salir hacia *En Proceso*, *Pendiente*, *Cancelada* o al reabrir, y se conserva al entregar.
 
 **Acciones manuales** (en `validators.validateCambioManualEstado`):
 
