@@ -19,8 +19,12 @@ jobs:
         node-version: '20.x'
         cache: 'npm'
         
+    # `npm ci` en lugar de `npm install`: instala exactamente lo que dice el
+    # lockfile y falla si package.json y package-lock.json no concuerdan. Con
+    # `npm install` una dependencia sin declarar pasaba desapercibida porque
+    # llegaba como transitiva de otro paquete.
     - name: Install dependencies
-      run: npm install
+      run: npm ci
       
     - name: Run Tests & Coverage
       run: npm run test:unit

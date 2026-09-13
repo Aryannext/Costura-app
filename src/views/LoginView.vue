@@ -46,7 +46,7 @@
             Ingresar con Huella / FaceID
           </button>
           
-          <a v-if="!isNative" href="https://www.mediafire.com/file/law8osvdsn18pkk/costura.apk/file" target="_blank" class="ios-button secondary-btn apk-btn">
+          <a v-if="!isNative && apkDownloadUrl" :href="apkDownloadUrl" target="_blank" rel="noopener noreferrer" class="ios-button secondary-btn apk-btn">
             <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display:inline; width:20px; margin-right:8px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
             Descargar App (Android)
           </a>
@@ -71,6 +71,11 @@ const error = ref('');
 const loading = ref(false);
 
 const isNative = Capacitor.isNativePlatform();
+
+// URL del APK del release vigente. Se inyecta en el build (VITE_APK_DOWNLOAD_URL)
+// para que el botón nunca quede apuntando a un instalable viejo; si no está
+// definida, el botón no se muestra.
+const apkDownloadUrl = import.meta.env.VITE_APK_DOWNLOAD_URL || '';
 
 async function handleLogin() {
   error.value = '';

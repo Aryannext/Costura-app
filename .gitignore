@@ -53,6 +53,7 @@ android/.idea
 .env.*
 .env.local
 .env.*.local
+!.env.example
 
 # IDE and Gemini files
 .gemini/
