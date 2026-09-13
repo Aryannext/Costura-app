@@ -66,6 +66,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { getAllClientes, createCliente } from '../../database/queries/clientes.js';
+import { fechaLocalISO } from '../../services/fechas.js';
 
 const props = defineProps({
   fixedClienteId: {
@@ -88,8 +89,9 @@ const creandoCliente = ref(false);
 const nuevoCliente = ref({ nombre: '', telefono: '' });
 const isSubmittingLocal = ref(false);
 
-// format today as YYYY-MM-DD for the min attribute of date input
-const today = new Date().toISOString().split('T')[0];
+// Fecha mínima del selector, en hora local: con toISOString() el formulario
+// dejaba de aceptar "hoy" a partir de las 19:00.
+const today = fechaLocalISO();
 
 onMounted(async () => {
   if (!props.fixedClienteId) {
@@ -109,7 +111,7 @@ function toggleNuevoCliente() {
 function setFecha(daysAdded) {
   const date = new Date();
   date.setDate(date.getDate() + daysAdded);
-  form.value.fecha_entrega_estimada = date.toISOString().split('T')[0];
+  form.value.fecha_entrega_estimada = fechaLocalISO(date);
 }
 
 async function handleSubmit() {

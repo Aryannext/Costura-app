@@ -112,6 +112,23 @@ export async function registrarHistorialActividad(id_orden, id_tipo_actividad, d
     );
 }
 
+/**
+ * Entregas pendientes agrupadas por día, para armar los recordatorios locales.
+ * Ambas fechas se pasan en hora local ('YYYY-MM-DD'), igual que se guardan.
+ */
+export async function getEntregasPorDia(desdeISO, hastaISO) {
+    if (!db) throw new Error("Database not initialized");
+    const result = await db.query(`
+        SELECT date(fecha_entrega_estimada) AS dia, COUNT(*) AS total
+        FROM orden_trabajo
+        WHERE id_estado_orden < 4
+          AND date(fecha_entrega_estimada) BETWEEN ? AND ?
+        GROUP BY dia
+        ORDER BY dia ASC
+    `, [desdeISO, hastaISO]);
+    return result.values || [];
+}
+
 export async function getHistorialByOrden(id_orden) {
     if (!db) throw new Error("Database not initialized");
     const result = await db.query(`

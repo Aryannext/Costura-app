@@ -1,4 +1,5 @@
 import { db } from '../connection.js';
+import { fechaLocalISO } from '../../services/fechas.js';
 
 export async function getDashboardData() {
     if (!db) throw new Error("Database not initialized");
@@ -31,7 +32,8 @@ export async function getDashboardData() {
     kpis.ordenesListas = resListas.values[0]?.total || 0;
 
     // Ordenes Atrasadas (fecha_entrega_estimada < hoy y no entregada/cancelada)
-    const today = new Date().toISOString().split('T')[0];
+    // Hora local: la base guarda las fechas con datetime('now','localtime').
+    const today = fechaLocalISO();
     const resAtrasadas = await db.query(
         "SELECT count(*) as total FROM orden_trabajo WHERE date(fecha_entrega_estimada) < ? AND id_estado_orden NOT IN (4, 5)",
         [today]

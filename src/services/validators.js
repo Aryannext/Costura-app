@@ -1,3 +1,8 @@
+import { aFechaLocal } from './fechas.js';
+
+// Longitud mínima de la contraseña de acceso a la aplicación.
+export const MIN_PASSWORD_LENGTH = 8;
+
 export const validators = {
     // RN-01: nombre + teléfono obligatorios
     validateCliente: (cliente) => {
@@ -18,12 +23,9 @@ export const validators = {
 
     // RN-05: fecha_entrega_estimada >= fecha_creacion
     validateFechaEntrega: (fechaEntregaEstimada, fechaCreacion) => {
-        const entrega = new Date(fechaEntregaEstimada);
-        const creacion = fechaCreacion ? new Date(fechaCreacion) : new Date();
-        // compare only the dates without time
-        entrega.setHours(0,0,0,0);
-        creacion.setHours(0,0,0,0);
-        
+        const entrega = aFechaLocal(fechaEntregaEstimada);
+        const creacion = aFechaLocal(fechaCreacion || new Date());
+
         if (entrega < creacion) {
             throw new Error("La fecha estimada de entrega no puede ser anterior a la fecha de creación.");
         }
@@ -79,6 +81,29 @@ export const validators = {
         }
         if (pago.valor > saldoPendiente) {
             throw new Error(`El valor del abono (${pago.valor}) no puede superar el saldo pendiente (${saldoPendiente}).`);
+        }
+        return true;
+    },
+
+    // RNF-07, RNF-08: la clave de acceso debe poder cambiarse y nunca quedarse
+    // en la que trae la app de fábrica.
+    // `passwordPorDefecto` se recibe como opción para no acoplar los validadores
+    // a la capa de base de datos.
+    validateCambioPassword: ({ actual, nueva, confirmacion }, { passwordPorDefecto } = {}) => {
+        if (!actual || actual.trim() === '') {
+            throw new Error("Debes escribir tu contraseña actual.");
+        }
+        if (!nueva || nueva.length < MIN_PASSWORD_LENGTH) {
+            throw new Error(`La contraseña nueva debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres.`);
+        }
+        if (nueva === actual) {
+            throw new Error("La contraseña nueva debe ser distinta de la actual.");
+        }
+        if (passwordPorDefecto && nueva === passwordPorDefecto) {
+            throw new Error("No puedes usar la contraseña que trae la aplicación de fábrica.");
+        }
+        if (nueva !== confirmacion) {
+            throw new Error("La confirmación no coincide con la contraseña nueva.");
         }
         return true;
     }

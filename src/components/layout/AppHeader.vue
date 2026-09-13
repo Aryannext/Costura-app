@@ -73,6 +73,7 @@ import Icon from '../common/Icon.vue';
 import UpdateModal from '../updates/UpdateModal.vue';
 import { useOrdenes } from '../../composables/useOrdenes.js';
 import { useUpdates } from '../../composables/useUpdates.js';
+import { aFechaLocal, sumarDias } from '../../services/fechas.js';
 
 const router = useRouter();
 const toast = inject('toast');
@@ -85,10 +86,10 @@ onMounted(() => {
 });
 
 const urgentOrders = computed(() => {
-  const todayDate = new Date();
-  todayDate.setHours(0,0,0,0);
-  const futureDate = new Date();
-  futureDate.setDate(todayDate.getDate() + 3); // Por vencer en los próximos 3 días
+  // Hora local en ambos extremos: 'YYYY-MM-DD' se leía como medianoche UTC y
+  // en Colombia eso desplazaba las órdenes un día.
+  const todayDate = aFechaLocal(new Date());
+  const futureDate = sumarDias(todayDate, 3); // Por vencer en los próximos 3 días
   
   return ordenes.value.filter(o => {
     // Solo órdenes activas (Pendiente, En Proceso, Lista)
@@ -96,10 +97,10 @@ const urgentOrders = computed(() => {
     
     if (!o.fecha_entrega_estimada) return false;
     
-    const entregaDate = new Date(o.fecha_entrega_estimada);
+    const entregaDate = aFechaLocal(o.fecha_entrega_estimada);
     // Include if past due or due within 3 days
     return entregaDate < futureDate;
-  }).sort((a, b) => new Date(a.fecha_entrega_estimada) - new Date(b.fecha_entrega_estimada));
+  }).sort((a, b) => aFechaLocal(a.fecha_entrega_estimada) - aFechaLocal(b.fecha_entrega_estimada));
 });
 
 const totalNotifications = computed(() => {
@@ -107,9 +108,8 @@ const totalNotifications = computed(() => {
 });
 
 function isAtrasada(orden) {
-  const todayDate = new Date();
-  todayDate.setHours(0,0,0,0);
-  const entregaDate = new Date(orden.fecha_entrega_estimada);
+  const todayDate = aFechaLocal(new Date());
+  const entregaDate = aFechaLocal(orden.fecha_entrega_estimada);
   return entregaDate < todayDate;
 }
 
