@@ -37,7 +37,7 @@ El plano completo está en [`docs/DIAGRAMAS.md`](docs/DIAGRAMAS.md).
 - **Chart.js + vue-chartjs** · gráficas del módulo de reportes
 - **bcryptjs** · hash de contraseñas
 - **driver.js** · tutorial guiado
-- **Vitest + Vue Test Utils** · 176 pruebas
+- **Vitest + Vue Test Utils** · 201 pruebas
 - **sql.js** · SQLite real en las pruebas de saldo, estados, pagos, prendas y migraciones
 
 ## 3. Base de datos
@@ -109,7 +109,7 @@ El procedimiento completo está en el [README](README.md#5-compilar-para-producc
 
 ## 8. Calidad
 
-- **176 pruebas** con Vitest sobre la capa de datos, los composables y los servicios. Las de saldo, estados de la orden, anulación de pagos, eliminación de prendas y migraciones corren contra SQLite real, no contra mocks
+- **201 pruebas** con Vitest sobre la capa de datos, los composables y los servicios. Las de saldo, estados de la orden, anulación de pagos, eliminación de prendas y migraciones corren contra SQLite real, no contra mocks
 - **GitHub Actions** en cada push y pull request: `npm ci`, `npm run test:unit` y `npm run build`
 - **Trinquete de cobertura** fijado justo por debajo de la cobertura real: la CI falla si alguien la hace bajar
 

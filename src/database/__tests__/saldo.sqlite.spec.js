@@ -56,13 +56,15 @@ vi.mock('../connection.js', () => {
 import { db } from '../connection.js';
 import { migrations } from '../migrations.js';
 import { runMigrations } from '../migrationRunner.js';
-import { createOrden, changeEstado } from '../queries/ordenes.js';
+import { createOrden, changeEstado, getOrdenById, getEntregasPorDia } from '../queries/ordenes.js';
 import {
     createPrenda, updatePrenda, updateEstadoPrenda, getContextoPrenda, eliminarPrenda, addObservacion, saveFotografia
 } from '../queries/prendas.js';
 import { registrarPago, getPagosByOrden, getPagoById, anularPago } from '../queries/pagos.js';
-import { getReporteFinanciero } from '../queries/reportes.js';
+import { getReporteFinanciero, getDashboardData } from '../queries/reportes.js';
 import { validators } from '../../services/validators.js';
+import { estadoDePago } from '../../services/estadoOrden.js';
+import { cargarDiasAnticipacion, guardarDiasAnticipacion } from '../../composables/useConfiguracionNegocio.js';
 
 const EFECTIVO = 1;
 const PANTALON = 1;
@@ -467,6 +469,65 @@ describe('Estado de la orden derivado de sus prendas contra SQLite real', () => 
         // Tras corregir, la orden vuelve a avanzar sola.
         await cambiarPrenda(basta, id_orden, P.TERMINADA);
         expect((await estado(id_orden)).id_estado_orden).toBe(3);
+    });
+});
+
+describe('RN-04, RN-28 y RN-38 contra SQLite real', () => {
+    beforeEach(async () => {
+        motor.base = new motor.SQL.Database();
+        await runMigrations(db, migrations);
+    });
+
+    async function ordenParaFecha(fecha, { conPrenda }) {
+        const id_cliente = await crearCliente();
+        const id_orden = await createOrden({ id_cliente, fecha_entrega_estimada: fecha });
+        if (conPrenda) await prenda(id_orden, 20000);
+        return id_orden;
+    }
+
+    it('RN-04: una orden sin prendas no cuenta como activa, atrasada ni próxima entrega', async () => {
+        const vacia = await ordenParaFecha('2020-01-01', { conPrenda: false });
+        const conTrabajo = await ordenParaFecha('2020-01-01', { conPrenda: true });
+
+        const { kpis, proximasEntregas } = await getDashboardData();
+
+        expect(kpis.ordenesActivas).toBe(1);
+        expect(kpis.ordenesAtrasadas).toBe(1);
+        expect(proximasEntregas.map(o => o.id_orden)).toEqual([conTrabajo]);
+        expect(proximasEntregas.map(o => o.id_orden)).not.toContain(vacia);
+    });
+
+    it('RN-04: los recordatorios del día no cuentan órdenes sin prendas', async () => {
+        await ordenParaFecha('2026-10-01', { conPrenda: false });
+        await ordenParaFecha('2026-10-01', { conPrenda: true });
+
+        expect(await getEntregasPorDia('2026-10-01', '2026-10-01')).toEqual([{ dia: '2026-10-01', total: 1 }]);
+    });
+
+    it('RN-28 / CP-77 / CP-78: la orden queda Pagada al saldar, y vuelve a Pendiente si se anula un pago', async () => {
+        const id_orden = await ordenParaFecha('2026-10-01', { conPrenda: true });
+
+        const abono = await pagar(id_orden, 5000);
+        expect(estadoDePago(await getOrdenById(id_orden))).toBe('Pendiente');
+
+        await pagar(id_orden, 15000);
+        expect(estadoDePago(await getOrdenById(id_orden))).toBe('Pagada');
+
+        await anular(abono, 'Se registró dos veces');
+        expect(estadoDePago(await getOrdenById(id_orden))).toBe('Pendiente');
+    });
+
+    it('RN-38: los días de anticipación salen de la configuración del negocio y se pueden cambiar', async () => {
+        expect(await cargarDiasAnticipacion()).toBe(3);
+
+        await guardarDiasAnticipacion(7);
+        expect(await cargarDiasAnticipacion()).toBe(7);
+
+        await expect(guardarDiasAnticipacion(45))
+            .rejects.toThrow('Los días de anticipación deben ser un número entero entre 0 y 30.');
+        await expect(guardarDiasAnticipacion(''))
+            .rejects.toThrow('Los días de anticipación deben ser un número entero entre 0 y 30.');
+        expect(await cargarDiasAnticipacion()).toBe(7);
     });
 });
 

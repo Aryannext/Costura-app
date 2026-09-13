@@ -1,4 +1,5 @@
 import { db, saveDb } from '../connection.js';
+import { condicionOrdenActiva } from './estadoOrden.js';
 
 export async function getAllOrdenes() {
     if (!db) throw new Error("Database not initialized");
@@ -121,7 +122,7 @@ export async function getEntregasPorDia(desdeISO, hastaISO) {
     const result = await db.query(`
         SELECT date(fecha_entrega_estimada) AS dia, COUNT(*) AS total
         FROM orden_trabajo
-        WHERE id_estado_orden < 4
+        WHERE ${condicionOrdenActiva()}
           AND date(fecha_entrega_estimada) BETWEEN ? AND ?
         GROUP BY dia
         ORDER BY dia ASC

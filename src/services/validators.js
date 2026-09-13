@@ -1,4 +1,5 @@
 import { aFechaLocal } from './fechas.js';
+import { DIAS_ANTICIPACION_MAXIMO } from './vencimientos.js';
 
 // Longitud mínima de la contraseña de acceso a la aplicación.
 export const MIN_PASSWORD_LENGTH = 8;
@@ -119,6 +120,14 @@ export const validators = {
             return validators.validateOrdenAccionPermitida(orden, 'reabrir');
         }
         throw new Error("El estado de la orden cambia solo según sus prendas: no se puede fijar a mano.");
+    },
+
+    // RN-38: el período de anticipación de "próximas a vencer" lo configura el negocio.
+    validateDiasAnticipacion: (dias) => {
+        if (!Number.isInteger(dias) || dias < 0 || dias > DIAS_ANTICIPACION_MAXIMO) {
+            throw new Error(`Los días de anticipación deben ser un número entero entre 0 y ${DIAS_ANTICIPACION_MAXIMO}.`);
+        }
+        return true;
     },
 
     // RN-08 y CP-18: una prenda sólo se entrega cuando está terminada.

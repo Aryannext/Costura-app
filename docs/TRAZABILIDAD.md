@@ -3,7 +3,7 @@
 Correspondencia entre los requisitos especificados y el código que los implementa. Cada fila se verificó contra `src/`, no contra la intención original.
 
 > **Revisión:** 13 de septiembre de 2026 · versión 1.1.2 · esquema 4
-> **Suite de pruebas:** 176 en verde, 0 omitidas
+> **Suite de pruebas:** 201 en verde, 0 omitidas
 
 Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · ❌ no implementado · 🚧 planificado
 
@@ -42,7 +42,7 @@ Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · 
 | --- | --- | --- |
 | RF-33 a RF-35, RF-37 | ✅ | `composables/usePagos.js`, `database/queries/pagos.js` |
 | RF-36 · saldo automático | ✅ | Cada escritura recalcula `saldo_pendiente = SUM(prenda.valor) − SUM(pago.valor)`; la migración 2 reparó los saldos acumulados por diferencias. RN-29: `validateValorPrendaContraPagos` impide bajar un precio por debajo de lo pagado · con pruebas sobre SQLite real |
-| RF-38 · estado de pago al llegar a cero | ❌ | No existe campo ni transición. El saldo se muestra, pero no cambia el estado de la orden |
+| RF-38 · estado de pago al llegar a cero | ✅ | `estadoDePago` en `services/estadoOrden.js` (RN-28, HU-37). Se **deriva** del saldo al leer, sin columna propia: el saldo ya se recalcula en cada escritura y una segunda copia podría descuadrarse. Se muestra como *Pagada* o *Pendiente* en el detalle y en la tarjeta de la orden · con pruebas de CP-77 y CP-78 |
 
 ### Notificaciones · RF-39 a RF-42
 
@@ -57,8 +57,8 @@ Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · 
 | Req. | Estado | Dónde vive |
 | --- | --- | --- |
 | RF-44, RF-45, RF-46, RF-48 | ✅ | `database/queries/reportes.js`, `views/ReportesView.vue` |
-| RF-43 · próximas a vencer | ⚠️ | Funciona, pero el umbral de 3 días está escrito a mano en `AppHeader.vue`. La clave `dias_anticipacion_vencer` de `configuracion` existe y **nadie la lee** |
-| RF-47 · sin reclamar más de 30 días | ⚠️ | Igual: el 30 está dentro del SQL y `dias_sin_reclamar` no se consulta |
+| RF-43 · próximas a vencer | ✅ | `clasificarVencimiento` en `services/vencimientos.js` (RN-38). Los días se leen de `dias_anticipacion_vencer` y se cambian en **Ajustes → Aviso de entregas próximas** (0 a 30). Sólo cuentan órdenes activas (RN-04) |
+| RF-47 · sin reclamar más de 30 días | ⚠️ | El 30 está dentro del SQL y `dias_sin_reclamar` no se consulta. Además **mide mal**: cuenta desde la fecha estimada de entrega y RN-37 pide contar desde que la orden entró en *Lista para Entregar*. Ver P1-11 |
 
 ### Valor añadido de Fase 1
 
@@ -121,6 +121,10 @@ Ninguno impide publicar ni pone datos en riesgo.
 | P1-6 | Las transiciones entre vistas nunca se activan: el `watch` observa el objeto `route` completo, así que `to` y `from` son la misma referencia | `App.vue` |
 | P1-7 | Alarmas exactas sin comprobar el permiso en Android 13+ | `useNotificacionesLocales.js` |
 | P1-8 | N+1 al cargar el detalle de una orden | `queries/prendas.js` |
+| P1-11 | RN-37 · "sin reclamar" cuenta desde la fecha estimada y no desde la entrada en *Lista para Entregar*; los 30 días no son configurables | `queries/reportes.js` |
+| P1-12 | HU-36 · no hay una vista de órdenes con saldo pendiente; sólo la cifra total en el panel | `views/OrdenesView.vue` |
+| P1-13 | Los distintivos de estado del panel usan un mapa desplazado en uno (4 se pinta como *Lista*, 5 como *Entregada*); el texto es correcto, el color no | `views/DashboardView.vue` |
+| P1-14 | Si cambiar el estado de una prenda falla por algo distinto de CP-18, el selector sigue mostrando el valor elegido hasta recargar | `components/prendas/PrendaCard.vue` |
 
 **Cerrados en la revisión del 13 de septiembre:**
 
@@ -132,6 +136,10 @@ Ninguno impide publicar ni pone datos en riesgo.
 - **RN-17** · nada asignaba nunca *En Proceso*, y los botones *Iniciar Proceso* y *Marcar Lista* permitían estados que contradecían a las prendas. Se quitaron: el estado se deriva de las prendas en cada cambio (HU-23, CP-46, CP-47). A mano sólo quedan *Entregar* (únicamente desde *Lista para Entregar*), *Cancelar* y *Reabrir*. La migración 4 ajustó las órdenes abiertas existentes y lo dejó en su historial.
 - **P1-10** · eliminar la última prenda pendiente ahora deja la orden *Lista para Entregar*, y eliminar la última prenda la devuelve a *Pendiente*.
 - **CP-18** · la entrega de una prenda sin terminar sólo la bloqueaba la pantalla; ahora también la regla de negocio (`validateCambioEstadoPrenda`).
+- **RN-04** · las órdenes sin prendas contaban como activas, atrasadas, próximas entregas, avisos de la campana, recordatorios de las 8:00 y resumen de Telegram. Ahora sólo cuentan *En Proceso* y *Lista para Entregar*, desde una única definición (`ESTADOS_ORDEN_ACTIVA`) que comparten la pantalla y el SQL (`condicionOrdenActiva`). Siguen apareciendo en el listado, con el aviso «Sin prendas».
+- **RN-28** · no existía el concepto de orden pagada. Ver RF-38.
+- **RN-38** · el período de anticipación era un 3 escrito en `AppHeader.vue`. Ver RF-43.
+- El resumen diario de Telegram filtraba las atrasadas por `o.fecha_entrega`, una columna que no existe: informaba siempre cero atrasadas.
 
 ### Excepciones a la separación de capas
 

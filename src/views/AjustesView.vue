@@ -36,6 +36,30 @@
         </div>
       </div>
 
+      <div class="card setting-card setting-card--form">
+        <div class="setting-info">
+          <h4 class="headline-sm">Aviso de entregas próximas</h4>
+          <p class="body-md">Con cuántos días de anticipación una orden aparece en la campana como próxima a vencer. Con 0 sólo avisa lo que se entrega hoy.</p>
+        </div>
+        <div class="dias-form">
+          <input
+            type="number"
+            min="0"
+            max="30"
+            step="1"
+            class="input-field dias-input"
+            aria-label="Días de anticipación"
+            v-model.number="diasEditados"
+          />
+          <span class="body-md">días</span>
+          <button
+            class="btn-primary btn-small"
+            :disabled="guardandoDias || diasEditados === diasAnticipacion"
+            @click="guardarDias"
+          >Guardar</button>
+        </div>
+      </div>
+
       <div class="card setting-card" @click="handleLogout">
         <div class="setting-info">
           <h4 class="headline-sm" style="color: var(--error);">Cerrar Sesión</h4>
@@ -70,6 +94,7 @@ import { logout } from '../services/auth.js';
 import { CapacitorUpdater } from '@capgo/capacitor-updater';
 import { Capacitor } from '@capacitor/core';
 import { useUpdates } from '../composables/useUpdates.js';
+import { useConfiguracionNegocio } from '../composables/useConfiguracionNegocio.js';
 import { inject } from 'vue';
 
 const router = useRouter();
@@ -77,6 +102,27 @@ const currentVersion = ref('1.0.0 (Local/Base)');
 const currentBundleId = ref('');
 const { manualCheck } = useUpdates();
 const toast = inject('toast');
+
+// RN-38: el período de anticipación de "próximas a vencer" lo decide el negocio.
+const { diasAnticipacion, cargarDiasAnticipacion, guardarDiasAnticipacion } = useConfiguracionNegocio();
+const diasEditados = ref(diasAnticipacion.value);
+const guardandoDias = ref(false);
+
+onMounted(async () => {
+  diasEditados.value = await cargarDiasAnticipacion();
+});
+
+async function guardarDias() {
+  guardandoDias.value = true;
+  try {
+    await guardarDiasAnticipacion(diasEditados.value);
+    toast(`Listo: las entregas avisarán con ${diasAnticipacion.value} día(s) de anticipación.`, 'success');
+  } catch (err) {
+    toast(err.message, 'error');
+  } finally {
+    guardandoDias.value = false;
+  }
+}
 
 function triggerManualUpdate() {
   manualCheck(toast);
@@ -150,5 +196,26 @@ function handleLogout() {
   width: 24px;
   height: 24px;
   color: var(--on-surface-variant);
+}
+
+.setting-card--form {
+  cursor: default;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.setting-card--form:hover {
+  background-color: inherit;
+}
+
+.dias-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dias-input {
+  width: 72px;
+  text-align: center;
 }
 </style>

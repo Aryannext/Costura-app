@@ -1,5 +1,6 @@
 import { db } from '../connection.js';
 import { fechaLocalISO } from '../../services/fechas.js';
+import { condicionOrdenActiva } from './estadoOrden.js';
 
 export async function getDashboardData() {
     if (!db) throw new Error("Database not initialized");
@@ -13,9 +14,10 @@ export async function getDashboardData() {
         saldosPendientes: 0
     };
 
-    // Ordenes Activas (1=Pendiente, 2=En Proceso)
+    // Órdenes activas (RN-04): con prendas y sin cerrar, es decir En Proceso o
+    // Lista para Entregar. Una orden sin prendas todavía no cuenta.
     const resActivas = await db.query(
-        "SELECT count(*) as total FROM orden_trabajo WHERE id_estado_orden IN (1, 2)"
+        `SELECT count(*) as total FROM orden_trabajo WHERE ${condicionOrdenActiva()}`
     );
     kpis.ordenesActivas = resActivas.values[0]?.total || 0;
 
@@ -35,7 +37,7 @@ export async function getDashboardData() {
     // Hora local: la base guarda las fechas con datetime('now','localtime').
     const today = fechaLocalISO();
     const resAtrasadas = await db.query(
-        "SELECT count(*) as total FROM orden_trabajo WHERE date(fecha_entrega_estimada) < ? AND id_estado_orden NOT IN (4, 5)",
+        `SELECT count(*) as total FROM orden_trabajo WHERE date(fecha_entrega_estimada) < ? AND ${condicionOrdenActiva()}`,
         [today]
     );
     kpis.ordenesAtrasadas = resAtrasadas.values[0]?.total || 0;
@@ -59,7 +61,7 @@ export async function getDashboardData() {
         FROM orden_trabajo o
         JOIN cliente c ON o.id_cliente = c.id_cliente
         JOIN estado_orden e ON o.id_estado_orden = e.id_estado_orden
-        WHERE o.id_estado_orden NOT IN (4, 5)
+        WHERE ${condicionOrdenActiva('o')}
         ORDER BY o.fecha_entrega_estimada ASC
         LIMIT 5
     `);

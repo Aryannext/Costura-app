@@ -25,6 +25,12 @@
           <span :class="{'deuda': ordenActual.saldo_pendiente > 0}">
             ${{ ordenActual.saldo_pendiente }}
           </span> / ${{ ordenActual.valor_total }}
+          <!-- RN-28 y HU-37: estado de pago derivado del saldo -->
+          <span
+            v-if="estadoPago"
+            class="pago-chip"
+            :class="estadoPago === ESTADO_PAGO.PAGADA ? 'pago-chip--pagada' : 'pago-chip--pendiente'"
+          >{{ estadoPago }}</span>
         </p>
       </div>
 
@@ -109,7 +115,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, inject, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, inject, watch } from 'vue';
+import { estadoDePago, ESTADO_PAGO } from '../services/estadoOrden.js';
 import { useRoute, useRouter } from 'vue-router';
 import { useOrdenes, mensajeConfirmacionEntrega } from '../composables/useOrdenes.js';
 import { usePrendas } from '../composables/usePrendas.js';
@@ -143,6 +150,7 @@ const {
 
 // Ordenes logic
 const { ordenActual, historial, loading, fetchOrden, changeEstado, clearCurrentState: clearOrdenState } = useOrdenes();
+const estadoPago = computed(() => estadoDePago(ordenActual.value));
 
 // Prendas logic
 const { 
@@ -371,6 +379,22 @@ async function openObsPrompt(id_prenda) {
 .deuda {
   color: var(--error);
   font-weight: bold;
+}
+.pago-chip {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  white-space: nowrap;
+}
+.pago-chip--pagada {
+  background-color: var(--success-bg);
+  color: var(--success-text);
+}
+.pago-chip--pendiente {
+  background-color: var(--warning-bg);
+  color: var(--warning-text);
 }
 
 /* Premium Segmented Control Tabs */

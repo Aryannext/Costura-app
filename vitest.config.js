@@ -33,11 +33,11 @@ export default defineConfig({
       thresholds: {
         // Trinquete: se fijan justo por debajo de la cobertura real para que la
         // CI falle si alguien la hace bajar. Al añadir pruebas, súbelos.
-        // Medición actual: 30.43 / 33.20 / 25.88 / 31.74
-        statements: 30,
-        branches: 33,
-        functions: 25,
-        lines: 31
+        // Medición actual: 34.36 / 39.25 / 30.58 / 35.78
+        statements: 34,
+        branches: 39,
+        functions: 30,
+        lines: 35
       }
     }
   }

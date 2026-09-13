@@ -24,7 +24,8 @@ Después puedes cambiarla cuando quieras desde **Ajustes → Cambiar Contraseña
 
 Al entrar verás un resumen de cómo está tu taller hoy:
 
-- **Tarjetas superiores:** los números grandes. Cuántas órdenes tienes activas, cuántas están atrasadas, cuántas llevan más de 30 días sin reclamar y cuánto dinero tienes "en la calle".
+- **Tarjetas superiores:** los números grandes. Cuántas órdenes tienes activas, cuántas están atrasadas, cuántas llevan más de 30 días sin reclamar y cuánto dinero tienes "en la calle". Una orden a la que todavía no le has puesto prendas **no cuenta** como activa ni como atrasada: sigue en tu lista de órdenes, con el aviso «Sin prendas», para que la completes.
+- **La campana de arriba:** te muestra las órdenes atrasadas y las que se entregan pronto. Tú decides qué es "pronto" en **Ajustes → Aviso de entregas próximas**: por defecto son 3 días, y puedes poner de 0 (sólo lo de hoy) a 30.
 - **Buscador:** escribe un nombre, un teléfono o un número de orden y aparece al instante, separado en *Clientes* y *Órdenes*.
 - **Próximas entregas:** los pedidos que debes entregar más pronto. Ideal para priorizar el día.
 
@@ -61,7 +62,7 @@ Una orden es el "ticket" que le creas al cliente cuando te trae ropa.
   - Presiona **"+ Prenda"**, escribe qué hay que hacerle, ponle precio y guarda. La app te sugiere las descripciones que más usas, para no repetir escritura.
   - **Fotos:** el ícono de la cámara le toma foto al daño. Tócala para verla en grande, o la "X" roja para borrarla.
   - **Notas:** el botón de lápiz sirve para anotar cosas como "cortar 2 dedos de largo".
-- **Pagos** — cuando el cliente venga a abonar, entra aquí y registra el valor. El saldo se actualiza solo.
+- **Pagos** — cuando el cliente venga a abonar, entra aquí y registra el valor. El saldo se actualiza solo. En cuanto el saldo llega a cero, la orden muestra **Pagada** junto al saldo; mientras falte algo, muestra **Pendiente**.
 
 **Corregir errores**
 

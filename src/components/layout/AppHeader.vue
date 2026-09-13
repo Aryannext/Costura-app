@@ -73,34 +73,29 @@ import Icon from '../common/Icon.vue';
 import UpdateModal from '../updates/UpdateModal.vue';
 import { useOrdenes } from '../../composables/useOrdenes.js';
 import { useUpdates } from '../../composables/useUpdates.js';
-import { aFechaLocal, sumarDias } from '../../services/fechas.js';
+import { aFechaLocal } from '../../services/fechas.js';
+import { esOrdenActiva } from '../../services/estadoOrden.js';
+import { clasificarVencimiento, VENCIMIENTO } from '../../services/vencimientos.js';
+import { useConfiguracionNegocio } from '../../composables/useConfiguracionNegocio.js';
 
 const router = useRouter();
 const toast = inject('toast');
 const { ordenes, fetchOrdenes } = useOrdenes();
 const { updateAvailable, updateVersion, promptUpdate, applyUpdate, showUpdatePrompt } = useUpdates();
 const showNotifications = ref(false);
+const { diasAnticipacion, cargarDiasAnticipacion } = useConfiguracionNegocio();
 
 onMounted(() => {
   fetchOrdenes();
+  cargarDiasAnticipacion();
 });
 
 const urgentOrders = computed(() => {
-  // Hora local en ambos extremos: 'YYYY-MM-DD' se leía como medianoche UTC y
-  // en Colombia eso desplazaba las órdenes un día.
-  const todayDate = aFechaLocal(new Date());
-  const futureDate = sumarDias(todayDate, 3); // Por vencer en los próximos 3 días
-  
-  return ordenes.value.filter(o => {
-    // Solo órdenes activas (Pendiente, En Proceso, Lista)
-    if (o.id_estado_orden > 3) return false;
-    
-    if (!o.fecha_entrega_estimada) return false;
-    
-    const entregaDate = aFechaLocal(o.fecha_entrega_estimada);
-    // Include if past due or due within 3 days
-    return entregaDate < futureDate;
-  }).sort((a, b) => aFechaLocal(a.fecha_entrega_estimada) - aFechaLocal(b.fecha_entrega_estimada));
+  const hoy = new Date();
+  return ordenes.value
+    // RN-04: una orden sin prendas no avisa. RN-38: el período lo configura el negocio.
+    .filter(o => esOrdenActiva(o) && clasificarVencimiento(o.fecha_entrega_estimada, hoy, diasAnticipacion.value))
+    .sort((a, b) => aFechaLocal(a.fecha_entrega_estimada) - aFechaLocal(b.fecha_entrega_estimada));
 });
 
 const totalNotifications = computed(() => {
@@ -108,9 +103,7 @@ const totalNotifications = computed(() => {
 });
 
 function isAtrasada(orden) {
-  const todayDate = aFechaLocal(new Date());
-  const entregaDate = aFechaLocal(orden.fecha_entrega_estimada);
-  return entregaDate < todayDate;
+  return clasificarVencimiento(orden.fecha_entrega_estimada, new Date(), diasAnticipacion.value) === VENCIMIENTO.ATRASADA;
 }
 
 function formatDate(dateStr) {

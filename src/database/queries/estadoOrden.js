@@ -1,5 +1,15 @@
 import { db } from '../connection.js';
-import { derivarEstadoOrden, ESTADO_ORDEN } from '../../services/estadoOrden.js';
+import { derivarEstadoOrden, ESTADO_ORDEN, ESTADOS_ORDEN_ACTIVA } from '../../services/estadoOrden.js';
+
+/**
+ * Condición SQL de orden activa (RN-04), generada desde la misma lista que usa
+ * `esOrdenActiva` para que la pantalla y las consultas no puedan discrepar.
+ * @param {string} [alias] alias de `orden_trabajo` en la consulta, si lo tiene
+ */
+export function condicionOrdenActiva(alias = '') {
+    const columna = alias ? `${alias}.id_estado_orden` : 'id_estado_orden';
+    return `${columna} IN (${ESTADOS_ORDEN_ACTIVA.join(', ')})`;
+}
 
 /**
  * Traducción a SQL de `derivarEstadoOrden`. Quien cambia prendas (crear, cambiar

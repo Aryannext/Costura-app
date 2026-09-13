@@ -219,6 +219,20 @@ describe('validators.validateCambioEstadoPrenda (CP-18)', () => {
     });
 });
 
+describe('validators.validateDiasAnticipacion (RN-38)', () => {
+    it('0 a 30 días enteros -> pasa', () => {
+        expect(validators.validateDiasAnticipacion(0)).toBe(true);
+        expect(validators.validateDiasAnticipacion(30)).toBe(true);
+    });
+
+    it('fuera de rango, decimal o no numérico -> rechazo', () => {
+        for (const dias of [-1, 31, 2.5, NaN]) {
+            expect(() => validators.validateDiasAnticipacion(dias))
+                .toThrow('Los días de anticipación deben ser un número entero entre 0 y 30.');
+        }
+    });
+});
+
 describe('validators.validateEliminarPrenda (P1-9)', () => {
     const contexto = { estadoOrden: 2, estadoPrenda: 1, totalOtrasPrendas: 30000, totalPagado: 20000 };
 

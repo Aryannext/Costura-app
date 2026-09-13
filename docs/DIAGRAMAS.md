@@ -413,6 +413,12 @@ stateDiagram-v2
 
 Una orden *Entregada* o *Cancelada* no cambia por sus prendas.
 
+**Orden activa** (RN-04, `ESTADOS_ORDEN_ACTIVA`): sólo *En Proceso* y *Lista para Entregar*. Una orden *Pendiente* no tiene prendas, así que no cuenta en activas, atrasadas, próximas entregas, la campana, los recordatorios ni el resumen de Telegram. La misma lista genera la condición SQL (`condicionOrdenActiva`), para que pantalla y consultas no puedan discrepar.
+
+**Estado de pago** (RN-28, `estadoDePago`): *Pagada* si el saldo es cero o menor, *Pendiente* si queda saldo, ninguno si la orden todavía no vale nada. No es una columna: se deriva del saldo, que ya se recalcula en cada escritura.
+
+**Próxima a vencer** (RN-38, `clasificarVencimiento`): la fecha estimada cae entre hoy y hoy + N días, ambos incluidos, con N guardado en `configuracion.dias_anticipacion_vencer`.
+
 **Acciones manuales** (en `validators.validateCambioManualEstado`):
 
 - *Entregar* sólo desde *Lista para Entregar*.

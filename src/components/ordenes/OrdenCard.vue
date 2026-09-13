@@ -9,13 +9,17 @@
       <p class="fecha">Entrega: {{ formatDate(orden.fecha_entrega_estimada) }}</p>
       <p class="saldo" :class="{'deuda': orden.saldo_pendiente > 0}">
         Saldo: ${{ orden.saldo_pendiente }} / ${{ orden.valor_total }}
+        <span v-if="estadoDePago(orden) === ESTADO_PAGO.PAGADA" class="pagada">· Pagada</span>
       </p>
+      <!-- RN-04: se lista para poder completarla, pero aún no cuenta como activa -->
+      <p v-if="orden.id_estado_orden === ESTADO_ORDEN.PENDIENTE" class="sin-prendas">Sin prendas: añade al menos una para empezar</p>
     </div>
   </div>
 </template>
 
 <script setup>
 import StatusBadge from '../common/StatusBadge.vue';
+import { estadoDePago, ESTADO_PAGO, ESTADO_ORDEN } from '../../services/estadoOrden.js';
 
 defineProps({
   orden: {
@@ -64,5 +68,13 @@ function formatDate(dateStr) {
 .deuda {
   color: var(--error-color);
   font-weight: bold;
+}
+.pagada {
+  color: var(--success-text);
+  font-weight: bold;
+}
+.sin-prendas {
+  color: var(--on-surface-variant);
+  font-style: italic;
 }
 </style>
