@@ -1,16 +1,55 @@
 import { inject } from 'vue';
+import { getConfig, updateConfig } from '../database/queries/configuracion.js';
+
+export const CLAVE_BOT_TOKEN = 'telegram_bot_token';
+export const CLAVE_CHAT_ID = 'telegram_chat_id';
+
+/**
+ * Lee la configuración del bot de la tabla `configuracion`.
+ * Vive en la base de datos, y no en localStorage, por dos razones: entra sola
+ * en el respaldo cifrado, y no se la lleva por delante una limpieza de datos
+ * del WebView.
+ */
+export async function leerConfigTelegram() {
+    const [botToken, chatId] = await Promise.all([
+        getConfig(CLAVE_BOT_TOKEN),
+        getConfig(CLAVE_CHAT_ID)
+    ]);
+    return { botToken, chatId };
+}
+
+export async function guardarConfigTelegram(botToken, chatId) {
+    await updateConfig(CLAVE_BOT_TOKEN, botToken);
+    await updateConfig(CLAVE_CHAT_ID, chatId);
+}
+
+/**
+ * Instalaciones anteriores guardaban el bot en localStorage. Se traslada a la
+ * base de datos la primera vez que arranca esta versión y se borra el rastro,
+ * para que no queden dos fuentes de verdad.
+ */
+export async function migrarConfigTelegramDesdeLocalStorage() {
+    try {
+        for (const clave of [CLAVE_BOT_TOKEN, CLAVE_CHAT_ID]) {
+            const heredado = localStorage.getItem(clave);
+            if (!heredado) continue;
+
+            const actual = await getConfig(clave);
+            if (!actual) {
+                await updateConfig(clave, heredado);
+            }
+            localStorage.removeItem(clave);
+        }
+    } catch (e) {
+        console.error("No se pudo migrar la configuración de Telegram", e);
+    }
+}
 
 export function useTelegramBot() {
-    const toast = inject('toast');
-
-    function getConfig() {
-        const botToken = localStorage.getItem('telegram_bot_token');
-        const chatId = localStorage.getItem('telegram_chat_id');
-        return { botToken, chatId };
-    }
+    const toast = inject('toast', null);
 
     async function sendTelegramMessage(text, parseMode = 'Markdown', configOverride = null) {
-        const { botToken, chatId } = configOverride || getConfig();
+        const { botToken, chatId } = configOverride || await leerConfigTelegram();
         if (!botToken || !chatId) {
             console.warn("Telegram no configurado. Ignorando mensaje.");
             return false;
@@ -40,9 +79,9 @@ export function useTelegramBot() {
     }
 
     async function sendTelegramDocument(fileContent, filename, caption = '') {
-        const { botToken, chatId } = getConfig();
+        const { botToken, chatId } = await leerConfigTelegram();
         if (!botToken || !chatId) {
-            toast('Debes configurar Telegram primero.', 'error');
+            if (toast) toast('Debes configurar Telegram primero.', 'error');
             return false;
         }
 
@@ -75,8 +114,8 @@ export function useTelegramBot() {
     return {
         sendTelegramMessage,
         sendTelegramDocument,
-        isConfigured: () => {
-            const { botToken, chatId } = getConfig();
+        isConfigured: async () => {
+            const { botToken, chatId } = await leerConfigTelegram();
             return !!botToken && !!chatId;
         }
     };

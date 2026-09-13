@@ -159,6 +159,36 @@ export async function saveFotografia(id_prenda, ruta_archivo) {
     return res.changes.lastId;
 }
 
+export async function getTodasLasFotografias() {
+    if (!db) throw new Error("Database not initialized");
+    const result = await db.query("SELECT id_fotografia, ruta_archivo FROM fotografia");
+    return result.values || [];
+}
+
+/**
+ * Reescribe las rutas absolutas heredadas a un simple nombre de archivo.
+ * Los archivos siempre estuvieron en el directorio de datos, así que quedarse
+ * con el nombre es suficiente y sobrevive a una reinstalación.
+ * Idempotente: se ejecuta en cada arranque y no hace nada si ya está limpio.
+ */
+export async function normalizarRutasDeFotos() {
+    if (!db) throw new Error("Database not initialized");
+
+    const result = await db.query(
+        "SELECT id_fotografia, ruta_archivo FROM fotografia WHERE ruta_archivo LIKE '%/%'"
+    );
+    const heredadas = result.values || [];
+    if (heredadas.length === 0) return 0;
+
+    const set = heredadas.map(f => ({
+        statement: "UPDATE fotografia SET ruta_archivo = ? WHERE id_fotografia = ?",
+        values: [f.ruta_archivo.split(/[\\/]/).pop(), f.id_fotografia]
+    }));
+
+    await db.executeSet(set, true);
+    return heredadas.length;
+}
+
 export async function getFotografiasByPrenda(id_prenda) {
     if (!db) throw new Error("Database not initialized");
     const result = await db.query(

@@ -59,7 +59,7 @@
         :key="f.id_fotografia" 
         class="foto-container"
       >
-        <img :src="getImgSrc(f.ruta_archivo)" class="foto-thumb" @click="openPhotoViewer(f)" />
+        <img :src="resolvePhotoSrc(f.ruta_archivo)" class="foto-thumb" @click="openPhotoViewer(f)" />
         <button v-if="!readonly" class="delete-foto-btn" @click.stop="onDeleteFoto(f.id_fotografia)" title="Eliminar Foto">×</button>
       </div>
     </div>
@@ -84,13 +84,7 @@ import { ref, watch, inject } from 'vue';
 import StatusBadge from '../common/StatusBadge.vue';
 import PhotoViewerModal from '../common/PhotoViewerModal.vue';
 import { usePrendas } from '../../composables/usePrendas.js';
-import { Capacitor } from '@capacitor/core';
-
-const getImgSrc = (path) => {
-  if (!path) return '';
-  if (path.startsWith('http') || path.startsWith('data:')) return path;
-  return Capacitor.convertFileSrc(path);
-};
+import { resolvePhotoSrc } from '../../services/photoStorage.js';
 
 const props = defineProps({
   prenda: {

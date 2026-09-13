@@ -1,6 +1,8 @@
 import { CapacitorSQLite, SQLiteConnection } from '@capacitor-community/sqlite';
 import { Capacitor } from '@capacitor/core';
 import { defineCustomElements as jeepSqlite } from 'jeep-sqlite/loader';
+import { runMigrations } from './migrationRunner.js';
+import { migrations } from './migrations.js';
 
 export const sqlite = new SQLiteConnection(CapacitorSQLite);
 export let db = null;
@@ -25,6 +27,10 @@ export async function initDatabase() {
         if (ret.result && isConn) {
             db = await sqlite.retrieveConnection("costura_db", false);
         } else {
+            // Este número es el del mecanismo de upgrade del plugin, que no
+            // usamos: el versionado del esquema lo lleva migrationRunner con su
+            // propia tabla. Debe quedarse en 1 — subirlo aquí haría que el
+            // plugin buscase sentencias de upgrade que no existen.
             db = await sqlite.createConnection("costura_db", false, "no-encryption", 1, false);
         }
 
@@ -32,8 +38,9 @@ export async function initDatabase() {
 
         await db.execute('PRAGMA foreign_keys = ON;', false);
 
-        // Initialize schema
-        await runMigrations(db);
+        // Esquema. Si una migración falla, esto lanza y bootstrap muestra la
+        // pantalla de error crítico en lugar de seguir con la base a medias.
+        await runMigrations(db, migrations);
 
         if (platform === 'web') {
             await sqlite.saveToStore("costura_db");
@@ -56,28 +63,50 @@ export async function saveDb() {
     }
 }
 
-async function runMigrations(db) {
-    const { migrations } = await import('./migrations.js');
-    for (const stmt of migrations[0].statements) {
-        try {
-            await db.execute(stmt);
-        } catch(e) {
-            console.error("Error executing stmt: " + stmt, e);
-        }
-    }
-}
-
-export async function exportDatabaseToJson() {
+export async function exportDatabaseObject() {
     if (!db) throw new Error("Database not initialized");
     try {
         const jsonExport = await db.exportToJson('full');
-        return JSON.stringify(jsonExport.export, null, 2);
+        return jsonExport.export;
     } catch (e) {
         console.error("Error exporting database:", e);
         throw e;
     }
 }
 
+export async function exportDatabaseToJson() {
+    return JSON.stringify(await exportDatabaseObject(), null, 2);
+}
+
+/**
+ * Suelta la conexión activa antes de importar.
+ *
+ * `importFromJson` no escribe sobre la conexión que la aplicación tiene abierta,
+ * sino sobre su propio handle. Si se dejaba viva la conexión anterior, su copia
+ * en memoria terminaba guardándose encima de lo recién importado: la
+ * restauración decía haber ido bien y no restauraba absolutamente nada.
+ */
+async function cerrarConexionActiva() {
+    try {
+        if (db) await db.close();
+    } catch (e) {
+        console.warn("No se pudo cerrar la base de datos antes de importar", e);
+    }
+    try {
+        await sqlite.closeConnection("costura_db", false);
+    } catch (e) {
+        console.warn("No se pudo liberar la conexión antes de importar", e);
+    }
+    db = null;
+}
+
+/**
+ * Restaura la base de datos desde la exportación JSON de SQLite.
+ *
+ * Al terminar, la conexión queda cerrada y `db` en null a propósito: los datos
+ * en memoria de la aplicación ya no valen. Quien llame a esta función tiene que
+ * recargar la aplicación a continuación.
+ */
 export async function importDatabaseFromJson(jsonString) {
     let snapshot = null;
     try {
@@ -88,23 +117,24 @@ export async function importDatabaseFromJson(jsonString) {
 
     try {
         JSON.parse(jsonString);
+    } catch (e) {
+        throw new Error("El archivo de respaldo no contiene un JSON válido.");
+    }
+
+    await cerrarConexionActiva();
+
+    try {
         await sqlite.importFromJson(jsonString);
-        if (Capacitor.getPlatform() === 'web') {
-            await sqlite.saveToStore("costura_db");
-        }
         return true;
     } catch (importError) {
         console.error("Error importando backup, iniciando Rollback...", importError);
         try {
             await sqlite.importFromJson(snapshot);
-            if (Capacitor.getPlatform() === 'web') {
-                await sqlite.saveToStore("costura_db");
-            }
             console.warn("Rollback completado. La base de datos no sufrió daños.");
         } catch (rollbackError) {
             console.error("CRÍTICO: Fallo en importación Y en rollback.", rollbackError);
             throw new Error("CRÍTICO: Corrupción de base de datos irrecuperable.");
         }
-        throw new Error("Fallo la restauración del Backup. Se revirtieron los cambios.");
+        throw new Error("Falló la restauración del respaldo. Se revirtieron los cambios.");
     }
 }

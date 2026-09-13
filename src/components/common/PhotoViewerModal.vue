@@ -11,7 +11,7 @@
         </div>
         
         <div class="photo-viewer-content" @click.self="close">
-          <img :src="getImgSrc(photoUrl)" class="photo-img" />
+          <img :src="resolvePhotoSrc(photoUrl)" class="photo-img" />
         </div>
       </div>
     </transition>
@@ -20,13 +20,7 @@
 
 <script setup>
 import { useHaptics } from '../../composables/useHaptics.js';
-import { Capacitor } from '@capacitor/core';
-
-const getImgSrc = (path) => {
-  if (!path) return '';
-  if (path.startsWith('http') || path.startsWith('data:')) return path;
-  return Capacitor.convertFileSrc(path);
-};
+import { resolvePhotoSrc } from '../../services/photoStorage.js';
 
 const props = defineProps({
   show: Boolean,

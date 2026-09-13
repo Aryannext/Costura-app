@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
-import { Filesystem, Directory } from '@capacitor/filesystem';
+import { savePhotoFromBase64 } from '../services/photoStorage.js';
 import { validators } from '../services/validators.js';
 import { useAsyncAction } from './useAsyncAction.js';
 import { 
@@ -103,27 +103,21 @@ export function usePrendas() {
                 throw e;
             }
 
-            let finalUri = '';
-            
+            // Se guarda sólo el nombre del archivo, no la ruta absoluta: el
+            // directorio de datos cambia de sitio al reinstalar, y con rutas
+            // absolutas las fotos quedaban apuntando a la nada.
+            let rutaGuardada = '';
+
             if (image.base64String) {
                 const fileName = `prenda_${id_prenda}_${new Date().getTime()}.jpeg`;
-                await Filesystem.writeFile({
-                    path: fileName,
-                    data: image.base64String,
-                    directory: Directory.Data
-                });
-                const stat = await Filesystem.getUri({
-                    path: fileName,
-                    directory: Directory.Data
-                });
-                finalUri = stat.uri;
+                rutaGuardada = await savePhotoFromBase64(image.base64String, fileName);
             } else if (image.webPath) {
-                finalUri = image.webPath;
+                rutaGuardada = image.webPath;
             }
-            
-            if (finalUri) {
-                await saveFotografia(id_prenda, finalUri);
-                return finalUri;
+
+            if (rutaGuardada) {
+                await saveFotografia(id_prenda, rutaGuardada);
+                return rutaGuardada;
             }
             return null;
         }, {
