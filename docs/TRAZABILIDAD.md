@@ -3,7 +3,7 @@
 Correspondencia entre los requisitos especificados y el código que los implementa. Cada fila se verificó contra `src/`, no contra la intención original.
 
 > **Revisión:** 13 de septiembre de 2026 · versión 1.1.2 · esquema 4
-> **Suite de pruebas:** 201 en verde, 0 omitidas
+> **Suite de pruebas:** 260 · 250 en verde y 10 fallos esperados que documentan reglas incumplidas (`it.fails`), 0 omitidas
 
 Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · ❌ no implementado · 🚧 planificado
 
@@ -94,6 +94,35 @@ Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · 
 
 ---
 
+## Reglas de negocio · RN-01 a RN-40
+
+Las cuarenta reglas de [Costura.md](Costura.md) son pruebas ejecutables en [`src/__tests__/reglasNegocio.spec.js`](../src/__tests__/reglasNegocio.spec.js): un bloque por regla, con el mismo identificador, contra SQLite real y a través de los composables que usa la pantalla. Una regla que sólo respeta la interfaz ocultando un botón **no cuenta como cumplida**.
+
+- Un incumplimiento conocido se escribe con `it.fails` y su defecto. Esa prueba pasa mientras la regla siga rota y **empieza a fallar el día que se corrige**, obligando a convertirla en una prueba normal.
+- La última prueba del archivo lee este catálogo: si se añade una RN sin su bloque, la CI falla.
+
+| Regla | Estado | Nota |
+| --- | --- | --- |
+| RN-01 a RN-11 | ✅ | RN-08: la entrega individual queda en el historial; el botón *Entregar* marca todas las prendas a la vez con una sola línea para la orden |
+| RN-12 · orden cancelada sin prendas nuevas | ❌ | P1-15 |
+| RN-13 · orden cancelada sin pagos nuevos | ❌ | P1-15 |
+| RN-14 a RN-26 | ✅ | RN-15: se prueba que hay una sola cuenta y ninguna forma de crear otra; la app no tiene roles |
+| RN-27 · abonos hasta el total | ⚠️ | Un abono mayor que el saldo se rechaza, pero un doble envío no. P1-16 |
+| RN-28 | ✅ | |
+| RN-29 · saldo nunca negativo | ⚠️ | Editar y eliminar prendas lo respetan; el doble envío de un abono no. P1-16 |
+| RN-30 | ✅ | |
+| RN-31 · aviso sólo al entrar en Lista | ⚠️ | La notificación automática es correcta; el botón *Avisar Lista* no. P1-17 |
+| RN-32, RN-33 | ✅ | |
+| RN-34 · resumen con datos actuales | ❌ | P1-18 |
+| RN-35 · todo cambio en el historial | ⚠️ | Observaciones y fotografías no dejan rastro. P1-19 |
+| RN-36 | ✅ | |
+| RN-37 · sin reclamar | ❌ | P1-11 |
+| RN-38 a RN-40 | ✅ | |
+
+**Resumen:** 32 cumplidas, 4 parcialmente y 4 incumplidas.
+
+---
+
 ## Fase 2 · Pendiente
 
 > **Renumerada.** La especificación original usaba RF-50 y RNF-24 a RNF-27, que ya estaban ocupados por el documento de mejoras de Fase 1. Se desplazó a RF-61 y RNF-28 para que la matriz sea unívoca. La correspondencia está en [COSTURA_FASE2_REQUISITOS.md](COSTURA_FASE2_REQUISITOS.md).
@@ -125,6 +154,11 @@ Ninguno impide publicar ni pone datos en riesgo.
 | P1-12 | HU-36 · no hay una vista de órdenes con saldo pendiente; sólo la cifra total en el panel | `views/OrdenesView.vue` |
 | P1-13 | Los distintivos de estado del panel usan un mapa desplazado en uno (4 se pinta como *Lista*, 5 como *Entregada*); el texto es correcto, el color no | `views/DashboardView.vue` |
 | P1-14 | Si cambiar el estado de una prenda falla por algo distinto de CP-18, el selector sigue mostrando el valor elegido hasta recargar | `components/prendas/PrendaCard.vue` |
+| P1-15 | RN-12 y RN-13 · `validateOrdenAccionPermitida` con `agregar_prenda` y `registrar_pago` existe, pero `savePrenda` y `savePago` no lo llaman: sólo la pantalla oculta los botones | `composables/usePrendas.js`, `composables/usePagos.js` |
+| P1-16 | RN-27 y RN-29 · `savePago` valida contra el saldo que le pasa la vista, sin releerlo. Un doble toque en *Guardar* registra dos abonos y deja el saldo negativo | `composables/usePagos.js` |
+| P1-17 | RN-31 · *Avisar Lista* es visible y envía el aviso con la orden en cualquier estado | `components/ordenes/TabDetalle.vue`, `composables/useOrdenTelegram.js` |
+| P1-18 | RN-34 · el recibo usa la orden en memoria en lugar de releerla, y lee `fecha_recepcion`, una columna que no existe: la fecha de recepción sale en blanco | `composables/useOrdenTelegram.js` |
+| P1-19 | RN-35 · añadir una observación, añadir una fotografía o borrarla no deja rastro en el historial | `queries/prendas.js` |
 
 **Cerrados en la revisión del 13 de septiembre:**
 
