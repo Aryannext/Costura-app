@@ -1,5 +1,7 @@
 <template>
-  <div id="app-container">
+  <!-- `inert` mientras está bloqueado: el overlay tapa la vista, pero sin esto
+       el teclado todavía podía tabular hasta el buscador de clientes de detrás. -->
+  <div id="app-container" :inert="isLocked">
     <AppHeader v-if="showLayout" />
     
     <main class="main-content">
@@ -13,6 +15,11 @@
     <AppNav v-if="showLayout" />
     <AppToast ref="toastRef" />
   </div>
+
+  <!-- Fuera del contenedor inerte, para que sí se pueda usar. Cubre la app
+       sin desmontar la vista: al desbloquear se sigue justo donde se estaba,
+       con el formulario a medio llenar intacto. -->
+  <AppLockScreen v-if="isLocked" />
 </template>
 
 <script setup>
@@ -21,15 +28,19 @@ import { useRoute } from 'vue-router';
 import AppHeader from './components/layout/AppHeader.vue';
 import AppNav from './components/layout/AppNav.vue';
 import AppToast from './components/layout/AppToast.vue';
-import { App as CapacitorApp } from '@capacitor/app';
-import { logout } from './services/auth.js';
+import AppLockScreen from './components/layout/AppLockScreen.vue';
+import { mustChangePassword, isLocked } from './services/auth.js';
 
 const route = useRoute();
 const toastRef = ref(null);
 const transitionName = ref('slide-left');
 
 const showLayout = computed(() => {
-  return route.name !== 'Login';
+  if (route.name === 'Login') return false;
+  // Durante el cambio obligatorio de contraseña se oculta la navegación: no hay
+  // ningún otro sitio al que se pueda ir hasta que la clave deje de ser la de fábrica.
+  if (route.name === 'CambiarPassword' && mustChangePassword.value) return false;
+  return true;
 });
 
 watch(

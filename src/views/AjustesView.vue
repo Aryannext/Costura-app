@@ -26,6 +26,16 @@
         </div>
       </div>
 
+      <div class="card setting-card" @click="router.push('/cambiar-clave')">
+        <div class="setting-info">
+          <h4 class="headline-sm">Cambiar Contraseña</h4>
+          <p class="body-md">Actualiza la clave con la que entras a la app.</p>
+        </div>
+        <div class="setting-action">
+          <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+        </div>
+      </div>
+
       <div class="card setting-card" @click="handleLogout">
         <div class="setting-info">
           <h4 class="headline-sm" style="color: var(--error);">Cerrar Sesión</h4>
