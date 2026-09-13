@@ -37,7 +37,7 @@ El plano completo está en [`docs/DIAGRAMAS.md`](docs/DIAGRAMAS.md).
 - **Chart.js + vue-chartjs** · gráficas del módulo de reportes
 - **bcryptjs** · hash de contraseñas
 - **driver.js** · tutorial guiado
-- **Vitest + Vue Test Utils** · 331 pruebas, incluidas las 40 reglas de negocio
+- **Vitest + Vue Test Utils** · 332 pruebas, incluidas las 40 reglas de negocio
 - **sql.js** · SQLite real en las pruebas de saldo, estados, pagos, prendas y migraciones
 
 ## 3. Base de datos
@@ -109,7 +109,7 @@ El procedimiento completo está en el [README](README.md#5-compilar-para-producc
 
 ## 8. Calidad
 
-- **331 pruebas** con Vitest. Las 40 reglas de negocio de la especificación tienen su propio bloque en `src/__tests__/reglasNegocio.spec.js`, y una prueba falla si alguna regla del catálogo queda sin probar. Los incumplimientos conocidos se marcan con `it.fails` y están listados en `docs/TRAZABILIDAD.md` sobre la capa de datos, los composables y los servicios. Las de saldo, estados de la orden, anulación de pagos, eliminación de prendas y migraciones corren contra SQLite real, no contra mocks
+- **332 pruebas** con Vitest. Las 40 reglas de negocio de la especificación tienen su propio bloque en `src/__tests__/reglasNegocio.spec.js`, y una prueba falla si alguna regla del catálogo queda sin probar. Los incumplimientos conocidos se marcan con `it.fails` y están listados en `docs/TRAZABILIDAD.md` sobre la capa de datos, los composables y los servicios. Las de saldo, estados de la orden, anulación de pagos, eliminación de prendas y migraciones corren contra SQLite real, no contra mocks
 - **GitHub Actions** en cada push y pull request: `npm ci`, `npm run test:unit` y `npm run build`
 - **Trinquete de cobertura** fijado justo por debajo de la cobertura real: la CI falla si alguien la hace bajar
 

@@ -38,9 +38,9 @@ async function asentar() {
     for (let i = 0; i < 5; i++) await flushPromises();
 }
 
-async function montarOrdenConPrendas(valores) {
+async function montarOrdenConPrendas(valores, fecha_entrega_estimada = '2099-01-01') {
     const id_cliente = await createCliente({ nombre: 'Ana', telefono: '3001234567' });
-    const id_orden = await createOrden({ id_cliente, fecha_entrega_estimada: '2099-01-01' });
+    const id_orden = await createOrden({ id_cliente, fecha_entrega_estimada });
     for (const valor of valores) {
         await createPrenda({ id_orden, valor, descripcion_arreglo: 'Basta', id_tipo_prenda: 1 });
     }
@@ -80,6 +80,18 @@ describe('OrdenDetailView · cabecera', () => {
         expect(wrapper.find('.pago-chip').text()).toBe('Por cobrar');
         // El avance va dentro de la cabecera, no en una tarjeta aparte.
         expect(wrapper.find('.orden-header .timeline-progress').exists()).toBe(true);
+    });
+
+    it('la fecha de entrega sale en rojo sólo si la orden está atrasada', async () => {
+        const aTiempo = await montarOrdenConPrendas([20000]);
+        expect(aTiempo.find('.entrega-atrasada').exists()).toBe(false);
+        expect(aTiempo.find('.cliente-fechas').text()).toContain('Entrega el 1 ene');
+        aTiempo.unmount();
+
+        nuevaBase();
+        await runMigrations(db, migrations);
+        const tarde = await montarOrdenConPrendas([20000], '2020-01-01');
+        expect(tarde.find('.entrega-atrasada').text()).toBe('Debía entregarse el 1 ene');
     });
 
     it('mientras quedan prendas por terminar abre en Prendas', async () => {

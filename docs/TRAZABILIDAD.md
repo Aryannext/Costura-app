@@ -3,7 +3,7 @@
 Correspondencia entre los requisitos especificados y el código que los implementa. Cada fila se verificó contra `src/`, no contra la intención original.
 
 > **Revisión:** 13 de septiembre de 2026 · versión 1.1.2 · esquema 5
-> **Suite de pruebas:** 331 en verde, 0 fallos esperados, 0 omitidas
+> **Suite de pruebas:** 332 en verde, 0 fallos esperados, 0 omitidas
 
 Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · ❌ no implementado · 🚧 planificado
 
@@ -185,6 +185,7 @@ Ninguno impide publicar ni pone datos en riesgo.
 **Revisión de diseño, segunda tanda** (maqueta comparada en un lienzo y probada en el navegador a tamaño de teléfono):
 
 - **Detalle de la orden.** La cabecera reúne cliente, fechas de recepción y entrega, avance y saldo; el avance pasó de ser una tarjeta propia a una franja dentro de ella. La pestaña *Detalle* muestra una sola acción principal según el estado (*Entregar orden*, o *Reabrir orden* si ya se entregó), los avisos y recibos como una lista con nombre y explicación, y *Cancelar orden* al final, lejos de la acción principal.
+- **Orden atrasada.** En la cabecera, la fecha pasa a «Debía entregarse el 10 sep» en rojo cuando la orden está activa y la fecha ya pasó, con el mismo criterio que *Atrasadas* en el panel.
 - **Pestaña inicial.** Una orden con prendas por terminar se abre en *Prendas*; una lista, entregada o cancelada, en *Detalle*.
 - **Tarjeta de prenda.** El desplegable de estado se cambió por los cuatro estados a la vista; *Entregada* se apaga mientras la prenda no esté terminada (CP-18). Los iconos sueltos pasaron a *Fotos*, *Notas* y *Editar* con nombre y conteo, y dentro de cada panel está el botón para tomar una foto o añadir una nota.
 - **Panel de inicio.** Las seis cifras se cambiaron por lo que hay que hacer hoy, de lo más urgente a lo menos: *Por cobrar* arriba (lleva a la pestaña, HU-36), *Atrasadas*, *Para entregar pronto* y *Listas, esperando al cliente* con el botón de recordatorio. Las atrasadas tienen su propia lista y ya no ocupan los puestos de *Próximas entregas*.

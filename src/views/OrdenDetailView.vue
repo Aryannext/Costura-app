@@ -21,7 +21,10 @@
         </div>
         <div class="cliente">
           <span class="cliente-nombre">{{ ordenActual.cliente_nombre }}</span>
-          <span class="cliente-fechas">Recibida el {{ fechaCorta(ordenActual.fecha_creacion) }} · Entrega el {{ fechaCorta(ordenActual.fecha_entrega_estimada) }}</span>
+          <span class="cliente-fechas">
+            Recibida el {{ fechaCorta(ordenActual.fecha_creacion) }} ·
+            <span :class="{ 'entrega-atrasada': atrasada }">{{ atrasada ? 'Debía entregarse' : 'Entrega' }} el {{ fechaCorta(ordenActual.fecha_entrega_estimada) }}</span>
+          </span>
         </div>
         <TimelineProgressBar v-if="ordenActual.id_estado_orden !== 5" :estadoOrden="ordenActual.id_estado_orden" />
         <div class="saldo-row">
@@ -118,9 +121,9 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, inject, watch } from 'vue';
-import { estadoDePago, ESTADO_PAGO } from '../services/estadoOrden.js';
+import { estadoDePago, ESTADO_PAGO, esOrdenActiva } from '../services/estadoOrden.js';
 import { formatearMoneda } from '../services/formato.js';
-import { fechaCorta } from '../services/fechas.js';
+import { fechaCorta, diasDeDiferencia } from '../services/fechas.js';
 import { useRoute, useRouter } from 'vue-router';
 import { useOrdenes, mensajeConfirmacionEntrega } from '../composables/useOrdenes.js';
 import { usePrendas } from '../composables/usePrendas.js';
@@ -155,6 +158,11 @@ const {
 // Ordenes logic
 const { ordenActual, historial, loading, fetchOrden, changeEstado, clearCurrentState: clearOrdenState } = useOrdenes();
 const estadoPago = computed(() => estadoDePago(ordenActual.value));
+
+// Mismo criterio que "Atrasadas" en el panel: activa y con la fecha ya pasada.
+const atrasada = computed(() => esOrdenActiva(ordenActual.value)
+  && !!ordenActual.value.fecha_entrega_estimada
+  && diasDeDiferencia(new Date(), ordenActual.value.fecha_entrega_estimada) < 0);
 
 // Prendas logic
 const { 
@@ -395,6 +403,10 @@ async function openObsPrompt(id_prenda) {
   font-size: 16px;
   font-weight: 600;
   color: var(--on-surface);
+}
+.entrega-atrasada {
+  color: var(--error);
+  font-weight: 600;
 }
 .cliente-fechas {
   font-size: 13px;
