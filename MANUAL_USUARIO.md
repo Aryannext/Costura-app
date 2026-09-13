@@ -24,7 +24,7 @@ Después puedes cambiarla cuando quieras desde **Ajustes → Cambiar Contraseña
 
 Al entrar verás un resumen de cómo está tu taller hoy:
 
-- **Tarjetas superiores:** los números grandes. Cuántas órdenes tienes activas, cuántas están atrasadas, cuántas llevan más de 30 días sin reclamar (listas y esperando a que el cliente venga por ellas, contados desde el día en que quedaron listas) y cuánto dinero tienes "en la calle". Una orden a la que todavía no le has puesto prendas **no cuenta** como activa ni como atrasada: sigue en tu lista de órdenes, con el aviso «Sin prendas», para que la completes.
+- **Tarjetas superiores:** los números grandes. Cuántas órdenes tienes activas, cuántas están atrasadas, cuántas llevan más de 30 días sin reclamar (listas y esperando a que el cliente venga por ellas, contados desde el día en que quedaron listas) y cuánto dinero tienes "en la calle" (toca esa tarjeta para ver quién te debe). Una orden a la que todavía no le has puesto prendas **no cuenta** como activa ni como atrasada: sigue en tu lista de órdenes, con el aviso «Sin prendas», para que la completes.
 - **La campana de arriba:** te muestra las órdenes atrasadas y las que se entregan pronto. Tú decides qué es "pronto" en **Ajustes → Aviso de entregas próximas**: por defecto son 3 días, y puedes poner de 0 (sólo lo de hoy) a 30.
 - **Buscador:** escribe un nombre, un teléfono o un número de orden y aparece al instante, separado en *Clientes* y *Órdenes*.
 - **Próximas entregas:** los pedidos que debes entregar más pronto. Ideal para priorizar el día.
@@ -45,6 +45,8 @@ Al entrar verás un resumen de cómo está tu taller hoy:
 ## 4. Órdenes (el corazón del taller)
 
 Una orden es el "ticket" que le creas al cliente cuando te trae ropa.
+
+La pantalla **Órdenes** tiene tres pestañas: **Activas**, **Historial** (entregadas y canceladas) y **Por cobrar**. Esta última reúne las órdenes en las que el cliente todavía te debe, incluidas las que ya entregaste, ordenadas de la deuda más grande a la más pequeña, con el total arriba.
 
 **Cómo crear una orden**
 

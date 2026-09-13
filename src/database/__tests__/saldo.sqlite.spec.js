@@ -16,14 +16,14 @@ vi.mock('../connection.js', async () =>
 import { db } from '../connection.js';
 import { migrations } from '../migrations.js';
 import { runMigrations } from '../migrationRunner.js';
-import { createOrden, changeEstado, getOrdenById, getEntregasPorDia } from '../queries/ordenes.js';
+import { createOrden, changeEstado, getOrdenById, getEntregasPorDia, getAllOrdenes } from '../queries/ordenes.js';
 import {
     createPrenda, updatePrenda, updateEstadoPrenda, getContextoPrenda, eliminarPrenda, addObservacion, saveFotografia
 } from '../queries/prendas.js';
 import { registrarPago, getPagosByOrden, getPagoById, anularPago, MENSAJE_PAGO_RECHAZADO } from '../queries/pagos.js';
 import { getReporteFinanciero, getDashboardData } from '../queries/reportes.js';
 import { validators } from '../../services/validators.js';
-import { estadoDePago } from '../../services/estadoOrden.js';
+import { estadoDePago, ordenesPorCobrar, totalPorCobrar } from '../../services/estadoOrden.js';
 import { cargarDiasAnticipacion, guardarDiasAnticipacion } from '../../composables/useConfiguracionNegocio.js';
 
 const EFECTIVO = 1;
@@ -534,6 +534,26 @@ describe('RN-04, RN-28 y RN-38 contra SQLite real', () => {
         await expect(guardarDiasAnticipacion(''))
             .rejects.toThrow('Los días de anticipación deben ser un número entero entre 0 y 30.');
         expect(await cargarDiasAnticipacion()).toBe(7);
+    });
+
+    it('HU-36 / CP-75: la lista por cobrar suma exactamente lo que muestra el panel', async () => {
+        const debe = await ordenParaFecha('2026-10-01', { conPrenda: true });
+        await pagar(debe, 5000);
+        const pagada = await ordenParaFecha('2026-10-01', { conPrenda: true });
+        await pagar(pagada, 20000);
+        const cancelada = await ordenParaFecha('2026-10-01', { conPrenda: true });
+        await db.run('UPDATE orden_trabajo SET id_estado_orden = 5 WHERE id_orden = ?', [cancelada]);
+        const debeTodo = await ordenParaFecha('2026-10-01', { conPrenda: true });
+        await ordenParaFecha('2026-10-01', { conPrenda: false });
+
+        const ordenes = await getAllOrdenes();
+        const { kpis } = await getDashboardData();
+
+        const lista = ordenesPorCobrar(ordenes);
+        expect(lista.map(o => o.id_orden)).toEqual([debeTodo, debe]);
+        expect(lista.map(o => o.saldo_pendiente)).toEqual([20000, 15000]);
+        expect(lista.every(o => o.cliente_nombre)).toBe(true);
+        expect(totalPorCobrar(ordenes)).toBe(kpis.saldosPendientes);
     });
 });
 

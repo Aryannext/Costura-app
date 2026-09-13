@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
-    derivarEstadoOrden, esOrdenActiva, estadoDePago, ESTADO_ORDEN as O, ESTADO_PRENDA as P, ESTADO_PAGO
+    derivarEstadoOrden, esOrdenActiva, estadoDePago, ordenesPorCobrar, totalPorCobrar,
+    ESTADO_ORDEN as O, ESTADO_PRENDA as P, ESTADO_PAGO
 } from '../estadoOrden.js';
 
 describe('derivarEstadoOrden', () => {
@@ -66,5 +67,34 @@ describe('estadoDePago (RN-28, HU-37)', () => {
     it('sin nada que cobrar todavía -> sin estado de pago', () => {
         expect(estadoDePago({ valor_total: 0, saldo_pendiente: 0 })).toBeNull();
         expect(estadoDePago(null)).toBeNull();
+    });
+});
+
+describe('ordenesPorCobrar y totalPorCobrar (HU-36)', () => {
+    const ordenes = [
+        { id_orden: 1, id_estado_orden: O.EN_PROCESO, saldo_pendiente: 5000 },
+        { id_orden: 2, id_estado_orden: O.ENTREGADA, saldo_pendiente: 12000 }, // RN-30: entregada con deuda
+        { id_orden: 3, id_estado_orden: O.LISTA, saldo_pendiente: 0 },
+        { id_orden: 4, id_estado_orden: O.CANCELADA, saldo_pendiente: 8000 },
+        { id_orden: 5, id_estado_orden: O.EN_PROCESO, saldo_pendiente: -40000 } // heredado de la v1
+    ];
+
+    it('CP-75: sólo las que deben, de mayor a menor deuda, incluidas las entregadas', () => {
+        expect(ordenesPorCobrar(ordenes).map(o => o.id_orden)).toEqual([2, 1]);
+    });
+
+    it('las canceladas no se cobran, igual que en el panel', () => {
+        expect(totalPorCobrar(ordenes)).toBe(17000);
+    });
+
+    it('CP-76: sin deudas la lista queda vacía', () => {
+        expect(ordenesPorCobrar([{ id_orden: 9, id_estado_orden: O.ENTREGADA, saldo_pendiente: 0 }])).toEqual([]);
+        expect(totalPorCobrar([])).toBe(0);
+    });
+
+    it('no reordena el arreglo original', () => {
+        const copia = [...ordenes];
+        ordenesPorCobrar(ordenes);
+        expect(ordenes).toEqual(copia);
     });
 });

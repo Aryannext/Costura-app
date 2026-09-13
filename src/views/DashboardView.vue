@@ -55,7 +55,7 @@
                 <div class="list-card-title">#{{ o.id_orden }} - {{ o.cliente_nombre }}</div>
                 <div class="list-card-subtitle">Estado: {{ o.estado_nombre }}</div>
               </div>
-              <div class="badge" :class="getBadgeClass(o.id_estado_orden)">{{ o.estado_nombre }}</div>
+              <StatusBadge :estado="o.estado_nombre" />
             </div>
           </div>
         </div>
@@ -94,7 +94,8 @@
           <span class="kpi-value">{{ kpis.ordenesSinReclamar || 0 }}</span>
           <span class="kpi-label">Sin Reclamar</span>
         </div>
-        <div class="kpi-card highlight-danger">
+        <!-- HU-36: la cifra lleva a la lista de órdenes que la componen -->
+        <div class="kpi-card highlight-danger kpi-card--enlace" role="button" tabindex="0" @click="irAPorCobrar" @keydown.enter="irAPorCobrar">
           <span class="kpi-value">${{ kpis.saldosPendientes || 0 }}</span>
           <span class="kpi-label">Pagos Pendientes</span>
         </div>
@@ -117,7 +118,7 @@
                 <div class="list-card-title">{{ orden.cliente_nombre }}</div>
                 <div class="list-card-subtitle">Entrega: {{ formatDate(orden.fecha_entrega_estimada) }}</div>
              </div>
-             <div class="badge" :class="getBadgeClass(orden.id_estado_orden)">{{ orden.estado_nombre }}</div>
+             <StatusBadge :estado="orden.estado_nombre" />
           </div>
         </transition-group>
       </div>
@@ -138,7 +139,7 @@
                 <div class="list-card-title">Nueva orden: {{ orden.cliente_nombre }}</div>
                 <div class="list-card-subtitle">Creada: {{ formatDate(orden.fecha_creacion) }}</div>
              </div>
-             <div class="badge" :class="getBadgeClass(orden.id_estado_orden)">{{ orden.estado_nombre }}</div>
+             <StatusBadge :estado="orden.estado_nombre" />
           </div>
         </transition-group>
       </div>
@@ -158,6 +159,9 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import SkeletonLoader from '../components/common/SkeletonLoader.vue';
 import Icon from '../components/common/Icon.vue';
+// P1-13: el mapa propio de colores estaba desplazado en uno (4 se pintaba como
+// Lista, 5 como Entregada). StatusBadge colorea por nombre, igual que el resto.
+import StatusBadge from '../components/common/StatusBadge.vue';
 
 const router = useRouter();
 const toast = inject('toast');
@@ -202,16 +206,8 @@ function formatDate(dateString) {
     }
 }
 
-function getBadgeClass(idEstado) {
-    switch(idEstado) {
-        case 1: return 'badge-neutral'; // Recibida
-        case 2: return 'badge-warning'; // En Proceso
-        case 3: return 'badge-warning'; // Prueba
-        case 4: return 'badge-success'; // Lista
-        case 5: return 'badge-info'; // Entregada
-        case 6: return 'badge-error'; // Cancelada
-        default: return 'badge-neutral';
-    }
+function irAPorCobrar() {
+  router.push({ path: '/ordenes', query: { tab: 'por-cobrar' } });
 }
 </script>
 
@@ -374,10 +370,7 @@ function getBadgeClass(idEstado) {
   color: var(--on-surface-variant);
 }
 
-/* Specific Badge Colors */
-.badge-neutral { background: var(--surface-dim); color: var(--on-surface-variant); }
-.badge-warning { background: var(--warning-bg); color: var(--warning-text); }
-.badge-success { background: var(--success-bg); color: var(--success-text); }
-.badge-info { background: var(--info-bg); color: var(--info-text); }
-.badge-error { background: var(--error-container); color: var(--on-error-container); }
+.kpi-card--enlace {
+  cursor: pointer;
+}
 </style>

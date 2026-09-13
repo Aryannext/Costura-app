@@ -78,3 +78,20 @@ export function estadoDePago(orden) {
     // <= 0 y no === 0: un saldo negativo heredado de la v1 también está saldado.
     return orden.saldo_pendiente <= 0 ? ESTADO_PAGO.PAGADA : ESTADO_PAGO.PENDIENTE;
 }
+
+/**
+ * HU-36: órdenes con saldo por cobrar, de mayor a menor deuda.
+ *
+ * Mismo criterio que la cifra "Pagos Pendientes" del panel
+ * (`saldo_pendiente > 0 AND id_estado_orden != 5` en queries/reportes.js): la
+ * lista tiene que sumar exactamente lo que muestra esa tarjeta.
+ */
+export function ordenesPorCobrar(ordenes) {
+    return ordenes
+        .filter(o => o.id_estado_orden !== ESTADO_ORDEN.CANCELADA && o.saldo_pendiente > 0)
+        .sort((a, b) => b.saldo_pendiente - a.saldo_pendiente);
+}
+
+export function totalPorCobrar(ordenes) {
+    return ordenesPorCobrar(ordenes).reduce((total, o) => total + o.saldo_pendiente, 0);
+}

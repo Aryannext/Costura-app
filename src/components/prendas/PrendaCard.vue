@@ -33,7 +33,7 @@
       </button>
       
       <!-- Cambio de estado rápido -->
-      <select v-model="estadoLocal" @change="onEstadoChange" class="estado-select">
+      <select :value="prenda.id_estado_prenda" @change="onEstadoChange" class="estado-select">
         <option value="1">Pendiente</option>
         <option value="2">En Proceso</option>
         <option value="3">Terminada</option>
@@ -101,7 +101,6 @@ const emit = defineEmits(['take-photo', 'add-obs', 'estado-changed', 'prenda-act
 
 const { fetchFotos, fetchObservaciones, removeFoto, editPrenda } = usePrendas();
 
-const estadoLocal = ref(props.prenda.id_estado_prenda);
 const showFotos = ref(false);
 const showObs = ref(false);
 const fotos = ref([]);
@@ -133,9 +132,6 @@ async function saveEdit() {
   }
 }
 
-watch(() => props.prenda.id_estado_prenda, (newVal) => {
-  estadoLocal.value = newVal;
-});
 
 // Load data lazily when toggles are clicked
 watch(showFotos, async (val) => {
@@ -160,18 +156,23 @@ defineExpose({ refreshData });
 
 const toast = inject('toast');
 
-function onEstadoChange() {
-  const newEstado = parseInt(estadoLocal.value);
+function onEstadoChange(event) {
+  const newEstado = parseInt(event.target.value);
   const oldEstado = props.prenda.id_estado_prenda;
   
   if (newEstado === 4 && oldEstado < 3) {
     // Cannot deliver if not finished
-    estadoLocal.value = oldEstado; // revert
+    event.target.value = String(oldEstado); // revert
     toast('No se puede entregar una prenda que no está Terminada', 'error');
     return;
   }
   
   emit('estado-changed', props.prenda.id_prenda, newEstado);
+
+  // P1-14: el selector no guarda un estado propio. Vuelve al que tiene la prenda
+  // y sólo cambia cuando la base confirma y la lista se recarga con el nuevo; si
+  // el cambio falla, nunca se queda mostrando un estado que no existe.
+  event.target.value = String(oldEstado);
 }
 
 // Photo Viewer Logic
