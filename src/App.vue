@@ -7,7 +7,9 @@
     <main class="main-content">
       <router-view v-slot="{ Component }">
         <transition :name="transitionName" mode="out-in">
-          <component :is="Component" />
+          <!-- La clave por ruta vuelve a montar la vista al pasar de /ordenes/3 a /ordenes/2
+               (p. ej. desde la campana): reutilizarla dejaba a la vista la orden anterior. -->
+          <component :is="Component" :key="$route.path" />
         </transition>
       </router-view>
     </main>
@@ -81,6 +83,10 @@ provide('toast', (msg, type) => {
   padding-bottom: 60px; /* Space for AppNav */
   overflow-y: auto;
   position: relative;
+  /* En pantallas anchas la app es una columna centrada, no pegada a la izquierda */
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
 }
 
 /* iOS Slide Transitions */

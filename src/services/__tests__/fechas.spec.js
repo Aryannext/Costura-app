@@ -1,5 +1,26 @@
 import { describe, it, expect } from 'vitest';
-import { fechaLocalISO, aFechaLocal, sumarDias, diasDeDiferencia } from '../fechas.js';
+import { fechaLocalISO, aFechaLocal, sumarDias, diasDeDiferencia, fechaCorta, fechaLarga, etiquetaDia } from '../fechas.js';
+
+describe('fechas para mostrar', () => {
+    const HOY = new Date(2026, 8, 13, 22, 30); // de noche: en UTC ya sería el 14
+
+    it('fechaCorta con fecha sola o con hora, sin correrse de día', () => {
+        expect(fechaCorta('2026-09-14')).toBe('14 sep');
+        expect(fechaCorta('2026-09-10 09:12:00')).toBe('10 sep');
+        expect(fechaCorta(null)).toBe('');
+    });
+
+    it('fechaLarga en español con mayúscula inicial', () => {
+        expect(fechaLarga(HOY)).toBe('Domingo 13 de septiembre');
+    });
+
+    it('etiquetaDia usa Hoy, Mañana y Ayer, y si no la fecha corta', () => {
+        expect(etiquetaDia('2026-09-13', HOY)).toBe('Hoy');
+        expect(etiquetaDia('2026-09-14', HOY)).toBe('Mañana');
+        expect(etiquetaDia('2026-09-12', HOY)).toBe('Ayer');
+        expect(etiquetaDia('2026-09-20', HOY)).toBe('20 sep');
+    });
+});
 
 describe('fechas', () => {
     describe('fechaLocalISO', () => {

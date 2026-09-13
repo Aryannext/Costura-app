@@ -138,7 +138,8 @@ async function handleConfirmUpdate() {
 <style scoped>
 .app-header {
   background-color: var(--surface-container-lowest);
-  padding: 0 var(--spacing-md);
+  /* Alineada con la columna centrada de 560 px en pantallas anchas */
+  padding: 0 max(var(--spacing-md), calc((100% - 560px) / 2 + var(--spacing-md)));
   height: 56px;
   border-bottom: 1px solid var(--surface-container-high);
   display: flex;

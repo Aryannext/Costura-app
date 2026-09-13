@@ -53,7 +53,7 @@ async function montarOrdenConPrendas(valores) {
 }
 
 async function marcar(wrapper, indice, estado) {
-    await wrapper.findAll('select.estado-select')[indice].setValue(String(estado));
+    await wrapper.findAll('.prenda-card')[indice].findAll('.estado-btn')[estado - 1].trigger('click');
     await asentar();
 }
 
@@ -75,8 +75,16 @@ describe('OrdenDetailView · cabecera', () => {
         const wrapper = await montarOrdenConPrendas([20000]);
 
         const cabecera = wrapper.find('.orden-header').text().replace(/\s+/g, ' ');
-        expect(cabecera).toContain('Saldo: $20.000 / $20.000');
+        expect(cabecera).toContain('Saldo $20.000 de $20.000');
+        expect(cabecera).toContain('Ana');
         expect(wrapper.find('.pago-chip').text()).toBe('Por cobrar');
+        // El avance va dentro de la cabecera, no en una tarjeta aparte.
+        expect(wrapper.find('.orden-header .timeline-progress').exists()).toBe(true);
+    });
+
+    it('mientras quedan prendas por terminar abre en Prendas', async () => {
+        const wrapper = await montarOrdenConPrendas([20000]);
+        expect(wrapper.find('.tabs button.active').text()).toBe('Prendas');
     });
 });
 

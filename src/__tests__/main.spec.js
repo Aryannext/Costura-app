@@ -35,7 +35,9 @@ vi.mock('vue', () => ({
 vi.mock('../router/index.js', () => ({ default: {} }));
 vi.mock('../App.vue', () => ({ default: {} }));
 
-describe('main.js bootstrap', () => {
+// La primera importación de main.js transforma todo su árbol; con la suite completa
+// en paralelo (y más con cobertura) pasaba de los 5 s por defecto.
+describe('main.js bootstrap', { timeout: 30000 }, () => {
     beforeEach(() => {
         document.body.innerHTML = '';
         vi.clearAllMocks();

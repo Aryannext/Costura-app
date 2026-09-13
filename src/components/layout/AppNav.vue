@@ -45,7 +45,8 @@ function onNavClick() {
   -webkit-backdrop-filter: blur(16px);
   display: flex;
   justify-content: space-around;
-  padding: 8px 16px 16px 16px;
+  /* Los accesos se alinean con la columna centrada de 560 px en pantallas anchas */
+  padding: 8px max(16px, calc((100% - 560px) / 2)) 16px;
   border-top: 1px solid var(--surface-container-high);
   z-index: 1000;
 }

@@ -12,7 +12,9 @@ export async function getDashboardData() {
         ordenesListas: 0,
         ordenesAtrasadas: 0,
         ordenesSinReclamar: 0,
-        saldosPendientes: 0
+        diasSinReclamar: 0,
+        saldosPendientes: 0,
+        ordenesPorCobrar: 0
     };
 
     // Órdenes activas (RN-04): con prendas y sin cerrar, es decir En Proceso o
@@ -56,23 +58,37 @@ export async function getDashboardData() {
         [today, `-${diasSinReclamar} days`]
     );
     kpis.ordenesSinReclamar = resSinReclamar.values[0]?.total || 0;
+    kpis.diasSinReclamar = diasSinReclamar;
 
     // Saldos Pendientes (not Cancelada)
     const resSaldo = await db.query(
-        "SELECT SUM(saldo_pendiente) as total FROM orden_trabajo WHERE saldo_pendiente > 0 AND id_estado_orden != 5"
+        "SELECT SUM(saldo_pendiente) as total, COUNT(*) as ordenes FROM orden_trabajo WHERE saldo_pendiente > 0 AND id_estado_orden != 5"
     );
     kpis.saldosPendientes = resSaldo.values[0]?.total || 0;
+    kpis.ordenesPorCobrar = resSaldo.values[0]?.ordenes || 0;
 
-    // Próximas Entregas (Ordenes activas ordenadas por fecha de entrega asc)
-    const resProximas = await db.query(`
-        SELECT o.*, c.nombre as cliente_nombre, e.nombre as estado_nombre 
+    // Atrasadas: activas con la fecha de entrega ya pasada, la más vieja primero.
+    const resListaAtrasadas = await db.query(`
+        SELECT o.*, c.nombre as cliente_nombre, e.nombre as estado_nombre
         FROM orden_trabajo o
         JOIN cliente c ON o.id_cliente = c.id_cliente
         JOIN estado_orden e ON o.id_estado_orden = e.id_estado_orden
-        WHERE ${condicionOrdenActiva('o')}
+        WHERE ${condicionOrdenActiva('o')} AND date(o.fecha_entrega_estimada) < ?
         ORDER BY o.fecha_entrega_estimada ASC
         LIMIT 5
-    `);
+    `, [today]);
+
+    // Próximas entregas: activas desde hoy en adelante. Las atrasadas van en su
+    // propia lista para que no ocupen estos puestos.
+    const resProximas = await db.query(`
+        SELECT o.*, c.nombre as cliente_nombre, e.nombre as estado_nombre
+        FROM orden_trabajo o
+        JOIN cliente c ON o.id_cliente = c.id_cliente
+        JOIN estado_orden e ON o.id_estado_orden = e.id_estado_orden
+        WHERE ${condicionOrdenActiva('o')} AND date(o.fecha_entrega_estimada) >= ?
+        ORDER BY o.fecha_entrega_estimada ASC
+        LIMIT 5
+    `, [today]);
 
     // Actividad Reciente
     const resRecientes = await db.query(`
@@ -84,8 +100,9 @@ export async function getDashboardData() {
         LIMIT 5
     `);
 
-    return { 
-        kpis, 
+    return {
+        kpis,
+        atrasadas: resListaAtrasadas.values || [],
         proximasEntregas: resProximas.values || [],
         ordenesRecientes: resRecientes.values || []
     };

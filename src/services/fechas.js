@@ -8,6 +8,9 @@
  * formulario se negaba a aceptar.
  */
 
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+
 const dosDigitos = n => String(n).padStart(2, '0');
 
 /** 'YYYY-MM-DD' en hora local. */
@@ -43,4 +46,26 @@ export function diasDeDiferencia(desde, hasta) {
     const a = aFechaLocal(desde);
     const b = aFechaLocal(hasta);
     return Math.round((b - a) / 86400000);
+}
+
+/** "14 sep". Acepta 'YYYY-MM-DD' o una fecha con hora de la base. */
+export function fechaCorta(valor) {
+    if (!valor) return '';
+    return format(aFechaLocal(valor), 'd MMM', { locale: es });
+}
+
+/** "Domingo 13 de septiembre". */
+export function fechaLarga(fecha = new Date()) {
+    const texto = format(fecha, "EEEE d 'de' MMMM", { locale: es });
+    return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
+/** "Hoy", "Mañana", "Ayer" o "15 sep": cómo se lee una fecha de entrega en una lista. */
+export function etiquetaDia(valor, hoy = new Date()) {
+    if (!valor) return '';
+    const dias = diasDeDiferencia(hoy, valor);
+    if (dias === 0) return 'Hoy';
+    if (dias === 1) return 'Mañana';
+    if (dias === -1) return 'Ayer';
+    return fechaCorta(valor);
 }

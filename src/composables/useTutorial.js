@@ -48,10 +48,10 @@ export function useTutorial() {
                     }
                 },
                 {
-                    element: '.kpi-grid',
+                    element: '.dashboard-content',
                     popover: {
-                        title: `${getSvg('chart')} Tu resumen del día`,
-                        description: 'Aquí verás un escáner rápido de tu negocio: cuántas prendas hay en proceso, si tienes órdenes atrasadas y el dinero pendiente.',
+                        title: `${getSvg('chart')} Qué hacer hoy`,
+                        description: 'Aquí ves lo que tienes por cobrar y, de lo más urgente a lo menos, las órdenes atrasadas, las que se entregan pronto y las que ya están listas esperando al cliente.',
                         side: 'bottom'
                     }
                 },

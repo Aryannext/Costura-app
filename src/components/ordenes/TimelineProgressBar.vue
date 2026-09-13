@@ -1,25 +1,18 @@
 <template>
-  <div class="timeline-progress card" v-if="estadoOrden !== 5">
-    <div class="progress-steps">
-      <div class="step" :class="{ completed: estadoOrden >= 1, active: estadoOrden === 1 }">
-        <div class="step-circle" :class="{ 'status-active-pulse': estadoOrden === 1 }">1</div>
-        <span class="step-label">Pendiente</span>
-      </div>
-      <div class="step-line" :class="{ completed: estadoOrden >= 2 }"></div>
-      <div class="step" :class="{ completed: estadoOrden >= 2, active: estadoOrden === 2 }">
-        <div class="step-circle" :class="{ 'status-active-pulse': estadoOrden === 2 }">2</div>
-        <span class="step-label">En proceso</span>
-      </div>
-      <div class="step-line" :class="{ completed: estadoOrden >= 3 }"></div>
-      <div class="step" :class="{ completed: estadoOrden >= 3, active: estadoOrden === 3 }">
-        <div class="step-circle" :class="{ 'status-active-pulse': estadoOrden === 3 }">3</div>
-        <span class="step-label">Lista</span>
-      </div>
-      <div class="step-line" :class="{ completed: estadoOrden >= 4 }"></div>
-      <div class="step" :class="{ completed: estadoOrden >= 4, active: estadoOrden === 4 }">
-        <div class="step-circle" :class="{ 'status-active-pulse': estadoOrden === 4 }">✓</div>
-        <span class="step-label">Entregada</span>
-      </div>
+  <!-- Franja compacta dentro de la cabecera de la orden. Antes era una tarjeta
+       propia de más de 100 px que repetía el estado y empujaba las acciones
+       fuera de la pantalla. -->
+  <div class="timeline-progress" v-if="estadoOrden !== 5" role="list" aria-label="Avance de la orden">
+    <div
+      v-for="paso in PASOS"
+      :key="paso.estado"
+      class="step"
+      :class="{ completed: estadoOrden >= paso.estado, active: estadoOrden === paso.estado }"
+      role="listitem"
+      :aria-current="estadoOrden === paso.estado ? 'step' : undefined"
+    >
+      <div class="step-bar"></div>
+      <span class="step-label">{{ paso.nombre }}</span>
     </div>
   </div>
 </template>
@@ -31,83 +24,46 @@ defineProps({
     required: true
   }
 });
+
+const PASOS = [
+  { estado: 1, nombre: 'Pendiente' },
+  { estado: 2, nombre: 'En proceso' },
+  { estado: 3, nombre: 'Lista' },
+  { estado: 4, nombre: 'Entregada' }
+];
 </script>
 
 <style scoped>
-/* Premium Timeline Progress Bar */
 .timeline-progress {
-  padding: 24px 16px;
-  margin-bottom: 20px;
-  background-color: var(--surface-container-low);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--surface-container-highest);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-}
-.progress-steps {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
 }
 .step {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  z-index: 2;
-  width: 64px;
+  gap: 6px;
+  min-width: 0;
 }
-.step-circle {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+.step-bar {
+  height: 6px;
+  border-radius: 3px;
   background-color: var(--surface-container-highest);
-  border: 2px solid var(--outline-variant);
-  color: var(--on-surface-variant);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 0.95rem;
-  margin-bottom: 8px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.3s ease;
 }
 .step-label {
-  font-size: 0.75rem;
+  font-size: 11px;
   font-weight: 500;
-  color: var(--on-surface-variant);
-  text-align: center;
+  color: var(--outline);
   white-space: nowrap;
-  transition: color 0.3s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.step-line {
-  flex-grow: 1;
-  height: 4px;
-  background-color: var(--surface-container-highest);
-  margin-top: -24px;
-  z-index: 1;
-  border-radius: 2px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.step.completed .step-circle {
+.step.completed .step-bar {
   background-color: var(--primary);
-  border-color: var(--primary);
-  color: var(--on-primary);
 }
 .step.completed .step-label {
-  color: var(--primary);
-  font-weight: 600;
-}
-.step-line.completed {
-  background-color: var(--primary);
-}
-/* El paso actual es a la vez "completed" y "active". Antes esta regla le ponía
-   un fondo claro y quedaba MÁS apagado que los pasos ya superados. */
-.step.active .step-circle {
-  background-color: var(--primary);
-  border-color: var(--primary);
-  color: var(--on-primary);
-  box-shadow: 0 0 0 5px var(--primary-container);
-  transform: scale(1.15);
+  color: var(--on-surface-variant);
 }
 .step.active .step-label {
   color: var(--primary);

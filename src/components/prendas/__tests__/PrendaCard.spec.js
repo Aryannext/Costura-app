@@ -8,66 +8,82 @@ vi.mock('../../../services/photoStorage.js', () => ({ resolvePhotoSrc: (ruta) =>
 
 import PrendaCard from '../PrendaCard.vue';
 
-const prenda = (id_estado_prenda) => ({
+const prenda = (id_estado_prenda, extra = {}) => ({
     id_prenda: 7,
     id_orden: 1,
     id_estado_prenda,
-    estado_nombre: 'Pendiente',
     tipo_nombre: 'Pantalón',
     valor: 20000,
-    descripcion_arreglo: 'Basta'
+    descripcion_arreglo: 'Basta',
+    ...extra
 });
 
-function montar(estado) {
+function montar(estado, { readonly = false, extra = {} } = {}) {
     const toast = vi.fn();
     const wrapper = mount(PrendaCard, {
-        props: { prenda: prenda(estado) },
+        props: { prenda: prenda(estado, extra), readonly },
         global: { provide: { toast }, stubs: { PhotoViewerModal: true } }
     });
-    return { wrapper, toast, selector: () => wrapper.find('select.estado-select') };
+    const estados = () => wrapper.findAll('.estado-btn');
+    const actual = () => estados().filter(b => b.attributes('aria-pressed') === 'true').map(b => b.text());
+    return { wrapper, toast, estados, actual };
 }
 
-describe('PrendaCard · selector de estado (P1-14)', () => {
-    it('muestra el estado que tiene la prenda', () => {
-        const { selector } = montar(2);
-        expect(selector().element.value).toBe('2');
+describe('PrendaCard · estados a la vista', () => {
+    it('muestra los cuatro estados y marca el actual', () => {
+        const { estados, actual } = montar(2);
+        expect(estados().map(b => b.text())).toEqual(['Pendiente', 'En proceso', 'Terminada', 'Entregada']);
+        expect(actual()).toEqual(['En proceso']);
     });
 
-    it('pide el cambio y sigue mostrando el estado real hasta que la lista se recargue', async () => {
-        const { wrapper, selector } = montar(1);
+    it('tocar otro estado lo pide, sin marcarlo hasta que la lista se recargue (P1-14)', async () => {
+        const { wrapper, estados, actual } = montar(1);
 
-        await selector().setValue('2');
+        await estados()[2].trigger('click');
 
-        expect(wrapper.emitted('estado-changed')).toEqual([[7, 2]]);
-        expect(selector().element.value).toBe('1');
+        expect(wrapper.emitted('estado-changed')).toEqual([[7, 3]]);
+        expect(actual()).toEqual(['Pendiente']);
+
+        await wrapper.setProps({ prenda: prenda(3) });
+        expect(actual()).toEqual(['Terminada']);
     });
 
-    it('cuando la lista se recarga con el cambio confirmado, muestra el nuevo estado', async () => {
-        const { wrapper, selector } = montar(1);
-
-        await selector().setValue('2');
-        await wrapper.setProps({ prenda: prenda(2) });
-
-        expect(selector().element.value).toBe('2');
-    });
-
-    it('si el cambio falla, no se queda mostrando el estado que se pidió', async () => {
-        const { wrapper, selector } = montar(1);
-
-        await selector().setValue('3');
-        // La lista se recarga, pero la prenda sigue igual porque el cambio falló.
-        await wrapper.setProps({ prenda: prenda(1) });
-
-        expect(selector().element.value).toBe('1');
-    });
-
-    it('CP-18: entregar una prenda sin terminar ni siquiera se pide', async () => {
-        const { wrapper, toast, selector } = montar(2);
-
-        await selector().setValue('4');
-
+    it('tocar el estado actual no pide nada', async () => {
+        const { wrapper, estados } = montar(2);
+        await estados()[1].trigger('click');
         expect(wrapper.emitted('estado-changed')).toBeUndefined();
-        expect(toast).toHaveBeenCalledWith('No se puede entregar una prenda que no está Terminada', 'error');
-        expect(selector().element.value).toBe('2');
+    });
+
+    it('CP-18: Entregada está apagada mientras la prenda no esté terminada', () => {
+        expect(montar(2).estados()[3].attributes('disabled')).toBeDefined();
+        expect(montar(3).estados()[3].attributes('disabled')).toBeUndefined();
+    });
+
+    it('en una orden cerrada no se cambia nada ni se edita', () => {
+        const { wrapper, estados, actual } = montar(4, { readonly: true });
+        expect(estados().every(b => b.attributes('disabled') !== undefined)).toBe(true);
+        expect(actual()).toEqual(['Entregada']);
+        expect(wrapper.findAll('.accion').map(b => b.text())).toEqual(['Fotos', 'Notas']);
+    });
+});
+
+describe('PrendaCard · acciones con nombre', () => {
+    it('Fotos y Notas muestran cuántas hay', () => {
+        const { wrapper } = montar(2, { extra: { fotografias: [{}, {}], observaciones: [{}] } });
+        expect(wrapper.findAll('.accion').map(b => b.text().replace(/\s+/g, ''))).toEqual(['Fotos2', 'Notas1', 'Editar']);
+    });
+
+    it('abrir Fotos ofrece tomar una', async () => {
+        const { wrapper } = montar(2);
+        await wrapper.findAll('.accion')[0].trigger('click');
+        await wrapper.find('.foto-nueva').trigger('click');
+        expect(wrapper.emitted('take-photo')).toHaveLength(1);
+    });
+
+    it('abrir Notas ofrece añadir una', async () => {
+        const { wrapper } = montar(2);
+        await wrapper.findAll('.accion')[1].trigger('click');
+        await wrapper.find('.nota-nueva').trigger('click');
+        expect(wrapper.emitted('add-obs')).toHaveLength(1);
     });
 });

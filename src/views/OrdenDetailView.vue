@@ -1,9 +1,5 @@
 <template>
   <div class="orden-detail-view">
-    <div class="header-actions">
-      <button class="back-btn" @click="router.back()">← Volver</button>
-    </div>
-
     <div v-if="loading && !ordenActual" class="loading-state">
       <SkeletonLoader :count="6" height="60px" />
     </div>
@@ -14,28 +10,34 @@
 
     <div v-else class="orden-content">
       <!-- Resumen Fijo -->
+      <!-- Cabecera: quién es, cuándo, cuánto debe y en qué va, en una sola tarjeta -->
       <div class="card orden-header">
         <div class="title-row">
+          <button class="back-btn" @click="router.back()" aria-label="Volver">
+            <svg class="ic" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"></path></svg>
+          </button>
           <h2>Orden #{{ ordenActual.id_orden }}</h2>
           <StatusBadge :estado="ordenActual.estado_nombre" />
         </div>
-        <p class="resumen-texto"><strong>Cliente:</strong> {{ ordenActual.cliente_nombre }}</p>
-        <p class="resumen-texto">
-          <strong>Saldo: </strong>
-          <span :class="{'deuda': ordenActual.saldo_pendiente > 0}">
-            {{ formatearMoneda(ordenActual.saldo_pendiente) }}
-          </span> / {{ formatearMoneda(ordenActual.valor_total) }}
+        <div class="cliente">
+          <span class="cliente-nombre">{{ ordenActual.cliente_nombre }}</span>
+          <span class="cliente-fechas">Recibida el {{ fechaCorta(ordenActual.fecha_creacion) }} · Entrega el {{ fechaCorta(ordenActual.fecha_entrega_estimada) }}</span>
+        </div>
+        <TimelineProgressBar v-if="ordenActual.id_estado_orden !== 5" :estadoOrden="ordenActual.id_estado_orden" />
+        <div class="saldo-row">
+          <p class="saldo">
+            <span class="saldo-label">Saldo </span>
+            <span class="saldo-valor" :class="{'deuda': ordenActual.saldo_pendiente > 0}">{{ formatearMoneda(ordenActual.saldo_pendiente) }}</span>
+            <span class="saldo-total"> de {{ formatearMoneda(ordenActual.valor_total) }}</span>
+          </p>
           <!-- RN-28 y HU-37: estado de pago derivado del saldo -->
           <span
             v-if="estadoPago"
             class="pago-chip"
             :class="estadoPago === ESTADO_PAGO.PAGADA ? 'pago-chip--pagada' : 'pago-chip--pendiente'"
           >{{ estadoPago === ESTADO_PAGO.PAGADA ? 'Pagada' : 'Por cobrar' }}</span>
-        </p>
+        </div>
       </div>
-
-      <!-- Visual Timeline Progress Bar -->
-      <TimelineProgressBar v-if="ordenActual && ordenActual.id_estado_orden !== 5" :estadoOrden="ordenActual.id_estado_orden" />
 
       <!-- Pestañas -->
       <div class="tabs">
@@ -118,6 +120,7 @@
 import { ref, computed, onMounted, onUnmounted, inject, watch } from 'vue';
 import { estadoDePago, ESTADO_PAGO } from '../services/estadoOrden.js';
 import { formatearMoneda } from '../services/formato.js';
+import { fechaCorta } from '../services/fechas.js';
 import { useRoute, useRouter } from 'vue-router';
 import { useOrdenes, mensajeConfirmacionEntrega } from '../composables/useOrdenes.js';
 import { usePrendas } from '../composables/usePrendas.js';
@@ -181,6 +184,11 @@ onMounted(async () => {
   const id = route.params.id;
   if (id) {
     await fetchOrden(id);
+    // Mientras quedan prendas por terminar, el trabajo del día está en Prendas;
+    // una orden lista, entregada o cancelada se abre en Detalle.
+    if (ordenActual.value && [1, 2].includes(ordenActual.value.id_estado_orden)) {
+      tab.value = 'prendas';
+    }
     await fetchTiposPrenda();
     await fetchMetodosPago();
     await fetchNotificaciones(id);
@@ -344,38 +352,75 @@ async function openObsPrompt(id_prenda) {
 .orden-detail-view {
   padding: 16px;
 }
-.header-actions {
-  margin-bottom: 16px;
+.ic { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.orden-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 .back-btn {
-  background: none;
-  border: 1px solid var(--outline-variant);
+  width: 40px;
+  min-height: 40px;
+  padding: 0;
+  margin-left: -8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
   color: var(--on-surface);
-  border-radius: var(--radius-md);
-  padding: 6px 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
+  flex: none;
 }
-.back-btn:hover {
+.back-btn:hover:not(:disabled) {
   background: var(--surface-container);
+  box-shadow: none;
+  transform: none;
 }
 .title-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  gap: 4px;
 }
 .title-row h2 {
   margin: 0;
+  flex: 1;
+  font-size: 22px;
   color: var(--primary);
 }
-.resumen-texto {
-  margin: 4px 0;
+.cliente {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cliente-nombre {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--on-surface);
+}
+.cliente-fechas {
+  font-size: 13px;
   color: var(--on-surface-variant);
 }
-.resumen-texto strong {
+.saldo-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--surface-container-high);
+}
+.saldo {
+  margin: 0;
+  color: var(--on-surface-variant);
+  font-size: 14px;
+}
+.saldo-label {
+  font-weight: 500;
+}
+.saldo-valor {
+  font-size: 20px;
+  font-weight: 700;
   color: var(--on-surface);
+  font-variant-numeric: tabular-nums;
 }
 .deuda {
   color: var(--error);
@@ -424,46 +469,6 @@ async function openObsPrompt(id_prenda) {
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.fechas {
-  margin-bottom: 16px;
-}
-.fechas p {
-  margin: 4px 0;
-  color: var(--on-surface-variant);
-}
-.fechas p strong {
-  color: var(--on-surface);
-}
-.estado-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 16px;
-  border-top: 1px solid var(--surface-container-highest);
-  padding-top: 16px;
-}
-.btn-danger {
-  background-color: var(--error);
-  color: var(--on-error);
-}
-.btn-secondary {
-  background-color: transparent;
-  border: 1px solid var(--outline-variant);
-  color: var(--on-surface);
-}
-.telegram-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px dashed var(--surface-container-highest);
-}
-.telegram-btn {
-  background-color: #2AABEE; /* Color oficial de Telegram */
-  color: white;
-  border: none;
-}
 .section-header {
   display: flex;
   justify-content: space-between;

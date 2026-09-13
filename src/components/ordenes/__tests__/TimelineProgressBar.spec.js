@@ -14,6 +14,7 @@ describe('TimelineProgressBar', () => {
 
         expect(pasos.map(p => p.classes('active'))).toEqual([false, false, true, false]);
         expect(pasos.map(p => p.classes('completed'))).toEqual([true, true, true, false]);
+        expect(pasos[2].attributes('aria-current')).toBe('step');
     });
 
     it('no se muestra en una orden cancelada', () => {

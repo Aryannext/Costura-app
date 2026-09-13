@@ -495,12 +495,14 @@ describe('RN-04, RN-28 y RN-38 contra SQLite real', () => {
         const vacia = await ordenParaFecha('2020-01-01', { conPrenda: false });
         const conTrabajo = await ordenParaFecha('2020-01-01', { conPrenda: true });
 
-        const { kpis, proximasEntregas } = await getDashboardData();
+        const { kpis, atrasadas, proximasEntregas } = await getDashboardData();
 
         expect(kpis.ordenesActivas).toBe(1);
         expect(kpis.ordenesAtrasadas).toBe(1);
-        expect(proximasEntregas.map(o => o.id_orden)).toEqual([conTrabajo]);
-        expect(proximasEntregas.map(o => o.id_orden)).not.toContain(vacia);
+        expect(atrasadas.map(o => o.id_orden)).toEqual([conTrabajo]);
+        expect(atrasadas.map(o => o.id_orden)).not.toContain(vacia);
+        // Las atrasadas no ocupan los puestos de "para entregar pronto".
+        expect(proximasEntregas).toEqual([]);
     });
 
     it('RN-04: los recordatorios del día no cuentan órdenes sin prendas', async () => {
