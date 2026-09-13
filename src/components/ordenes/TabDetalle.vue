@@ -20,7 +20,12 @@
       </div>
 
       <div class="telegram-actions">
-        <button class="btn-small telegram-btn" @click="$emit('notificar-telegram', 'LISTA_ENTREGA')">
+        <!-- RN-31: el aviso de orden lista sólo tiene sentido con la orden Lista para Entregar -->
+        <button
+          v-if="orden.id_estado_orden === 3"
+          class="btn-small telegram-btn"
+          @click="$emit('notificar-telegram', 'LISTA_ENTREGA')"
+        >
           <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
           Avisar Lista
         </button>

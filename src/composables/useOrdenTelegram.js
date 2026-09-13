@@ -2,6 +2,7 @@ import { inject } from 'vue';
 import { useTelegramBot } from './useTelegramBot.js';
 import { useNotificaciones } from './useNotificaciones.js';
 import { getOrdenById } from '../database/queries/ordenes.js';
+import { validators } from '../services/validators.js';
 import { Share } from '@capacitor/share';
 
 function formatDate(dateStr) {
@@ -53,9 +54,21 @@ export function useOrdenTelegram(ordenActual) {
     return (await getOrdenById(ordenActual.value.id_orden)) ?? ordenActual.value;
   }
 
+  // RN-31 y P1-17: el aviso de orden lista sólo sale con la orden Lista para
+  // Entregar. La vista ya oculta el botón; esto cubre cualquier otro camino.
+  function puedeAvisarOrdenLista(o) {
+    try {
+      validators.validateAvisoOrdenLista(o);
+      return true;
+    } catch (error) {
+      toast(error.message, 'error');
+      return false;
+    }
+  }
+
   async function enviarAlertaOrdenListaBot() {
     const o = await ordenAlEnviar();
-    if (!o) return;
+    if (!o || !puedeAvisarOrdenLista(o)) return;
     const cliente = o.cliente_nombre;
     const telefono = o.cliente_telefono || '';
     const saldo = o.saldo_pendiente;
@@ -118,6 +131,7 @@ export function useOrdenTelegram(ordenActual) {
     let mensajeBot = '';
 
     if (tipo === 'LISTA_ENTREGA') {
+      if (!puedeAvisarOrdenLista(o)) return;
       wpText = `Hola ${cliente}, te informamos que tu orden #${idOrden} ya está lista para recoger en el Atelier.`;
       if (saldo > 0) wpText += ` Recuerda que tienes un saldo pendiente de $${saldo}.`;
       const wpLink = `https://wa.me/${telefono.replace(/\+/g, '')}?text=${encodeURIComponent(wpText)}`;

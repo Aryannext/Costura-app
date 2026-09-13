@@ -207,6 +207,19 @@ describe('validators.validateCambioManualEstado (RN-06, RN-16, RN-17)', () => {
     });
 });
 
+describe('validators.validateAvisoOrdenLista (RN-31)', () => {
+    it('orden Lista para Entregar -> pasa', () => {
+        expect(validators.validateAvisoOrdenLista({ id_estado_orden: 3 })).toBe(true);
+    });
+
+    it('cualquier otro estado, o sin orden -> rechazo', () => {
+        for (const orden of [{ id_estado_orden: 1 }, { id_estado_orden: 2 }, { id_estado_orden: 4 }, { id_estado_orden: 5 }, null]) {
+            expect(() => validators.validateAvisoOrdenLista(orden))
+                .toThrow('Sólo se avisa al cliente cuando la orden está Lista para Entregar.');
+        }
+    });
+});
+
 describe('validators.validateCambioEstadoPrenda (CP-18)', () => {
     it('Terminada -> Entregada pasa', () => {
         expect(validators.validateCambioEstadoPrenda(3, 4)).toBe(true);

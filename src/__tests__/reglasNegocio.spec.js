@@ -439,9 +439,12 @@ describe('RN-23 · una prenda puede tener varias fotografías', () => {
     it('admite más de una', async () => {
         const id = await orden();
         const a = await prenda(id);
-        await saveFotografia(a, 'frente.jpeg');
-        await saveFotografia(a, 'espalda.jpeg');
-        expect(await getFotografiasByPrenda(a)).toHaveLength(2);
+        const frente = await saveFotografia(a, 'frente.jpeg');
+        const espalda = await saveFotografia(a, 'espalda.jpeg');
+
+        // El id devuelto es el de cada foto, aunque antes se escriba su línea de historial.
+        const ids = (await getFotografiasByPrenda(a)).map(f => f.id_fotografia).sort();
+        expect(ids).toEqual([frente, espalda].sort());
     });
 });
 
@@ -557,12 +560,32 @@ describe('RN-31 · el aviso de orden lista sólo al entrar en Lista para Entrega
         expect(await getNotificacionesByOrden(id)).toHaveLength(1);
     });
 
-    // El botón "Avisar Lista" está siempre visible y envía el aviso con la orden
-    // en cualquier estado.
-    it.fails('P1-17: no se envía el aviso de orden lista si la orden no está Lista', async () => {
+    it('P1-17: no se envía el aviso de orden lista si la orden no está Lista', async () => {
         const id = await orden();
         await prenda(id);
         const ordenEnPantalla = ref(await getOrdenById(id));
+        const avisos = useOrdenTelegram(ordenEnPantalla);
+
+        await avisos.notificarTelegram('LISTA_ENTREGA');
+        await avisos.enviarAlertaOrdenListaBot();
+
+        expect(telegram.enviar).not.toHaveBeenCalled();
+    });
+
+    it('con la orden Lista sí se envía', async () => {
+        const { id } = await ordenLista();
+        const ordenEnPantalla = ref(await getOrdenById(id));
+
+        await useOrdenTelegram(ordenEnPantalla).notificarTelegram('LISTA_ENTREGA');
+
+        expect(telegram.enviar).toHaveBeenCalledTimes(1);
+    });
+
+    it('decide el estado de la base, no el que tenía la pantalla', async () => {
+        const { id, a } = await ordenLista();
+        const ordenEnPantalla = ref(await getOrdenById(id));
+        // La prenda vuelve a proceso después de que la pantalla cargó la orden.
+        await estadoPrenda(a, id, P.EN_PROCESO);
 
         await useOrdenTelegram(ordenEnPantalla).notificarTelegram('LISTA_ENTREGA');
 
@@ -634,7 +657,7 @@ describe('RN-35 · toda modificación de una orden queda en el historial', () =>
         ]));
     });
 
-    it.fails('P1-19: añadir una observación a una prenda queda en el historial', async () => {
+    it('P1-19: añadir una observación a una prenda queda en el historial', async () => {
         const id = await orden();
         const a = await prenda(id);
         const antes = await contarHistorial(id);
@@ -644,7 +667,7 @@ describe('RN-35 · toda modificación de una orden queda en el historial', () =>
         expect(await contarHistorial(id)).toBe(antes + 1);
     });
 
-    it.fails('P1-19: añadir y borrar una fotografía queda en el historial', async () => {
+    it('P1-19: añadir y borrar una fotografía queda en el historial', async () => {
         const id = await orden();
         const a = await prenda(id);
         const antes = await contarHistorial(id);
@@ -653,6 +676,20 @@ describe('RN-35 · toda modificación de una orden queda en el historial', () =>
         await usePrendas().removeFoto(foto);
 
         expect(await contarHistorial(id)).toBe(antes + 2);
+        const [eliminada, anadida] = (await filas(
+            'SELECT descripcion FROM historial_actividad WHERE id_orden = ? ORDER BY id_actividad DESC LIMIT 2', [id]
+        )).map(h => h.descripcion);
+        expect(anadida).toBe(`Fotografía añadida a la prenda #${a}`);
+        expect(eliminada).toBe(`Fotografía eliminada de la prenda #${a}`);
+    });
+
+    it('P1-19: si la foto no llega a guardarse, tampoco queda su rastro', async () => {
+        const id = await orden();
+        const antes = await contarHistorial(id);
+
+        await expect(saveFotografia(999, 'huerfana.jpeg')).rejects.toThrow(/FOREIGN KEY constraint failed/);
+
+        expect(await contarHistorial(id)).toBe(antes);
     });
 });
 

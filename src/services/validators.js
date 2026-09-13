@@ -136,6 +136,14 @@ export const validators = {
         return true;
     },
 
+    // RN-31: el aviso de orden lista sólo se envía con la orden Lista para Entregar.
+    validateAvisoOrdenLista: (orden) => {
+        if (!orden || orden.id_estado_orden !== 3) {
+            throw new Error("Sólo se avisa al cliente cuando la orden está Lista para Entregar.");
+        }
+        return true;
+    },
+
     // RN-08 y CP-18: una prenda sólo se entrega cuando está terminada.
     validateCambioEstadoPrenda: (estadoActual, estadoNuevo) => {
         if (estadoNuevo === 4 && estadoActual !== 3 && estadoActual !== 4) {

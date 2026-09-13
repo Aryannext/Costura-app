@@ -1,4 +1,4 @@
-import { db, saveDb } from '../connection.js';
+import { db } from '../connection.js';
 import { recalcularTotalesOrden } from './saldo.js';
 import { leerEstadosDeOrden, planificarTransicion } from './estadoOrden.js';
 import { ESTADO_PRENDA } from '../../services/estadoOrden.js';
@@ -68,22 +68,29 @@ export async function createPrenda(prenda) {
     return result.changes.lastId;
 }
 
+/**
+ * RN-35 y P1-19: observaciones y fotografías también modifican la orden, y hasta
+ * ahora no dejaban rastro. La línea del historial se escribe en la misma
+ * transacción, y su id_orden sale de la prenda para no cambiar las firmas.
+ */
+function historialDePrenda(descripcionSql, id_prenda, valores = []) {
+    return {
+        statement: `INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad)
+                    SELECT ${descripcionSql}, id_orden, 2 FROM prenda WHERE id_prenda = ?`,
+        values: [...valores, id_prenda]
+    };
+}
+
 export async function addObservacion(id_prenda, descripcion) {
     if (!db) throw new Error("Database not initialized");
-    await db.run(
-        "INSERT INTO observacion (descripcion, id_prenda) VALUES (?, ?)",
-        [descripcion, id_prenda]
-    );
-    await saveDb();
+    await db.executeSet([
+        { statement: "INSERT INTO observacion (descripcion, id_prenda) VALUES (?, ?)", values: [descripcion, id_prenda] },
+        historialDePrenda("'Observación añadida a la prenda #' || id_prenda || ': ' || ?", id_prenda, [descripcion])
+    ], true);
 }
 
 export async function addFotografia(id_prenda, ruta_archivo) {
-    if (!db) throw new Error("Database not initialized");
-    await db.run(
-        "INSERT INTO fotografia (ruta_archivo, id_prenda) VALUES (?, ?)",
-        [ruta_archivo, id_prenda]
-    );
-    await saveDb();
+    return saveFotografia(id_prenda, ruta_archivo);
 }
 
 /**
@@ -129,11 +136,11 @@ export async function getObservacionesByPrenda(id_prenda) {
 
 export async function saveFotografia(id_prenda, ruta_archivo) {
     if (!db) throw new Error("Database not initialized");
-    const res = await db.run(
-        "INSERT INTO fotografia (ruta_archivo, id_prenda) VALUES (?, ?)",
-        [ruta_archivo, id_prenda]
-    );
-    await saveDb();
+    const res = await db.executeSet([
+        historialDePrenda("'Fotografía añadida a la prenda #' || id_prenda", id_prenda),
+        // Último INSERT: el lastId devuelto es el de la fotografía.
+        { statement: "INSERT INTO fotografia (ruta_archivo, id_prenda) VALUES (?, ?)", values: [ruta_archivo, id_prenda] }
+    ], true);
     return res.changes.lastId;
 }
 
@@ -178,11 +185,17 @@ export async function getFotografiasByPrenda(id_prenda) {
 
 export async function deleteFotografia(id_fotografia) {
     if (!db) throw new Error("Database not initialized");
-    await db.run(
-        "DELETE FROM fotografia WHERE id_fotografia = ?",
-        [id_fotografia]
-    );
-    await saveDb();
+    await db.executeSet([
+        {
+            // El rastro se escribe antes de borrar: después ya no se sabe de qué prenda era.
+            statement: `INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad)
+                        SELECT 'Fotografía eliminada de la prenda #' || p.id_prenda, p.id_orden, 2
+                        FROM fotografia f JOIN prenda p ON p.id_prenda = f.id_prenda
+                        WHERE f.id_fotografia = ?`,
+            values: [id_fotografia]
+        },
+        { statement: "DELETE FROM fotografia WHERE id_fotografia = ?", values: [id_fotografia] }
+    ], true);
 }
 
 /**
