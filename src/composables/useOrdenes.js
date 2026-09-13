@@ -51,12 +51,10 @@ export function useOrdenes() {
 
     const changeEstado = async (id_orden, id_estado_orden, estadoNombre, ordenActualData) => {
         return execute(async () => {
-            let accion = null;
-            if (id_estado_orden === 5) accion = 'cancelar';
-            else if (id_estado_orden === 1 && ordenActualData && ordenActualData.id_estado_orden === 4) accion = 'reabrir';
-
-            if (accion && ordenActualData) {
-                validators.validateOrdenAccionPermitida(ordenActualData, accion);
+            // A mano sólo se entrega, se cancela o se reabre (a En Proceso, RN-16).
+            // Los demás estados los deriva el sistema de las prendas (RN-06, RN-17).
+            if (ordenActualData) {
+                validators.validateCambioManualEstado(ordenActualData, id_estado_orden);
             }
 
             await updateEstadoOrdenDB(id_orden, id_estado_orden, estadoNombre, ordenActualData);

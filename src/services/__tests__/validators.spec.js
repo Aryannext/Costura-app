@@ -172,6 +172,53 @@ describe('validators.validateValorPrendaContraPagos', () => {
     });
 });
 
+describe('validators.validateCambioManualEstado (RN-06, RN-16, RN-17)', () => {
+    const A_MANO = 'El estado de la orden cambia solo según sus prendas: no se puede fijar a mano.';
+
+    it('Entregar una orden Lista para Entregar -> pasa', () => {
+        expect(validators.validateCambioManualEstado({ id_estado_orden: 3 }, 4)).toBe(true);
+    });
+
+    it('Entregar una orden con prendas sin terminar -> rechazo', () => {
+        expect(() => validators.validateCambioManualEstado({ id_estado_orden: 2 }, 4))
+            .toThrow('Sólo se puede entregar una orden Lista para Entregar, es decir, con todas sus prendas terminadas.');
+    });
+
+    it('Cancelar una orden abierta -> pasa; una entregada -> rechazo', () => {
+        expect(validators.validateCambioManualEstado({ id_estado_orden: 2 }, 5)).toBe(true);
+        expect(() => validators.validateCambioManualEstado({ id_estado_orden: 4 }, 5))
+            .toThrow('Una orden entregada no se puede cancelar.');
+    });
+
+    it('RN-16 / CP-22: reabrir una orden entregada a En Proceso -> pasa', () => {
+        expect(validators.validateCambioManualEstado({ id_estado_orden: 4 }, 2)).toBe(true);
+    });
+
+    it('Fijar a mano Pendiente, En Proceso o Lista -> rechazo', () => {
+        for (const [actual, destino] of [[1, 2], [2, 3], [3, 1], [4, 1]]) {
+            expect(() => validators.validateCambioManualEstado({ id_estado_orden: actual }, destino)).toThrow(A_MANO);
+        }
+    });
+});
+
+describe('validators.validateCambioEstadoPrenda (CP-18)', () => {
+    it('Terminada -> Entregada pasa', () => {
+        expect(validators.validateCambioEstadoPrenda(3, 4)).toBe(true);
+    });
+
+    it('Pendiente o En Proceso -> Entregada rechazo', () => {
+        for (const actual of [1, 2]) {
+            expect(() => validators.validateCambioEstadoPrenda(actual, 4))
+                .toThrow('Sólo se puede entregar una prenda terminada. Márcala primero como Terminada.');
+        }
+    });
+
+    it('Retroceder de estado -> pasa', () => {
+        expect(validators.validateCambioEstadoPrenda(3, 2)).toBe(true);
+        expect(validators.validateCambioEstadoPrenda(4, 3)).toBe(true);
+    });
+});
+
 describe('validators.validateEliminarPrenda (P1-9)', () => {
     const contexto = { estadoOrden: 2, estadoPrenda: 1, totalOtrasPrendas: 30000, totalPagado: 20000 };
 

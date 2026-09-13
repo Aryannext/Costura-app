@@ -4,7 +4,7 @@ Planos del sistema **regenerados desde el código fuente**, no desde el diseño 
 
 Están escritos en Mermaid: GitHub y la mayoría de editores los dibujan solos.
 
-> **Versión del esquema documentada:** 3 (`schema_migrations`)
+> **Versión del esquema documentada:** 4 (`schema_migrations`)
 > **Última revisión contra el código:** 13 de septiembre de 2026
 
 ---
@@ -386,12 +386,13 @@ Cuatro estados. Una prenda **no** se cancela: se cancela la orden completa.
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Pendiente : orden creada
-    Pendiente --> En_Proceso : trabajo iniciado
+    [*] --> Pendiente : orden creada, sin prendas
+    Pendiente --> En_Proceso : se añade una prenda
+    En_Proceso --> Pendiente : se elimina la última prenda
     En_Proceso --> Lista_para_Entregar : todas las prendas Terminadas
-    Pendiente --> Lista_para_Entregar : todas las prendas Terminadas
-    Lista_para_Entregar --> Entregada : todas las prendas Entregadas
-    Entregada --> Pendiente : reapertura excepcional
+    Lista_para_Entregar --> En_Proceso : prenda nueva o prenda que vuelve a proceso
+    Lista_para_Entregar --> Entregada : botón Entregar o todas las prendas Entregadas
+    Entregada --> En_Proceso : reabrir (RN-16)
 
     Pendiente --> Cancelada : el cliente desiste
     En_Proceso --> Cancelada : el cliente desiste
@@ -401,16 +402,24 @@ stateDiagram-v2
     Cancelada --> [*]
 ```
 
-**Transiciones automáticas** (en `updateEstadoPrenda`):
+**Transiciones automáticas.** Pendiente, En Proceso y Lista para Entregar no se fijan a mano: los decide `derivarEstadoOrden` (`services/estadoOrden.js`) cada vez que se crea, cambia de estado o elimina una prenda, en la misma transacción:
 
-- Todas las prendas en *Terminada* → la orden pasa sola a *Lista para Entregar* y se registra una notificación.
-- Todas las prendas en *Entregada* → la orden pasa sola a *Entregada* y se sella `fecha_entrega_real`.
+| Prendas de la orden | Estado de la orden | Regla |
+| --- | --- | --- |
+| Ninguna | Pendiente | RN-04 |
+| Alguna *Pendiente* o *En Proceso* | En Proceso | RN-17 |
+| Todas *Terminada* o *Entregada*, alguna sin entregar | Lista para Entregar · se registra la notificación | RN-06, RN-10 |
+| Todas *Entregada* | Entregada · se sella `fecha_entrega_real` | RN-09 |
 
-**Reglas que bloquean transiciones** (en `validators.js`):
+Una orden *Entregada* o *Cancelada* no cambia por sus prendas.
 
-- Una orden *Entregada* no se puede cancelar.
+**Acciones manuales** (en `validators.validateCambioManualEstado`):
+
+- *Entregar* sólo desde *Lista para Entregar*.
+- *Cancelar* cualquier orden que no esté *Entregada*.
+- *Reabrir* sólo lo que está *Entregada*; vuelve a *En Proceso*.
 - Una orden *Cancelada* no admite prendas ni pagos.
-- Sólo se reabre lo que está *Entregada*.
+- Una prenda sólo pasa a *Entregada* desde *Terminada* (CP-18).
 
 **Entregar con saldo pendiente** está permitido (RN-30), pero el botón *Entregar* pide confirmación mostrando lo que se debe. La entrega automática por prendas no la pide.
 

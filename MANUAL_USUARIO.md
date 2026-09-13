@@ -74,14 +74,16 @@ Una orden es el "ticket" que le creas al cliente cuando te trae ropa.
 
 Cada **prenda** pasa por cuatro etapas: **Pendiente → En Proceso → Terminada → Entregada**.
 
-La **orden completa** avanza sola según sus prendas:
+La **orden completa** avanza sola según sus prendas. No hay botones para cambiarla de estado: tú mueves las prendas y la orden las sigue.
 
-1. 🔵 **Pendiente** — la ropa está en el mostrador.
-2. 🟡 **En Proceso** — estás trabajando en ella.
-3. 🟢 **Lista para Entregar** — en cuanto marcas *Terminada* la última prenda, la orden salta aquí sola y la app te ofrece avisarle al cliente por WhatsApp.
-4. ⚫ **Entregada** — cuando todas las prendas quedan entregadas. Se guarda la fecha y hora exactas.
+1. 🔵 **Pendiente** — la orden todavía no tiene prendas.
+2. 🟡 **En Proceso** — mientras quede al menos una prenda *Pendiente* o *En Proceso*. Si añades una prenda nueva a una orden que ya estaba lista, o una prenda terminada necesita otro retoque, la orden vuelve aquí sola.
+3. 🟢 **Lista para Entregar** — en cuanto marcas *Terminada* la última prenda, la orden salta aquí sola y la app te ofrece avisarle al cliente por WhatsApp. Aquí aparece el botón **Entregar**.
+4. ⚫ **Entregada** — cuando entregas la orden o todas sus prendas quedan entregadas. Se guarda la fecha y hora exactas.
 
-También puedes **cancelar** una orden si el cliente desiste, y **reabrir** una entregada si hubo un error. Ambas cosas quedan registradas en el historial de la orden.
+Una prenda sólo se puede marcar *Entregada* si antes estaba *Terminada*.
+
+También puedes **cancelar** una orden si el cliente desiste, y **reabrir** una entregada si hubo un error: vuelve a *En Proceso* para que corrijas lo que haga falta. Ambas cosas quedan registradas en el historial de la orden.
 
 Lo que la app **sí** te impide:
 

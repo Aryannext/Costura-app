@@ -2,8 +2,8 @@
 
 Correspondencia entre los requisitos especificados y el código que los implementa. Cada fila se verificó contra `src/`, no contra la intención original.
 
-> **Revisión:** 13 de septiembre de 2026 · versión 1.1.2 · esquema 3
-> **Suite de pruebas:** 151 en verde, 0 omitidas
+> **Revisión:** 13 de septiembre de 2026 · versión 1.1.2 · esquema 4
+> **Suite de pruebas:** 176 en verde, 0 omitidas
 
 Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · ❌ no implementado · 🚧 planificado
 
@@ -33,7 +33,7 @@ Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · 
 | --- | --- | --- |
 | RF-17 a RF-22, RF-25, RF-26, RF-31 | ✅ | `composables/usePrendas.js`, `database/queries/prendas.js` |
 | RF-23 · total automático | ✅ | `createPrenda` y `updatePrenda` recalculan `valor_total` desde `SUM(prenda.valor)` en la misma transacción (`queries/saldo.js`) · con pruebas sobre SQLite real |
-| RF-24 · orden a "Lista" automática | ✅ | `updateEstadoPrenda` |
+| RF-24 · orden a "Lista" automática | ✅ | `services/estadoOrden.js` deriva el estado de la orden de sus prendas (RN-04, RN-06, RN-09, RN-17) y `queries/estadoOrden.js` lo aplica en la misma transacción al crear, cambiar o eliminar una prenda · con pruebas sobre SQLite real de CP-18, CP-19, CP-22, CP-46 y CP-47 |
 | RF-27 a RF-30, RF-32 · fotografías | ✅ | `services/photoStorage.js`, `components/prendas/PrendaCard.vue` |
 
 ### Pagos · RF-33 a RF-38
@@ -121,7 +121,6 @@ Ninguno impide publicar ni pone datos en riesgo.
 | P1-6 | Las transiciones entre vistas nunca se activan: el `watch` observa el objeto `route` completo, así que `to` y `from` son la misma referencia | `App.vue` |
 | P1-7 | Alarmas exactas sin comprobar el permiso en Android 13+ | `useNotificacionesLocales.js` |
 | P1-8 | N+1 al cargar el detalle de una orden | `queries/prendas.js` |
-| P1-10 | Eliminar la última prenda pendiente de una orden no la mueve sola a *Lista para Entregar*: la transición automática sólo se evalúa al cambiar el estado de una prenda. El botón *Marcar Lista* sigue disponible | `composables/usePrendas.js`, `queries/prendas.js` |
 
 **Cerrados en la revisión del 13 de septiembre:**
 
@@ -129,6 +128,10 @@ Ninguno impide publicar ni pone datos en riesgo.
 - **P1-9** · deslizar para eliminar no hacía nada y aun así mostraba «Pago eliminado y saldo recalculado». Decisión: **un pago nunca se borra, se anula** con fecha y motivo (`pago.anulado_en`, `pago.motivo_anulacion`, migración 3). Deja de contar en el saldo y en los ingresos de reportes, y queda en el historial (tipo 8) según RN-14 y RN-35. **Una prenda sí se elimina**, con sus fotos y observaciones y registro en el historial (tipo 9), salvo si la orden está entregada o cancelada, si la prenda ya se entregó, o si el total quedaría por debajo de lo pagado (RN-29).
 - El falso cambio de estado `#undefined` que se registraba en el historial al editar una prenda.
 - El modal de confirmación decía «Sí, Notificar» para cualquier acción, incluida la de entregar con saldo.
+- **RN-16** · reabrir dejaba la orden en *Pendiente*; ahora vuelve a *En Proceso* (HU-09, CP-22).
+- **RN-17** · nada asignaba nunca *En Proceso*, y los botones *Iniciar Proceso* y *Marcar Lista* permitían estados que contradecían a las prendas. Se quitaron: el estado se deriva de las prendas en cada cambio (HU-23, CP-46, CP-47). A mano sólo quedan *Entregar* (únicamente desde *Lista para Entregar*), *Cancelar* y *Reabrir*. La migración 4 ajustó las órdenes abiertas existentes y lo dejó en su historial.
+- **P1-10** · eliminar la última prenda pendiente ahora deja la orden *Lista para Entregar*, y eliminar la última prenda la devuelve a *Pendiente*.
+- **CP-18** · la entrega de una prenda sin terminar sólo la bloqueaba la pantalla; ahora también la regla de negocio (`validateCambioEstadoPrenda`).
 
 ### Excepciones a la separación de capas
 

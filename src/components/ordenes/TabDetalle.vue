@@ -8,13 +8,15 @@
       </div>
 
       <div class="estado-actions" v-if="orden.id_estado_orden !== 4 && orden.id_estado_orden !== 5">
-        <button v-if="orden.id_estado_orden === 1" @click="$emit('cambiar-estado', 2, 'En Proceso')">Iniciar Proceso</button>
-        <button v-if="orden.id_estado_orden === 2" @click="$emit('cambiar-estado', 3, 'Lista para Entregar')">Marcar Lista</button>
+        <!-- RN-06 y RN-17: el estado avanza solo según las prendas; no hay botones para fijarlo. -->
+        <p v-if="orden.id_estado_orden !== 3" class="estado-ayuda">
+          El estado avanza solo: la orden pasa a <strong>Lista para Entregar</strong> cuando todas sus prendas estén terminadas.
+        </p>
         <button v-if="orden.id_estado_orden === 3" @click="$emit('cambiar-estado', 4, 'Entregada')">Entregar</button>
         <button class="btn-danger" @click="$emit('cambiar-estado', 5, 'Cancelada')">Cancelar Orden</button>
       </div>
       <div class="estado-actions" v-if="orden.id_estado_orden === 4">
-        <button class="btn-secondary" @click="$emit('cambiar-estado', 1, 'Pendiente')">Reabrir Orden</button>
+        <button class="btn-secondary" @click="$emit('cambiar-estado', 2, 'En Proceso')">Reabrir Orden</button>
       </div>
 
       <div class="telegram-actions">
@@ -100,6 +102,7 @@ function formatTime(dateStr) {
 .fechas p { margin: 4px 0; color: var(--on-surface-variant); }
 .fechas p strong { color: var(--on-surface); }
 .estado-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; border-top: 1px solid var(--surface-container-highest); padding-top: 16px; }
+.estado-ayuda { width: 100%; margin: 0; font-size: 0.85rem; color: var(--on-surface-variant); }
 .btn-danger { background-color: var(--error); color: var(--on-error); }
 .btn-secondary { background-color: transparent; border: 1px solid var(--outline-variant); color: var(--on-surface); }
 .telegram-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--surface-container-highest); }

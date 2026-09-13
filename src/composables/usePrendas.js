@@ -2,6 +2,7 @@ import { ref } from 'vue';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { savePhotoFromBase64, deletePhotoFile } from '../services/photoStorage.js';
 import { validators } from '../services/validators.js';
+import { ESTADO_ORDEN } from '../services/estadoOrden.js';
 import { useAsyncAction } from './useAsyncAction.js';
 import { 
     getTiposPrenda, 
@@ -80,21 +81,19 @@ export function usePrendas() {
         });
     };
 
-    const changeEstado = async (id_prenda, id_estado_prenda, id_orden, currentOrdenStatus = 0) => {
+    const changeEstado = async (id_prenda, id_estado_prenda, id_orden) => {
         return execute(async () => {
-            await updateEstadoPrenda(id_prenda, id_estado_prenda, id_orden);
+            // El <select> de PrendaCard entrega el valor como texto.
+            const estadoNuevo = Number(id_estado_prenda);
+
+            const { estadoPrenda } = await getContextoPrenda(id_prenda, id_orden);
+            validators.validateCambioEstadoPrenda(estadoPrenda, estadoNuevo);
+
+            const { desde, hacia } = await updateEstadoPrenda(id_prenda, estadoNuevo, id_orden);
             await fetchPrendas(id_orden);
-            
-            let shouldPromptCompletion = false;
-            // Regla de Negocio: Si la prenda pasa a lista (>=3) y la orden no está lista (<3)
-            if (id_estado_prenda >= 3 && currentOrdenStatus < 3) {
-                // Verificar si TODAS las prendas de esta orden están listas
-                const allReady = prendas.value.every(p => p.id_estado_prenda >= 3);
-                if (allReady) {
-                    shouldPromptCompletion = true;
-                }
-            }
-            return { shouldPromptCompletion };
+
+            // La orden ya cambió sola (RN-06); la vista sólo ofrece el aviso.
+            return { ordenPasoALista: hacia === ESTADO_ORDEN.LISTA && desde !== ESTADO_ORDEN.LISTA };
         }, {
             successMessage: 'Estado de la prenda actualizado',
             toastError: true

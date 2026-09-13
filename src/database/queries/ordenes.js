@@ -93,7 +93,7 @@ export async function changeEstado(id_orden, id_estado_orden, nombre_estado, cur
     let id_tipo_actividad = 3; // Cambio de estado por defecto
     if (id_estado_orden === 4) id_tipo_actividad = 5; // Entrega
     if (id_estado_orden === 5) id_tipo_actividad = 6; // Cancelacion
-    if (id_estado_orden === 1 && current_orden?.id_estado_orden === 4) id_tipo_actividad = 7; // Reapertura
+    if (id_estado_orden === 2 && current_orden?.id_estado_orden === 4) id_tipo_actividad = 7; // Reapertura (RN-16: vuelve a En Proceso)
 
     set.push({
         statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",

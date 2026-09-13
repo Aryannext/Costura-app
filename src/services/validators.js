@@ -102,6 +102,33 @@ export const validators = {
         return true;
     },
 
+    // RN-06, RN-16, RN-17 (HU-23): Pendiente, En Proceso y Lista para Entregar
+    // los decide el sistema según las prendas. A mano sólo se entrega, se
+    // cancela o se reabre.
+    validateCambioManualEstado: (orden, destino) => {
+        if (destino === 5) {
+            return validators.validateOrdenAccionPermitida(orden, 'cancelar');
+        }
+        if (destino === 4) {
+            if (orden.id_estado_orden !== 3) {
+                throw new Error("Sólo se puede entregar una orden Lista para Entregar, es decir, con todas sus prendas terminadas.");
+            }
+            return true;
+        }
+        if (destino === 2 && orden.id_estado_orden === 4) {
+            return validators.validateOrdenAccionPermitida(orden, 'reabrir');
+        }
+        throw new Error("El estado de la orden cambia solo según sus prendas: no se puede fijar a mano.");
+    },
+
+    // RN-08 y CP-18: una prenda sólo se entrega cuando está terminada.
+    validateCambioEstadoPrenda: (estadoActual, estadoNuevo) => {
+        if (estadoNuevo === 4 && estadoActual !== 3 && estadoActual !== 4) {
+            throw new Error("Sólo se puede entregar una prenda terminada. Márcala primero como Terminada.");
+        }
+        return true;
+    },
+
     // P1-9: eliminar una prenda es corregir un error de captura, no deshacer
     // trabajo entregado ni dejar la cuenta en negativo (RN-29).
     validateEliminarPrenda: ({ estadoOrden, estadoPrenda, totalOtrasPrendas, totalPagado }) => {

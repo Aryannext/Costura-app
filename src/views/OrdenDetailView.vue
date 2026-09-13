@@ -209,12 +209,6 @@ async function aplicarCambioEstado(id_estado, nombre) {
   try {
     await changeEstado(ordenActual.value.id_orden, id_estado, nombre, ordenActual.value);
     toast(`Estado actualizado a: ${nombre}`, 'success');
-
-    if (id_estado === 3) {
-      requestConfirm("¿Deseas usar el Bot de Telegram para enviarte el aviso de orden lista (con enlace a WhatsApp)?", () => {
-        enviarAlertaOrdenListaBot();
-      }, { textoConfirmar: 'Sí, notificar' });
-    }
   } catch (err) {
     toast(err.message, 'error');
   }
@@ -282,14 +276,15 @@ function confirmarAnularPago(id_pago) {
 
 async function handleEstadoPrenda(id_prenda, id_estado) {
   try {
-    const currentOrdenStatus = ordenActual.value ? ordenActual.value.id_estado_orden : 0;
-    const result = await changeEstadoPrenda(id_prenda, id_estado, ordenActual.value.id_orden, currentOrdenStatus);
+    const result = await changeEstadoPrenda(id_prenda, id_estado, ordenActual.value.id_orden);
+    // El estado de la orden pudo cambiar solo: la cabecera tiene que reflejarlo.
+    refrescarTotales();
     
-    // La capa de negocio (usePrendas) indica si debemos sugerir autocompletar
-    if (result && result.shouldPromptCompletion) {
-      requestConfirm("¡Todas las prendas están terminadas! ¿Deseas marcar la orden como 'Lista para Entregar'?", async () => {
-        await cambiarEstado(3, 'Lista para Entregar');
-      }, { textoConfirmar: 'Sí, marcar lista' });
+    // El sistema ya pasó la orden a Lista para Entregar (RN-06); sólo queda ofrecer el aviso.
+    if (result?.ordenPasoALista) {
+      requestConfirm("Todas las prendas están terminadas y la orden pasó a 'Lista para Entregar'. ¿Deseas usar el Bot de Telegram para enviarte el aviso (con enlace a WhatsApp)?", () => {
+        enviarAlertaOrdenListaBot();
+      }, { textoConfirmar: 'Sí, notificar' });
     }
   } catch (err) {
     // Errores ya son manejados por el useAsyncAction del composable

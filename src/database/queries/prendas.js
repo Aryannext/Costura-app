@@ -1,5 +1,7 @@
 import { db, saveDb } from '../connection.js';
 import { recalcularTotalesOrden } from './saldo.js';
+import { leerEstadosDeOrden, planificarTransicion } from './estadoOrden.js';
+import { ESTADO_PRENDA } from '../../services/estadoOrden.js';
 
 export async function getTiposPrenda() {
     if (!db) throw new Error("Database not initialized");
@@ -35,7 +37,18 @@ export async function getPrendasByOrden(id_orden) {
 export async function createPrenda(prenda) {
     if (!db) throw new Error("Database not initialized");
 
+    // RN-17: una prenda nueva nace Pendiente, así que la orden pasa (o vuelve) a En Proceso.
+    const { estadoOrden, prendas } = await leerEstadosDeOrden(prenda.id_orden);
+    const transicion = planificarTransicion(
+        prenda.id_orden,
+        estadoOrden,
+        [...prendas.map(p => p.id_estado_prenda), ESTADO_PRENDA.PENDIENTE]
+    );
+
     const set = [
+        // 0. Transición de la orden. Va antes del INSERT de la prenda porque
+        // incluye INSERTs en el historial y el lastId debe ser el de la prenda.
+        ...transicion.sentencias,
         {
             // 1. Registrar historial: 2 = Modificación
             statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
@@ -73,68 +86,36 @@ export async function addFotografia(id_prenda, ruta_archivo) {
     await saveDb();
 }
 
+/**
+ * Cambia el estado de una prenda y, en la misma transacción, el de su orden si
+ * le corresponde otro (services/estadoOrden.js). Las reglas sobre la prenda
+ * (CP-18) se validan antes, en el composable.
+ *
+ * @returns {{ desde: number, hacia: number }} estado de la orden antes y después
+ */
 export async function updateEstadoPrenda(id_prenda, id_estado_prenda, id_orden) {
     if (!db) throw new Error("Database not initialized");
 
-    // 1. Forecast the state by reading current data BEFORE the transaction
-    const result = await db.query("SELECT id_prenda, id_estado_prenda FROM prenda WHERE id_orden = ?", [id_orden]);
-    const prendas = result.values || [];
+    const { estadoOrden, prendas } = await leerEstadosDeOrden(id_orden);
+    if (!prendas.some(p => p.id_prenda === id_prenda)) throw new Error("Prenda no encontrada");
 
-    // Simular el cambio en memoria
-    const prendaTarget = prendas.find(p => p.id_prenda === id_prenda);
-    if (prendaTarget) {
-        prendaTarget.id_estado_prenda = id_estado_prenda;
-    } else {
-        // Fallback: Si no estaba cargada por alguna razón, la añadimos simulada
-        prendas.push({ id_prenda, id_estado_prenda });
-    }
+    const estados = prendas.map(p => p.id_prenda === id_prenda ? id_estado_prenda : p.id_estado_prenda);
+    const transicion = planificarTransicion(id_orden, estadoOrden, estados);
 
-    const allDelivered = prendas.every(p => p.id_estado_prenda === 4);
-    const allDone = prendas.every(p => p.id_estado_prenda === 3 || p.id_estado_prenda === 4);
-
-    const orderStateRes = await db.query("SELECT id_estado_orden FROM orden_trabajo WHERE id_orden = ?", [id_orden]);
-    const currentOrderState = orderStateRes.values && orderStateRes.values.length > 0 ? orderStateRes.values[0].id_estado_orden : 0;
-
-    // 2. Build the atomic set
     const set = [
         {
-            statement: "UPDATE prenda SET id_estado_prenda = ? WHERE id_prenda = ?",
-            values: [id_estado_prenda, id_prenda]
+            statement: "UPDATE prenda SET id_estado_prenda = ? WHERE id_prenda = ? AND id_orden = ?",
+            values: [id_estado_prenda, id_prenda, id_orden]
         },
         {
             statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
             values: [`Estado de prenda #${id_prenda} actualizado`, id_orden, 2]
-        }
+        },
+        ...transicion.sentencias
     ];
 
-    // 3. Append auto-transition logic if conditions are met
-    if (allDelivered && currentOrderState < 4) {
-        set.push({
-            statement: "UPDATE orden_trabajo SET id_estado_orden = 4, fecha_entrega_real = datetime('now','localtime') WHERE id_orden = ?",
-            values: [id_orden]
-        });
-        set.push({
-            statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
-            values: ["Estado cambiado automáticamente a Entregada porque todas las prendas fueron entregadas", id_orden, 5]
-        });
-    } else if (allDone && !allDelivered && currentOrderState < 3) {
-        set.push({
-            statement: "UPDATE orden_trabajo SET id_estado_orden = 3 WHERE id_orden = ?",
-            values: [id_orden]
-        });
-        set.push({
-            statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
-            values: ["Estado cambiado automáticamente a Lista para Entregar porque todas las prendas están terminadas", id_orden, 3]
-        });
-        // Notificacion automatica "Orden Lista"
-        set.push({
-            statement: "INSERT INTO notificacion (mensaje, id_orden, id_tipo_notificacion) VALUES (?, ?, ?)",
-            values: ["Su orden está lista para ser reclamada.", id_orden, 2]
-        });
-    }
-
-    // 4. Execute atomically
     await db.executeSet(set, true);
+    return { desde: transicion.desde, hacia: transicion.hacia };
 }
 
 export async function getObservacionesByPrenda(id_prenda) {
@@ -270,6 +251,14 @@ export async function eliminarPrenda(id_prenda, id_orden, { descripcion, valor }
 
     const fotos = await db.query("SELECT ruta_archivo FROM fotografia WHERE id_prenda = ?", [id_prenda]);
 
+    // P1-10: sin esta prenda la orden puede quedar Lista, o Pendiente si era la última.
+    const { estadoOrden, prendas } = await leerEstadosDeOrden(id_orden);
+    const transicion = planificarTransicion(
+        id_orden,
+        estadoOrden,
+        prendas.filter(p => p.id_prenda !== id_prenda).map(p => p.id_estado_prenda)
+    );
+
     const set = [
         { statement: "DELETE FROM observacion WHERE id_prenda = ?", values: [id_prenda] },
         { statement: "DELETE FROM fotografia WHERE id_prenda = ?", values: [id_prenda] },
@@ -279,7 +268,8 @@ export async function eliminarPrenda(id_prenda, id_orden, { descripcion, valor }
             // 9 = Eliminación de prenda
             statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
             values: [`Prenda #${id_prenda} eliminada: ${descripcion} ($${valor})`, id_orden, 9]
-        }
+        },
+        ...transicion.sentencias
     ];
 
     await db.executeSet(set, true);

@@ -56,9 +56,9 @@ vi.mock('../connection.js', () => {
 import { db } from '../connection.js';
 import { migrations } from '../migrations.js';
 import { runMigrations } from '../migrationRunner.js';
-import { createOrden } from '../queries/ordenes.js';
+import { createOrden, changeEstado } from '../queries/ordenes.js';
 import {
-    createPrenda, updatePrenda, getContextoPrenda, eliminarPrenda, addObservacion, saveFotografia
+    createPrenda, updatePrenda, updateEstadoPrenda, getContextoPrenda, eliminarPrenda, addObservacion, saveFotografia
 } from '../queries/prendas.js';
 import { registrarPago, getPagosByOrden, getPagoById, anularPago } from '../queries/pagos.js';
 import { getReporteFinanciero } from '../queries/reportes.js';
@@ -332,6 +332,144 @@ describe('P1-9 · eliminar prendas contra SQLite real', () => {
     });
 });
 
+describe('Estado de la orden derivado de sus prendas contra SQLite real', () => {
+    const P = { PENDIENTE: 1, EN_PROCESO: 2, TERMINADA: 3, ENTREGADA: 4 };
+
+    async function estado(id_orden) {
+        const { values } = await db.query(
+            'SELECT id_estado_orden, fecha_entrega_real FROM orden_trabajo WHERE id_orden = ?',
+            [id_orden]
+        );
+        return values[0];
+    }
+
+    /** Lo mismo que hace usePrendas.changeEstado antes de escribir. */
+    async function cambiarPrenda(id_prenda, id_orden, nuevo) {
+        const { estadoPrenda } = await getContextoPrenda(id_prenda, id_orden);
+        validators.validateCambioEstadoPrenda(estadoPrenda, nuevo);
+        return updateEstadoPrenda(id_prenda, nuevo, id_orden);
+    }
+
+    async function notificaciones(id_orden) {
+        const { values } = await db.query('SELECT COUNT(*) AS n FROM notificacion WHERE id_orden = ?', [id_orden]);
+        return values[0].n;
+    }
+
+    beforeEach(async () => {
+        motor.base = new motor.SQL.Database();
+        await runMigrations(db, migrations);
+    });
+
+    it('RN-04 y RN-17: nace Pendiente y pasa sola a En Proceso con la primera prenda', async () => {
+        const id_orden = await nuevaOrden();
+        expect((await estado(id_orden)).id_estado_orden).toBe(1);
+
+        await prenda(id_orden, 20000);
+
+        expect((await estado(id_orden)).id_estado_orden).toBe(2);
+        const transicion = (await historial(id_orden)).at(-2);
+        expect(transicion.descripcion).toBe('Estado cambiado automáticamente a En Proceso porque hay prendas pendientes o en proceso');
+    });
+
+    it('RN-06 / CP-46: terminar la última prenda pasa la orden sola a Lista y genera la notificación', async () => {
+        const id_orden = await nuevaOrden();
+        const basta = await prenda(id_orden, 20000);
+        const ruedo = await prenda(id_orden, 10000, 'Ruedo');
+
+        await cambiarPrenda(basta, id_orden, P.TERMINADA);
+        expect((await estado(id_orden)).id_estado_orden).toBe(2);
+
+        const transicion = await cambiarPrenda(ruedo, id_orden, P.TERMINADA);
+
+        expect(transicion).toEqual({ desde: 2, hacia: 3 });
+        expect((await estado(id_orden)).id_estado_orden).toBe(3);
+        expect(await notificaciones(id_orden)).toBe(1);
+    });
+
+    it('RN-17 / CP-47: si una prenda vuelve a En Proceso, la orden también', async () => {
+        const id_orden = await nuevaOrden();
+        const basta = await prenda(id_orden, 20000);
+        await cambiarPrenda(basta, id_orden, P.TERMINADA);
+        expect((await estado(id_orden)).id_estado_orden).toBe(3);
+
+        await cambiarPrenda(basta, id_orden, P.EN_PROCESO);
+
+        expect((await estado(id_orden)).id_estado_orden).toBe(2);
+    });
+
+    it('RN-17: añadir una prenda a una orden Lista la devuelve a En Proceso', async () => {
+        const id_orden = await nuevaOrden();
+        const basta = await prenda(id_orden, 20000);
+        await cambiarPrenda(basta, id_orden, P.TERMINADA);
+
+        await prenda(id_orden, 5000, 'Botón');
+
+        expect((await estado(id_orden)).id_estado_orden).toBe(2);
+    });
+
+    it('P1-10: eliminar la única prenda pendiente deja la orden Lista', async () => {
+        const id_orden = await nuevaOrden();
+        const basta = await prenda(id_orden, 20000);
+        const sobrante = await prenda(id_orden, 10000, 'Ruedo');
+        await cambiarPrenda(basta, id_orden, P.TERMINADA);
+
+        await quitarPrenda(sobrante, id_orden);
+
+        expect((await estado(id_orden)).id_estado_orden).toBe(3);
+        expect(await notificaciones(id_orden)).toBe(1);
+    });
+
+    it('RN-04: eliminar la última prenda devuelve la orden a Pendiente', async () => {
+        const id_orden = await nuevaOrden();
+        const unica = await prenda(id_orden, 20000);
+
+        await quitarPrenda(unica, id_orden);
+
+        expect((await estado(id_orden)).id_estado_orden).toBe(1);
+    });
+
+    it('RN-09 / CP-19: entregar todas las prendas entrega la orden con fecha', async () => {
+        const id_orden = await nuevaOrden();
+        const basta = await prenda(id_orden, 20000);
+        await cambiarPrenda(basta, id_orden, P.TERMINADA);
+
+        await cambiarPrenda(basta, id_orden, P.ENTREGADA);
+
+        const orden = await estado(id_orden);
+        expect(orden.id_estado_orden).toBe(4);
+        expect(orden.fecha_entrega_real).toBeTruthy();
+    });
+
+    it('CP-18: no se entrega una prenda sin terminar', async () => {
+        const id_orden = await nuevaOrden();
+        const basta = await prenda(id_orden, 20000);
+
+        await expect(cambiarPrenda(basta, id_orden, P.ENTREGADA))
+            .rejects.toThrow('Sólo se puede entregar una prenda terminada.');
+
+        expect((await getContextoPrenda(basta, id_orden)).estadoPrenda).toBe(1);
+        expect((await estado(id_orden)).id_estado_orden).toBe(2);
+    });
+
+    it('RN-16 / CP-22: reabrir una orden entregada la deja En Proceso y registra la reapertura', async () => {
+        const id_orden = await nuevaOrden();
+        const basta = await prenda(id_orden, 20000);
+        await cambiarPrenda(basta, id_orden, P.TERMINADA);
+        await cambiarPrenda(basta, id_orden, P.ENTREGADA);
+
+        const entregada = { id_estado_orden: 4 };
+        validators.validateCambioManualEstado(entregada, 2);
+        await changeEstado(id_orden, 2, 'En Proceso', entregada);
+
+        expect((await estado(id_orden)).id_estado_orden).toBe(2);
+        expect((await historial(id_orden)).at(-1).id_tipo_actividad).toBe(7);
+
+        // Tras corregir, la orden vuelve a avanzar sola.
+        await cambiarPrenda(basta, id_orden, P.TERMINADA);
+        expect((await estado(id_orden)).id_estado_orden).toBe(3);
+    });
+});
+
 describe('Migraciones contra SQLite real', () => {
     beforeEach(() => {
         motor.base = new motor.SQL.Database();
@@ -359,7 +497,7 @@ describe('Migraciones contra SQLite real', () => {
 
         const aplicadas = await runMigrations(db, migrations);
 
-        expect(aplicadas).toEqual([2, 3]);
+        expect(aplicadas).toEqual([2, 3, 4]);
         expect(await leerOrden(id_orden)).toEqual({ valor_total: 100, saldo_pendiente: 60 });
         expect(await leerOrden(vacia.lastId)).toEqual({ valor_total: 0, saldo_pendiente: 0 });
     });
@@ -375,6 +513,54 @@ describe('Migraciones contra SQLite real', () => {
         const [pago] = await getPagosByOrden(id_orden);
         expect(pago.anulado_en).toBeNull();
         expect(pago.motivo_anulacion).toBeNull();
+    });
+
+    it('la v4 ajusta el estado de las órdenes abiertas a sus prendas y lo registra', async () => {
+        await runMigrations(db, migrations.filter(m => m.toVersion <= 3));
+
+        // Órdenes como las dejaban los botones manuales de la v3.
+        async function ordenCon(estadoOrden, estadosPrendas) {
+            const id_orden = await nuevaOrden();
+            await db.run('UPDATE orden_trabajo SET id_estado_orden = ? WHERE id_orden = ?', [estadoOrden, id_orden]);
+            for (const estadoPrenda of estadosPrendas) {
+                await db.run(
+                    "INSERT INTO prenda (descripcion_arreglo, valor, id_orden, id_tipo_prenda, id_estado_prenda) VALUES ('Basta', 100, ?, 1, ?)",
+                    [id_orden, estadoPrenda]
+                );
+            }
+            return id_orden;
+        }
+
+        const pendienteConTrabajo = await ordenCon(1, [1]);
+        const listaConPendientes = await ordenCon(3, [3, 2]);
+        const enProcesoTerminada = await ordenCon(2, [3, 4]);
+        const enProcesoVacia = await ordenCon(2, []);
+        const yaCorrecta = await ordenCon(2, [1]);
+        const entregada = await ordenCon(4, [1]);
+        const cancelada = await ordenCon(5, [3]);
+        const abiertaTodoEntregado = await ordenCon(2, [4]);
+
+        const aplicadas = await runMigrations(db, migrations);
+        expect(aplicadas).toEqual([4]);
+
+        const estadoDe = async (id) =>
+            (await db.query('SELECT id_estado_orden FROM orden_trabajo WHERE id_orden = ?', [id])).values[0].id_estado_orden;
+
+        expect(await estadoDe(pendienteConTrabajo)).toBe(2);
+        expect(await estadoDe(listaConPendientes)).toBe(2);
+        expect(await estadoDe(enProcesoTerminada)).toBe(3);
+        expect(await estadoDe(enProcesoVacia)).toBe(1);
+        expect(await estadoDe(yaCorrecta)).toBe(2);
+        expect(await estadoDe(entregada)).toBe(4);
+        expect(await estadoDe(cancelada)).toBe(5);
+        expect(await estadoDe(abiertaTodoEntregado)).toBe(2);
+
+        const { values } = await db.query(
+            "SELECT COUNT(*) AS n FROM historial_actividad WHERE descripcion LIKE 'Estado ajustado automáticamente%'"
+        );
+        expect(values[0].n).toBe(4);
+        expect((await historial(listaConPendientes)).at(-1).descripcion)
+            .toBe('Estado ajustado automáticamente a En Proceso: hay prendas pendientes o en proceso');
     });
 
     it('una base nueva queda en la última versión', async () => {
