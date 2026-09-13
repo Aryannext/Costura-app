@@ -83,8 +83,9 @@ Lo que la app **sí** te impide:
 - Cancelar una orden que ya entregaste.
 - Añadir prendas o pagos a una orden cancelada.
 - Registrar un abono mayor que el saldo pendiente.
+- Bajar el precio de una prenda por debajo de lo que el cliente ya pagó. Si te equivocaste de precio y ya te pagaron de más, la cuenta no puede quedar en negativo.
 
-> ⚠️ **Ojo con esto:** la aplicación **no** te impide marcar una orden como entregada si el cliente todavía te debe. Revisa el saldo en la pestaña *Detalle* antes de entregar la ropa. Es una mejora pendiente.
+**Entregar cuando el cliente todavía debe.** Se puede — a veces el cliente se lleva la ropa y paga después —, pero al tocar *Entregar* la app te recuerda cuánto falta y te pide confirmar. Los abonos se siguen registrando en la orden entregada.
 
 ---
 

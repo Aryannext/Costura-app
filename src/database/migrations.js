@@ -125,5 +125,19 @@ export const migrations = [
       
       `INSERT OR IGNORE INTO configuracion(clave, valor) VALUES ('telegram_bot_token', ''), ('telegram_chat_id', ''), ('dias_anticipacion_vencer', '3'), ('dias_sin_reclamar', '30');`
     ]
+  },
+  {
+    // P1-4: hasta la v1 el saldo se acumulaba por diferencias y nunca se
+    // reconciliaba. Se recalculan todas las órdenes desde sus prendas y pagos.
+    // Desde aquí cada escritura lo recalcula (ver queries/saldo.js).
+    // El texto queda congelado a propósito: una migración ya aplicada en un
+    // teléfono no debe cambiar aunque la consulta de la app evolucione.
+    toVersion: 2,
+    statements: [
+      `UPDATE orden_trabajo SET
+          valor_total = (SELECT COALESCE(SUM(valor), 0) FROM prenda WHERE prenda.id_orden = orden_trabajo.id_orden),
+          saldo_pendiente = (SELECT COALESCE(SUM(valor), 0) FROM prenda WHERE prenda.id_orden = orden_trabajo.id_orden)
+                          - (SELECT COALESCE(SUM(valor), 0) FROM pago WHERE pago.id_orden = orden_trabajo.id_orden);`
+    ]
   }
 ];

@@ -97,7 +97,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['take-photo', 'add-obs', 'estado-changed']);
+const emit = defineEmits(['take-photo', 'add-obs', 'estado-changed', 'prenda-actualizada']);
 
 const { fetchFotos, fetchObservaciones, removeFoto, editPrenda } = usePrendas();
 
@@ -125,7 +125,9 @@ async function saveEdit() {
   try {
     await editPrenda(props.prenda.id_prenda, editDescripcion.value, editValor.value, props.prenda.id_orden);
     isEditing.value = false;
-    emit('estado-changed'); // Trigger refresh in parent
+    // Evento propio: 'estado-changed' sin argumentos se interpretaba como un
+    // cambio de estado de la prenda undefined y no refrescaba el saldo.
+    emit('prenda-actualizada', props.prenda.id_prenda);
   } catch (e) {
     // Error is natively handled by useAsyncAction
   }

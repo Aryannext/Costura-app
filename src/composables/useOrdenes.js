@@ -7,6 +7,18 @@ const ordenes = ref([]);
 const ordenActual = ref(null);
 const historial = ref([]);
 
+/**
+ * RN-30 permite entregar una orden que todavía tiene saldo, así que no se
+ * bloquea. Pero la entrega es el último momento en que el cliente está delante,
+ * y hasta ahora ocurría sin ningún aviso (P1-4). Devuelve el texto de la
+ * confirmación, o null si la entrega no necesita confirmarse.
+ */
+export function mensajeConfirmacionEntrega(orden) {
+    if (!orden || !(orden.saldo_pendiente > 0)) return null;
+    return `El cliente todavía debe $${orden.saldo_pendiente} de un total de $${orden.valor_total}. ` +
+        `¿Entregar la orden de todos modos?`;
+}
+
 export function useOrdenes() {
 
     const { loading, error, execute } = useAsyncAction();

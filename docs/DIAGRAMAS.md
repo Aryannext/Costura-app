@@ -4,8 +4,8 @@ Planos del sistema **regenerados desde el código fuente**, no desde el diseño 
 
 Están escritos en Mermaid: GitHub y la mayoría de editores los dibujan solos.
 
-> **Versión del esquema documentada:** 1 (`schema_migrations`)
-> **Última revisión contra el código:** 9 de septiembre de 2026
+> **Versión del esquema documentada:** 2 (`schema_migrations`)
+> **Última revisión contra el código:** 13 de septiembre de 2026
 
 ---
 
@@ -410,7 +410,9 @@ stateDiagram-v2
 - Una orden *Cancelada* no admite prendas ni pagos.
 - Sólo se reabre lo que está *Entregada*.
 
-> ⚠️ Una orden puede llegar a *Entregada* **con saldo pendiente**. La aplicación no lo impide hoy; ver P1-4 en [TRAZABILIDAD.md](TRAZABILIDAD.md).
+**Entregar con saldo pendiente** está permitido (RN-30), pero el botón *Entregar* pide confirmación mostrando lo que se debe. La entrega automática por prendas no la pide.
+
+**Saldo** (en `queries/saldo.js`): nunca se suma ni se resta una diferencia. Cada escritura sobre `prenda` o `pago` recalcula en la misma transacción `valor_total = SUM(prenda.valor)` y `saldo_pendiente = valor_total − SUM(pago.valor)`. Bajar el precio de una prenda por debajo de lo ya pagado se rechaza (RN-29).
 
 ---
 

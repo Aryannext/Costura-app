@@ -87,7 +87,7 @@ El esquema está versionado. Las migraciones aplicadas se registran en la tabla 
 
 ```js
 {
-  toVersion: 2,
+  toVersion: 3,
   statements: [
     `ALTER TABLE cliente ADD COLUMN correo TEXT;`
   ]

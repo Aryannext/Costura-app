@@ -3,7 +3,7 @@
 | | |
 | --- | --- |
 | **Versión** | 1.1.2 |
-| **Versión del esquema** | 1 |
+| **Versión del esquema** | 2 |
 | **Tipo** | Aplicación móvil híbrida (web empaquetada de forma nativa) |
 | **Plataforma objetivo** | Android. El proyecto iOS no está generado |
 | **Modo de operación** | Offline-first, un solo dispositivo |
@@ -37,7 +37,8 @@ El plano completo está en [`docs/DIAGRAMAS.md`](docs/DIAGRAMAS.md).
 - **Chart.js + vue-chartjs** · gráficas del módulo de reportes
 - **bcryptjs** · hash de contraseñas
 - **driver.js** · tutorial guiado
-- **Vitest + Vue Test Utils** · 117 pruebas
+- **Vitest + Vue Test Utils** · 133 pruebas
+- **sql.js** · SQLite real en las pruebas de saldo y migraciones
 
 ## 3. Base de datos
 
@@ -108,7 +109,7 @@ El procedimiento completo está en el [README](README.md#5-compilar-para-producc
 
 ## 8. Calidad
 
-- **117 pruebas** con Vitest sobre la capa de datos, los composables y los servicios
+- **133 pruebas** con Vitest sobre la capa de datos, los composables y los servicios. Las de saldo y migraciones corren contra SQLite real, no contra mocks
 - **GitHub Actions** en cada push y pull request: `npm ci`, `npm run test:unit` y `npm run build`
 - **Trinquete de cobertura** fijado justo por debajo de la cobertura real: la CI falla si alguien la hace bajar
 

@@ -1,5 +1,5 @@
 import { db, saveDb } from '../connection.js';
-import { registrarHistorialActividad } from './ordenes.js';
+import { recalcularTotalesOrden } from './saldo.js';
 
 export async function getTiposPrenda() {
     if (!db) throw new Error("Database not initialized");
@@ -37,21 +37,18 @@ export async function createPrenda(prenda) {
 
     const set = [
         {
-            // 1. Update orden_trabajo total & saldo
-            statement: "UPDATE orden_trabajo SET valor_total = valor_total + ?, saldo_pendiente = saldo_pendiente + ? WHERE id_orden = ?",
-            values: [prenda.valor, prenda.valor, prenda.id_orden]
-        },
-        {
-            // 2. Registrar historial: 2 = Modificación
+            // 1. Registrar historial: 2 = Modificación
             statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
             values: ["Prenda añadida a la orden", prenda.id_orden, 2]
         },
         {
-            // 3. Insert prenda (id_estado_prenda = 1 = Pendiente)
-            // Se ejecuta al final para que el lastId devuelto corresponda al id_prenda recién creado.
+            // 2. Insert prenda (id_estado_prenda = 1 = Pendiente)
+            // Es el último INSERT para que el lastId devuelto sea el id_prenda.
             statement: "INSERT INTO prenda (descripcion_arreglo, valor, id_orden, id_tipo_prenda, id_estado_prenda) VALUES (?, ?, ?, ?, 1)",
             values: [prenda.descripcion_arreglo, prenda.valor, prenda.id_orden, prenda.id_tipo_prenda]
-        }
+        },
+        // 3. Total y saldo recalculados con la prenda ya dentro
+        recalcularTotalesOrden(prenda.id_orden)
     ];
 
     const result = await db.executeSet(set, true);
@@ -207,40 +204,40 @@ export async function deleteFotografia(id_fotografia) {
     await saveDb();
 }
 
+/**
+ * Lo que hace falta para decidir si un nuevo valor de prenda es admisible
+ * (RN-29): cuánto suman las demás prendas de la orden y cuánto se ha pagado.
+ */
+export async function getTotalesParaEditarPrenda(id_prenda, id_orden) {
+    if (!db) throw new Error("Database not initialized");
+    const result = await db.query(`
+        SELECT
+            (SELECT COUNT(*) FROM prenda WHERE id_prenda = ? AND id_orden = ?) AS existe,
+            (SELECT COALESCE(SUM(valor), 0) FROM prenda WHERE id_orden = ? AND id_prenda <> ?) AS total_otras_prendas,
+            (SELECT COALESCE(SUM(valor), 0) FROM pago WHERE id_orden = ?) AS total_pagado
+    `, [id_prenda, id_orden, id_orden, id_prenda, id_orden]);
+
+    const fila = result.values?.[0];
+    if (!fila || !fila.existe) throw new Error("Prenda no encontrada");
+    return { totalOtrasPrendas: fila.total_otras_prendas, totalPagado: fila.total_pagado };
+}
+
 export async function updatePrenda(id_prenda, descripcion_arreglo, valor_nuevo, id_orden) {
     if (!db) throw new Error("Database not initialized");
 
-    // 1. SELECT previo: Get current value to calculate difference before writing
-    const resPrenda = await db.query("SELECT valor FROM prenda WHERE id_prenda = ?", [id_prenda]);
-    if (!resPrenda.values || resPrenda.values.length === 0) throw new Error("Prenda no encontrada");
-
-    const valor_viejo = resPrenda.values[0].valor;
-    const diferencia = valor_nuevo - valor_viejo;
-
-    // 2. Build the atomic set
     const set = [
         {
-            // UPDATE prenda
-            statement: "UPDATE prenda SET descripcion_arreglo = ?, valor = ? WHERE id_prenda = ?",
-            values: [descripcion_arreglo, valor_nuevo, id_prenda]
+            statement: "UPDATE prenda SET descripcion_arreglo = ?, valor = ? WHERE id_prenda = ? AND id_orden = ?",
+            values: [descripcion_arreglo, valor_nuevo, id_prenda, id_orden]
+        },
+        recalcularTotalesOrden(id_orden),
+        {
+            // Registrar historial: 2 = Modificación
+            statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
+            values: [`Información de la prenda #${id_prenda} actualizada`, id_orden, 2]
         }
     ];
 
-    // If value changed, add order total and saldo update to the set
-    if (diferencia !== 0) {
-        set.push({
-            statement: "UPDATE orden_trabajo SET valor_total = valor_total + ?, saldo_pendiente = saldo_pendiente + ? WHERE id_orden = ?",
-            values: [diferencia, diferencia, id_orden]
-        });
-    }
-
-    // Registrar historial: 2 = Modificación
-    set.push({
-        statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
-        values: [`Información de la prenda #${id_prenda} actualizada`, id_orden, 2]
-    });
-
-    // 3. Execute atomically
     await db.executeSet(set, true);
 }
 

@@ -26,14 +26,16 @@ describe('Prendas Queries Transactions', () => {
             const calledSet = db.executeSet.mock.calls[0][0];
             expect(calledSet).toHaveLength(3);
 
-            // 1. UPDATE orden
-            expect(calledSet[0].statement).toContain("UPDATE orden_trabajo");
-            // 2. INSERT historial
-            expect(calledSet[1].statement).toContain("INSERT INTO historial_actividad");
-            expect(calledSet[1].values[1]).toBe(1); // id_orden = 1
-            // 3. INSERT prenda (última para retornar id_prenda)
-            expect(calledSet[2].statement).toContain("INSERT INTO prenda");
-            expect(calledSet[2].values).toEqual(['Basta', 15, 1, 1]);
+            // 1. INSERT historial
+            expect(calledSet[0].statement).toContain("INSERT INTO historial_actividad");
+            expect(calledSet[0].values[1]).toBe(1); // id_orden = 1
+            // 2. INSERT prenda (último INSERT para retornar id_prenda)
+            expect(calledSet[1].statement).toContain("INSERT INTO prenda");
+            expect(calledSet[1].values).toEqual(['Basta', 15, 1, 1]);
+            // 3. Recalcular la orden con la prenda ya dentro (P1-4)
+            expect(calledSet[2].statement).toContain("UPDATE orden_trabajo");
+            expect(calledSet[2].statement).toContain("SUM(valor)");
+            expect(calledSet[2].values).toEqual([1]);
 
             expect(db.executeSet.mock.calls[0][1]).toBe(true); // transaction = true
         });
@@ -93,39 +95,25 @@ describe('Prendas Queries Transactions', () => {
     });
 
     describe('updatePrenda', () => {
-        it('should executeSet with 2 statements when value does not change', async () => {
-            db.query.mockResolvedValueOnce({ values: [{ valor: 15 }] }); // current value
+        it('recalcula la orden desde sus filas en lugar de sumar una diferencia', async () => {
             db.executeSet.mockResolvedValueOnce({});
 
-            await updatePrenda(10, 'Basta', 15, 5); // id, desc, new_val, id_orden
+            await updatePrenda(10, 'Basta', 25, 5); // id, desc, new_val, id_orden
 
-            expect(db.query).toHaveBeenCalledTimes(1);
-            expect(db.executeSet).toHaveBeenCalledTimes(1);
-
-            const calledSet = db.executeSet.mock.calls[0][0];
-            expect(calledSet).toHaveLength(2); // UPDATE prenda, INSERT historial
-            expect(calledSet[0].statement).toContain("UPDATE prenda SET");
-            expect(calledSet[1].statement).toContain("INSERT INTO historial_actividad");
-        });
-
-        it('should executeSet with 3 statements when value changes (updates order)', async () => {
-            db.query.mockResolvedValueOnce({ values: [{ valor: 10 }] }); // current value: 10
-            db.executeSet.mockResolvedValueOnce({});
-
-            await updatePrenda(10, 'Basta', 25, 5); // new value: 25. Diff = 15
-
+            expect(db.query).not.toHaveBeenCalled();
             expect(db.executeSet).toHaveBeenCalledTimes(1);
             const calledSet = db.executeSet.mock.calls[0][0];
-            expect(calledSet).toHaveLength(3); // UPDATE prenda, UPDATE order, INSERT historial
+            expect(calledSet).toHaveLength(3); // UPDATE prenda, recálculo, INSERT historial
 
             expect(calledSet[0].statement).toContain("UPDATE prenda SET");
-            expect(calledSet[1].statement).toContain("UPDATE orden_trabajo SET valor_total = valor_total + ?, saldo_pendiente = saldo_pendiente + ?");
-            expect(calledSet[1].values).toEqual([15, 15, 5]); // Diff is 15
+            expect(calledSet[0].values).toEqual(['Basta', 25, 10, 5]);
+            expect(calledSet[1].statement).toContain("SUM(valor)");
+            expect(calledSet[1].statement).not.toContain("valor_total + ?");
+            expect(calledSet[1].values).toEqual([5]);
             expect(calledSet[2].statement).toContain("INSERT INTO historial_actividad");
         });
 
         it('should bubble up error if executeSet fails', async () => {
-            db.query.mockResolvedValueOnce({ values: [{ valor: 10 }] });
             db.executeSet.mockRejectedValueOnce(new Error("DB Error"));
 
             await expect(updatePrenda(10, 'Basta', 25, 5)).rejects.toThrow("DB Error");

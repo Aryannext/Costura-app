@@ -2,8 +2,8 @@
 
 Correspondencia entre los requisitos especificados y el código que los implementa. Cada fila se verificó contra `src/`, no contra la intención original.
 
-> **Revisión:** 9 de septiembre de 2026 · versión 1.1.2 · esquema 1
-> **Suite de pruebas:** 117 en verde, 0 omitidas
+> **Revisión:** 13 de septiembre de 2026 · versión 1.1.2 · esquema 2
+> **Suite de pruebas:** 133 en verde, 0 omitidas
 
 Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · ❌ no implementado · 🚧 planificado
 
@@ -32,7 +32,7 @@ Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · 
 | Req. | Estado | Dónde vive |
 | --- | --- | --- |
 | RF-17 a RF-22, RF-25, RF-26, RF-31 | ✅ | `composables/usePrendas.js`, `database/queries/prendas.js` |
-| RF-23 · total automático | ✅ | `createPrenda` y `updatePrenda` ajustan `valor_total` en la misma transacción |
+| RF-23 · total automático | ✅ | `createPrenda` y `updatePrenda` recalculan `valor_total` desde `SUM(prenda.valor)` en la misma transacción (`queries/saldo.js`) · con pruebas sobre SQLite real |
 | RF-24 · orden a "Lista" automática | ✅ | `updateEstadoPrenda` |
 | RF-27 a RF-30, RF-32 · fotografías | ✅ | `services/photoStorage.js`, `components/prendas/PrendaCard.vue` |
 
@@ -41,7 +41,7 @@ Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · 
 | Req. | Estado | Dónde vive |
 | --- | --- | --- |
 | RF-33 a RF-35, RF-37 | ✅ | `composables/usePagos.js`, `database/queries/pagos.js` |
-| RF-36 · saldo automático | ⚠️ | `registrarPago` resta el abono del saldo. Se acumula por diferencias y **nunca se reconcilia** contra `SUM(pago.valor)`. Ver P1-4 |
+| RF-36 · saldo automático | ✅ | Cada escritura recalcula `saldo_pendiente = SUM(prenda.valor) − SUM(pago.valor)`; la migración 2 reparó los saldos acumulados por diferencias. RN-29: `validateValorPrendaContraPagos` impide bajar un precio por debajo de lo pagado · con pruebas sobre SQLite real |
 | RF-38 · estado de pago al llegar a cero | ❌ | No existe campo ni transición. El saldo se muestra, pero no cambia el estado de la orden |
 
 ### Notificaciones · RF-39 a RF-42
@@ -118,10 +118,12 @@ Ninguno impide publicar ni pone datos en riesgo.
 | Id | Defecto | Dónde |
 | --- | --- | --- |
 | P1-3 | Recargar en una ruta profunda deja la pantalla en blanco: `base: './'` con `createWebHistory` | `vite.config.js`, `router/index.js` |
-| P1-4 | El saldo se acumula por diferencias y nunca se reconcilia. Una orden puede quedar *Entregada* con saldo pendiente sin aviso | `queries/pagos.js`, `queries/prendas.js` |
 | P1-6 | Las transiciones entre vistas nunca se activan: el `watch` observa el objeto `route` completo, así que `to` y `from` son la misma referencia | `App.vue` |
 | P1-7 | Alarmas exactas sin comprobar el permiso en Android 13+ | `useNotificacionesLocales.js` |
 | P1-8 | N+1 al cargar el detalle de una orden | `queries/prendas.js` |
+| P1-9 | Deslizar para eliminar una prenda o un pago **no elimina nada**: sólo muestra «Pago eliminado y saldo recalculado». Pendiente de decidir si un pago puede borrarse (RN-14, RN-35) o sólo anularse con rastro | `composables/useOrdenModals.js` |
+
+**Cerrados en la revisión del 13 de septiembre:** P1-4 (saldo por diferencias; ahora recalculado y con confirmación al entregar con deuda, que RN-30 permite) y el falso cambio de estado `#undefined` que se registraba en el historial al editar una prenda.
 
 ### Excepciones a la separación de capas
 

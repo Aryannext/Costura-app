@@ -137,6 +137,41 @@ describe('validators.validatePago', () => {
     });
 });
 
+describe('validators.validateValorPrendaContraPagos', () => {
+    it('Subir el precio con pagos registrados -> pasa', () => {
+        expect(validators.validateValorPrendaContraPagos({
+            valorNuevo: 120000, totalOtrasPrendas: 0, totalPagado: 100000
+        })).toBe(true);
+    });
+
+    it('Bajar el precio hasta igualar lo pagado -> pasa', () => {
+        expect(validators.validateValorPrendaContraPagos({
+            valorNuevo: 60000, totalOtrasPrendas: 0, totalPagado: 60000
+        })).toBe(true);
+    });
+
+    it('RN-29: bajar el precio por debajo de lo pagado -> rechazo', () => {
+        expect(() => validators.validateValorPrendaContraPagos({
+            valorNuevo: 60000, totalOtrasPrendas: 0, totalPagado: 100000
+        })).toThrow('Con ese valor la orden quedaría en $60000, pero el cliente ya pagó $100000. El saldo no puede quedar negativo.');
+    });
+
+    it('RN-29: cuenta las demás prendas de la orden', () => {
+        expect(validators.validateValorPrendaContraPagos({
+            valorNuevo: 10000, totalOtrasPrendas: 50000, totalPagado: 60000
+        })).toBe(true);
+        expect(() => validators.validateValorPrendaContraPagos({
+            valorNuevo: 9999, totalOtrasPrendas: 50000, totalPagado: 60000
+        })).toThrow('El saldo no puede quedar negativo.');
+    });
+
+    it('RN-20: valor cero o negativo -> rechazo', () => {
+        expect(() => validators.validateValorPrendaContraPagos({
+            valorNuevo: 0, totalOtrasPrendas: 0, totalPagado: 0
+        })).toThrow('El valor de la prenda debe ser mayor a cero.');
+    });
+});
+
 describe('validators.validateCambioPassword', () => {
     const PASSWORD_FABRICA = 'admin123';
     const valido = {

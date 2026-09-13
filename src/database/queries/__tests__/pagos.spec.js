@@ -23,11 +23,14 @@ describe('Pagos Queries Transactions', () => {
         expect(resultId).toBe(99);
         expect(db.executeSet).toHaveBeenCalledTimes(1);
 
-        // Comprobar que el set tiene 3 operaciones y la última es el INSERT del pago
+        // Historial, INSERT del pago (último INSERT, da el lastId) y recálculo del saldo
         const calledSet = db.executeSet.mock.calls[0][0];
         expect(calledSet).toHaveLength(3);
-        expect(calledSet[2].statement).toContain("INSERT INTO pago");
-        expect(calledSet[2].values).toEqual([100, 1, 1]);
+        expect(calledSet[1].statement).toContain("INSERT INTO pago");
+        expect(calledSet[1].values).toEqual([100, 1, 1]);
+        expect(calledSet[2].statement).toContain("UPDATE orden_trabajo");
+        expect(calledSet[2].statement).not.toContain("saldo_pendiente - ?");
+        expect(calledSet[2].values).toEqual([1]);
 
         // Comprobar que transaction = true
         expect(db.executeSet.mock.calls[0][1]).toBe(true);

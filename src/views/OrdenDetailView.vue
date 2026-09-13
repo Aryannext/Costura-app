@@ -60,6 +60,7 @@
           @take-photo="handleTakePhoto"
           @add-obs="openObsPrompt"
           @estado-changed="handleEstadoPrenda"
+          @prenda-actualizada="refrescarTotales"
           ref="tabPrendasRef"
         />
         <TabPagos 
@@ -108,7 +109,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, inject, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useOrdenes } from '../composables/useOrdenes.js';
+import { useOrdenes, mensajeConfirmacionEntrega } from '../composables/useOrdenes.js';
 import { usePrendas } from '../composables/usePrendas.js';
 import { usePagos } from '../composables/usePagos.js';
 import { useNotificaciones } from '../composables/useNotificaciones.js';
@@ -193,7 +194,16 @@ watch(tab, async (newTab) => {
 
 
 
-async function cambiarEstado(id_estado, nombre) {
+function cambiarEstado(id_estado, nombre) {
+  const advertencia = id_estado === 4 ? mensajeConfirmacionEntrega(ordenActual.value) : null;
+  if (advertencia) {
+    requestConfirm(advertencia, () => aplicarCambioEstado(id_estado, nombre));
+    return;
+  }
+  return aplicarCambioEstado(id_estado, nombre);
+}
+
+async function aplicarCambioEstado(id_estado, nombre) {
   try {
     await changeEstado(ordenActual.value.id_orden, id_estado, nombre, ordenActual.value);
     toast(`Estado actualizado a: ${nombre}`, 'success');
@@ -234,6 +244,11 @@ async function handleAddPago(pagoData) {
   } catch (err) {
     toast(err.message, 'error');
   }
+}
+
+// Cambiar el precio de una prenda mueve el total y el saldo de la cabecera.
+function refrescarTotales() {
+  fetchOrden(ordenActual.value.id_orden);
 }
 
 async function handleEstadoPrenda(id_prenda, id_estado) {

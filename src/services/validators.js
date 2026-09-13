@@ -85,6 +85,23 @@ export const validators = {
         return true;
     },
 
+    // RN-20: valor > 0
+    // RN-27 y RN-29: al corregir el precio de una prenda, el total de la orden
+    // no puede quedar por debajo de lo ya pagado, o el saldo sería negativo.
+    validateValorPrendaContraPagos: ({ valorNuevo, totalOtrasPrendas, totalPagado }) => {
+        if (valorNuevo == null || valorNuevo <= 0) {
+            throw new Error("El valor de la prenda debe ser mayor a cero.");
+        }
+        const nuevoTotal = totalOtrasPrendas + valorNuevo;
+        if (nuevoTotal < totalPagado) {
+            throw new Error(
+                `Con ese valor la orden quedaría en $${nuevoTotal}, pero el cliente ya pagó $${totalPagado}. ` +
+                `El saldo no puede quedar negativo.`
+            );
+        }
+        return true;
+    },
+
     // RNF-07, RNF-08: la clave de acceso debe poder cambiarse y nunca quedarse
     // en la que trae la app de fábrica.
     // `passwordPorDefecto` se recibe como opción para no acoplar los validadores

@@ -14,6 +14,7 @@ import {
     getFotografiasByPrenda,
     deleteFotografia,
     updatePrenda,
+    getTotalesParaEditarPrenda,
     getDescripcionesFrecuentes
 } from '../database/queries/prendas.js';
 
@@ -51,9 +52,11 @@ export function usePrendas() {
 
     const editPrenda = async (id_prenda, descripcion_arreglo, valor, id_orden) => {
         return execute(async () => {
-            if (valor <= 0) throw new Error("El valor debe ser mayor a cero");
             if (!descripcion_arreglo || descripcion_arreglo.trim() === '') throw new Error("La descripción es obligatoria");
-            
+
+            const { totalOtrasPrendas, totalPagado } = await getTotalesParaEditarPrenda(id_prenda, id_orden);
+            validators.validateValorPrendaContraPagos({ valorNuevo: valor, totalOtrasPrendas, totalPagado });
+
             await updatePrenda(id_prenda, descripcion_arreglo, valor, id_orden);
             await fetchPrendas(id_orden);
         }, {
