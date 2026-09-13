@@ -51,8 +51,8 @@ describe('OrdenesView · órdenes por cobrar (HU-36, P1-12)', () => {
 
         expect(numeros(wrapper)).toEqual(['#2', '#1']);
         expect(wrapper.text()).toContain('Luis');
-        expect(wrapper.text()).toContain('Saldo: $12000 / $30000');
-        expect(wrapper.find('.total-por-cobrar').text()).toBe('Total por cobrar: $17000');
+        expect(wrapper.text()).toContain('Saldo: $12.000 / $30.000');
+        expect(wrapper.find('.total-por-cobrar').text()).toBe('Total por cobrar: $17.000');
     });
 
     it('el panel abre directamente esta pestaña con ?tab=por-cobrar', () => {

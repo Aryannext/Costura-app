@@ -92,6 +92,19 @@ export function ordenesPorCobrar(ordenes) {
         .sort((a, b) => b.saldo_pendiente - a.saldo_pendiente);
 }
 
+/**
+ * Cuántas prendas están ya terminadas (o entregadas) de las que tiene la orden.
+ * La orden pasa a Lista para Entregar —y se ofrece el aviso al cliente— al
+ * terminar la última; mostrarlo evita que parezca que el aviso "no salió".
+ */
+export function progresoPrendas(prendas) {
+    const total = prendas.length;
+    const terminadas = prendas.filter(p =>
+        p.id_estado_prenda === ESTADO_PRENDA.TERMINADA || p.id_estado_prenda === ESTADO_PRENDA.ENTREGADA
+    ).length;
+    return { terminadas, total, faltan: total - terminadas };
+}
+
 export function totalPorCobrar(ordenes) {
     return ordenesPorCobrar(ordenes).reduce((total, o) => total + o.saldo_pendiente, 0);
 }

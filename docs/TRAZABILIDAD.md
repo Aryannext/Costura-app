@@ -3,7 +3,7 @@
 Correspondencia entre los requisitos especificados y el código que los implementa. Cada fila se verificó contra `src/`, no contra la intención original.
 
 > **Revisión:** 13 de septiembre de 2026 · versión 1.1.2 · esquema 5
-> **Suite de pruebas:** 297 en verde, 0 fallos esperados, 0 omitidas
+> **Suite de pruebas:** 318 en verde, 0 fallos esperados, 0 omitidas
 
 Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · ❌ no implementado · 🚧 planificado
 
@@ -171,6 +171,16 @@ Ninguno impide publicar ni pone datos en riesgo.
 - **P1-12** · HU-36: no había vista de órdenes con saldo pendiente. Ahora *Órdenes* tiene la pestaña **Por cobrar** (CP-75), con las órdenes que deben —incluidas las entregadas, RN-30— de mayor a menor deuda y el total arriba, y el mensaje de CP-76 cuando no hay ninguna. La tarjeta *Pagos Pendientes* del panel lleva a ella. `ordenesPorCobrar` usa el mismo criterio que la cifra del panel, y una prueba sobre SQLite real comprueba que suman lo mismo.
 - **P1-13** · los distintivos del panel usaban un mapa de colores propio desplazado en uno. Ahora usan `StatusBadge`, que colorea por nombre como el resto de la app.
 - **P1-14** · el selector de estado de una prenda guardaba su propio valor y, si el cambio fallaba, seguía mostrando el estado pedido. Ahora siempre refleja el estado de la prenda y sólo cambia cuando la base confirma y la lista se recarga.
+
+**Revisión de diseño, primera tanda** (probada en el navegador a tamaño de teléfono):
+
+- *Próximas entregas* del panel mostraba la fecha un día antes (`new Date('2026-09-16')` es medianoche UTC). Ahora usa `aFechaLocal`.
+- Bajo cada prenda asomaba la franja roja de *Eliminar*: la tarjeta tenía un margen dentro del contenedor deslizable. El botón sólo existe mientras se desliza.
+- En la versión web se perdían prendas, pagos y cambios de estado al recargar: las escrituras con `executeSet` no copiaban la base a IndexedDB. La conexión web guarda ahora sola después de cada escritura confirmada, y las de una transacción manual esperan al commit. En Android no cambia nada.
+- El chip de pago decía «Pendiente», igual que el estado de la orden. Ahora dice **Por cobrar** o **Pagada**.
+- Los montos se mostraban crudos ($20000). `formatearMoneda` los muestra como **$20.000** en pantallas, recibos, mensajes de WhatsApp e historial.
+- Al terminar una prenda que no era la última no pasaba nada visible. La pestaña *Prendas* dice ahora «Terminadas 1 de 2. Cuando estén todas, la orden pasará a Lista para Entregar y podrás avisar al cliente».
+- La línea de progreso usaba otros nombres (*Recibida, Proceso*) y pintaba el paso actual más apagado que los anteriores. Usa los nombres de los estados y resalta el paso actual.
 
 ### Excepciones a la separación de capas
 

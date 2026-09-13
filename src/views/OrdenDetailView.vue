@@ -21,16 +21,16 @@
         </div>
         <p class="resumen-texto"><strong>Cliente:</strong> {{ ordenActual.cliente_nombre }}</p>
         <p class="resumen-texto">
-          <strong>Saldo:</strong> 
+          <strong>Saldo: </strong>
           <span :class="{'deuda': ordenActual.saldo_pendiente > 0}">
-            ${{ ordenActual.saldo_pendiente }}
-          </span> / ${{ ordenActual.valor_total }}
+            {{ formatearMoneda(ordenActual.saldo_pendiente) }}
+          </span> / {{ formatearMoneda(ordenActual.valor_total) }}
           <!-- RN-28 y HU-37: estado de pago derivado del saldo -->
           <span
             v-if="estadoPago"
             class="pago-chip"
             :class="estadoPago === ESTADO_PAGO.PAGADA ? 'pago-chip--pagada' : 'pago-chip--pendiente'"
-          >{{ estadoPago }}</span>
+          >{{ estadoPago === ESTADO_PAGO.PAGADA ? 'Pagada' : 'Por cobrar' }}</span>
         </p>
       </div>
 
@@ -117,6 +117,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, inject, watch } from 'vue';
 import { estadoDePago, ESTADO_PAGO } from '../services/estadoOrden.js';
+import { formatearMoneda } from '../services/formato.js';
 import { useRoute, useRouter } from 'vue-router';
 import { useOrdenes, mensajeConfirmacionEntrega } from '../composables/useOrdenes.js';
 import { usePrendas } from '../composables/usePrendas.js';

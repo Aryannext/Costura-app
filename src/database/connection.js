@@ -7,6 +7,48 @@ import { migrations } from './migrations.js';
 export const sqlite = new SQLiteConnection(CapacitorSQLite);
 export let db = null;
 
+/**
+ * En la versión web la base vive en memoria (sql.js) y sólo sobrevive a una
+ * recarga si se copia a IndexedDB con `saveToStore`. Muchas escrituras no lo
+ * hacían —las de `executeSet` casi nunca—, así que al recargar se perdían
+ * prendas, pagos y cambios de estado. En Android SQLite escribe en archivo y
+ * esto no hace falta.
+ *
+ * En vez de repetir `saveDb` en cada consulta, la conexión web guarda sola
+ * después de cada escritura confirmada. Las que corren dentro de una
+ * transacción manual (`transaction = false`) esperan a `commitTransaction`.
+ * Se envuelve con un Proxy y no se modifica el objeto del plugin.
+ */
+const ESCRITURAS = {
+    run: (args) => args[2] !== false,
+    execute: (args) => args[1] !== false,
+    executeSet: (args) => args[1] !== false,
+    commitTransaction: () => true
+};
+
+function conGuardadoAutomatico(conexion) {
+    return new Proxy(conexion, {
+        get(objetivo, propiedad) {
+            const valor = objetivo[propiedad];
+            if (typeof valor !== 'function') return valor;
+            const debeGuardar = ESCRITURAS[propiedad];
+            if (!debeGuardar) return valor.bind(objetivo);
+
+            return async (...args) => {
+                const resultado = await valor.apply(objetivo, args);
+                if (debeGuardar(args)) {
+                    try {
+                        await sqlite.saveToStore("costura_db");
+                    } catch (e) {
+                        console.error("Error saving DB to store", e);
+                    }
+                }
+                return resultado;
+            };
+        }
+    });
+}
+
 export async function initDatabase() {
     try {
         const platform = Capacitor.getPlatform();
@@ -44,6 +86,7 @@ export async function initDatabase() {
 
         if (platform === 'web') {
             await sqlite.saveToStore("costura_db");
+            db = conGuardadoAutomatico(db);
         }
 
         return db;

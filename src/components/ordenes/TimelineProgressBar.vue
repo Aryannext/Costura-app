@@ -3,12 +3,12 @@
     <div class="progress-steps">
       <div class="step" :class="{ completed: estadoOrden >= 1, active: estadoOrden === 1 }">
         <div class="step-circle" :class="{ 'status-active-pulse': estadoOrden === 1 }">1</div>
-        <span class="step-label">Recibida</span>
+        <span class="step-label">Pendiente</span>
       </div>
       <div class="step-line" :class="{ completed: estadoOrden >= 2 }"></div>
       <div class="step" :class="{ completed: estadoOrden >= 2, active: estadoOrden === 2 }">
         <div class="step-circle" :class="{ 'status-active-pulse': estadoOrden === 2 }">2</div>
-        <span class="step-label">Proceso</span>
+        <span class="step-label">En proceso</span>
       </div>
       <div class="step-line" :class="{ completed: estadoOrden >= 3 }"></div>
       <div class="step" :class="{ completed: estadoOrden >= 3, active: estadoOrden === 3 }">
@@ -54,7 +54,7 @@ defineProps({
   flex-direction: column;
   align-items: center;
   z-index: 2;
-  width: 60px;
+  width: 64px;
 }
 .step-circle {
   width: 36px;
@@ -100,12 +100,14 @@ defineProps({
 .step-line.completed {
   background-color: var(--primary);
 }
+/* El paso actual es a la vez "completed" y "active". Antes esta regla le ponía
+   un fondo claro y quedaba MÁS apagado que los pasos ya superados. */
 .step.active .step-circle {
-  background-color: var(--primary-container);
+  background-color: var(--primary);
   border-color: var(--primary);
-  color: var(--primary);
-  box-shadow: 0 0 0 4px var(--surface-container);
-  transform: scale(1.1);
+  color: var(--on-primary);
+  box-shadow: 0 0 0 5px var(--primary-container);
+  transform: scale(1.15);
 }
 .step.active .step-label {
   color: var(--primary);

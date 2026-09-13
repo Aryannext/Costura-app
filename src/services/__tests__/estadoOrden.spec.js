@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-    derivarEstadoOrden, esOrdenActiva, estadoDePago, ordenesPorCobrar, totalPorCobrar,
+    derivarEstadoOrden, esOrdenActiva, estadoDePago, ordenesPorCobrar, totalPorCobrar, progresoPrendas,
     ESTADO_ORDEN as O, ESTADO_PRENDA as P, ESTADO_PAGO
 } from '../estadoOrden.js';
 
@@ -67,6 +67,17 @@ describe('estadoDePago (RN-28, HU-37)', () => {
     it('sin nada que cobrar todavía -> sin estado de pago', () => {
         expect(estadoDePago({ valor_total: 0, saldo_pendiente: 0 })).toBeNull();
         expect(estadoDePago(null)).toBeNull();
+    });
+});
+
+describe('progresoPrendas', () => {
+    it('cuenta como terminadas las terminadas y las entregadas', () => {
+        const prendas = [P.PENDIENTE, P.EN_PROCESO, P.TERMINADA, P.ENTREGADA].map(id_estado_prenda => ({ id_estado_prenda }));
+        expect(progresoPrendas(prendas)).toEqual({ terminadas: 2, total: 4, faltan: 2 });
+    });
+
+    it('sin prendas', () => {
+        expect(progresoPrendas([])).toEqual({ terminadas: 0, total: 0, faltan: 0 });
     });
 });
 

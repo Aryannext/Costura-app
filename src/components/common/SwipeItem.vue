@@ -1,6 +1,7 @@
 <template>
   <div class="swipe-container" @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd">
-    <div v-if="!disabled" class="swipe-actions right-actions">
+    <!-- Sólo existe mientras se desliza: en reposo se asomaba bajo las tarjetas con margen o esquinas redondeadas -->
+    <div v-if="!disabled" v-show="isSwiping || currentX < 0" class="swipe-actions right-actions">
       <button class="action-btn delete-btn" @click.stop="onDelete">
         {{ textoAccion }}
       </button>

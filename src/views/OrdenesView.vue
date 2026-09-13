@@ -33,7 +33,7 @@
     </div>
 
     <p v-if="currentTab === 'porCobrar' && ordenesFiltradas.length > 0" class="total-por-cobrar">
-      Total por cobrar: <strong>${{ totalPorCobrar(ordenesFiltradas) }}</strong>
+      Total por cobrar: <strong>{{ formatearMoneda(totalPorCobrar(ordenesFiltradas)) }}</strong>
     </p>
 
     <div v-if="loading && ordenesFiltradas.length === 0" class="loading-state">
@@ -76,6 +76,7 @@ import { ref, computed, onMounted, inject } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useOrdenes } from '../composables/useOrdenes.js';
 import { ordenesPorCobrar, totalPorCobrar } from '../services/estadoOrden.js';
+import { formatearMoneda } from '../services/formato.js';
 import OrdenCard from '../components/ordenes/OrdenCard.vue';
 import OrdenForm from '../components/ordenes/OrdenForm.vue';
 import SkeletonLoader from '../components/common/SkeletonLoader.vue';

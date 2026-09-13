@@ -1,5 +1,6 @@
 import { db } from '../connection.js';
 import { recalcularTotalesOrden } from './saldo.js';
+import { formatearMoneda } from '../../services/formato.js';
 
 export async function getMetodosPago() {
     if (!db) throw new Error("Database not initialized");
@@ -45,7 +46,7 @@ export async function anularPago(pago, motivo) {
         {
             // 8 = Anulación de pago
             statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
-            values: [`Pago de $${pago.valor} anulado: ${motivo}`, pago.id_orden, 8]
+            values: [`Pago de ${formatearMoneda(pago.valor)} anulado: ${motivo}`, pago.id_orden, 8]
         }
     ];
 
@@ -62,7 +63,7 @@ export async function registrarPago(pago) {
         {
             // 1. Register history: 4 = Pago
             statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
-            values: [`Abono de $${pago.valor} registrado`, pago.id_orden, 4]
+            values: [`Abono de ${formatearMoneda(pago.valor)} registrado`, pago.id_orden, 4]
         },
         {
             // 2. Pago (último INSERT para que lastId devuelva el id_pago).

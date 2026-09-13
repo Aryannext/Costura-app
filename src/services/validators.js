@@ -1,5 +1,6 @@
 import { aFechaLocal } from './fechas.js';
 import { DIAS_ANTICIPACION_MAXIMO } from './vencimientos.js';
+import { formatearMoneda } from './formato.js';
 
 // Longitud mínima de la contraseña de acceso a la aplicación.
 export const MIN_PASSWORD_LENGTH = 8;
@@ -102,7 +103,7 @@ export const validators = {
         const nuevoTotal = totalOtrasPrendas + valorNuevo;
         if (nuevoTotal < totalPagado) {
             throw new Error(
-                `Con ese valor la orden quedaría en $${nuevoTotal}, pero el cliente ya pagó $${totalPagado}. ` +
+                `Con ese valor la orden quedaría en ${formatearMoneda(nuevoTotal)}, pero el cliente ya pagó ${formatearMoneda(totalPagado)}. ` +
                 `El saldo no puede quedar negativo.`
             );
         }
@@ -166,7 +167,7 @@ export const validators = {
         }
         if (totalOtrasPrendas < totalPagado) {
             throw new Error(
-                `Sin esta prenda la orden quedaría en $${totalOtrasPrendas}, pero el cliente ya pagó $${totalPagado}. ` +
+                `Sin esta prenda la orden quedaría en ${formatearMoneda(totalOtrasPrendas)}, pero el cliente ya pagó ${formatearMoneda(totalPagado)}. ` +
                 `Anula primero el pago que corresponda.`
             );
         }

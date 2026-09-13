@@ -96,7 +96,7 @@
         </div>
         <!-- HU-36: la cifra lleva a la lista de órdenes que la componen -->
         <div class="kpi-card highlight-danger kpi-card--enlace" role="button" tabindex="0" @click="irAPorCobrar" @keydown.enter="irAPorCobrar">
-          <span class="kpi-value">${{ kpis.saldosPendientes || 0 }}</span>
+          <span class="kpi-value">{{ formatearMoneda(kpis.saldosPendientes) }}</span>
           <span class="kpi-label">Pagos Pendientes</span>
         </div>
       </div>
@@ -162,6 +162,8 @@ import Icon from '../components/common/Icon.vue';
 // P1-13: el mapa propio de colores estaba desplazado en uno (4 se pintaba como
 // Lista, 5 como Entregada). StatusBadge colorea por nombre, igual que el resto.
 import StatusBadge from '../components/common/StatusBadge.vue';
+import { formatearMoneda } from '../services/formato.js';
+import { aFechaLocal } from '../services/fechas.js';
 
 const router = useRouter();
 const toast = inject('toast');
@@ -199,7 +201,8 @@ function goToDetail(id) {
 function formatDate(dateString) {
     if (!dateString) return 'Sin fecha';
     try {
-        const date = new Date(dateString);
+        // new Date('2026-09-16') es medianoche UTC: en Colombia mostraba el 15.
+        const date = aFechaLocal(dateString);
         return format(date, 'd MMM, yyyy', { locale: es });
     } catch(e) {
         return dateString;

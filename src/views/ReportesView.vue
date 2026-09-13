@@ -35,7 +35,7 @@
       <!-- KPIs Grid -->
       <div class="kpi-grid">
         <div class="kpi-card highlight-green">
-          <span class="kpi-value">${{ reporteData.kpis.ingresosTotales.toLocaleString() }}</span>
+          <span class="kpi-value">{{ formatearMoneda(reporteData.kpis.ingresosTotales) }}</span>
           <span class="kpi-label">Ingresos Totales</span>
         </div>
         <div class="kpi-card highlight-blue">
@@ -47,7 +47,7 @@
           <span class="kpi-label">Prendas Procesadas</span>
         </div>
         <div class="kpi-card highlight-purple">
-          <span class="kpi-value">${{ parseFloat(reporteData.kpis.ticketPromedio).toLocaleString() }}</span>
+          <span class="kpi-value">{{ formatearMoneda(reporteData.kpis.ticketPromedio) }}</span>
           <span class="kpi-label">Ticket Promedio</span>
         </div>
       </div>
@@ -77,6 +77,7 @@
 <script setup>
 import { ref, computed, onMounted, inject } from 'vue';
 import { getReporteFinanciero } from '../database/queries/reportes.js';
+import { formatearMoneda } from '../services/formato.js';
 import { startOfDay, startOfWeek, startOfMonth, endOfDay, format } from 'date-fns';
 import {
   Chart as ChartJS,

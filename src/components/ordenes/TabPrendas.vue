@@ -9,6 +9,12 @@
       >+ Prenda</button>
     </div>
 
+    <!-- El aviso de orden lista sale al terminar la última prenda: se dice cuánto falta -->
+    <p v-if="orden.id_estado_orden === 2 && progreso.total > 0" class="progreso-prendas">
+      Terminadas <strong>{{ progreso.terminadas }} de {{ progreso.total }}</strong>.
+      Cuando estén todas, la orden pasará a <strong>Lista para Entregar</strong> y podrás avisar al cliente.
+    </p>
+
     <div v-if="loading && prendas.length === 0" class="loading-state">
       <SkeletonLoader :count="3" height="120px" />
     </div>
@@ -39,7 +45,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { progresoPrendas } from '../../services/estadoOrden.js';
 import SwipeItem from '../common/SwipeItem.vue';
 import PrendaCard from '../prendas/PrendaCard.vue';
 import SkeletonLoader from '../common/SkeletonLoader.vue';
@@ -49,6 +56,8 @@ const props = defineProps({
   prendas: { type: Array, required: true },
   loading: { type: Boolean, default: false }
 });
+
+const progreso = computed(() => progresoPrendas(props.prendas));
 
 const emit = defineEmits([
   'open-prenda-form',
@@ -76,4 +85,5 @@ defineExpose({ prendaRefs });
 .loading { padding: 20px; text-align: center; color: var(--on-surface-variant); }
 .empty-state { text-align: center; color: var(--on-surface-variant); padding: 30px 0; background: var(--surface-container-low); border-radius: var(--radius-lg); border: 1px dashed var(--outline-variant); }
 .prendas-list { display: flex; flex-direction: column; gap: 12px; }
+.progreso-prendas { margin: -4px 0 16px; padding: 10px 12px; border-radius: var(--radius-md); background: var(--info-bg); color: var(--info-text); font-size: 0.85rem; line-height: 1.4; }
 </style>

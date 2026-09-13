@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Capacitor } from '@capacitor/core';
-import { importDatabaseFromJson, sqlite, initDatabase } from '../connection.js';
+import { importDatabaseFromJson, sqlite, initDatabase, db } from '../connection.js';
 
 vi.mock('@capacitor/core', () => ({
     Capacitor: {
@@ -17,6 +17,7 @@ const mockDb = vi.hoisted(() => ({
     // consultar la tabla de control y envolver cada migración en su transacción.
     query: vi.fn().mockResolvedValue({ values: [] }),
     run: vi.fn().mockResolvedValue({}),
+    executeSet: vi.fn().mockResolvedValue({}),
     beginTransaction: vi.fn(),
     commitTransaction: vi.fn(),
     rollbackTransaction: vi.fn()
@@ -75,6 +76,45 @@ describe('Database Connection & Restore', () => {
         // El arranque deja rastro en los mocks; se limpia para que las
         // aserciones hablen sólo de la restauración.
         vi.clearAllMocks();
+    });
+
+    describe('guardado de la base web', () => {
+        it('guarda en el navegador después de cada escritura confirmada', async () => {
+            await db.executeSet([{ statement: 'INSERT', values: [] }], true);
+            expect(sqlite.saveToStore).toHaveBeenCalledTimes(1);
+
+            await db.run('UPDATE', []);
+            expect(sqlite.saveToStore).toHaveBeenCalledTimes(2);
+
+            await db.execute('DELETE');
+            expect(sqlite.saveToStore).toHaveBeenCalledTimes(3);
+        });
+
+        it('dentro de una transacción manual espera al commit', async () => {
+            await db.beginTransaction();
+            await db.run('INSERT', [], false);
+            await db.executeSet([], false);
+            expect(sqlite.saveToStore).not.toHaveBeenCalled();
+
+            await db.commitTransaction();
+            expect(sqlite.saveToStore).toHaveBeenCalledTimes(1);
+        });
+
+        it('las lecturas no guardan', async () => {
+            await db.query('SELECT 1');
+            expect(sqlite.saveToStore).not.toHaveBeenCalled();
+        });
+
+        it('en Android no envuelve la conexión: SQLite ya escribe en archivo', async () => {
+            Capacitor.getPlatform.mockReturnValue('android');
+            await initDatabase();
+            vi.clearAllMocks();
+
+            await db.executeSet([], true);
+
+            expect(db).toBe(mockDb);
+            expect(sqlite.saveToStore).not.toHaveBeenCalled();
+        });
     });
 
     describe('importDatabaseFromJson con snapshot y rollback', () => {

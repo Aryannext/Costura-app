@@ -622,7 +622,7 @@ describe('RN-34 · el resumen de Telegram usa la información actual de la orden
 
         await useOrdenTelegram(ordenEnPantalla).generarReciboTelegram();
 
-        expect(telegram.enviar.mock.calls[0][0]).toContain('*Saldo:* $15000');
+        expect(telegram.enviar.mock.calls[0][0]).toContain('*Saldo:* $15.000');
     });
 
     it('P1-18: el recibo muestra la fecha de recepción de la orden', async () => {
@@ -652,8 +652,8 @@ describe('RN-35 · toda modificación de una orden queda en el historial', () =>
             'Orden creada en estado Pendiente',
             'Prenda añadida a la orden',
             `Estado de prenda #${a} actualizado`,
-            'Abono de $5000 registrado',
-            'Pago de $5000 anulado: Error'
+            'Abono de $5.000 registrado',
+            'Pago de $5.000 anulado: Error'
         ]));
     });
 

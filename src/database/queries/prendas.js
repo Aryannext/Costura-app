@@ -1,5 +1,6 @@
 import { db } from '../connection.js';
 import { recalcularTotalesOrden } from './saldo.js';
+import { formatearMoneda } from '../../services/formato.js';
 import { leerEstadosDeOrden, planificarTransicion } from './estadoOrden.js';
 import { ESTADO_PRENDA } from '../../services/estadoOrden.js';
 
@@ -280,7 +281,7 @@ export async function eliminarPrenda(id_prenda, id_orden, { descripcion, valor }
         {
             // 9 = Eliminación de prenda
             statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
-            values: [`Prenda #${id_prenda} eliminada: ${descripcion} ($${valor})`, id_orden, 9]
+            values: [`Prenda #${id_prenda} eliminada: ${descripcion} (${formatearMoneda(valor)})`, id_orden, 9]
         },
         ...transicion.sentencias
     ];

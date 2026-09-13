@@ -8,7 +8,7 @@
       <h4>{{ orden.cliente_nombre }}</h4>
       <p class="fecha">Entrega: {{ formatDate(orden.fecha_entrega_estimada) }}</p>
       <p class="saldo" :class="{'deuda': orden.saldo_pendiente > 0}">
-        Saldo: ${{ orden.saldo_pendiente }} / ${{ orden.valor_total }}
+        Saldo: {{ formatearMoneda(orden.saldo_pendiente) }} / {{ formatearMoneda(orden.valor_total) }}
         <span v-if="estadoDePago(orden) === ESTADO_PAGO.PAGADA" class="pagada">· Pagada</span>
       </p>
       <!-- RN-04: se lista para poder completarla, pero aún no cuenta como activa -->
@@ -20,6 +20,7 @@
 <script setup>
 import StatusBadge from '../common/StatusBadge.vue';
 import { estadoDePago, ESTADO_PAGO, ESTADO_ORDEN } from '../../services/estadoOrden.js';
+import { formatearMoneda } from '../../services/formato.js';
 
 defineProps({
   orden: {

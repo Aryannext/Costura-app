@@ -11,7 +11,7 @@ describe('mensajeConfirmacionEntrega (P1-4, RN-30)', () => {
 
     it('orden con saldo -> pide confirmar mostrando lo que se debe', () => {
         expect(mensajeConfirmacionEntrega({ saldo_pendiente: 20000, valor_total: 50000 }))
-            .toBe('El cliente todavía debe $20000 de un total de $50000. ¿Entregar la orden de todos modos?');
+            .toBe('El cliente todavía debe $20.000 de un total de $50.000. ¿Entregar la orden de todos modos?');
     });
 
     it('saldo negativo heredado de la v1 -> no se trata como deuda', () => {

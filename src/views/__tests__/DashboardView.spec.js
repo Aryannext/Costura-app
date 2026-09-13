@@ -11,7 +11,7 @@ vi.mock('../../composables/useReportes.js', async () => {
             kpis: ref({ ordenesActivas: 2, saldosPendientes: 17000 }),
             proximasEntregas: ref([
                 { id_orden: 1, id_estado_orden: 2, estado_nombre: 'En Proceso', cliente_nombre: 'Ana', fecha_entrega_estimada: '2026-09-15' },
-                { id_orden: 2, id_estado_orden: 3, estado_nombre: 'Lista para Entregar', cliente_nombre: 'Luis', fecha_entrega_estimada: '2026-09-16' }
+                { id_orden: 2, id_estado_orden: 3, estado_nombre: 'Lista para Entregar', cliente_nombre: 'Luis', fecha_entrega_estimada: '2026-09-16' },
             ]),
             ordenesRecientes: ref([
                 { id_orden: 3, id_estado_orden: 4, estado_nombre: 'Entregada', cliente_nombre: 'Marta', fecha_creacion: '2026-09-10 10:00:00' },
@@ -62,6 +62,19 @@ describe('DashboardView', () => {
             ['Entregada', ['status-badge', 'status-entregada']],
             ['Cancelada', ['status-badge', 'status-cancelada']]
         ]);
+    });
+
+    it('muestra la fecha de entrega del mismo día que la orden, sin correrla por la zona horaria', async () => {
+        const wrapper = await montar();
+        // Entregas del 2026-09-15 y 2026-09-16: new Date() las corría un día atrás en Colombia.
+        expect(wrapper.text()).toContain('Entrega: 15 sep, 2026');
+        expect(wrapper.text()).toContain('Entrega: 16 sep, 2026');
+        expect(wrapper.text()).not.toContain('14 sep');
+    });
+
+    it('muestra los pagos pendientes con separador de miles', async () => {
+        const wrapper = await montar();
+        expect(wrapper.find('.kpi-card--enlace .kpi-value').text()).toBe('$17.000');
     });
 
     it('HU-36: la tarjeta de pagos pendientes lleva a la lista de órdenes por cobrar', async () => {

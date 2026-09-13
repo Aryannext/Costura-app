@@ -3,7 +3,7 @@
     <div class="prenda-header">
       <div class="title">
         <h4>{{ prenda.tipo_nombre }}</h4>
-        <span class="valor" v-if="!isEditing">${{ prenda.valor }}</span>
+        <span class="valor" v-if="!isEditing">{{ formatearMoneda(prenda.valor) }}</span>
         <input type="number" v-else v-model.number="editValor" class="edit-input-valor" />
       </div>
       <StatusBadge :estado="prenda.estado_nombre" />
@@ -85,6 +85,7 @@ import StatusBadge from '../common/StatusBadge.vue';
 import PhotoViewerModal from '../common/PhotoViewerModal.vue';
 import { usePrendas } from '../../composables/usePrendas.js';
 import { resolvePhotoSrc } from '../../services/photoStorage.js';
+import { formatearMoneda } from '../../services/formato.js';
 
 const props = defineProps({
   prenda: {
@@ -197,8 +198,10 @@ async function onDeleteFoto(id_fotografia) {
 </script>
 
 <style scoped>
+/* Sin margin-bottom: la separación la pone la lista (gap). Un margen dentro del
+   contenedor deslizable dejaba ver la franja roja de "Eliminar" bajo cada tarjeta. */
 .prenda-card {
-  margin-bottom: 12px;
+  margin: 0;
 }
 .prenda-header {
   display: flex;

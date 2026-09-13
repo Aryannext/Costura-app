@@ -27,7 +27,7 @@
       >
         <div class="card pago-card" :class="{ anulado: pago.anulado_en }">
           <div class="pago-info">
-            <span class="valor-pago">${{ pago.valor }}</span> - {{ pago.metodo_nombre }}
+            <span class="valor-pago">{{ formatearMoneda(pago.valor) }}</span> - {{ pago.metodo_nombre }}
             <p v-if="pago.anulado_en" class="pago-anulacion">
               Anulado el {{ formatTime(pago.anulado_en) }} · {{ pago.motivo_anulacion }}
             </p>
@@ -43,6 +43,7 @@
 
 <script setup>
 import SwipeItem from '../common/SwipeItem.vue';
+import { formatearMoneda } from '../../services/formato.js';
 import SkeletonLoader from '../common/SkeletonLoader.vue';
 
 const props = defineProps({

@@ -159,7 +159,7 @@ describe('validators.validateValorPrendaContraPagos', () => {
     it('RN-29: bajar el precio por debajo de lo pagado -> rechazo', () => {
         expect(() => validators.validateValorPrendaContraPagos({
             valorNuevo: 60000, totalOtrasPrendas: 0, totalPagado: 100000
-        })).toThrow('Con ese valor la orden quedaría en $60000, pero el cliente ya pagó $100000. El saldo no puede quedar negativo.');
+        })).toThrow('Con ese valor la orden quedaría en $60.000, pero el cliente ya pagó $100.000. El saldo no puede quedar negativo.');
     });
 
     it('RN-29: cuenta las demás prendas de la orden', () => {
@@ -276,7 +276,7 @@ describe('validators.validateEliminarPrenda (P1-9)', () => {
 
     it('RN-29: sin la prenda el total quedaría por debajo de lo pagado -> rechazo', () => {
         expect(() => validators.validateEliminarPrenda({ ...contexto, totalOtrasPrendas: 10000 }))
-            .toThrow('Sin esta prenda la orden quedaría en $10000, pero el cliente ya pagó $20000. Anula primero el pago que corresponda.');
+            .toThrow('Sin esta prenda la orden quedaría en $10.000, pero el cliente ya pagó $20.000. Anula primero el pago que corresponda.');
     });
 });
 

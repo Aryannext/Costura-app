@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import { getAllOrdenes, getOrdenById, createOrden, changeEstado as updateEstadoOrdenDB, getHistorialByOrden } from '../database/queries/ordenes.js';
 import { validators } from '../services/validators.js';
+import { formatearMoneda } from '../services/formato.js';
 import { useAsyncAction } from './useAsyncAction.js';
 
 const ordenes = ref([]);
@@ -15,7 +16,7 @@ const historial = ref([]);
  */
 export function mensajeConfirmacionEntrega(orden) {
     if (!orden || !(orden.saldo_pendiente > 0)) return null;
-    return `El cliente todavía debe $${orden.saldo_pendiente} de un total de $${orden.valor_total}. ` +
+    return `El cliente todavía debe ${formatearMoneda(orden.saldo_pendiente)} de un total de ${formatearMoneda(orden.valor_total)}. ` +
         `¿Entregar la orden de todos modos?`;
 }
 

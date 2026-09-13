@@ -238,7 +238,7 @@ describe('P1-9 · anular pagos contra SQLite real', () => {
         expect(pago.motivo_anulacion).toBe('Se registró dos veces');
 
         const ultimo = (await historial(id_orden)).at(-1);
-        expect(ultimo).toEqual({ descripcion: 'Pago de $30000 anulado: Se registró dos veces', id_tipo_actividad: 8 });
+        expect(ultimo).toEqual({ descripcion: 'Pago de $30.000 anulado: Se registró dos veces', id_tipo_actividad: 8 });
     });
 
     it('un pago no se anula dos veces', async () => {
@@ -315,7 +315,7 @@ describe('P1-9 · eliminar prendas contra SQLite real', () => {
         expect(await leerOrden(id_orden)).toEqual({ valor_total: 20000, saldo_pendiente: 15000 });
 
         const ultimo = (await historial(id_orden)).at(-1);
-        expect(ultimo).toEqual({ descripcion: `Prenda #${id_prenda} eliminada: Cremallera ($15000)`, id_tipo_actividad: 9 });
+        expect(ultimo).toEqual({ descripcion: `Prenda #${id_prenda} eliminada: Cremallera ($15.000)`, id_tipo_actividad: 9 });
     });
 
     it('RN-29: no elimina si el cliente ya pagó más de lo que quedaría', async () => {
@@ -324,7 +324,7 @@ describe('P1-9 · eliminar prendas contra SQLite real', () => {
         const id_prenda = await prenda(id_orden, 15000, 'Cremallera');
         await pagar(id_orden, 30000);
 
-        await expect(quitarPrenda(id_prenda, id_orden)).rejects.toThrow('pero el cliente ya pagó $30000');
+        await expect(quitarPrenda(id_prenda, id_orden)).rejects.toThrow('pero el cliente ya pagó $30.000');
 
         expect(await contar('prenda', id_prenda)).toBe(1);
         expect(await leerOrden(id_orden)).toEqual({ valor_total: 35000, saldo_pendiente: 5000 });

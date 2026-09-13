@@ -1,7 +1,7 @@
 <template>
   <form @submit.prevent="handleSubmit" class="pago-form">
     <div class="info-saldo">
-      <p>Saldo Pendiente: <strong>${{ saldoPendiente }}</strong></p>
+      <p>Saldo Pendiente: <strong>{{ formatearMoneda(saldoPendiente) }}</strong></p>
     </div>
 
     <div class="form-group">
@@ -47,6 +47,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
+import { formatearMoneda } from '../../services/formato.js';
 
 const props = defineProps({
   metodosPago: {

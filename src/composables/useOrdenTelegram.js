@@ -3,6 +3,7 @@ import { useTelegramBot } from './useTelegramBot.js';
 import { useNotificaciones } from './useNotificaciones.js';
 import { getOrdenById } from '../database/queries/ordenes.js';
 import { validators } from '../services/validators.js';
+import { formatearMoneda } from '../services/formato.js';
 import { Share } from '@capacitor/share';
 
 function formatDate(dateStr) {
@@ -34,9 +35,9 @@ export function construirRecibo(orden, { markdown = true } = {}) {
     `${negrita('Estado:')} ${orden.estado_nombre}`,
     '',
     `💰 ${negrita('PRESUPUESTO')}`,
-    `Total: $${orden.valor_total}`,
-    `Pagado: $${pagado}`,
-    `${negrita('Saldo:')} $${orden.saldo_pendiente}`,
+    `Total: ${formatearMoneda(orden.valor_total)}`,
+    `Pagado: ${formatearMoneda(pagado)}`,
+    `${negrita('Saldo:')} ${formatearMoneda(orden.saldo_pendiente)}`,
     ''
   ].join('\n');
 }
@@ -75,10 +76,10 @@ export function useOrdenTelegram(ordenActual) {
     const idOrden = o.id_orden;
 
     let wpText = `Hola ${cliente}, te informamos que tu orden #${idOrden} ya está lista para recoger en el Atelier.`;
-    if (saldo > 0) wpText += ` Recuerda que tienes un saldo pendiente de $${saldo}.`;
+    if (saldo > 0) wpText += ` Recuerda que tienes un saldo pendiente de ${formatearMoneda(saldo)}.`;
     const wpLink = `https://wa.me/${telefono.replace(/\+/g, '')}?text=${encodeURIComponent(wpText)}`;
 
-    const mensajeBot = `✅ *Orden Lista*\n\nLa orden #${idOrden} de *${cliente}* ya está terminada.\nSaldo pendiente: *$${saldo}*\n\n[📲 Toca aquí para avisarle por WhatsApp](${wpLink})`;
+    const mensajeBot = `✅ *Orden Lista*\n\nLa orden #${idOrden} de *${cliente}* ya está terminada.\nSaldo pendiente: *${formatearMoneda(saldo)}*\n\n[📲 Toca aquí para avisarle por WhatsApp](${wpLink})`;
 
     const success = await sendTelegramMessage(mensajeBot, 'Markdown');
     if (success) {
@@ -133,13 +134,13 @@ export function useOrdenTelegram(ordenActual) {
     if (tipo === 'LISTA_ENTREGA') {
       if (!puedeAvisarOrdenLista(o)) return;
       wpText = `Hola ${cliente}, te informamos que tu orden #${idOrden} ya está lista para recoger en el Atelier.`;
-      if (saldo > 0) wpText += ` Recuerda que tienes un saldo pendiente de $${saldo}.`;
+      if (saldo > 0) wpText += ` Recuerda que tienes un saldo pendiente de ${formatearMoneda(saldo)}.`;
       const wpLink = `https://wa.me/${telefono.replace(/\+/g, '')}?text=${encodeURIComponent(wpText)}`;
       mensajeBot = `✅ *Aviso de Orden Lista*\n\nToca aquí para avisar a *${cliente}* que su orden #${idOrden} está terminada:\n\n[📲 Enviar WhatsApp](${wpLink})`;
     } else if (tipo === 'RECORDATORIO_PAGO') {
-      wpText = `Hola ${cliente}, te escribimos del Atelier para recordarte que tienes un saldo pendiente de $${saldo} en tu orden #${idOrden}.`;
+      wpText = `Hola ${cliente}, te escribimos del Atelier para recordarte que tienes un saldo pendiente de ${formatearMoneda(saldo)} en tu orden #${idOrden}.`;
       const wpLink = `https://wa.me/${telefono.replace(/\+/g, '')}?text=${encodeURIComponent(wpText)}`;
-      mensajeBot = `💸 *Recordatorio de Pago*\n\nToca aquí para cobrarle a *${cliente}* el saldo de *$${saldo}*:\n\n[📲 Enviar WhatsApp de Cobro](${wpLink})`;
+      mensajeBot = `💸 *Recordatorio de Pago*\n\nToca aquí para cobrarle a *${cliente}* el saldo de *${formatearMoneda(saldo)}*:\n\n[📲 Enviar WhatsApp de Cobro](${wpLink})`;
     }
 
     const success = await sendTelegramMessage(mensajeBot, 'Markdown');
