@@ -99,7 +99,7 @@ export async function getReporteFinanciero(startDate, endDate) {
 
     // 1. Ingresos Totales
     const resPagos = await db.query(
-        "SELECT SUM(valor) as total FROM pago WHERE date(fecha_pago) >= ? AND date(fecha_pago) <= ?",
+        "SELECT SUM(valor) as total FROM pago WHERE anulado_en IS NULL AND date(fecha_pago) >= ? AND date(fecha_pago) <= ?",
         [startDate, endDate]
     );
     reporte.kpis.ingresosTotales = resPagos.values[0]?.total || 0;
@@ -126,7 +126,7 @@ export async function getReporteFinanciero(startDate, endDate) {
     const resIngresosDia = await db.query(`
         SELECT date(fecha_pago) as fecha, SUM(valor) as diario
         FROM pago
-        WHERE date(fecha_pago) >= ? AND date(fecha_pago) <= ?
+        WHERE anulado_en IS NULL AND date(fecha_pago) >= ? AND date(fecha_pago) <= ?
         GROUP BY date(fecha_pago)
         ORDER BY fecha ASC
     `, [startDate, endDate]);

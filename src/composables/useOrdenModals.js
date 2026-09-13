@@ -1,15 +1,17 @@
-import { ref, inject } from 'vue';
+import { ref } from 'vue';
 
 export function useOrdenModals() {
-  const toast = inject('toast');
-
   // Confirm Modal
   const showConfirmModal = ref(false);
   const confirmMessage = ref('');
+  // El botón decía "Sí, Notificar" para cualquier confirmación, incluida la de
+  // entregar con saldo. Cada llamada indica ahora qué está confirmando.
+  const confirmText = ref('Confirmar');
   let onConfirmAction = null;
 
-  function requestConfirm(message, action) {
+  function requestConfirm(message, action, { textoConfirmar = 'Confirmar' } = {}) {
     confirmMessage.value = message;
+    confirmText.value = textoConfirmar;
     onConfirmAction = action;
     showConfirmModal.value = true;
   }
@@ -27,10 +29,12 @@ export function useOrdenModals() {
   // Prompt Modal
   const showPromptModal = ref(false);
   const promptMessage = ref('');
+  const promptTitle = ref('');
   let onPromptAction = null;
 
-  function requestPrompt(message, action) {
+  function requestPrompt(message, action, { titulo = 'Añadir Observación' } = {}) {
     promptMessage.value = message;
+    promptTitle.value = titulo;
     onPromptAction = action;
     showPromptModal.value = true;
   }
@@ -45,57 +49,54 @@ export function useOrdenModals() {
     showPromptModal.value = false;
   }
 
-  // Action Sheet (Swipe to Delete)
+  // Action Sheet (deslizar para eliminar o anular)
+  // Antes esta hoja sólo mostraba "Pago eliminado y saldo recalculado" sin tocar
+  // la base de datos (P1-9). Ahora ejecuta la acción que le pasa la vista.
   const showActionSheet = ref(false);
   const actionSheetTitle = ref('');
   const actionSheetMessage = ref('');
   const actionSheetActions = ref([]);
-  let currentDeletePayload = null;
+  let onSheetAction = null;
 
-  function openDeleteSheet(type, id) {
-    currentDeletePayload = { type, id };
-    
+  function openDeleteSheet(type, id, onConfirm) {
+    onSheetAction = onConfirm;
+
     if (type === 'prenda') {
       actionSheetTitle.value = 'Eliminar Prenda';
-      actionSheetMessage.value = '¿Estás seguro de que deseas eliminar esta prenda? Esta acción no se puede deshacer.';
+      actionSheetMessage.value = 'Se borrarán también sus fotos y observaciones. Quedará registrado en el historial de la orden.';
+      actionSheetActions.value = [{ text: 'Eliminar', role: 'destructive', id: 'delete' }];
     } else {
-      actionSheetTitle.value = 'Eliminar Pago';
-      actionSheetMessage.value = '¿Deseas eliminar este pago? El saldo se recalculará automáticamente.';
+      actionSheetTitle.value = 'Anular Pago';
+      actionSheetMessage.value = 'El pago no se borra: queda tachado, con el motivo, y deja de contar en el saldo.';
+      actionSheetActions.value = [{ text: 'Anular', role: 'destructive', id: 'delete' }];
     }
 
-    actionSheetActions.value = [
-      { text: 'Eliminar', role: 'destructive', id: 'delete' }
-    ];
-    
     showActionSheet.value = true;
   }
 
   function handleSheetAction(action) {
-    if (action.id === 'delete') {
-      if (currentDeletePayload?.type === 'prenda') {
-        if (toast) toast('Prenda eliminada', 'success');
-      } else if (currentDeletePayload?.type === 'pago') {
-        if (toast) toast('Pago eliminado y saldo recalculado', 'success');
-      }
-    }
-    currentDeletePayload = null;
+    const accion = onSheetAction;
+    onSheetAction = null;
+    if (action.id === 'delete' && accion) accion();
   }
 
   return {
     // Confirm
     showConfirmModal,
     confirmMessage,
+    confirmText,
     requestConfirm,
     executeConfirm,
     cancelConfirm,
-    
+
     // Prompt
     showPromptModal,
     promptMessage,
+    promptTitle,
     requestPrompt,
     executePrompt,
     cancelPrompt,
-    
+
     // Action Sheet
     showActionSheet,
     actionSheetTitle,

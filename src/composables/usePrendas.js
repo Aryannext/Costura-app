@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
-import { savePhotoFromBase64 } from '../services/photoStorage.js';
+import { savePhotoFromBase64, deletePhotoFile } from '../services/photoStorage.js';
 import { validators } from '../services/validators.js';
 import { useAsyncAction } from './useAsyncAction.js';
 import { 
@@ -14,7 +14,8 @@ import {
     getFotografiasByPrenda,
     deleteFotografia,
     updatePrenda,
-    getTotalesParaEditarPrenda,
+    getContextoPrenda,
+    eliminarPrenda,
     getDescripcionesFrecuentes
 } from '../database/queries/prendas.js';
 
@@ -54,13 +55,27 @@ export function usePrendas() {
         return execute(async () => {
             if (!descripcion_arreglo || descripcion_arreglo.trim() === '') throw new Error("La descripción es obligatoria");
 
-            const { totalOtrasPrendas, totalPagado } = await getTotalesParaEditarPrenda(id_prenda, id_orden);
+            const { totalOtrasPrendas, totalPagado } = await getContextoPrenda(id_prenda, id_orden);
             validators.validateValorPrendaContraPagos({ valorNuevo: valor, totalOtrasPrendas, totalPagado });
 
             await updatePrenda(id_prenda, descripcion_arreglo, valor, id_orden);
             await fetchPrendas(id_orden);
         }, {
             successMessage: 'Prenda actualizada exitosamente',
+            toastError: true
+        });
+    };
+
+    const removePrenda = async (id_prenda, id_orden) => {
+        return execute(async () => {
+            const contexto = await getContextoPrenda(id_prenda, id_orden);
+            validators.validateEliminarPrenda(contexto);
+
+            const rutasDeFotos = await eliminarPrenda(id_prenda, id_orden, contexto);
+            await Promise.all(rutasDeFotos.map(deletePhotoFile));
+            await fetchPrendas(id_orden);
+        }, {
+            successMessage: 'Prenda eliminada',
             toastError: true
         });
     };
@@ -179,6 +194,7 @@ export function usePrendas() {
         fetchPrendas,
         savePrenda,
         editPrenda,
+        removePrenda,
         changeEstado,
         takePhoto,
         fetchFotos,

@@ -17,7 +17,8 @@ export const SQL_RECALCULAR_TOTALES_ORDEN = `
         saldo_pendiente = (
             SELECT COALESCE(SUM(valor), 0) FROM prenda WHERE prenda.id_orden = orden_trabajo.id_orden
         ) - (
-            SELECT COALESCE(SUM(valor), 0) FROM pago WHERE pago.id_orden = orden_trabajo.id_orden
+            SELECT COALESCE(SUM(valor), 0) FROM pago
+            WHERE pago.id_orden = orden_trabajo.id_orden AND pago.anulado_en IS NULL
         )
     WHERE id_orden = ?`;
 

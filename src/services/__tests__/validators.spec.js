@@ -172,6 +172,55 @@ describe('validators.validateValorPrendaContraPagos', () => {
     });
 });
 
+describe('validators.validateEliminarPrenda (P1-9)', () => {
+    const contexto = { estadoOrden: 2, estadoPrenda: 1, totalOtrasPrendas: 30000, totalPagado: 20000 };
+
+    it('Prenda pendiente en orden abierta, lo pagado sigue cubierto -> pasa', () => {
+        expect(validators.validateEliminarPrenda(contexto)).toBe(true);
+    });
+
+    it('Orden entregada -> rechazo', () => {
+        expect(() => validators.validateEliminarPrenda({ ...contexto, estadoOrden: 4 }))
+            .toThrow('No se pueden eliminar prendas de una orden entregada.');
+    });
+
+    it('Orden cancelada -> rechazo', () => {
+        expect(() => validators.validateEliminarPrenda({ ...contexto, estadoOrden: 5 }))
+            .toThrow('No se pueden eliminar prendas de una orden cancelada.');
+    });
+
+    it('Prenda ya entregada -> rechazo', () => {
+        expect(() => validators.validateEliminarPrenda({ ...contexto, estadoPrenda: 4 }))
+            .toThrow('Una prenda ya entregada al cliente no se puede eliminar.');
+    });
+
+    it('RN-29: sin la prenda el total quedaría por debajo de lo pagado -> rechazo', () => {
+        expect(() => validators.validateEliminarPrenda({ ...contexto, totalOtrasPrendas: 10000 }))
+            .toThrow('Sin esta prenda la orden quedaría en $10000, pero el cliente ya pagó $20000. Anula primero el pago que corresponda.');
+    });
+});
+
+describe('validators.validateAnularPago (P1-9)', () => {
+    const pago = { id_pago: 1, valor: 30000, id_orden: 1, anulado_en: null };
+
+    it('Pago vigente con motivo -> pasa', () => {
+        expect(validators.validateAnularPago(pago, 'Se registró dos veces')).toBe(true);
+    });
+
+    it('Pago inexistente -> rechazo', () => {
+        expect(() => validators.validateAnularPago(null, 'x')).toThrow('El pago no existe.');
+    });
+
+    it('Pago ya anulado -> rechazo', () => {
+        expect(() => validators.validateAnularPago({ ...pago, anulado_en: '2026-09-13 10:00:00' }, 'x'))
+            .toThrow('Este pago ya está anulado.');
+    });
+
+    it('Sin motivo -> rechazo', () => {
+        expect(() => validators.validateAnularPago(pago, '   ')).toThrow('Escribe el motivo de la anulación.');
+    });
+});
+
 describe('validators.validateCambioPassword', () => {
     const PASSWORD_FABRICA = 'admin123';
     const valido = {

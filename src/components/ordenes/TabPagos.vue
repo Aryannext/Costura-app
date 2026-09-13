@@ -21,11 +21,16 @@
       <SwipeItem 
         v-for="pago in pagos" 
         :key="pago.id_pago"
+        :disabled="!!pago.anulado_en"
+        textoAccion="Anular"
         @delete="$emit('delete-pago', pago.id_pago)"
       >
-        <div class="card pago-card">
+        <div class="card pago-card" :class="{ anulado: pago.anulado_en }">
           <div class="pago-info">
             <span class="valor-pago">${{ pago.valor }}</span> - {{ pago.metodo_nombre }}
+            <p v-if="pago.anulado_en" class="pago-anulacion">
+              Anulado el {{ formatTime(pago.anulado_en) }} · {{ pago.motivo_anulacion }}
+            </p>
           </div>
           <div class="pago-fecha">
             {{ formatTime(pago.fecha_pago) }}
@@ -65,4 +70,7 @@ function formatTime(dateStr) {
 .pago-card { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-radius: var(--radius-lg); }
 .valor-pago { color: var(--success-color, #10b981); font-weight: 700; font-size: 1.1em; }
 .pago-fecha { color: var(--on-surface-variant); font-size: 0.85em; }
+.pago-card.anulado { opacity: 0.6; }
+.pago-card.anulado .valor-pago { color: var(--on-surface-variant); text-decoration: line-through; }
+.pago-anulacion { margin: 4px 0 0; color: var(--error); font-size: 0.8em; }
 </style>

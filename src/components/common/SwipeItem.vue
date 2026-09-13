@@ -1,8 +1,8 @@
 <template>
   <div class="swipe-container" @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd">
-    <div class="swipe-actions right-actions">
+    <div v-if="!disabled" class="swipe-actions right-actions">
       <button class="action-btn delete-btn" @click.stop="onDelete">
-        Eliminar
+        {{ textoAccion }}
       </button>
     </div>
     <div class="swipe-content" :style="{ transform: `translateX(${currentX}px)`, transition: isSwiping ? 'none' : 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)' }">
@@ -15,6 +15,12 @@
 import { ref } from 'vue';
 import { useHaptics } from '../../composables/useHaptics.js';
 
+const props = defineProps({
+  // Sin acción disponible (orden cerrada, pago ya anulado): no se desliza.
+  disabled: { type: Boolean, default: false },
+  textoAccion: { type: String, default: 'Eliminar' }
+});
+
 const emit = defineEmits(['delete']);
 const { hapticImpactHeavy } = useHaptics();
 
@@ -26,6 +32,7 @@ const isSwiping = ref(false);
 const threshold = -80; // Distance to reveal delete button
 
 function onTouchStart(e) {
+  if (props.disabled) return;
   startX.value = e.touches[0].clientX;
   startY.value = e.touches[0].clientY;
   isSwiping.value = true;
@@ -35,14 +42,14 @@ function onTouchMove(e) {
   if (!isSwiping.value) return;
   const x = e.touches[0].clientX;
   const y = e.touches[0].clientY;
-  
+
   // If moving vertically more than horizontally, cancel swipe (it's a scroll)
   if (Math.abs(y - startY.value) > Math.abs(x - startX.value)) {
     isSwiping.value = false;
     currentX.value = currentX.value < threshold / 2 ? threshold : 0;
     return;
   }
-  
+
   const diff = x - startX.value;
   // Allow only swiping left
   if (diff < 0) {
@@ -54,6 +61,7 @@ function onTouchMove(e) {
 }
 
 function onTouchEnd() {
+  if (props.disabled) return;
   isSwiping.value = false;
   if (currentX.value < threshold / 1.5) {
     currentX.value = threshold; // Keep open

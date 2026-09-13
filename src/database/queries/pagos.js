@@ -14,9 +14,42 @@ export async function getPagosByOrden(id_orden) {
         FROM pago p
         JOIN metodo_pago m ON p.id_metodo_pago = m.id_metodo_pago
         WHERE p.id_orden = ?
-        ORDER BY p.fecha_pago DESC
+        ORDER BY p.anulado_en IS NOT NULL, p.fecha_pago DESC
     `, [id_orden]);
     return result.values || [];
+}
+
+export async function getPagoById(id_pago) {
+    if (!db) throw new Error("Database not initialized");
+    const result = await db.query(
+        "SELECT id_pago, valor, id_orden, anulado_en FROM pago WHERE id_pago = ?",
+        [id_pago]
+    );
+    return result.values?.[0] || null;
+}
+
+/**
+ * Un pago no se borra: se marca como anulado con fecha y motivo, deja de contar
+ * en el saldo y queda en el historial (RN-14, RN-35). Las reglas se validan
+ * antes, en el composable.
+ */
+export async function anularPago(pago, motivo) {
+    if (!db) throw new Error("Database not initialized");
+
+    const set = [
+        {
+            statement: "UPDATE pago SET anulado_en = datetime('now','localtime'), motivo_anulacion = ? WHERE id_pago = ? AND anulado_en IS NULL",
+            values: [motivo, pago.id_pago]
+        },
+        recalcularTotalesOrden(pago.id_orden),
+        {
+            // 8 = Anulación de pago
+            statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
+            values: [`Pago de $${pago.valor} anulado: ${motivo}`, pago.id_orden, 8]
+        }
+    ];
+
+    await db.executeSet(set, true);
 }
 
 export async function registrarPago(pago) {

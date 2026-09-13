@@ -4,7 +4,7 @@ Planos del sistema **regenerados desde el código fuente**, no desde el diseño 
 
 Están escritos en Mermaid: GitHub y la mayoría de editores los dibujan solos.
 
-> **Versión del esquema documentada:** 2 (`schema_migrations`)
+> **Versión del esquema documentada:** 3 (`schema_migrations`)
 > **Última revisión contra el código:** 13 de septiembre de 2026
 
 ---
@@ -168,6 +168,8 @@ erDiagram
         REAL valor "NOT NULL"
         INTEGER id_orden FK
         INTEGER id_metodo_pago FK
+        TEXT anulado_en "NULL si vigente"
+        TEXT motivo_anulacion
     }
     notificacion {
         INTEGER id_notificacion PK
@@ -412,7 +414,9 @@ stateDiagram-v2
 
 **Entregar con saldo pendiente** está permitido (RN-30), pero el botón *Entregar* pide confirmación mostrando lo que se debe. La entrega automática por prendas no la pide.
 
-**Saldo** (en `queries/saldo.js`): nunca se suma ni se resta una diferencia. Cada escritura sobre `prenda` o `pago` recalcula en la misma transacción `valor_total = SUM(prenda.valor)` y `saldo_pendiente = valor_total − SUM(pago.valor)`. Bajar el precio de una prenda por debajo de lo ya pagado se rechaza (RN-29).
+**Saldo** (en `queries/saldo.js`): nunca se suma ni se resta una diferencia. Cada escritura sobre `prenda` o `pago` recalcula en la misma transacción `valor_total = SUM(prenda.valor)` y `saldo_pendiente = valor_total − SUM(pago.valor)` contando sólo los pagos no anulados. Bajar el precio de una prenda, o eliminarla, si el total queda por debajo de lo ya pagado se rechaza (RN-29).
+
+**Correcciones** (P1-9): un pago nunca se borra; se anula con fecha y motivo, deja de sumar en el saldo y en los ingresos, y queda en el historial. Una prenda sí se elimina con sus fotos y observaciones, salvo en órdenes entregadas o canceladas o si la prenda ya se entregó.
 
 ---
 

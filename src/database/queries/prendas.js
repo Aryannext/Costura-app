@@ -205,21 +205,37 @@ export async function deleteFotografia(id_fotografia) {
 }
 
 /**
- * Lo que hace falta para decidir si un nuevo valor de prenda es admisible
- * (RN-29): cuánto suman las demás prendas de la orden y cuánto se ha pagado.
+ * Lo que hace falta para decidir si se puede editar o eliminar una prenda:
+ * su estado, el de la orden, cuánto suman las demás prendas y cuánto se ha
+ * pagado sin contar los pagos anulados (RN-29).
  */
-export async function getTotalesParaEditarPrenda(id_prenda, id_orden) {
+export async function getContextoPrenda(id_prenda, id_orden) {
     if (!db) throw new Error("Database not initialized");
     const result = await db.query(`
         SELECT
-            (SELECT COUNT(*) FROM prenda WHERE id_prenda = ? AND id_orden = ?) AS existe,
-            (SELECT COALESCE(SUM(valor), 0) FROM prenda WHERE id_orden = ? AND id_prenda <> ?) AS total_otras_prendas,
-            (SELECT COALESCE(SUM(valor), 0) FROM pago WHERE id_orden = ?) AS total_pagado
-    `, [id_prenda, id_orden, id_orden, id_prenda, id_orden]);
+            p.descripcion_arreglo,
+            p.valor,
+            p.id_estado_prenda,
+            o.id_estado_orden,
+            (SELECT COALESCE(SUM(valor), 0) FROM prenda
+             WHERE id_orden = p.id_orden AND id_prenda <> p.id_prenda) AS total_otras_prendas,
+            (SELECT COALESCE(SUM(valor), 0) FROM pago
+             WHERE id_orden = p.id_orden AND anulado_en IS NULL) AS total_pagado
+        FROM prenda p
+        JOIN orden_trabajo o ON o.id_orden = p.id_orden
+        WHERE p.id_prenda = ? AND p.id_orden = ?
+    `, [id_prenda, id_orden]);
 
     const fila = result.values?.[0];
-    if (!fila || !fila.existe) throw new Error("Prenda no encontrada");
-    return { totalOtrasPrendas: fila.total_otras_prendas, totalPagado: fila.total_pagado };
+    if (!fila) throw new Error("Prenda no encontrada");
+    return {
+        descripcion: fila.descripcion_arreglo,
+        valor: fila.valor,
+        estadoPrenda: fila.id_estado_prenda,
+        estadoOrden: fila.id_estado_orden,
+        totalOtrasPrendas: fila.total_otras_prendas,
+        totalPagado: fila.total_pagado
+    };
 }
 
 export async function updatePrenda(id_prenda, descripcion_arreglo, valor_nuevo, id_orden) {
@@ -239,6 +255,35 @@ export async function updatePrenda(id_prenda, descripcion_arreglo, valor_nuevo, 
     ];
 
     await db.executeSet(set, true);
+}
+
+/**
+ * Elimina la prenda con sus observaciones y fotografías, recalcula la orden y
+ * lo deja en el historial. Las reglas se validan antes, en el composable.
+ *
+ * Devuelve las rutas de las fotos para que quien llama borre los archivos
+ * DESPUÉS de confirmar la transacción: si ese borrado falla queda una foto
+ * huérfana en disco, nunca una fila apuntando a un archivo inexistente.
+ */
+export async function eliminarPrenda(id_prenda, id_orden, { descripcion, valor }) {
+    if (!db) throw new Error("Database not initialized");
+
+    const fotos = await db.query("SELECT ruta_archivo FROM fotografia WHERE id_prenda = ?", [id_prenda]);
+
+    const set = [
+        { statement: "DELETE FROM observacion WHERE id_prenda = ?", values: [id_prenda] },
+        { statement: "DELETE FROM fotografia WHERE id_prenda = ?", values: [id_prenda] },
+        { statement: "DELETE FROM prenda WHERE id_prenda = ? AND id_orden = ?", values: [id_prenda, id_orden] },
+        recalcularTotalesOrden(id_orden),
+        {
+            // 9 = Eliminación de prenda
+            statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
+            values: [`Prenda #${id_prenda} eliminada: ${descripcion} ($${valor})`, id_orden, 9]
+        }
+    ];
+
+    await db.executeSet(set, true);
+    return (fotos.values || []).map(f => f.ruta_archivo);
 }
 
 export async function getDescripcionesFrecuentes() {

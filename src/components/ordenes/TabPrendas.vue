@@ -20,7 +20,8 @@
     <transition-group name="stagger" tag="div" class="prendas-list stagger-list">
       <SwipeItem 
         v-for="prenda in prendas" 
-        :key="prenda.id_prenda" 
+        :key="prenda.id_prenda"
+        :disabled="orden.id_estado_orden === 4 || orden.id_estado_orden === 5 || prenda.id_estado_prenda === 4"
         @delete="$emit('delete-prenda', prenda.id_prenda)"
       >
         <PrendaCard 

@@ -56,7 +56,7 @@
           :prendas="prendas"
           :loading="prendasLoading"
           @open-prenda-form="showPrendaForm = true"
-          @delete-prenda="(id) => openDeleteSheet('prenda', id)"
+          @delete-prenda="confirmarEliminarPrenda"
           @take-photo="handleTakePhoto"
           @add-obs="openObsPrompt"
           @estado-changed="handleEstadoPrenda"
@@ -70,7 +70,7 @@
           :pagos="pagos"
           :loading="pagosLoading"
           @open-pago-form="showPagoForm = true"
-          @delete-pago="(id) => openDeleteSheet('pago', id)"
+          @delete-pago="confirmarAnularPago"
         />
       </transition>
 
@@ -90,8 +90,10 @@
       :pagosError="pagosError"
       :showConfirmModal="showConfirmModal"
       :confirmMessage="confirmMessage"
+      :confirmText="confirmText"
       :showPromptModal="showPromptModal"
       :promptMessage="promptMessage"
+      :promptTitle="promptTitle"
       :actionSheetTitle="actionSheetTitle"
       :actionSheetMessage="actionSheetMessage"
       :actionSheetActions="actionSheetActions"
@@ -133,8 +135,8 @@ const tab = ref('detalle');
 
 
 const {
-  showConfirmModal, confirmMessage, requestConfirm, executeConfirm, cancelConfirm,
-  showPromptModal, promptMessage, requestPrompt, executePrompt, cancelPrompt,
+  showConfirmModal, confirmMessage, confirmText, requestConfirm, executeConfirm, cancelConfirm,
+  showPromptModal, promptMessage, promptTitle, requestPrompt, executePrompt, cancelPrompt,
   showActionSheet, actionSheetTitle, actionSheetMessage, actionSheetActions, openDeleteSheet, handleSheetAction
 } = useOrdenModals();
 
@@ -146,13 +148,13 @@ const { ordenActual, historial, loading, fetchOrden, changeEstado, clearCurrentS
 const { 
   tiposPrenda, prendas, loading: prendasLoading, error: prendasError,
   fetchTiposPrenda, fetchPrendas, savePrenda, changeEstado: changeEstadoPrenda,
-  takePhoto, addNewObservacion, clearCurrentState: clearPrendasState
+  takePhoto, addNewObservacion, removePrenda, clearCurrentState: clearPrendasState
 } = usePrendas();
 
 // Pagos logic
 const {
   metodosPago, pagos, loading: pagosLoading, error: pagosError,
-  fetchMetodosPago, fetchPagos, savePago
+  fetchMetodosPago, fetchPagos, savePago, anularPago
 } = usePagos();
 
 // Telegram Bot Logic
@@ -197,7 +199,7 @@ watch(tab, async (newTab) => {
 function cambiarEstado(id_estado, nombre) {
   const advertencia = id_estado === 4 ? mensajeConfirmacionEntrega(ordenActual.value) : null;
   if (advertencia) {
-    requestConfirm(advertencia, () => aplicarCambioEstado(id_estado, nombre));
+    requestConfirm(advertencia, () => aplicarCambioEstado(id_estado, nombre), { textoConfirmar: 'Sí, entregar' });
     return;
   }
   return aplicarCambioEstado(id_estado, nombre);
@@ -211,7 +213,7 @@ async function aplicarCambioEstado(id_estado, nombre) {
     if (id_estado === 3) {
       requestConfirm("¿Deseas usar el Bot de Telegram para enviarte el aviso de orden lista (con enlace a WhatsApp)?", () => {
         enviarAlertaOrdenListaBot();
-      });
+      }, { textoConfirmar: 'Sí, notificar' });
     }
   } catch (err) {
     toast(err.message, 'error');
@@ -251,6 +253,33 @@ function refrescarTotales() {
   fetchOrden(ordenActual.value.id_orden);
 }
 
+// P1-9. Los errores de regla (orden cerrada, saldo que quedaría negativo, motivo
+// vacío) ya los muestra useAsyncAction como toast; aquí sólo se evita que
+// terminen como promesa rechazada sin capturar.
+function confirmarEliminarPrenda(id_prenda) {
+  openDeleteSheet('prenda', id_prenda, async () => {
+    try {
+      await removePrenda(id_prenda, ordenActual.value.id_orden);
+      refrescarTotales();
+    } catch (err) {
+      console.error(err);
+    }
+  });
+}
+
+function confirmarAnularPago(id_pago) {
+  openDeleteSheet('pago', id_pago, () => {
+    requestPrompt('¿Por qué se anula este pago? El motivo queda en el historial de la orden.', async (motivo) => {
+      try {
+        await anularPago(id_pago, motivo);
+        refrescarTotales();
+      } catch (err) {
+        console.error(err);
+      }
+    }, { titulo: 'Anular Pago' });
+  });
+}
+
 async function handleEstadoPrenda(id_prenda, id_estado) {
   try {
     const currentOrdenStatus = ordenActual.value ? ordenActual.value.id_estado_orden : 0;
@@ -260,7 +289,7 @@ async function handleEstadoPrenda(id_prenda, id_estado) {
     if (result && result.shouldPromptCompletion) {
       requestConfirm("¡Todas las prendas están terminadas! ¿Deseas marcar la orden como 'Lista para Entregar'?", async () => {
         await cambiarEstado(3, 'Lista para Entregar');
-      });
+      }, { textoConfirmar: 'Sí, marcar lista' });
     }
   } catch (err) {
     // Errores ya son manejados por el useAsyncAction del composable

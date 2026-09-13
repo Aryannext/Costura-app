@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { getMetodosPago, getPagosByOrden, registrarPago } from '../database/queries/pagos.js';
+import { getMetodosPago, getPagosByOrden, registrarPago, getPagoById, anularPago as anularPagoDB } from '../database/queries/pagos.js';
 import { validators } from '../services/validators.js';
 import { useAsyncAction } from './useAsyncAction.js';
 
@@ -35,6 +35,19 @@ export function usePagos() {
         });
     };
 
+    const anularPago = async (id_pago, motivo) => {
+        return execute(async () => {
+            const pago = await getPagoById(id_pago);
+            validators.validateAnularPago(pago, motivo);
+
+            await anularPagoDB(pago, motivo.trim());
+            await fetchPagos(pago.id_orden);
+        }, {
+            successMessage: 'Pago anulado. El saldo se recalculó.',
+            toastError: true
+        });
+    };
+
     return {
         metodosPago,
         pagos,
@@ -42,6 +55,7 @@ export function usePagos() {
         error,
         fetchMetodosPago,
         fetchPagos,
-        savePago
+        savePago,
+        anularPago
     };
 }

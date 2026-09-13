@@ -139,5 +139,15 @@ export const migrations = [
           saldo_pendiente = (SELECT COALESCE(SUM(valor), 0) FROM prenda WHERE prenda.id_orden = orden_trabajo.id_orden)
                           - (SELECT COALESCE(SUM(valor), 0) FROM pago WHERE pago.id_orden = orden_trabajo.id_orden);`
     ]
+  },
+  {
+    // P1-9: un pago no se borra, se anula. Queda visible con fecha y motivo y
+    // deja de contar en el saldo, para no perder el rastro del dinero (RN-14, RN-35).
+    toVersion: 3,
+    statements: [
+      `ALTER TABLE pago ADD COLUMN anulado_en TEXT;`,
+      `ALTER TABLE pago ADD COLUMN motivo_anulacion TEXT;`,
+      `INSERT OR IGNORE INTO tipo_actividad(id_tipo_actividad, nombre) VALUES (8, 'Anulación de pago'), (9, 'Eliminación de prenda');`
+    ]
   }
 ];

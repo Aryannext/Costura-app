@@ -102,6 +102,41 @@ export const validators = {
         return true;
     },
 
+    // P1-9: eliminar una prenda es corregir un error de captura, no deshacer
+    // trabajo entregado ni dejar la cuenta en negativo (RN-29).
+    validateEliminarPrenda: ({ estadoOrden, estadoPrenda, totalOtrasPrendas, totalPagado }) => {
+        if (estadoOrden === 4) {
+            throw new Error("No se pueden eliminar prendas de una orden entregada.");
+        }
+        if (estadoOrden === 5) {
+            throw new Error("No se pueden eliminar prendas de una orden cancelada.");
+        }
+        if (estadoPrenda === 4) {
+            throw new Error("Una prenda ya entregada al cliente no se puede eliminar.");
+        }
+        if (totalOtrasPrendas < totalPagado) {
+            throw new Error(
+                `Sin esta prenda la orden quedaría en $${totalOtrasPrendas}, pero el cliente ya pagó $${totalPagado}. ` +
+                `Anula primero el pago que corresponda.`
+            );
+        }
+        return true;
+    },
+
+    // P1-9, RN-14, RN-35: un pago se anula con motivo, nunca se borra.
+    validateAnularPago: (pago, motivo) => {
+        if (!pago) {
+            throw new Error("El pago no existe.");
+        }
+        if (pago.anulado_en) {
+            throw new Error("Este pago ya está anulado.");
+        }
+        if (!motivo || motivo.trim() === '') {
+            throw new Error("Escribe el motivo de la anulación.");
+        }
+        return true;
+    },
+
     // RNF-07, RNF-08: la clave de acceso debe poder cambiarse y nunca quedarse
     // en la que trae la app de fábrica.
     // `passwordPorDefecto` se recibe como opción para no acoplar los validadores

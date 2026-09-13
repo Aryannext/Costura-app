@@ -63,6 +63,11 @@ Una orden es el "ticket" que le creas al cliente cuando te trae ropa.
   - **Notas:** el botón de lápiz sirve para anotar cosas como "cortar 2 dedos de largo".
 - **Pagos** — cuando el cliente venga a abonar, entra aquí y registra el valor. El saldo se actualiza solo.
 
+**Corregir errores**
+
+- **Un pago mal registrado** (repetido, o con el valor equivocado): desliza el pago hacia la izquierda y toca **Anular**. La app te pide el motivo. El pago **no desaparece**: queda tachado con la fecha y el motivo, deja de contar en el saldo y queda anotado en el historial de la orden. Así nunca pierdes el rastro de un dinero que entró y salió. Luego registra el pago correcto.
+- **Una prenda que no debía estar**: deslízala hacia la izquierda y toca **Eliminar**. Se borran también sus fotos y notas, y queda anotado en el historial. No se puede eliminar una prenda ya entregada, ni tocar las prendas de una orden entregada o cancelada.
+
 ---
 
 ## 5. Los estados (el semáforo)
@@ -83,7 +88,7 @@ Lo que la app **sí** te impide:
 - Cancelar una orden que ya entregaste.
 - Añadir prendas o pagos a una orden cancelada.
 - Registrar un abono mayor que el saldo pendiente.
-- Bajar el precio de una prenda por debajo de lo que el cliente ya pagó. Si te equivocaste de precio y ya te pagaron de más, la cuenta no puede quedar en negativo.
+- Bajar el precio de una prenda, o eliminarla, si con eso el total queda por debajo de lo que el cliente ya pagó. La cuenta no puede quedar en negativo: si de verdad cobraste de más, anula primero el pago equivocado.
 
 **Entregar cuando el cliente todavía debe.** Se puede — a veces el cliente se lleva la ropa y paga después —, pero al tocar *Entregar* la app te recuerda cuánto falta y te pide confirmar. Los abonos se siguen registrando en la orden entregada.
 

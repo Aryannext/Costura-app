@@ -68,6 +68,21 @@ export async function readPhotoAsBase64(ruta) {
     return typeof data === 'string' ? data : null;
 }
 
+/**
+ * Borra el archivo de una foto. No lanza: un archivo que ya no existe no es un
+ * error para quien elimina la prenda. Devuelve si llegó a borrarse.
+ */
+export async function deletePhotoFile(ruta) {
+    if (!ruta || ruta.startsWith('http') || ruta.startsWith('data:')) return false;
+    try {
+        await Filesystem.deleteFile(opcionesDeLectura(ruta));
+        return true;
+    } catch (e) {
+        console.warn("No se pudo borrar el archivo de la fotografía", ruta, e);
+        return false;
+    }
+}
+
 /** Tamaño en bytes, o 0 si el archivo ya no está. */
 export async function photoSizeInBytes(ruta) {
     try {
