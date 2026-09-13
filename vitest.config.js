@@ -31,11 +31,13 @@ export default defineConfig({
       ],
       reporter: ['text', 'json', 'html'],
       thresholds: {
-        // Baseline temporal (10%). Objetivo posterior: elevar progresivamente.
-        lines: 10,
-        functions: 10,
-        branches: 10,
-        statements: 10
+        // Trinquete: se fijan justo por debajo de la cobertura real para que la
+        // CI falle si alguien la hace bajar. Al añadir pruebas, súbelos.
+        // Medición actual: 24.60 / 25.83 / 18.99 / 25.79
+        statements: 24,
+        branches: 25,
+        functions: 18,
+        lines: 25
       }
     }
   }

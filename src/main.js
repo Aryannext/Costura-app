@@ -8,6 +8,11 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Capacitor } from '@capacitor/core';
 import { useUpdates } from './composables/useUpdates.js';
+import { initAppLock } from './composables/useAppLock.js';
+import { initPhotoStorage } from './services/photoStorage.js';
+import { migrarConfigTelegramDesdeLocalStorage } from './composables/useTelegramBot.js';
+import { normalizarRutasDeFotos } from './database/queries/prendas.js';
+import { useNotificacionesLocales } from './composables/useNotificacionesLocales.js';
 
 async function bootstrap() {
     try {
@@ -41,6 +46,23 @@ async function bootstrap() {
         return; // Halt bootstrap completely
     }
 
+    // Puestas al día que se ejecutan en cada arranque y no hacen nada si ya
+    // están aplicadas. Aparte del bloque anterior a propósito: si una falla, la
+    // app tiene que abrir igual. Sin base de datos no hay taller; sin normalizar
+    // una ruta de foto, sí.
+    try {
+        await initPhotoStorage();
+        await migrarConfigTelegramDesdeLocalStorage();
+        await normalizarRutasDeFotos();
+
+        // Rearmar los recordatorios en cada arranque, no sólo al abrir el panel:
+        // así las cuentas de cada día se refrescan aunque la dueña entre directa
+        // a otra pantalla. No pide permisos, sólo usa los que ya haya.
+        await useNotificacionesLocales().scheduleDailyReminders();
+    } catch (e) {
+        console.error("Fallo en las puestas al día de arranque", e);
+    }
+
     const app = createApp(App);
     app.use(router);
     app.mount('#app');
@@ -48,6 +70,9 @@ async function bootstrap() {
     // Initialize Capgo OTA Updates
     const { initUpdates } = useUpdates();
     initUpdates();
+
+    // Bloqueo de la sesión al volver del segundo plano
+    initAppLock();
 
     // Configure Native Polish (Status Bar & Splash Screen)
     if (Capacitor.isNativePlatform()) {
