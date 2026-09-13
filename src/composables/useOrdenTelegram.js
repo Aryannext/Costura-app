@@ -1,26 +1,65 @@
 import { inject } from 'vue';
 import { useTelegramBot } from './useTelegramBot.js';
 import { useNotificaciones } from './useNotificaciones.js';
+import { getOrdenById } from '../database/queries/ordenes.js';
 import { Share } from '@capacitor/share';
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const dateOnly = dateStr.split('T')[0].split(' ')[0];
+  const [year, month, day] = dateOnly.split('-');
+  return `${day}/${month}/${year}`;
+}
+
+/**
+ * Texto del recibo de una orden, con o sin formato Markdown de Telegram.
+ * Pura para poder probarla.
+ *
+ * P1-18: antes leía `fecha_recepcion`, `precio_total` y `abono_inicial`,
+ * columnas que no existen. La fecha de recepción salía en blanco.
+ */
+export function construirRecibo(orden, { markdown = true } = {}) {
+  const negrita = (texto) => (markdown ? `*${texto}*` : texto);
+  const pagado = orden.valor_total - orden.saldo_pendiente;
+
+  return [
+    `🧾 ${negrita('RECIBO DIGITAL - ATELIER')}`,
+    '',
+    `${negrita('Orden:')} #${orden.id_orden}`,
+    `${negrita('Cliente:')} ${orden.cliente_nombre}`,
+    `${negrita('Fecha de Recepción:')} ${formatDate(orden.fecha_creacion)}`,
+    `${negrita('Entrega Estimada:')} ${formatDate(orden.fecha_entrega_estimada)}`,
+    '',
+    `${negrita('Estado:')} ${orden.estado_nombre}`,
+    '',
+    `💰 ${negrita('PRESUPUESTO')}`,
+    `Total: $${orden.valor_total}`,
+    `Pagado: $${pagado}`,
+    `${negrita('Saldo:')} $${orden.saldo_pendiente}`,
+    ''
+  ].join('\n');
+}
 
 export function useOrdenTelegram(ordenActual) {
   const toast = inject('toast');
   const { sendTelegramMessage } = useTelegramBot();
   const { saveNotificacion } = useNotificaciones();
 
-  function formatDate(dateStr) {
-    if (!dateStr) return '';
-    const dateOnly = dateStr.split('T')[0].split(' ')[0];
-    const [year, month, day] = dateOnly.split('-');
-    return `${day}/${month}/${year}`;
+  // RN-34 y P1-18: lo que se envía se arma con la orden tal como está en la base
+  // en ese momento, no con la copia que tiene la pantalla. Un pago recién
+  // registrado ya cuenta aunque la vista no se haya refrescado.
+  async function ordenAlEnviar() {
+    if (!ordenActual.value) return null;
+    return (await getOrdenById(ordenActual.value.id_orden)) ?? ordenActual.value;
   }
 
   async function enviarAlertaOrdenListaBot() {
-    if (!ordenActual.value) return;
-    const cliente = ordenActual.value.cliente_nombre;
-    const telefono = ordenActual.value.cliente_telefono || '';
-    const saldo = ordenActual.value.saldo_pendiente;
-    const idOrden = ordenActual.value.id_orden;
+    const o = await ordenAlEnviar();
+    if (!o) return;
+    const cliente = o.cliente_nombre;
+    const telefono = o.cliente_telefono || '';
+    const saldo = o.saldo_pendiente;
+    const idOrden = o.id_orden;
 
     let wpText = `Hola ${cliente}, te informamos que tu orden #${idOrden} ya está lista para recoger en el Atelier.`;
     if (saldo > 0) wpText += ` Recuerda que tienes un saldo pendiente de $${saldo}.`;
@@ -38,20 +77,10 @@ export function useOrdenTelegram(ordenActual) {
   }
 
   async function generarReciboTelegram() {
-    if (!ordenActual.value) return;
-    const o = ordenActual.value;
-    let recibo = `🧾 *RECIBO DIGITAL - ATELIER*\n\n`;
-    recibo += `*Orden:* #${o.id_orden}\n`;
-    recibo += `*Cliente:* ${o.cliente_nombre}\n`;
-    recibo += `*Fecha de Recepción:* ${formatDate(o.fecha_recepcion)}\n`;
-    recibo += `*Entrega Estimada:* ${formatDate(o.fecha_entrega_estimada)}\n\n`;
-    recibo += `*Estado:* ${o.estado_nombre}\n\n`;
-    recibo += `💰 *PRESUPUESTO*\n`;
-    recibo += `Total: $${o.precio_total || o.valor_total}\n`;
-    recibo += `Abono: $${o.abono_inicial || (o.valor_total - o.saldo_pendiente)}\n`;
-    recibo += `*Saldo:* $${o.saldo_pendiente}\n`;
+    const o = await ordenAlEnviar();
+    if (!o) return;
 
-    const success = await sendTelegramMessage(recibo, 'Markdown');
+    const success = await sendTelegramMessage(construirRecibo(o), 'Markdown');
     if (success) {
       toast('Recibo generado en tu Telegram.', 'success');
     } else {
@@ -60,23 +89,13 @@ export function useOrdenTelegram(ordenActual) {
   }
 
   async function generarReciboNativo() {
-    if (!ordenActual.value) return;
-    const o = ordenActual.value;
-    let recibo = `🧾 RECIBO DIGITAL - ATELIER\n\n`;
-    recibo += `Orden: #${o.id_orden}\n`;
-    recibo += `Cliente: ${o.cliente_nombre}\n`;
-    recibo += `Fecha de Recepción: ${formatDate(o.fecha_recepcion)}\n`;
-    recibo += `Entrega Estimada: ${formatDate(o.fecha_entrega_estimada)}\n\n`;
-    recibo += `Estado: ${o.estado_nombre}\n\n`;
-    recibo += `💰 PRESUPUESTO\n`;
-    recibo += `Total: $${o.precio_total || o.valor_total}\n`;
-    recibo += `Abono: $${o.abono_inicial || (o.valor_total - o.saldo_pendiente)}\n`;
-    recibo += `Saldo: $${o.saldo_pendiente}\n`;
+    const o = await ordenAlEnviar();
+    if (!o) return;
 
     try {
       await Share.share({
         title: 'Recibo de Orden',
-        text: recibo,
+        text: construirRecibo(o, { markdown: false }),
         dialogTitle: 'Compartir recibo con el cliente',
       });
     } catch (e) {
@@ -88,8 +107,8 @@ export function useOrdenTelegram(ordenActual) {
   }
 
   async function notificarTelegram(tipo) {
-    if (!ordenActual.value) return;
-    const o = ordenActual.value;
+    const o = await ordenAlEnviar();
+    if (!o) return;
     const cliente = o.cliente_nombre;
     const telefono = o.cliente_telefono || '';
     const idOrden = o.id_orden;

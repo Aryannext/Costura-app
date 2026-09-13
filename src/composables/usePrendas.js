@@ -19,6 +19,7 @@ import {
     eliminarPrenda,
     getDescripcionesFrecuentes
 } from '../database/queries/prendas.js';
+import { getOrdenById } from '../database/queries/ordenes.js';
 
 const tiposPrenda = ref([]);
 const prendas = ref([]);
@@ -43,6 +44,12 @@ export function usePrendas() {
     const savePrenda = async (prendaData) => {
         return execute(async () => {
             validators.validatePrenda(prendaData);
+
+            // RN-12, P1-15: antes sólo la pantalla ocultaba el botón "+ Prenda".
+            const orden = await getOrdenById(prendaData.id_orden);
+            if (!orden) throw new Error("La orden no existe.");
+            validators.validateOrdenAccionPermitida(orden, 'agregar_prenda');
+
             const id = await createPrenda(prendaData);
             await fetchPrendas(prendaData.id_orden); // refresh list
             return id;

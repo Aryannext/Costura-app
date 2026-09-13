@@ -3,7 +3,7 @@
 Correspondencia entre los requisitos especificados y el código que los implementa. Cada fila se verificó contra `src/`, no contra la intención original.
 
 > **Revisión:** 13 de septiembre de 2026 · versión 1.1.2 · esquema 4
-> **Suite de pruebas:** 260 · 250 en verde y 10 fallos esperados que documentan reglas incumplidas (`it.fails`), 0 omitidas
+> **Suite de pruebas:** 268 · 264 en verde y 4 fallos esperados que documentan reglas incumplidas (`it.fails`), 0 omitidas
 
 Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · ❌ no implementado · 🚧 planificado
 
@@ -104,22 +104,19 @@ Las cuarenta reglas de [Costura.md](Costura.md) son pruebas ejecutables en [`src
 | Regla | Estado | Nota |
 | --- | --- | --- |
 | RN-01 a RN-11 | ✅ | RN-08: la entrega individual queda en el historial; el botón *Entregar* marca todas las prendas a la vez con una sola línea para la orden |
-| RN-12 · orden cancelada sin prendas nuevas | ❌ | P1-15 |
-| RN-13 · orden cancelada sin pagos nuevos | ❌ | P1-15 |
+| RN-12, RN-13 · orden cancelada sin prendas ni pagos | ✅ | `savePrenda` y `savePago` releen la orden y lo comprueban; el INSERT del pago lo vuelve a comprobar en SQL. Una orden entregada tampoco admite prendas: hay que reabrirla |
 | RN-14 a RN-26 | ✅ | RN-15: se prueba que hay una sola cuenta y ninguna forma de crear otra; la app no tiene roles |
-| RN-27 · abonos hasta el total | ⚠️ | Un abono mayor que el saldo se rechaza, pero un doble envío no. P1-16 |
-| RN-28 | ✅ | |
-| RN-29 · saldo nunca negativo | ⚠️ | Editar y eliminar prendas lo respetan; el doble envío de un abono no. P1-16 |
+| RN-27 a RN-29 | ✅ | El abono se valida contra el saldo releído y otra vez dentro del propio INSERT: ni un doble toque en *Guardar* deja el saldo negativo |
 | RN-30 | ✅ | |
 | RN-31 · aviso sólo al entrar en Lista | ⚠️ | La notificación automática es correcta; el botón *Avisar Lista* no. P1-17 |
 | RN-32, RN-33 | ✅ | |
-| RN-34 · resumen con datos actuales | ❌ | P1-18 |
+| RN-34 · resumen con datos actuales | ✅ | Recibos y avisos releen la orden al enviarse |
 | RN-35 · todo cambio en el historial | ⚠️ | Observaciones y fotografías no dejan rastro. P1-19 |
 | RN-36 | ✅ | |
 | RN-37 · sin reclamar | ❌ | P1-11 |
 | RN-38 a RN-40 | ✅ | |
 
-**Resumen:** 32 cumplidas, 4 parcialmente y 4 incumplidas.
+**Resumen:** 37 cumplidas, 2 parcialmente (RN-31, RN-35) y 1 incumplida (RN-37).
 
 ---
 
@@ -154,10 +151,7 @@ Ninguno impide publicar ni pone datos en riesgo.
 | P1-12 | HU-36 · no hay una vista de órdenes con saldo pendiente; sólo la cifra total en el panel | `views/OrdenesView.vue` |
 | P1-13 | Los distintivos de estado del panel usan un mapa desplazado en uno (4 se pinta como *Lista*, 5 como *Entregada*); el texto es correcto, el color no | `views/DashboardView.vue` |
 | P1-14 | Si cambiar el estado de una prenda falla por algo distinto de CP-18, el selector sigue mostrando el valor elegido hasta recargar | `components/prendas/PrendaCard.vue` |
-| P1-15 | RN-12 y RN-13 · `validateOrdenAccionPermitida` con `agregar_prenda` y `registrar_pago` existe, pero `savePrenda` y `savePago` no lo llaman: sólo la pantalla oculta los botones | `composables/usePrendas.js`, `composables/usePagos.js` |
-| P1-16 | RN-27 y RN-29 · `savePago` valida contra el saldo que le pasa la vista, sin releerlo. Un doble toque en *Guardar* registra dos abonos y deja el saldo negativo | `composables/usePagos.js` |
 | P1-17 | RN-31 · *Avisar Lista* es visible y envía el aviso con la orden en cualquier estado | `components/ordenes/TabDetalle.vue`, `composables/useOrdenTelegram.js` |
-| P1-18 | RN-34 · el recibo usa la orden en memoria en lugar de releerla, y lee `fecha_recepcion`, una columna que no existe: la fecha de recepción sale en blanco | `composables/useOrdenTelegram.js` |
 | P1-19 | RN-35 · añadir una observación, añadir una fotografía o borrarla no deja rastro en el historial | `queries/prendas.js` |
 
 **Cerrados en la revisión del 13 de septiembre:**
@@ -174,6 +168,9 @@ Ninguno impide publicar ni pone datos en riesgo.
 - **RN-28** · no existía el concepto de orden pagada. Ver RF-38.
 - **RN-38** · el período de anticipación era un 3 escrito en `AppHeader.vue`. Ver RF-43.
 - El resumen diario de Telegram filtraba las atrasadas por `o.fecha_entrega`, una columna que no existe: informaba siempre cero atrasadas.
+- **P1-15** · RN-12 y RN-13: la validación existía y nadie la llamaba. Ahora `savePrenda` y `savePago` releen la orden y la aplican. Además, una orden entregada ya no admite prendas nuevas, porque quedaría entregada con costuras pendientes.
+- **P1-16** · RN-27 y RN-29: `savePago` validaba contra el saldo que le pasaba la pantalla, y un doble toque en *Guardar* registraba dos abonos y dejaba el saldo negativo. Ahora relee el saldo, y `registrarPago` lo comprueba otra vez dentro del propio INSERT: si el abono no cabe o la orden está cancelada, la base rechaza la transacción entera, historial incluido. La comprobación y la escritura son una sola sentencia, así que no queda hueco para un segundo pago.
+- **P1-18** · RN-34: el recibo se armaba con la orden en memoria y leía `fecha_recepcion`, `precio_total` y `abono_inicial`, columnas que no existen; la fecha de recepción salía en blanco. Ahora recibos y avisos releen la orden al enviarse y el texto sale de una sola función, `construirRecibo`.
 
 ### Excepciones a la separación de capas
 

@@ -52,6 +52,9 @@ export async function anularPago(pago, motivo) {
     await db.executeSet(set, true);
 }
 
+export const MENSAJE_PAGO_RECHAZADO =
+    "El pago no se registró porque supera el saldo pendiente o la orden está cancelada. Revisa el saldo e inténtalo de nuevo.";
+
 export async function registrarPago(pago) {
     if (!db) throw new Error("Database not initialized");
 
@@ -62,16 +65,38 @@ export async function registrarPago(pago) {
             values: [`Abono de $${pago.valor} registrado`, pago.id_orden, 4]
         },
         {
-            // 2. Register payment (último INSERT para que lastId devuelva el id_pago)
-            statement: "INSERT INTO pago (valor, id_orden, id_metodo_pago) VALUES (?, ?, ?)",
-            values: [pago.valor, pago.id_orden, pago.id_metodo_pago]
+            // 2. Pago (último INSERT para que lastId devuelva el id_pago).
+            //
+            // P1-16 y P1-15: la comprobación va dentro de la misma sentencia que
+            // escribe. Si el abono no es positivo, no cabe en el saldo vigente o la
+            // orden está cancelada, el valor queda NULL y la restricción NOT NULL
+            // aborta la transacción entera, historial incluido. Validar antes, en
+            // el composable, no basta: un doble toque lanza dos guardados que leen
+            // el mismo saldo antes de que ninguno escriba.
+            statement: `INSERT INTO pago (valor, id_orden, id_metodo_pago) VALUES (
+                CASE WHEN ? > 0
+                      AND (SELECT id_estado_orden FROM orden_trabajo WHERE id_orden = ?) <> 5
+                      AND ? <= (SELECT COALESCE(SUM(valor), 0) FROM prenda WHERE id_orden = ?)
+                             - (SELECT COALESCE(SUM(valor), 0) FROM pago WHERE id_orden = ? AND anulado_en IS NULL)
+                THEN ? END,
+                ?, ?)`,
+            values: [
+                pago.valor, pago.id_orden, pago.valor, pago.id_orden, pago.id_orden,
+                pago.valor, pago.id_orden, pago.id_metodo_pago
+            ]
         },
         // 3. Saldo recalculado con el pago ya dentro
         recalcularTotalesOrden(pago.id_orden)
     ];
 
-    // executeSet con transaction=true asegura atomicidad y autoSave a IndexedDB.
-    const result = await db.executeSet(set, true);
-
-    return result.changes.lastId;
+    try {
+        // executeSet con transaction=true asegura atomicidad y autoSave a IndexedDB.
+        const result = await db.executeSet(set, true);
+        return result.changes.lastId;
+    } catch (error) {
+        if (/NOT NULL constraint failed: pago\.valor/.test(error?.message ?? String(error))) {
+            throw new Error(MENSAJE_PAGO_RECHAZADO);
+        }
+        throw error;
+    }
 }

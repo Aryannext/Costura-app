@@ -20,7 +20,7 @@ import { createOrden, changeEstado, getOrdenById, getEntregasPorDia } from '../q
 import {
     createPrenda, updatePrenda, updateEstadoPrenda, getContextoPrenda, eliminarPrenda, addObservacion, saveFotografia
 } from '../queries/prendas.js';
-import { registrarPago, getPagosByOrden, getPagoById, anularPago } from '../queries/pagos.js';
+import { registrarPago, getPagosByOrden, getPagoById, anularPago, MENSAJE_PAGO_RECHAZADO } from '../queries/pagos.js';
 import { getReporteFinanciero, getDashboardData } from '../queries/reportes.js';
 import { validators } from '../../services/validators.js';
 import { estadoDePago } from '../../services/estadoOrden.js';
@@ -168,6 +168,52 @@ describe('Saldo de la orden contra SQLite real', () => {
         const id_prenda = await prenda(primera, 20000);
 
         await expect(getContextoPrenda(id_prenda, segunda)).rejects.toThrow('Prenda no encontrada');
+    });
+});
+
+describe('P1-16 · el abono se comprueba en la misma sentencia que lo escribe', () => {
+    beforeEach(async () => {
+        nuevaBase();
+        await runMigrations(db, migrations);
+    });
+
+    it('un abono que ya no cabe en el saldo se rechaza sin dejar rastro, ni en el historial', async () => {
+        const id_orden = await nuevaOrden();
+        await prenda(id_orden, 20000);
+        await pagar(id_orden, 20000);
+        const antes = (await historial(id_orden)).length;
+
+        await expect(pagar(id_orden, 20000)).rejects.toThrow(MENSAJE_PAGO_RECHAZADO);
+
+        expect(await leerOrden(id_orden)).toEqual({ valor_total: 20000, saldo_pendiente: 0 });
+        expect(await getPagosByOrden(id_orden)).toHaveLength(1);
+        expect(await historial(id_orden)).toHaveLength(antes);
+    });
+
+    it('un pago anulado libera su parte del saldo', async () => {
+        const id_orden = await nuevaOrden();
+        await prenda(id_orden, 20000);
+        const erroneo = await pagar(id_orden, 20000);
+        await anular(erroneo, 'Monto equivocado');
+
+        await pagar(id_orden, 20000);
+
+        expect(await leerOrden(id_orden)).toEqual({ valor_total: 20000, saldo_pendiente: 0 });
+    });
+
+    it('P1-15: la base tampoco acepta pagos en una orden cancelada', async () => {
+        const id_orden = await nuevaOrden();
+        await prenda(id_orden, 20000);
+        await db.run('UPDATE orden_trabajo SET id_estado_orden = 5 WHERE id_orden = ?', [id_orden]);
+
+        await expect(pagar(id_orden, 5000)).rejects.toThrow(MENSAJE_PAGO_RECHAZADO);
+    });
+
+    it('un abono de cero tampoco pasa por la base', async () => {
+        const id_orden = await nuevaOrden();
+        await prenda(id_orden, 20000);
+
+        await expect(pagar(id_orden, 0)).rejects.toThrow(MENSAJE_PAGO_RECHAZADO);
     });
 });
 

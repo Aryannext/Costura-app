@@ -38,7 +38,7 @@ import { migrations } from '../database/migrations.js';
 import { runMigrations } from '../database/migrationRunner.js';
 import { createOrden, getOrdenById } from '../database/queries/ordenes.js';
 import {
-    saveFotografia, getObservacionesByPrenda, getFotografiasByPrenda
+    createPrenda, saveFotografia, getObservacionesByPrenda, getFotografiasByPrenda
 } from '../database/queries/prendas.js';
 import { registrarPago, getPagosByOrden } from '../database/queries/pagos.js';
 import { getNotificacionesByOrden, executeRecordatoriosMasivos } from '../database/queries/notificaciones.js';
@@ -299,20 +299,25 @@ describe('RN-11 · una orden entregada no se cancela', () => {
 });
 
 describe('RN-12 · una orden cancelada no recibe prendas', () => {
-    // El validador existe (validateOrdenAccionPermitida 'agregar_prenda'), pero
-    // savePrenda no lo llama: sólo la pantalla oculta el botón "+ Prenda".
-    it.fails('P1-15: añadir una prenda a una orden cancelada se rechaza', async () => {
+    it('P1-15: añadir una prenda a una orden cancelada se rechaza', async () => {
         const id = await orden();
         await prenda(id);
         await cambiarOrden(id, O.CANCELADA);
 
         await expect(prenda(id, 5000, 'Botón')).rejects.toThrow('No se pueden agregar prendas a una orden cancelada.');
+        expect((await uno('SELECT COUNT(*) AS n FROM prenda WHERE id_orden = ?', [id])).n).toBe(1);
+    });
+
+    it('tampoco a una orden entregada: primero hay que reabrirla', async () => {
+        const { id } = await ordenLista();
+        await cambiarOrden(id, O.ENTREGADA);
+
+        await expect(prenda(id, 5000, 'Botón')).rejects.toThrow('No se pueden agregar prendas a una orden entregada. Reábrela primero.');
     });
 });
 
 describe('RN-13 · una orden cancelada no recibe pagos', () => {
-    // Igual que RN-12: savePago no llama a validateOrdenAccionPermitida 'registrar_pago'.
-    it.fails('P1-15: registrar un pago en una orden cancelada se rechaza', async () => {
+    it('P1-15: registrar un pago en una orden cancelada se rechaza', async () => {
         const id = await orden();
         await prenda(id);
         await cambiarOrden(id, O.CANCELADA);
@@ -381,7 +386,10 @@ describe('RN-17 · con prendas pendientes o en proceso, la orden está En Proces
 
 describe('RN-18 · toda prenda pertenece a una orden', () => {
     it('no se registra una prenda para una orden inexistente', async () => {
-        await expect(prenda(999)).rejects.toThrow(/FOREIGN KEY constraint failed/);
+        await expect(prenda(999)).rejects.toThrow('La orden no existe.');
+        // Y aunque se salte el composable, la base tampoco la acepta.
+        await expect(createPrenda({ id_orden: 999, valor: 1000, descripcion_arreglo: 'Basta', id_tipo_prenda: 1 }))
+            .rejects.toThrow(/FOREIGN KEY constraint failed/);
         expect((await uno('SELECT COUNT(*) AS n FROM prenda')).n).toBe(0);
     });
 });
@@ -469,14 +477,24 @@ describe('RN-27 · los abonos no superan el total de la orden', () => {
         await expect(abonar(id, 25000)).rejects.toThrow('no puede superar el saldo pendiente');
     });
 
-    // savePago valida contra el saldo que le pasa la vista, sin releerlo. Un doble
-    // toque en "Guardar" antes de que la pantalla se refresque registra dos abonos.
-    it.fails('P1-16: dos envíos con el mismo saldo en pantalla no superan el total', async () => {
+    // El saldo que mostraba la pantalla ya no cuenta: savePago lo relee.
+    it('P1-16: dos envíos con el mismo saldo en pantalla no superan el total', async () => {
         const id = await orden();
         await prenda(id, 20000);
 
         await abonar(id, 20000, 20000);
         await expect(abonar(id, 20000, 20000)).rejects.toThrow('no puede superar el saldo pendiente');
+    });
+
+    it('P1-16: dos abonos simultáneos, como un doble toque, no pasan los dos', async () => {
+        const id = await orden();
+        await prenda(id, 20000);
+
+        const resultados = await Promise.allSettled([abonar(id, 20000), abonar(id, 20000)]);
+
+        expect(resultados.map(r => r.status).sort()).toEqual(['fulfilled', 'rejected']);
+        expect(await getPagosByOrden(id)).toHaveLength(1);
+        expect((await getOrdenById(id)).saldo_pendiente).toBe(0);
     });
 });
 
@@ -502,7 +520,7 @@ describe('RN-29 · el saldo nunca es negativo', () => {
         expect((await getOrdenById(id)).saldo_pendiente).toBe(0);
     });
 
-    it.fails('P1-16: un doble envío del mismo abono tampoco lo deja negativo', async () => {
+    it('P1-16: un doble envío del mismo abono tampoco lo deja negativo', async () => {
         const id = await orden();
         await prenda(id, 20000);
 
@@ -573,8 +591,7 @@ describe('RN-33 · un recordatorio automático por orden al día', () => {
 });
 
 describe('RN-34 · el resumen de Telegram usa la información actual de la orden', () => {
-    // useOrdenTelegram usa la orden que tiene la pantalla en memoria, sin releerla.
-    it.fails('P1-18: el recibo muestra el saldo que hay en la base al enviarlo', async () => {
+    it('P1-18: el recibo muestra el saldo que hay en la base al enviarlo', async () => {
         const id = await orden();
         await prenda(id, 20000);
         const ordenEnPantalla = ref(await getOrdenById(id));
@@ -585,8 +602,7 @@ describe('RN-34 · el resumen de Telegram usa la información actual de la orden
         expect(telegram.enviar.mock.calls[0][0]).toContain('*Saldo:* $15000');
     });
 
-    // Lee `fecha_recepcion`, una columna que no existe: la fecha sale en blanco.
-    it.fails('P1-18: el recibo muestra la fecha de recepción de la orden', async () => {
+    it('P1-18: el recibo muestra la fecha de recepción de la orden', async () => {
         const id = await orden();
         await prenda(id);
         const ordenEnPantalla = ref(await getOrdenById(id));

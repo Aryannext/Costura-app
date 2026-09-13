@@ -80,6 +80,12 @@ describe('validators.validateOrdenAccionPermitida', () => {
             .toThrow('No se pueden agregar prendas a una orden cancelada.');
     });
 
+    it('tampoco a una orden entregada: hay que reabrirla', () => {
+        expect(() => validators.validateOrdenAccionPermitida({ id_estado_orden: 4 }, 'agregar_prenda'))
+            .toThrow('No se pueden agregar prendas a una orden entregada. Reábrela primero.');
+        expect(validators.validateOrdenAccionPermitida({ id_estado_orden: 2 }, 'agregar_prenda')).toBe(true);
+    });
+
     it('RN-13: no se registran pagos en una orden cancelada', () => {
         expect(() => validators.validateOrdenAccionPermitida({ id_estado_orden: 5 }, 'registrar_pago'))
             .toThrow('No se pueden registrar pagos a una orden cancelada.');

@@ -46,6 +46,12 @@ export const validators = {
         if (accion === 'agregar_prenda' && orden.id_estado_orden === 5) {
             throw new Error("No se pueden agregar prendas a una orden cancelada.");
         }
+
+        // Una prenda nueva en una orden entregada la dejaría Entregada con
+        // costuras pendientes. Para corregir está la reapertura (RN-16).
+        if (accion === 'agregar_prenda' && orden.id_estado_orden === 4) {
+            throw new Error("No se pueden agregar prendas a una orden entregada. Reábrela primero.");
+        }
         
         if (accion === 'registrar_pago' && orden.id_estado_orden === 5) {
             throw new Error("No se pueden registrar pagos a una orden cancelada.");

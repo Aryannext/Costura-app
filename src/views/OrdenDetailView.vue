@@ -240,7 +240,7 @@ async function handleAddPrenda(prendaData) {
 async function handleAddPago(pagoData) {
   try {
     pagoData.id_orden = ordenActual.value.id_orden;
-    await savePago(pagoData, ordenActual.value.saldo_pendiente);
+    await savePago(pagoData);
     showPagoForm.value = false;
     toast('Pago registrado exitosamente', 'success');
     // Refresh order totals
