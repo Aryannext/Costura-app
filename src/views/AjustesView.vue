@@ -45,6 +45,18 @@
 
     <section class="grupo">
       <h3 class="grupo-t">Notificaciones</h3>
+      <!-- P1-7: el aviso de las 8:00 depende de dos permisos de Android -->
+      <div v-if="estadoAvisoDiario !== 'no-disponible'" class="card bloque control">
+        <span class="fila-t">
+          <b>Aviso de las 8:00</b>
+          <small v-if="estadoAvisoDiario === 'ok'">Activo. Llega a la hora exacta.</small>
+          <small v-else-if="estadoAvisoDiario === 'inexacto'">Puede llegar tarde: Android no le permite a la app usar la hora exacta.</small>
+          <small v-else>Apagado: la app no tiene permiso para mostrar notificaciones.</small>
+        </span>
+        <button v-if="estadoAvisoDiario === 'inexacto' || estadoAvisoDiario === 'sin-permiso'" class="btn-activar-aviso" @click="activarAvisoDiario">
+          {{ estadoAvisoDiario === 'inexacto' ? 'Activar la hora exacta' : 'Permitir notificaciones' }}
+        </button>
+      </div>
       <div class="card bloque">
         <button class="fila" @click="router.push('/telegram')">
           <span class="fila-t">
@@ -103,6 +115,7 @@ import { useConfiguracionNegocio } from '../composables/useConfiguracionNegocio.
 import { leerConfigTelegram } from '../composables/useTelegramBot.js';
 import { DIAS_ANTICIPACION_MAXIMO } from '../services/vencimientos.js';
 import { getConfig, updateConfig } from '../database/queries/configuracion.js';
+import { useNotificacionesLocales } from '../composables/useNotificacionesLocales.js';
 
 const router = useRouter();
 const toast = inject('toast');
@@ -128,6 +141,14 @@ async function cambiarDias(delta) {
   }
 }
 
+const { estadoAviso, activarAviso } = useNotificacionesLocales();
+const estadoAvisoDiario = ref('no-disponible');
+
+async function activarAvisoDiario() {
+  estadoAvisoDiario.value = await activarAviso();
+  if (estadoAvisoDiario.value === 'ok') toast('Listo: el aviso llegará a las 8:00 en punto', 'success');
+}
+
 const nombreTaller = ref('');
 const guardandoTaller = ref(false);
 const tallerGuardado = ref(false);
@@ -150,6 +171,7 @@ function triggerManualUpdate() {
 
 onMounted(async () => {
   await cargarDiasAnticipacion();
+  estadoAvisoDiario.value = await estadoAviso();
   try {
     nombreTaller.value = (await getConfig('nombre_taller')) || '';
   } catch (e) {
@@ -237,6 +259,7 @@ function handleLogout() {
 .paso:disabled { background: var(--surface-container-lowest); color: var(--outline-variant); opacity: 1; }
 .paso-valor { width: 28px; text-align: center; font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .input-taller { flex: 1; min-width: 0; }
+.btn-activar-aviso { align-self: flex-start; }
 .btn-guardar-taller { flex-shrink: 0; }
 .guardado { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--success-text); }
 </style>

@@ -145,8 +145,11 @@ Ninguno impide publicar ni pone datos en riesgo.
 | --- | --- | --- |
 | P1-3 | Recargar en una ruta profunda deja la pantalla en blanco: `base: './'` con `createWebHistory` | `vite.config.js`, `router/index.js` |
 | P1-6 | Las transiciones entre vistas nunca se activan: el `watch` observa el objeto `route` completo, así que `to` y `from` son la misma referencia | `App.vue` |
-| P1-7 | Alarmas exactas sin comprobar el permiso en Android 13+ | `useNotificacionesLocales.js` |
 | P1-8 | N+1 al cargar el detalle de una orden | `queries/prendas.js` |
+
+**Cerrados el 7 de octubre:**
+
+- **P1-7** · Android 12+ (y Android 14 en instalaciones nuevas) trae apagado el permiso de alarmas exactas; sin él el aviso de las 8:00 se programaba inexacto y podía llegar horas tarde, sin que nadie lo supiera. Ahora *Ajustes → Aviso de las 8:00* muestra si llega a tiempo y, si no, un botón abre el ajuste de Android (`changeExactNotificationSetting`) o pide el permiso de notificaciones, y rearma los avisos (`useNotificacionesLocales.estadoAviso` / `activarAviso`).
 
 **Cerrados en la revisión del 13 de septiembre:**
 

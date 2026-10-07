@@ -105,3 +105,38 @@ describe('construirRecordatorios', () => {
         expect(construirRecordatorios([{ dia: '2026-09-08', total: 4 }], AHORA)).toEqual([]);
     });
 });
+
+describe('P1-7 · permisos del aviso de las 8:00', () => {
+    it('interpreta los permisos de Android', async () => {
+        const { interpretarPermisosAviso } = await import('../useNotificacionesLocales.js');
+        expect(interpretarPermisosAviso('granted', 'granted')).toBe('ok');
+        expect(interpretarPermisosAviso('granted', 'denied')).toBe('inexacto');
+        expect(interpretarPermisosAviso('denied', 'granted')).toBe('sin-permiso');
+        expect(interpretarPermisosAviso('prompt', 'denied')).toBe('sin-permiso');
+    });
+
+    it('sin alarmas exactas abre el ajuste de Android y rearma los avisos', async () => {
+        const { LocalNotifications } = await import('@capacitor/local-notifications');
+        const { getEntregasPorDia } = await import('../../database/queries/ordenes.js');
+        const { useNotificacionesLocales } = await import('../useNotificacionesLocales.js');
+        LocalNotifications.checkPermissions.mockResolvedValue({ display: 'granted' });
+        LocalNotifications.checkExactNotificationSetting = vi.fn()
+            .mockResolvedValueOnce({ exact_alarm: 'denied' })
+            .mockResolvedValue({ exact_alarm: 'granted' });
+        LocalNotifications.changeExactNotificationSetting = vi.fn().mockResolvedValue({});
+        getEntregasPorDia.mockResolvedValue([]);
+
+        const resultado = await useNotificacionesLocales().activarAviso();
+
+        expect(LocalNotifications.changeExactNotificationSetting).toHaveBeenCalledTimes(1);
+        expect(resultado).toBe('ok');
+        expect(LocalNotifications.cancel).toHaveBeenCalled();
+    });
+
+    it('en el navegador (sin plugin nativo) responde no-disponible', async () => {
+        const { LocalNotifications } = await import('@capacitor/local-notifications');
+        const { useNotificacionesLocales } = await import('../useNotificacionesLocales.js');
+        LocalNotifications.checkPermissions.mockRejectedValue(new Error('Not implemented on web.'));
+        expect(await useNotificacionesLocales().estadoAviso()).toBe('no-disponible');
+    });
+});

@@ -2,7 +2,7 @@
 
 Planos del sistema **regenerados desde el código fuente**, no desde el diseño original. Todo lo que aparece aquí existe en `src/`; lo que no existe no está dibujado.
 
-Están escritos en Mermaid: GitHub y la mayoría de editores los dibujan solos.
+Están escritos en Mermaid, con el tema neutral (blanco y negro): GitHub y la mayoría de editores los dibujan solos.
 
 > **Versión del esquema documentada:** 6 (`schema_migrations`)
 > **Última revisión contra el código:** 7 de octubre de 2026 (rama `integracion-octubre`)
@@ -14,6 +14,7 @@ Están escritos en Mermaid: GitHub y la mayoría de editores los dibujan solos.
 Cuatro capas con dependencias en una sola dirección: una vista nunca habla con la base de datos, y una consulta nunca sabe de Vue.
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart TD
     subgraph Presentacion ["Presentación · views/ + components/"]
         Views[10 vistas enrutadas]
@@ -100,10 +101,10 @@ flowchart TD
 
 | Regla | Estado |
 | --- | --- |
-| Ninguna vista ejecuta SQL | ✅ cumplida |
-| Las vistas pasan por composables | ⚠️ dos excepciones conocidas (ver [TRAZABILIDAD.md](../04-calidad/TRAZABILIDAD.md)) |
-| Las validaciones viven en `services/validators.js` | ✅ cumplida |
-| Las escrituras multi-tabla van en transacción | ✅ cumplida |
+| Ninguna vista ejecuta SQL | cumplida |
+| Las vistas pasan por composables | dos excepciones conocidas (ver [TRAZABILIDAD.md](../04-calidad/TRAZABILIDAD.md)) |
+| Las validaciones viven en `services/validators.js` | cumplida |
+| Las escrituras multi-tabla van en transacción | cumplida |
 
 ---
 
@@ -112,6 +113,7 @@ flowchart TD
 Esquema **real**, tal y como lo crea `src/database/migrations.js`. Diecisiete tablas: ocho de negocio, seis catálogos, y tres de soporte (`usuario`, `configuracion`, `schema_migrations`).
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 erDiagram
     cliente ||--o{ orden_trabajo : "tiene"
     estado_orden ||--o{ orden_trabajo : "clasifica"
@@ -253,8 +255,9 @@ Como la modista hace muchas cosas, sus casos se dividen en cuatro diagramas por 
 ### 3.1 Modista · Acceso y seguridad
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart LR
-    M["👩 Modista"]:::actor
+    M["Modista"]
     A1(["Iniciar sesión con contraseña"])
     A2(["Iniciar sesión con huella"])
     A3(["Cambiar contraseña"])
@@ -269,15 +272,14 @@ flowchart LR
     M --- A5
     A1 ~~~ X1
     X1 -.->|«extend» primer ingreso| A1
-
-    classDef actor fill:#eef,stroke:#4338ca,stroke-width:2px,color:#1e1b4b
 ```
 
 ### 3.2 Modista · Clientes, órdenes y prendas
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart LR
-    M["👩 Modista"]:::actor
+    M["Modista"]
     C1(["Registrar cliente"])
     O1(["Crear orden"])
     O2(["Agregar prenda con foto y nota"])
@@ -296,8 +298,6 @@ flowchart LR
     O1 -.->|«include»| I1
     O3 ~~~ X2
     X2 -.->|«extend» si la orden queda Lista| O3
-
-    classDef actor fill:#eef,stroke:#4338ca,stroke-width:2px,color:#1e1b4b
 ```
 
 - **Crear orden** siempre incluye elegir al cliente o registrarlo ahí mismo. Pide la fecha en que se recibió la ropa (hoy o un día anterior) y la fecha prometida.
@@ -308,8 +308,9 @@ flowchart LR
 ### 3.3 Modista · Cobros y consultas
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart LR
-    M["👩 Modista"]:::actor
+    M["Modista"]
     P1(["Registrar abono"])
     P2(["Anular un pago con motivo"])
     P3(["Ver órdenes por cobrar"])
@@ -323,8 +324,6 @@ flowchart LR
     M --- P4
     M --- P5
     M --- P6
-
-    classDef actor fill:#eef,stroke:#4338ca,stroke-width:2px,color:#1e1b4b
 ```
 
 **Registrar abono** pide el medio de pago (Efectivo, Nequi, Daviplata, Transferencia o Bre-B) y la fecha, que puede ser anterior a hoy.
@@ -332,15 +331,16 @@ flowchart LR
 ### 3.4 Modista · Comunicación con el cliente
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart LR
-    M["👩 Modista"]:::actor
+    M["Modista"]
     W1(["Avisar por WhatsApp: ropa recibida"])
     W2(["Avisar por WhatsApp: orden lista"])
     W3(["Recordar el saldo por WhatsApp"])
     W4(["Compartir recibo"])
     W5(["Enviar recordatorios del día"])
-    CL["🧍 Cliente"]:::actor
-    TG["🤖 Bot de Telegram"]:::externo
+    CL["Cliente"]
+    TG["Bot de Telegram"]
 
     M --- W1
     M --- W2
@@ -352,9 +352,6 @@ flowchart LR
     W3 --- CL
     W4 --- CL
     W5 --- TG
-
-    classDef actor fill:#eef,stroke:#4338ca,stroke-width:2px,color:#1e1b4b
-    classDef externo fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0c4a6e
 ```
 
 - Ningún aviso sale solo. La app abre WhatsApp con el mensaje escrito y el +57 del cliente; la modista pulsa Enviar (decisión D-03).
@@ -363,15 +360,16 @@ flowchart LR
 ### 3.5 Modista · Configuración y respaldo
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart LR
-    M["👩 Modista"]:::actor
+    M["Modista"]
     K1(["Configurar nombre del taller"])
     K2(["Configurar días de aviso"])
     K3(["Conectar el bot de Telegram"])
     K4(["Respaldar datos cifrados"])
     K5(["Restaurar un respaldo"])
     K6(["Buscar actualización"])
-    TG["🤖 Bot de Telegram"]:::externo
+    TG["Bot de Telegram"]
 
     M --- K1
     M --- K2
@@ -380,9 +378,6 @@ flowchart LR
     M --- K5
     M --- K6
     K4 --- TG
-
-    classDef actor fill:#eef,stroke:#4338ca,stroke-width:2px,color:#1e1b4b
-    classDef externo fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0c4a6e
 ```
 
 **Precondición de *Respaldar datos cifrados*:** el bot de Telegram debe estar conectado (K3). No es un «include», porque no se conecta el bot cada vez que se respalda.
@@ -390,8 +385,9 @@ flowchart LR
 ### 3.6 Reloj del sistema · lo que ocurre solo
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart LR
-    R["⏰ Reloj del sistema"]:::temporal
+    R["⏰ Reloj del sistema"]
     S1(["Avisar a las 8:00 las entregas del día"])
     S2(["Bloquear la app al volver de segundo plano"])
     S3(["Marcar órdenes atrasadas"])
@@ -401,8 +397,6 @@ flowchart LR
     R --- S2
     R --- S3
     R --- S4
-
-    classDef temporal fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f
 ```
 
 **Sin reclamar:** la orden está Lista y han pasado más de 30 días desde la fecha prometida, o desde que quedó Lista si fue después (RN-37 y Ley 1480 art. 18).
@@ -427,6 +421,7 @@ flowchart LR
 Desde que el cliente entra por la puerta hasta que se lleva la ropa.
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart TD
     Inicio([Cliente llega al taller]) --> P1{¿Es cliente nuevo?}
     P1 -- Sí --> P2[Registrar cliente]
@@ -472,6 +467,7 @@ flowchart TD
 Las diez rutas reales de `src/router/index.js`.
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart TB
     Login["/login"]
     Clave["/cambiar-clave"]
@@ -519,6 +515,7 @@ Son **dos** máquinas de estados distintas, y confundirlas fue un error del diag
 ### 6.1 Estado de una prenda (`estado_prenda`)
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 stateDiagram-v2
     [*] --> Pendiente : la prenda se registra
     Pendiente --> En_Proceso : empieza la costura
@@ -532,6 +529,7 @@ Cuatro estados. Una prenda **no** se cancela: se cancela la orden completa.
 ### 6.2 Estado de una orden (`estado_orden`)
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 stateDiagram-v2
     [*] --> Pendiente : orden creada, sin prendas
     Pendiente --> En_Proceso : se añade una prenda
@@ -587,6 +585,7 @@ Una orden *Entregada* o *Cancelada* no cambia por sus prendas.
 ## 7. Sesión: acceso y bloqueo
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 sequenceDiagram
     actor M as Modista
     participant L as LoginView
@@ -630,6 +629,7 @@ Por encima de todo esto sigue corriendo el cierre de sesión por 15 minutos de i
 El flujo más intrincado del sistema, y el que más veces se había roto en silencio.
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 sequenceDiagram
     actor M as Modista
     participant V as TelegramView
@@ -638,8 +638,6 @@ sequenceDiagram
     participant F as Filesystem
     participant C as cryptoService
     participant T as Bot de Telegram
-
-    rect rgb(240, 240, 250)
     Note over M,T: RESPALDO
     M->>V: Respaldar BD + contraseña maestra
     V->>B: executeCryptoAction()
@@ -653,9 +651,6 @@ sequenceDiagram
     Note over C: PBKDF2-SHA256 600k · AES-256-GCM
     C-->>B: sobre cifrado
     B->>T: sendDocument()
-    end
-
-    rect rgb(245, 240, 240)
     Note over M,T: RESTAURACIÓN
     M->>V: Restaurar BD + archivo + contraseña
     V->>B: executeCryptoAction()
@@ -671,7 +666,6 @@ sequenceDiagram
         B->>BD: rollback a la instantánea
     end
     B->>V: recargar la aplicación
-    end
 ```
 
 **Contenido del respaldo (formato 2):** base de datos completa, configuración del bot, contraseña como hash y fotografías en base64 mientras no superen 20 MB. Los respaldos del formato 1 (sin fotografías) se siguen pudiendo restaurar.
@@ -681,6 +675,7 @@ sequenceDiagram
 ## 9. Arranque y migraciones
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart TD
     Start([main.js · bootstrap]) --> Init[initDatabase]
     Init --> Conn[Abrir conexión SQLite]
@@ -722,14 +717,15 @@ La distinción importa: **sin base de datos no hay taller**, así que un fallo a
 Dónde corre cada pieza. La app es la **misma** en el teléfono y en el navegador; lo que cambia es dónde guarda los datos.
 
 ```mermaid
+%%{init: {'theme': 'neutral'}}%%
 flowchart LR
-    GH["⚙️ GitHub Actions<br/>prueba y construye"]
-    VPS["🖥️ VPS · contenedor Docker<br/>nginx con la app compilada"]
-    NAV["💻 Navegador<br/>app web + SQLite en IndexedDB"]
-    CAPGO["☁️ Capgo<br/>actualizaciones OTA"]
-    TEL["📱 Teléfono Android<br/>APK + SQLite + fotos"]
-    WA["💬 WhatsApp<br/>del cliente"]
-    TG["🤖 Telegram<br/>de la modista"]
+    GH["GitHub Actions<br/>prueba y construye"]
+    VPS["VPS · contenedor Docker<br/>nginx con la app compilada"]
+    NAV["Navegador<br/>app web + SQLite en IndexedDB"]
+    CAPGO["Capgo<br/>actualizaciones OTA"]
+    TEL["Teléfono Android<br/>APK + SQLite + fotos"]
+    WA["WhatsApp<br/>del cliente"]
+    TG["Telegram<br/>de la modista"]
 
     GH -->|imagen| VPS
     VPS -->|archivos estáticos| NAV

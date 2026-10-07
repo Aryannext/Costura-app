@@ -53,6 +53,22 @@ export function construirRecordatorios(entregasPorDia, ahora = new Date()) {
     return notificaciones;
 }
 
+/**
+ * P1-7: estado del aviso de las 8:00 según los permisos del teléfono.
+ *
+ * - Sin permiso de notificaciones (Android 13+ lo pide) no llega nada.
+ * - Sin "alarmas exactas" (Android 12+; en Android 14 viene apagado en una
+ *   instalación nueva) el plugin programa una alarma inexacta y Android puede
+ *   entregar el aviso de las 8:00 mucho más tarde.
+ *
+ * Función pura: recibe lo que respondió el plugin y devuelve qué mostrar.
+ */
+export function interpretarPermisosAviso(display, exactAlarm) {
+    if (display !== 'granted') return 'sin-permiso';
+    if (exactAlarm === 'denied') return 'inexacto';
+    return 'ok';
+}
+
 export function useNotificacionesLocales() {
 
     const requestPermissions = async () => {
@@ -99,8 +115,46 @@ export function useNotificacionesLocales() {
         }
     };
 
+    /**
+     * 'ok' | 'sin-permiso' | 'inexacto' | 'no-disponible' (navegador web).
+     * checkExactNotificationSetting solo existe en Android; en versiones
+     * anteriores a la 12 responde 'granted', porque allí no hace falta.
+     */
+    const estadoAviso = async () => {
+        try {
+            const { display } = await LocalNotifications.checkPermissions();
+            let exact = 'granted';
+            if (display === 'granted') {
+                ({ exact_alarm: exact } = await LocalNotifications.checkExactNotificationSetting());
+            }
+            return interpretarPermisosAviso(display, exact);
+        } catch (e) {
+            return 'no-disponible';
+        }
+    };
+
+    /** Pide el permiso que falte y, si queda concedido, rearma los avisos. */
+    const activarAviso = async () => {
+        const antes = await estadoAviso();
+        try {
+            if (antes === 'sin-permiso') {
+                await LocalNotifications.requestPermissions();
+            } else if (antes === 'inexacto') {
+                // Abre la pantalla de Android "Alarmas y recordatorios" de la app
+                await LocalNotifications.changeExactNotificationSetting();
+            }
+        } catch (e) {
+            console.warn("No se pudo abrir el permiso de alarmas", e);
+        }
+        const despues = await estadoAviso();
+        if (despues === 'ok' || despues === 'inexacto') await scheduleDailyReminders();
+        return despues;
+    };
+
     return {
         requestPermissions,
-        scheduleDailyReminders
+        scheduleDailyReminders,
+        estadoAviso,
+        activarAviso
     };
 }
