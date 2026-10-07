@@ -41,7 +41,11 @@ export function useOrdenes() {
 
     const saveOrden = async (ordenData) => {
         return execute(async () => {
-            validators.validateFechaEntrega(ordenData.fecha_entrega_estimada);
+            validators.validateFechaRecepcion(ordenData.fecha_creacion);
+            validators.validateFechaEntrega(
+                ordenData.fecha_entrega_estimada,
+                ordenData.fecha_creacion ? ordenData.fecha_creacion.slice(0, 10) : undefined
+            );
             const id = await createOrden(ordenData);
             return id;
         }, {

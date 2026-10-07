@@ -41,7 +41,7 @@ import {
     createPrenda, saveFotografia, getObservacionesByPrenda, getFotografiasByPrenda
 } from '../database/queries/prendas.js';
 import { registrarPago, getPagosByOrden } from '../database/queries/pagos.js';
-import { getNotificacionesByOrden, executeRecordatoriosMasivos } from '../database/queries/notificaciones.js';
+import { getNotificacionesByOrden, getOrdenesParaRecordar } from '../database/queries/notificaciones.js';
 import { getDashboardData } from '../database/queries/reportes.js';
 import * as consultasAuth from '../database/queries/auth.js';
 import { useClientes } from '../composables/useClientes.js';
@@ -49,6 +49,7 @@ import { useOrdenes } from '../composables/useOrdenes.js';
 import { usePrendas } from '../composables/usePrendas.js';
 import { usePagos } from '../composables/usePagos.js';
 import { useOrdenTelegram } from '../composables/useOrdenTelegram.js';
+import { useNotificaciones } from '../composables/useNotificaciones.js';
 import { cargarDiasAnticipacion, guardarDiasAnticipacion } from '../composables/useConfiguracionNegocio.js';
 import { esOrdenActiva, estadoDePago } from '../services/estadoOrden.js';
 import { clasificarVencimiento, VENCIMIENTO } from '../services/vencimientos.js';
@@ -604,12 +605,26 @@ describe('RN-32 · el historial de notificaciones guarda fecha y hora', () => {
 describe('RN-33 · un recordatorio automático por orden al día', () => {
     it('el segundo envío del día no repite la orden', async () => {
         const { id } = await ordenLista();
+        const { triggerRecordatorios } = useNotificaciones();
 
-        expect(await executeRecordatoriosMasivos()).toBe(1);
-        expect(await executeRecordatoriosMasivos()).toBe(0);
+        expect(await triggerRecordatorios()).toBe(1);
+        expect(await triggerRecordatorios()).toBe(0);
 
         const recordatorios = (await getNotificacionesByOrden(id)).filter(n => n.id_tipo_notificacion === 3);
         expect(recordatorios).toHaveLength(1);
+        // El mensaje a Telegram lleva el enlace de WhatsApp con indicativo +57
+        expect(telegram.enviar.mock.calls[0][0]).toContain('https://wa.me/573001234567?text=');
+    });
+
+    it('A02: si Telegram no confirma, no se registra ningún recordatorio', async () => {
+        const { id } = await ordenLista();
+        telegram.enviar.mockResolvedValue(false);
+
+        await expect(useNotificaciones().triggerRecordatorios()).rejects.toThrow('No se registró');
+
+        const recordatorios = (await getNotificacionesByOrden(id)).filter(n => n.id_tipo_notificacion === 3);
+        expect(recordatorios).toHaveLength(0);
+        expect(await getOrdenesParaRecordar()).toHaveLength(1);
     });
 });
 
@@ -707,13 +722,30 @@ describe('RN-36 · la fecha y hora de entrega se registran solas', () => {
 describe('RN-37 · sin reclamar: más de 30 días en Lista para Entregar', () => {
     const sinReclamar = async () => (await getDashboardData()).kpis.ordenesSinReclamar;
 
-    /** Simula que la orden lleva `dias` días Lista para Entregar. */
+    /**
+     * Simula que la orden lleva `dias` días Lista para Entregar y que la fecha
+     * prometida también quedó atrás (Ley 1480 art. 18: el plazo corre desde la
+     * fecha prevista de devolución).
+     */
     async function listaDesdeHace(id_orden, dias) {
         await db.run(
-            "UPDATE orden_trabajo SET fecha_lista = datetime('now','localtime', ?) WHERE id_orden = ?",
-            [`-${dias} days`, id_orden]
+            "UPDATE orden_trabajo SET fecha_lista = datetime('now','localtime', ?), fecha_entrega_estimada = date('now','localtime', ?) WHERE id_orden = ?",
+            [`-${dias} days`, `-${dias} days`, id_orden]
         );
     }
+
+    it('Ley 1480 art. 18: terminada antes de lo prometido, el plazo corre desde la fecha prometida', async () => {
+        const { id } = await ordenLista();
+        // Lista hace 40 días, pero se le prometió para hace 10
+        await db.run(
+            "UPDATE orden_trabajo SET fecha_lista = datetime('now','localtime','-40 days'), fecha_entrega_estimada = date('now','localtime','-10 days') WHERE id_orden = ?",
+            [id]
+        );
+        expect(await sinReclamar()).toBe(0);
+
+        await db.run("UPDATE orden_trabajo SET fecha_entrega_estimada = date('now','localtime','-31 days') WHERE id_orden = ?", [id]);
+        expect(await sinReclamar()).toBe(1);
+    });
 
     it('P1-11: una orden que quedó Lista hoy no está sin reclamar aunque su fecha estimada sea antigua', async () => {
         const id = await createOrden({ id_cliente: await cliente(), fecha_entrega_estimada: enDias(-60) });
@@ -827,5 +859,33 @@ describe('Catálogo de reglas', () => {
 
         expect(reglas.length).toBeGreaterThanOrEqual(40);
         expect(reglas.filter(regla => !probadas.has(regla))).toEqual([]);
+    });
+});
+
+describe('Trabajos recibidos antes de usar la app (oct 2026)', () => {
+    it('una orden puede registrarse con la fecha en que se recibió la ropa', async () => {
+        const recibida = `${enDias(-7)} 12:00:00`;
+        const id = await useOrdenes().saveOrden({ id_cliente: await cliente(), fecha_creacion: recibida, fecha_entrega_estimada: enDias(-2) });
+        expect((await getOrdenById(id)).fecha_creacion).toBe(recibida);
+    });
+
+    it('no se acepta una fecha de recepción futura ni una entrega anterior a la recepción', async () => {
+        const id_cliente = await cliente();
+        await expect(useOrdenes().saveOrden({ id_cliente, fecha_creacion: `${enDias(1)} 12:00:00`, fecha_entrega_estimada: enDias(3) }))
+            .rejects.toThrow('posterior a hoy');
+        await expect(useOrdenes().saveOrden({ id_cliente, fecha_creacion: `${enDias(-7)} 12:00:00`, fecha_entrega_estimada: enDias(-8) }))
+            .rejects.toThrow('anterior a la fecha de creación');
+    });
+
+    it('un abono puede registrarse con fecha pasada y con Bre-B', async () => {
+        const id = await orden();
+        await prenda(id, 20000);
+        const fecha = `${enDias(-3)} 12:00:00`;
+        await usePagos().savePago({ id_orden: id, valor: 5000, id_metodo_pago: 5, fecha_pago: fecha }, 20000);
+
+        const [pago] = await getPagosByOrden(id);
+        expect(pago.fecha_pago).toBe(fecha);
+        expect(pago.metodo_nombre).toBe('Bre-B');
+        expect((await getOrdenById(id)).saldo_pendiente).toBe(15000);
     });
 });

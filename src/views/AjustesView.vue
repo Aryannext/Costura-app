@@ -4,6 +4,21 @@
 
     <section class="grupo">
       <h3 class="grupo-t">Tu taller</h3>
+      <!-- Aparece en los mensajes de WhatsApp y en el recibo -->
+      <div class="card bloque control">
+        <label class="fila-t" for="nombre-taller">
+          <b>Nombre de tu taller</b>
+          <small>Así te verán tus clientes en los avisos y en el recibo.</small>
+        </label>
+        <div class="control-fila">
+          <input id="nombre-taller" v-model="nombreTaller" type="text" maxlength="40" placeholder="Ej. Arreglos Doña Rosa" class="input-taller" />
+          <button class="btn-guardar-taller" :disabled="guardandoTaller" @click="guardarNombreTaller">Guardar</button>
+        </div>
+        <span v-if="tallerGuardado" class="guardado">
+          <svg class="ic ic16" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg>
+          Guardado
+        </span>
+      </div>
       <div class="card bloque control">
         <div class="control-fila">
           <span class="fila-t">
@@ -87,6 +102,7 @@ import { useUpdates } from '../composables/useUpdates.js';
 import { useConfiguracionNegocio } from '../composables/useConfiguracionNegocio.js';
 import { leerConfigTelegram } from '../composables/useTelegramBot.js';
 import { DIAS_ANTICIPACION_MAXIMO } from '../services/vencimientos.js';
+import { getConfig, updateConfig } from '../database/queries/configuracion.js';
 
 const router = useRouter();
 const toast = inject('toast');
@@ -112,12 +128,33 @@ async function cambiarDias(delta) {
   }
 }
 
+const nombreTaller = ref('');
+const guardandoTaller = ref(false);
+const tallerGuardado = ref(false);
+
+async function guardarNombreTaller() {
+  guardandoTaller.value = true;
+  try {
+    await updateConfig('nombre_taller', nombreTaller.value.trim());
+    tallerGuardado.value = true;
+  } catch (err) {
+    toast('No se pudo guardar el nombre del taller', 'error');
+  } finally {
+    guardandoTaller.value = false;
+  }
+}
+
 function triggerManualUpdate() {
   manualCheck(toast);
 }
 
 onMounted(async () => {
   await cargarDiasAnticipacion();
+  try {
+    nombreTaller.value = (await getConfig('nombre_taller')) || '';
+  } catch (e) {
+    nombreTaller.value = '';
+  }
 
   try {
     const { botToken, chatId } = await leerConfigTelegram();
@@ -199,5 +236,7 @@ function handleLogout() {
 .paso:hover:not(:disabled) { background: var(--surface-container-low); box-shadow: none; transform: none; }
 .paso:disabled { background: var(--surface-container-lowest); color: var(--outline-variant); opacity: 1; }
 .paso-valor { width: 28px; text-align: center; font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.input-taller { flex: 1; min-width: 0; }
+.btn-guardar-taller { flex-shrink: 0; }
 .guardado { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--success-text); }
 </style>

@@ -29,7 +29,8 @@ describe('Pagos Queries Transactions', () => {
         expect(calledSet[1].statement).toContain("INSERT INTO pago");
         // P1-16: la comprobación del saldo va dentro del mismo INSERT
         expect(calledSet[1].statement).toContain("CASE WHEN");
-        expect(calledSet[1].values).toEqual([100, 1, 100, 1, 1, 100, 1, 1]);
+        // El último valor es fecha_pago: null = la base pone la fecha y hora actuales
+        expect(calledSet[1].values).toEqual([100, 1, 100, 1, 1, 100, 1, 1, null]);
         expect(calledSet[2].statement).toContain("UPDATE orden_trabajo");
         expect(calledSet[2].statement).not.toContain("saldo_pendiente - ?");
         expect(calledSet[2].values).toEqual([1]);

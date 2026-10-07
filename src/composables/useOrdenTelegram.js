@@ -4,6 +4,10 @@ import { useNotificaciones } from './useNotificaciones.js';
 import { getOrdenById } from '../database/queries/ordenes.js';
 import { validators } from '../services/validators.js';
 import { formatearMoneda } from '../services/formato.js';
+import { enlaceWhatsApp, abrirWhatsApp, mensajes } from '../services/whatsapp.js';
+import { getPrendasByOrden } from '../database/queries/prendas.js';
+import { getPagosByOrden } from '../database/queries/pagos.js';
+import { getConfig } from '../database/queries/configuracion.js';
 import { Share } from '@capacitor/share';
 
 function formatDate(dateStr) {
@@ -20,12 +24,24 @@ function formatDate(dateStr) {
  * P1-18: antes leía `fecha_recepcion`, `precio_total` y `abono_inicial`,
  * columnas que no existen. La fecha de recepción salía en blanco.
  */
-export function construirRecibo(orden, { markdown = true } = {}) {
+export function construirRecibo(orden, { markdown = true, prendas = [], pagos = [], taller = '' } = {}) {
   const negrita = (texto) => (markdown ? `*${texto}*` : texto);
   const pagado = orden.valor_total - orden.saldo_pendiente;
 
+  // RF-42 y Ley 1480 art. 18: el recibo identifica cada prenda con su arreglo
+  // y valor, y los abonos recibidos. Los pagos anulados no se listan.
+  const detallePrendas = prendas.length
+    ? ['', `🧵 ${negrita('PRENDAS')}`, ...prendas.map((p, i) =>
+        `${i + 1}. ${p.tipo_nombre} – ${p.descripcion_arreglo}: ${formatearMoneda(p.valor)}`)]
+    : [];
+  const vigentes = pagos.filter(p => !p.anulado_en);
+  const detalleAbonos = vigentes.length
+    ? ['', `💵 ${negrita('ABONOS')}`, ...vigentes.map(p =>
+        `${formatDate(p.fecha_pago)} ${p.metodo_nombre}: ${formatearMoneda(p.valor)}`)]
+    : [];
+
   return [
-    `🧾 ${negrita('RECIBO DIGITAL - ATELIER')}`,
+    `🧾 ${negrita(`RECIBO DIGITAL - ${taller ? taller.toUpperCase() : 'ATELIER'}`)}`,
     '',
     `${negrita('Orden:')} #${orden.id_orden}`,
     `${negrita('Cliente:')} ${orden.cliente_nombre}`,
@@ -33,6 +49,8 @@ export function construirRecibo(orden, { markdown = true } = {}) {
     `${negrita('Entrega Estimada:')} ${formatDate(orden.fecha_entrega_estimada)}`,
     '',
     `${negrita('Estado:')} ${orden.estado_nombre}`,
+    ...detallePrendas,
+    ...detalleAbonos,
     '',
     `💰 ${negrita('PRESUPUESTO')}`,
     `Total: ${formatearMoneda(orden.valor_total)}`,
@@ -53,6 +71,42 @@ export function useOrdenTelegram(ordenActual) {
   async function ordenAlEnviar() {
     if (!ordenActual.value) return null;
     return (await getOrdenById(ordenActual.value.id_orden)) ?? ordenActual.value;
+  }
+
+  async function nombreTaller() {
+    return (await getConfig('nombre_taller')) || '';
+  }
+
+  async function reciboCompleto(o, opciones) {
+    const [prendas, pagos, taller] = await Promise.all([
+      getPrendasByOrden(o.id_orden), getPagosByOrden(o.id_orden), nombreTaller()
+    ]);
+    return construirRecibo(o, { ...opciones, prendas, pagos, taller });
+  }
+
+  // Aviso directo al cliente: abre WhatsApp con el mensaje escrito (D-03).
+  // tipo: 'RECIBIDA' | 'EN_PROCESO' | 'LISTA_ENTREGA' | 'RECORDATORIO_PAGO'
+  // Se registra como "preparado": la app no puede saber si se pulsó Enviar.
+  async function avisarWhatsApp(tipo) {
+    const o = await ordenAlEnviar();
+    if (!o) return false;
+    if (tipo === 'LISTA_ENTREGA' && !puedeAvisarOrdenLista(o)) return false;
+    try {
+      const taller = (await nombreTaller()) || 'el taller';
+      let texto;
+      let idTipo;
+      if (tipo === 'RECIBIDA') { texto = mensajes.recibida(o, await getPrendasByOrden(o.id_orden), taller); idTipo = 4; }
+      else if (tipo === 'EN_PROCESO') { texto = mensajes.enProceso(o, taller); idTipo = 5; }
+      else if (tipo === 'LISTA_ENTREGA') { texto = mensajes.lista(o, taller); idTipo = 2; }
+      else { texto = mensajes.recordatorioPago(o, taller); idTipo = 6; }
+
+      abrirWhatsApp(o.cliente_telefono, texto);
+      await saveNotificacion(`Aviso por WhatsApp preparado: ${texto.split('\n')[0]}`, o.id_orden, idTipo);
+      return true;
+    } catch (e) {
+      toast(e.message || 'No se pudo abrir WhatsApp', 'error');
+      return false;
+    }
   }
 
   // RN-31 y P1-17: el aviso de orden lista sólo sale con la orden Lista para
@@ -77,7 +131,7 @@ export function useOrdenTelegram(ordenActual) {
 
     let wpText = `Hola ${cliente}, te informamos que tu orden #${idOrden} ya está lista para recoger en el Atelier.`;
     if (saldo > 0) wpText += ` Recuerda que tienes un saldo pendiente de ${formatearMoneda(saldo)}.`;
-    const wpLink = `https://wa.me/${telefono.replace(/\+/g, '')}?text=${encodeURIComponent(wpText)}`;
+    const wpLink = enlaceWhatsApp(telefono, wpText);
 
     const mensajeBot = `✅ *Orden Lista*\n\nLa orden #${idOrden} de *${cliente}* ya está terminada.\nSaldo pendiente: *${formatearMoneda(saldo)}*\n\n[📲 Toca aquí para avisarle por WhatsApp](${wpLink})`;
 
@@ -94,7 +148,7 @@ export function useOrdenTelegram(ordenActual) {
     const o = await ordenAlEnviar();
     if (!o) return;
 
-    const success = await sendTelegramMessage(construirRecibo(o), 'Markdown');
+    const success = await sendTelegramMessage(await reciboCompleto(o), 'Markdown');
     if (success) {
       toast('Recibo generado en tu Telegram.', 'success');
     } else {
@@ -109,7 +163,7 @@ export function useOrdenTelegram(ordenActual) {
     try {
       await Share.share({
         title: 'Recibo de Orden',
-        text: construirRecibo(o, { markdown: false }),
+        text: await reciboCompleto(o, { markdown: false }),
         dialogTitle: 'Compartir recibo con el cliente',
       });
     } catch (e) {
@@ -135,11 +189,11 @@ export function useOrdenTelegram(ordenActual) {
       if (!puedeAvisarOrdenLista(o)) return;
       wpText = `Hola ${cliente}, te informamos que tu orden #${idOrden} ya está lista para recoger en el Atelier.`;
       if (saldo > 0) wpText += ` Recuerda que tienes un saldo pendiente de ${formatearMoneda(saldo)}.`;
-      const wpLink = `https://wa.me/${telefono.replace(/\+/g, '')}?text=${encodeURIComponent(wpText)}`;
+      const wpLink = enlaceWhatsApp(telefono, wpText);
       mensajeBot = `✅ *Aviso de Orden Lista*\n\nToca aquí para avisar a *${cliente}* que su orden #${idOrden} está terminada:\n\n[📲 Enviar WhatsApp](${wpLink})`;
     } else if (tipo === 'RECORDATORIO_PAGO') {
       wpText = `Hola ${cliente}, te escribimos del Atelier para recordarte que tienes un saldo pendiente de ${formatearMoneda(saldo)} en tu orden #${idOrden}.`;
-      const wpLink = `https://wa.me/${telefono.replace(/\+/g, '')}?text=${encodeURIComponent(wpText)}`;
+      const wpLink = enlaceWhatsApp(telefono, wpText);
       mensajeBot = `💸 *Recordatorio de Pago*\n\nToca aquí para cobrarle a *${cliente}* el saldo de *${formatearMoneda(saldo)}*:\n\n[📲 Enviar WhatsApp de Cobro](${wpLink})`;
     }
 
@@ -152,6 +206,7 @@ export function useOrdenTelegram(ordenActual) {
   }
 
   return {
+    avisarWhatsApp,
     enviarAlertaOrdenListaBot,
     generarReciboTelegram,
     generarReciboNativo,

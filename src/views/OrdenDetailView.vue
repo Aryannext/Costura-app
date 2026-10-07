@@ -56,7 +56,7 @@
         :historial="historial"
         :notificaciones="notificaciones"
         @cambiar-estado="cambiarEstado"
-        @notificar-telegram="notificarTelegram"
+        @avisar-whatsapp="avisarCliente"
         @generar-recibo="generarReciboTelegram"
         @generar-recibo-nativo="generarReciboNativo"
       />
@@ -178,7 +178,7 @@ const {
 } = usePagos();
 
 // Telegram Bot Logic
-const { enviarAlertaOrdenListaBot, generarReciboTelegram, generarReciboNativo, notificarTelegram } = useOrdenTelegram(ordenActual);
+const { avisarWhatsApp, generarReciboTelegram, generarReciboNativo } = useOrdenTelegram(ordenActual);
 
 // Notificaciones logic
 const { notificaciones, fetchNotificaciones, saveNotificacion } = useNotificaciones();
@@ -307,13 +307,20 @@ async function handleEstadoPrenda(id_prenda, id_estado) {
     
     // El sistema ya pasó la orden a Lista para Entregar (RN-06); sólo queda ofrecer el aviso.
     if (result?.ordenPasoALista) {
-      requestConfirm("Todas las prendas están terminadas y la orden pasó a 'Lista para Entregar'. ¿Deseas usar el Bot de Telegram para enviarte el aviso (con enlace a WhatsApp)?", () => {
-        enviarAlertaOrdenListaBot();
-      }, { textoConfirmar: 'Sí, notificar' });
+      requestConfirm("Todas las prendas están terminadas y la orden pasó a 'Lista para Entregar'. ¿Quieres avisarle al cliente por WhatsApp?", () => {
+        avisarCliente('LISTA_ENTREGA');
+      }, { textoConfirmar: 'Sí, avisar por WhatsApp' });
     }
   } catch (err) {
     // Errores ya son manejados por el useAsyncAction del composable
     console.error(err);
+  }
+}
+
+// Abre WhatsApp con el mensaje escrito y refresca el historial de avisos (D-03)
+async function avisarCliente(tipo) {
+  if (await avisarWhatsApp(tipo)) {
+    await fetchNotificaciones(ordenActual.value.id_orden);
   }
 }
 

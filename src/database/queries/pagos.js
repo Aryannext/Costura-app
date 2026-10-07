@@ -74,16 +74,17 @@ export async function registrarPago(pago) {
             // aborta la transacción entera, historial incluido. Validar antes, en
             // el composable, no basta: un doble toque lanza dos guardados que leen
             // el mismo saldo antes de que ninguno escriba.
-            statement: `INSERT INTO pago (valor, id_orden, id_metodo_pago) VALUES (
+            // fecha_pago opcional: abonos recibidos antes de empezar a usar la app.
+            statement: `INSERT INTO pago (valor, id_orden, id_metodo_pago, fecha_pago) VALUES (
                 CASE WHEN ? > 0
                       AND (SELECT id_estado_orden FROM orden_trabajo WHERE id_orden = ?) <> 5
                       AND ? <= (SELECT COALESCE(SUM(valor), 0) FROM prenda WHERE id_orden = ?)
                              - (SELECT COALESCE(SUM(valor), 0) FROM pago WHERE id_orden = ? AND anulado_en IS NULL)
                 THEN ? END,
-                ?, ?)`,
+                ?, ?, COALESCE(?, datetime('now','localtime')))`,
             values: [
                 pago.valor, pago.id_orden, pago.valor, pago.id_orden, pago.id_orden,
-                pago.valor, pago.id_orden, pago.id_metodo_pago
+                pago.valor, pago.id_orden, pago.id_metodo_pago, pago.fecha_pago ?? null
             ]
         },
         // 3. Saldo recalculado con el pago ya dentro

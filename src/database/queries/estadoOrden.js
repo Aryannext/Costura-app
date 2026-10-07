@@ -54,9 +54,10 @@ function sentenciasHacia(id_orden, hacia) {
                     values: ["Estado cambiado automáticamente a Lista para Entregar porque todas las prendas están terminadas", id_orden, 3]
                 },
                 {
-                    // RN-31: notificación "Orden Lista" sólo al entrar en este estado
+                    // RN-31: registro "Orden Lista" sólo al entrar en este estado.
+                    // Es un registro, no un envío: el aviso real lo dispara la modista (A02).
                     statement: "INSERT INTO notificacion (mensaje, id_orden, id_tipo_notificacion) VALUES (?, ?, ?)",
-                    values: ["Su orden está lista para ser reclamada.", id_orden, 2]
+                    values: ["Orden lista: falta avisarle al cliente.", id_orden, 2]
                 }
             ];
         case ESTADO_ORDEN.EN_PROCESO:

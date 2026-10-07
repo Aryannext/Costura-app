@@ -48,13 +48,17 @@ export async function getDashboardData() {
     // Órdenes sin reclamar (RN-37): más de N días desde que quedaron Lista para
     // Entregar. Antes se contaba desde la fecha estimada de entrega, y una orden
     // atrasada que se terminaba hoy ya salía "sin reclamar" (P1-11).
+    // Ley 1480 de 2011, art. 18, y Decreto 1413 de 2018: el plazo para requerir
+    // al cliente corre desde la fecha prevista de devolución. Si la orden quedó
+    // Lista antes de lo prometido, se cuenta desde la fecha prometida: al
+    // cliente no se le puede correr el tiempo antes de lo acordado.
     const resDias = await db.query("SELECT valor FROM configuracion WHERE clave = 'dias_sin_reclamar'");
     const diasSinReclamar = interpretarDiasSinReclamar(resDias.values?.[0]?.valor);
     const resSinReclamar = await db.query(
         `SELECT count(*) as total FROM orden_trabajo
          WHERE id_estado_orden = 3
            AND fecha_lista IS NOT NULL
-           AND date(fecha_lista) < date(?, ?)`,
+           AND MAX(date(fecha_lista), date(fecha_entrega_estimada)) < date(?, ?)`,
         [today, `-${diasSinReclamar} days`]
     );
     kpis.ordenesSinReclamar = resSinReclamar.values[0]?.total || 0;

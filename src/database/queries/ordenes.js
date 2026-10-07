@@ -31,9 +31,11 @@ export async function createOrden(orden) {
     await db.beginTransaction();
     let isCommitted = false;
     try {
+        // fecha_creacion es opcional: permite pasar a la app ropa recibida antes
+        // de empezar a usarla. Sin ella, SQLite pone la fecha y hora actuales.
         const resOrden = await db.run(
-            "INSERT INTO orden_trabajo (fecha_entrega_estimada, valor_total, saldo_pendiente, id_cliente, id_estado_orden) VALUES (?, 0, 0, ?, 1)",
-            [orden.fecha_entrega_estimada, orden.id_cliente],
+            "INSERT INTO orden_trabajo (fecha_creacion, fecha_entrega_estimada, valor_total, saldo_pendiente, id_cliente, id_estado_orden) VALUES (COALESCE(?, datetime('now','localtime')), ?, 0, 0, ?, 1)",
+            [orden.fecha_creacion ?? null, orden.fecha_entrega_estimada, orden.id_cliente],
             false
         );
 

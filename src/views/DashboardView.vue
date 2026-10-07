@@ -157,11 +157,15 @@ function plural(n, singular, varios) {
 }
 
 async function enviarRecordatorios() {
-  const count = await triggerRecordatorios();
-  if (count > 0) {
-    toast(`Se enviaron ${count} recordatorios.`, 'success');
-  } else {
-    toast('Ya se les recordó hoy a estos clientes.', 'info');
+  try {
+    const count = await triggerRecordatorios();
+    if (count > 0) {
+      toast(`Te llegó a Telegram la lista de ${count} cliente(s) para recordar por WhatsApp.`, 'success');
+    } else {
+      toast('Ya se les recordó hoy a estos clientes.', 'info');
+    }
+  } catch (err) {
+    // El composable ya mostró el error
   }
 }
 

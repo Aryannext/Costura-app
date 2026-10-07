@@ -586,7 +586,7 @@ describe('Migraciones contra SQLite real', () => {
 
         const aplicadas = await runMigrations(db, migrations);
 
-        expect(aplicadas).toEqual([2, 3, 4, 5]);
+        expect(aplicadas).toEqual([2, 3, 4, 5, 6]);
         expect(await leerOrden(id_orden)).toEqual({ valor_total: 100, saldo_pendiente: 60 });
         expect(await leerOrden(vacia.lastId)).toEqual({ valor_total: 0, saldo_pendiente: 0 });
     });
@@ -630,7 +630,7 @@ describe('Migraciones contra SQLite real', () => {
         const abiertaTodoEntregado = await ordenCon(2, [4]);
 
         const aplicadas = await runMigrations(db, migrations);
-        expect(aplicadas).toEqual([4, 5]);
+        expect(aplicadas).toEqual([4, 5, 6]);
 
         const estadoDe = async (id) =>
             (await db.query('SELECT id_estado_orden FROM orden_trabajo WHERE id_orden = ?', [id])).values[0].id_estado_orden;
@@ -677,7 +677,7 @@ describe('Migraciones contra SQLite real', () => {
         const sinHistorial = await ordenEn(3, '2026-02-01');
         const enProceso = await ordenEn(2, '2026-03-01');
 
-        expect(await runMigrations(db, migrations)).toEqual([5]);
+        expect(await runMigrations(db, migrations)).toEqual([5, 6]);
 
         const fechaLista = async (id) =>
             (await db.query('SELECT fecha_lista FROM orden_trabajo WHERE id_orden = ?', [id])).values[0].fecha_lista;

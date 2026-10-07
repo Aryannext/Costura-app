@@ -38,31 +38,22 @@ export async function getNotificacionesByCliente(id_cliente) {
     return result.values || [];
 }
 
-export async function executeRecordatoriosMasivos() {
+// Órdenes Listas a las que aún no se les registró recordatorio hoy (RN-33).
+// No inserta nada: antes se registraban recordatorios "enviados" que nunca
+// salían (A02). El registro lo hace useNotificaciones tras un envío confirmado.
+export async function getOrdenesParaRecordar() {
     if (!db) throw new Error("Database not initialized");
-    
-    // Buscar órdenes en estado 3 (Lista para entregar)
-    const ordersRes = await db.query(`
-        SELECT id_orden 
-        FROM orden_trabajo 
-        WHERE id_estado_orden = 3
+    const result = await db.query(`
+        SELECT o.id_orden, o.saldo_pendiente, c.nombre AS cliente_nombre, c.telefono AS cliente_telefono
+        FROM orden_trabajo o
+        JOIN cliente c ON c.id_cliente = o.id_cliente
+        WHERE o.id_estado_orden = 3
+          AND NOT EXISTS (
+              SELECT 1 FROM notificacion n
+              WHERE n.id_orden = o.id_orden AND n.id_tipo_notificacion = 3
+                AND date(n.fecha_envio) = date('now','localtime')
+          )
+        ORDER BY o.fecha_lista ASC
     `);
-    
-    let count = 0;
-    if (ordersRes.values && ordersRes.values.length > 0) {
-        for (let o of ordersRes.values) {
-            // Verificar si ya se envió un recordatorio (tipo 3) HOY para esta orden
-            const notifRes = await db.query(`
-                SELECT count(*) as count 
-                FROM notificacion 
-                WHERE id_orden = ? AND id_tipo_notificacion = 3 AND date(fecha_envio) = date('now','localtime')
-            `, [o.id_orden]);
-            
-            if (notifRes.values[0].count === 0) {
-                await createNotificacion("Recordatorio: Su orden está lista para ser reclamada. Por favor, acérquese a recogerla.", o.id_orden, 3);
-                count++;
-            }
-        }
-    }
-    return count;
+    return result.values || [];
 }

@@ -34,6 +34,15 @@ export const validators = {
         return true;
     },
 
+    // La ropa pudo recibirse antes de usar la app, pero nunca en el futuro.
+    validateFechaRecepcion: (fechaRecepcion) => {
+        if (!fechaRecepcion) return true;
+        if (aFechaLocal(String(fechaRecepcion).slice(0, 10)) > aFechaLocal(new Date())) {
+            throw new Error("La fecha de recepción no puede ser posterior a hoy.");
+        }
+        return true;
+    },
+
     // RN-11: orden entregada NO se puede cancelar
     // RN-12, RN-13: orden cancelada no recibe prendas ni pagos
     validateOrdenAccionPermitida: (orden, accion) => {

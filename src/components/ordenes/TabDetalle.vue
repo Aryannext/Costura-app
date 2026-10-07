@@ -31,15 +31,21 @@
 
     <!-- Avisos y recibos: una lista con nombre, en vez de cuatro botones de estilos distintos -->
     <section class="card lista">
-      <template v-if="puedeAvisarLista || debeAlgo">
-        <h3 class="grupo">Avisar al cliente</h3>
-        <!-- RN-31: el aviso de orden lista sólo con la orden Lista para Entregar -->
-        <button v-if="puedeAvisarLista" class="fila" @click="$emit('notificar-telegram', 'LISTA_ENTREGA')">
-          <span class="fila-ic"><svg class="ic" viewBox="0 0 24 24"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4z"></path></svg></span>
-          <span class="fila-t"><b>Avisar que está lista</b><small>Te llega a Telegram con el WhatsApp listo</small></span>
+      <!-- D-03: los avisos abren WhatsApp con el mensaje escrito; la modista pulsa Enviar -->
+      <template v-if="puedeAvisarRecibida || puedeAvisarLista || debeAlgo">
+        <h3 class="grupo">Avisar al cliente por WhatsApp</h3>
+        <button v-if="puedeAvisarRecibida" class="fila" @click="$emit('avisar-whatsapp', 'RECIBIDA')">
+          <span class="fila-ic"><svg class="ic" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 01-12.6 7.3L3 20l1.3-5A8.4 8.4 0 1121 11.5z"></path></svg></span>
+          <span class="fila-t"><b>Confirmar que recibiste la ropa</b><small>Le llegan las prendas y la fecha de entrega</small></span>
           <svg class="ic chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg>
         </button>
-        <button v-if="debeAlgo" class="fila" @click="$emit('notificar-telegram', 'RECORDATORIO_PAGO')">
+        <!-- RN-31: el aviso de orden lista sólo con la orden Lista para Entregar -->
+        <button v-if="puedeAvisarLista" class="fila" @click="$emit('avisar-whatsapp', 'LISTA_ENTREGA')">
+          <span class="fila-ic"><svg class="ic" viewBox="0 0 24 24"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4z"></path></svg></span>
+          <span class="fila-t"><b>Avisar que está lista</b><small>Se abre WhatsApp con el mensaje escrito</small></span>
+          <svg class="ic chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg>
+        </button>
+        <button v-if="debeAlgo" class="fila" @click="$emit('avisar-whatsapp', 'RECORDATORIO_PAGO')">
           <span class="fila-ic"><svg class="ic" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle></svg></span>
           <span class="fila-t"><b>Recordar el pago</b><small>Debe {{ formatearMoneda(orden.saldo_pendiente) }}</small></span>
           <svg class="ic chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg>
@@ -74,10 +80,10 @@
       <ul class="timeline" v-if="notificaciones && notificaciones.length > 0">
         <li v-for="notif in notificaciones" :key="'notif-'+notif.id_notificacion">
           <span class="time">{{ formatTime(notif.fecha_envio) }}</span>
-          <span class="desc"><strong>Telegram ({{ notif.tipo_nombre }}):</strong> {{ notif.mensaje }}</span>
+          <span class="desc"><strong>{{ notif.tipo_nombre }}:</strong> {{ notif.mensaje }}</span>
         </li>
       </ul>
-      <p v-else class="empty-mini">No se han enviado notificaciones.</p>
+      <p v-else class="empty-mini">Todavía no hay avisos para esta orden.</p>
     </div>
 
     <!-- Cancelar queda al final, lejos de la acción principal -->
@@ -102,8 +108,9 @@ const props = defineProps({
   notificaciones: { type: Array, default: () => [] }
 });
 
-defineEmits(['cambiar-estado', 'notificar-telegram', 'generar-recibo', 'generar-recibo-nativo']);
+defineEmits(['cambiar-estado', 'avisar-whatsapp', 'generar-recibo', 'generar-recibo-nativo']);
 
+const puedeAvisarRecibida = computed(() => props.orden.id_estado_orden === 1 || props.orden.id_estado_orden === 2);
 const puedeAvisarLista = computed(() => props.orden.id_estado_orden === 3);
 const debeAlgo = computed(() => props.orden.saldo_pendiente > 0 && props.orden.id_estado_orden !== 5);
 

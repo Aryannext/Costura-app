@@ -1,6 +1,7 @@
 import { db, saveDb } from '../connection.js';
 
-export async function getAllClientes(limit = 50, offset = 0) {
+// LIMIT -1 en SQLite = sin límite. Con 50 la agenda ocultaba al cliente 51 (A12).
+export async function getAllClientes(limit = -1, offset = 0) {
     if (!db) throw new Error("Database not initialized");
     const result = await db.query(
         "SELECT * FROM cliente ORDER BY nombre ASC LIMIT ? OFFSET ?",

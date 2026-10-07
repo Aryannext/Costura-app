@@ -204,5 +204,16 @@ export const migrations = [
          fecha_entrega_estimada)
        WHERE id_estado_orden = 3;`
     ]
+  },
+  {
+    // Oct 2026: Bre-B (transferencias inmediatas del Banco de la República, sin
+    // costo entre personas), nombre del taller para los mensajes y el recibo, y
+    // tipos de aviso por WhatsApp. Solo inserta filas: no cambia datos existentes.
+    toVersion: 6,
+    statements: [
+      `INSERT OR IGNORE INTO metodo_pago(id_metodo_pago, nombre) VALUES (5, 'Bre-B');`,
+      `INSERT OR IGNORE INTO configuracion(clave, valor) VALUES ('nombre_taller', '');`,
+      `INSERT OR IGNORE INTO tipo_notificacion(id_tipo_notificacion, nombre) VALUES (4, 'Orden Recibida'), (5, 'En Proceso'), (6, 'Cobro');`
+    ]
   }
 ];
