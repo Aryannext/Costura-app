@@ -1,9 +1,5 @@
 <template>
   <div class="orden-detail-view">
-    <div class="header-actions">
-      <button class="back-btn" @click="router.back()">← Volver</button>
-    </div>
-
     <div v-if="loading && !ordenActual" class="loading-state">
       <SkeletonLoader :count="6" height="60px" />
     </div>
@@ -14,22 +10,37 @@
 
     <div v-else class="orden-content">
       <!-- Resumen Fijo -->
+      <!-- Cabecera: quién es, cuándo, cuánto debe y en qué va, en una sola tarjeta -->
       <div class="card orden-header">
         <div class="title-row">
+          <button class="back-btn" @click="router.back()" aria-label="Volver">
+            <svg class="ic" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"></path></svg>
+          </button>
           <h2>Orden #{{ ordenActual.id_orden }}</h2>
           <StatusBadge :estado="ordenActual.estado_nombre" />
         </div>
-        <p class="resumen-texto"><strong>Cliente:</strong> {{ ordenActual.cliente_nombre }}</p>
-        <p class="resumen-texto">
-          <strong>Saldo:</strong> 
-          <span :class="{'deuda': ordenActual.saldo_pendiente > 0}">
-            ${{ ordenActual.saldo_pendiente }}
-          </span> / ${{ ordenActual.valor_total }}
-        </p>
+        <div class="cliente">
+          <span class="cliente-nombre">{{ ordenActual.cliente_nombre }}</span>
+          <span class="cliente-fechas">
+            Recibida el {{ fechaCorta(ordenActual.fecha_creacion) }} ·
+            <span :class="{ 'entrega-atrasada': atrasada }">{{ atrasada ? 'Debía entregarse' : 'Entrega' }} el {{ fechaCorta(ordenActual.fecha_entrega_estimada) }}</span>
+          </span>
+        </div>
+        <TimelineProgressBar v-if="ordenActual.id_estado_orden !== 5" :estadoOrden="ordenActual.id_estado_orden" />
+        <div class="saldo-row">
+          <p class="saldo">
+            <span class="saldo-label">Saldo </span>
+            <span class="saldo-valor" :class="{'deuda': ordenActual.saldo_pendiente > 0}">{{ formatearMoneda(ordenActual.saldo_pendiente) }}</span>
+            <span class="saldo-total"> de {{ formatearMoneda(ordenActual.valor_total) }}</span>
+          </p>
+          <!-- RN-28 y HU-37: estado de pago derivado del saldo -->
+          <span
+            v-if="estadoPago"
+            class="pago-chip"
+            :class="estadoPago === ESTADO_PAGO.PAGADA ? 'pago-chip--pagada' : 'pago-chip--pendiente'"
+          >{{ estadoPago === ESTADO_PAGO.PAGADA ? 'Pagada' : 'Por cobrar' }}</span>
+        </div>
       </div>
-
-      <!-- Visual Timeline Progress Bar -->
-      <TimelineProgressBar v-if="ordenActual && ordenActual.id_estado_orden !== 5" :estadoOrden="ordenActual.id_estado_orden" />
 
       <!-- Pestañas -->
       <div class="tabs">
@@ -45,7 +56,7 @@
         :historial="historial"
         :notificaciones="notificaciones"
         @cambiar-estado="cambiarEstado"
-        @notificar-telegram="notificarTelegram"
+        @avisar-whatsapp="avisarCliente"
         @generar-recibo="generarReciboTelegram"
         @generar-recibo-nativo="generarReciboNativo"
       />
@@ -56,10 +67,11 @@
           :prendas="prendas"
           :loading="prendasLoading"
           @open-prenda-form="showPrendaForm = true"
-          @delete-prenda="(id) => openDeleteSheet('prenda', id)"
+          @delete-prenda="confirmarEliminarPrenda"
           @take-photo="handleTakePhoto"
           @add-obs="openObsPrompt"
           @estado-changed="handleEstadoPrenda"
+          @prenda-actualizada="refrescarTotales"
           ref="tabPrendasRef"
         />
         <TabPagos 
@@ -69,7 +81,7 @@
           :pagos="pagos"
           :loading="pagosLoading"
           @open-pago-form="showPagoForm = true"
-          @delete-pago="(id) => openDeleteSheet('pago', id)"
+          @delete-pago="confirmarAnularPago"
         />
       </transition>
 
@@ -89,8 +101,10 @@
       :pagosError="pagosError"
       :showConfirmModal="showConfirmModal"
       :confirmMessage="confirmMessage"
+      :confirmText="confirmText"
       :showPromptModal="showPromptModal"
       :promptMessage="promptMessage"
+      :promptTitle="promptTitle"
       :actionSheetTitle="actionSheetTitle"
       :actionSheetMessage="actionSheetMessage"
       :actionSheetActions="actionSheetActions"
@@ -106,9 +120,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, inject, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, inject, watch } from 'vue';
+import { estadoDePago, ESTADO_PAGO, esOrdenActiva } from '../services/estadoOrden.js';
+import { formatearMoneda } from '../services/formato.js';
+import { fechaCorta, diasDeDiferencia } from '../services/fechas.js';
 import { useRoute, useRouter } from 'vue-router';
-import { useOrdenes } from '../composables/useOrdenes.js';
+import { useOrdenes, mensajeConfirmacionEntrega } from '../composables/useOrdenes.js';
 import { usePrendas } from '../composables/usePrendas.js';
 import { usePagos } from '../composables/usePagos.js';
 import { useNotificaciones } from '../composables/useNotificaciones.js';
@@ -132,43 +149,53 @@ const tab = ref('detalle');
 
 
 const {
-  showConfirmModal, confirmMessage, requestConfirm, executeConfirm, cancelConfirm,
-  showPromptModal, promptMessage, requestPrompt, executePrompt, cancelPrompt,
+  showConfirmModal, confirmMessage, confirmText, requestConfirm, executeConfirm, cancelConfirm,
+  showPromptModal, promptMessage, promptTitle, requestPrompt, executePrompt, cancelPrompt,
   showActionSheet, actionSheetTitle, actionSheetMessage, actionSheetActions, openDeleteSheet, handleSheetAction
 } = useOrdenModals();
 
 
 // Ordenes logic
 const { ordenActual, historial, loading, fetchOrden, changeEstado, clearCurrentState: clearOrdenState } = useOrdenes();
+const estadoPago = computed(() => estadoDePago(ordenActual.value));
+
+// Mismo criterio que "Atrasadas" en el panel: activa y con la fecha ya pasada.
+const atrasada = computed(() => esOrdenActiva(ordenActual.value)
+  && !!ordenActual.value.fecha_entrega_estimada
+  && diasDeDiferencia(new Date(), ordenActual.value.fecha_entrega_estimada) < 0);
 
 // Prendas logic
 const { 
   tiposPrenda, prendas, loading: prendasLoading, error: prendasError,
   fetchTiposPrenda, fetchPrendas, savePrenda, changeEstado: changeEstadoPrenda,
-  takePhoto, addNewObservacion, clearCurrentState: clearPrendasState
+  takePhoto, addNewObservacion, removePrenda, clearCurrentState: clearPrendasState
 } = usePrendas();
 
 // Pagos logic
 const {
   metodosPago, pagos, loading: pagosLoading, error: pagosError,
-  fetchMetodosPago, fetchPagos, savePago
+  fetchMetodosPago, fetchPagos, savePago, anularPago
 } = usePagos();
 
 // Telegram Bot Logic
-const { enviarAlertaOrdenListaBot, generarReciboTelegram, generarReciboNativo, notificarTelegram } = useOrdenTelegram(ordenActual);
+const { avisarWhatsApp, generarReciboTelegram, generarReciboNativo } = useOrdenTelegram(ordenActual);
 
 // Notificaciones logic
 const { notificaciones, fetchNotificaciones, saveNotificacion } = useNotificaciones();
 
 const showPrendaForm = ref(false);
 const showPagoForm = ref(false);
-const prendaRefs = ref({});
 const tabPrendasRef = ref(null);
 
 onMounted(async () => {
   const id = route.params.id;
   if (id) {
     await fetchOrden(id);
+    // Mientras quedan prendas por terminar, el trabajo del día está en Prendas;
+    // una orden lista, entregada o cancelada se abre en Detalle.
+    if (ordenActual.value && [1, 2].includes(ordenActual.value.id_estado_orden)) {
+      tab.value = 'prendas';
+    }
     await fetchTiposPrenda();
     await fetchMetodosPago();
     await fetchNotificaciones(id);
@@ -193,16 +220,19 @@ watch(tab, async (newTab) => {
 
 
 
-async function cambiarEstado(id_estado, nombre) {
+function cambiarEstado(id_estado, nombre) {
+  const advertencia = id_estado === 4 ? mensajeConfirmacionEntrega(ordenActual.value) : null;
+  if (advertencia) {
+    requestConfirm(advertencia, () => aplicarCambioEstado(id_estado, nombre), { textoConfirmar: 'Sí, entregar' });
+    return;
+  }
+  return aplicarCambioEstado(id_estado, nombre);
+}
+
+async function aplicarCambioEstado(id_estado, nombre) {
   try {
     await changeEstado(ordenActual.value.id_orden, id_estado, nombre, ordenActual.value);
     toast(`Estado actualizado a: ${nombre}`, 'success');
-
-    if (id_estado === 3) {
-      requestConfirm("¿Deseas usar el Bot de Telegram para enviarte el aviso de orden lista (con enlace a WhatsApp)?", () => {
-        enviarAlertaOrdenListaBot();
-      });
-    }
   } catch (err) {
     toast(err.message, 'error');
   }
@@ -226,7 +256,7 @@ async function handleAddPrenda(prendaData) {
 async function handleAddPago(pagoData) {
   try {
     pagoData.id_orden = ordenActual.value.id_orden;
-    await savePago(pagoData, ordenActual.value.saldo_pendiente);
+    await savePago(pagoData);
     showPagoForm.value = false;
     toast('Pago registrado exitosamente', 'success');
     // Refresh order totals
@@ -236,16 +266,49 @@ async function handleAddPago(pagoData) {
   }
 }
 
+// Cambiar el precio de una prenda mueve el total y el saldo de la cabecera.
+function refrescarTotales() {
+  fetchOrden(ordenActual.value.id_orden);
+}
+
+// P1-9. Los errores de regla (orden cerrada, saldo que quedaría negativo, motivo
+// vacío) ya los muestra useAsyncAction como toast; aquí sólo se evita que
+// terminen como promesa rechazada sin capturar.
+function confirmarEliminarPrenda(id_prenda) {
+  openDeleteSheet('prenda', id_prenda, async () => {
+    try {
+      await removePrenda(id_prenda, ordenActual.value.id_orden);
+      refrescarTotales();
+    } catch (err) {
+      console.error(err);
+    }
+  });
+}
+
+function confirmarAnularPago(id_pago) {
+  openDeleteSheet('pago', id_pago, () => {
+    requestPrompt('¿Por qué se anula este pago? El motivo queda en el historial de la orden.', async (motivo) => {
+      try {
+        await anularPago(id_pago, motivo);
+        refrescarTotales();
+      } catch (err) {
+        console.error(err);
+      }
+    }, { titulo: 'Anular Pago' });
+  });
+}
+
 async function handleEstadoPrenda(id_prenda, id_estado) {
   try {
-    const currentOrdenStatus = ordenActual.value ? ordenActual.value.id_estado_orden : 0;
-    const result = await changeEstadoPrenda(id_prenda, id_estado, ordenActual.value.id_orden, currentOrdenStatus);
+    const result = await changeEstadoPrenda(id_prenda, id_estado, ordenActual.value.id_orden);
+    // El estado de la orden pudo cambiar solo: la cabecera tiene que reflejarlo.
+    refrescarTotales();
     
-    // La capa de negocio (usePrendas) indica si debemos sugerir autocompletar
-    if (result && result.shouldPromptCompletion) {
-      requestConfirm("¡Todas las prendas están terminadas! ¿Deseas marcar la orden como 'Lista para Entregar'?", async () => {
-        await cambiarEstado(3, 'Lista para Entregar');
-      });
+    // El sistema ya pasó la orden a Lista para Entregar (RN-06); sólo queda ofrecer el aviso.
+    if (result?.ordenPasoALista) {
+      requestConfirm("Todas las prendas están terminadas y la orden pasó a 'Lista para Entregar'. ¿Quieres avisarle al cliente por WhatsApp?", () => {
+        avisarCliente('LISTA_ENTREGA');
+      }, { textoConfirmar: 'Sí, avisar por WhatsApp' });
     }
   } catch (err) {
     // Errores ya son manejados por el useAsyncAction del composable
@@ -253,8 +316,18 @@ async function handleEstadoPrenda(id_prenda, id_estado) {
   }
 }
 
-function setPrendaRef(el, id_prenda) {
-  if (el) prendaRefs.value[id_prenda] = el;
+// Abre WhatsApp con el mensaje escrito y refresca el historial de avisos (D-03)
+async function avisarCliente(tipo) {
+  if (await avisarWhatsApp(tipo)) {
+    await fetchNotificaciones(ordenActual.value.id_orden);
+  }
+}
+
+// A15: las tarjetas viven dentro de TabPrendas, que expone sus referencias.
+// Antes se revisaba un mapa local de esta vista que nunca se llenaba, y la
+// galería abierta no mostraba la foto o nota nueva hasta salir y volver.
+function refrescarTarjeta(id_prenda) {
+  tabPrendasRef.value?.prendaRefs?.[id_prenda]?.refreshData();
 }
 
 async function handleTakePhoto(id_prenda) {
@@ -262,9 +335,7 @@ async function handleTakePhoto(id_prenda) {
     const uri = await takePhoto(id_prenda);
     if (uri) {
       toast('Fotografía guardada', 'success');
-      if (prendaRefs.value[id_prenda]) {
-        if (tabPrendasRef.value && tabPrendasRef.value.prendaRefs) { tabPrendasRef.value.prendaRefs[id_prenda]?.refreshData(); }
-      }
+      refrescarTarjeta(id_prenda);
     }
   } catch (err) {
     toast(err.message, 'error');
@@ -279,9 +350,7 @@ async function openObsPrompt(id_prenda) {
       try {
         await addNewObservacion(id_prenda, obs.trim());
         toast('Observación añadida', 'success');
-        if (prendaRefs.value[id_prenda]) {
-          if (tabPrendasRef.value && tabPrendasRef.value.prendaRefs) { tabPrendasRef.value.prendaRefs[id_prenda]?.refreshData(); }
-        }
+        refrescarTarjeta(id_prenda);
       } catch (err) {
         toast('Error al añadir observación', 'error');
       }
@@ -296,42 +365,99 @@ async function openObsPrompt(id_prenda) {
 .orden-detail-view {
   padding: 16px;
 }
-.header-actions {
-  margin-bottom: 16px;
+.ic { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.orden-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 .back-btn {
-  background: none;
-  border: 1px solid var(--outline-variant);
+  width: 40px;
+  min-height: 40px;
+  padding: 0;
+  margin-left: -8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
   color: var(--on-surface);
-  border-radius: var(--radius-md);
-  padding: 6px 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
+  flex: none;
 }
-.back-btn:hover {
+.back-btn:hover:not(:disabled) {
   background: var(--surface-container);
+  box-shadow: none;
+  transform: none;
 }
 .title-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  gap: 4px;
 }
 .title-row h2 {
   margin: 0;
+  flex: 1;
+  font-size: 22px;
   color: var(--primary);
 }
-.resumen-texto {
-  margin: 4px 0;
+.cliente {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cliente-nombre {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--on-surface);
+}
+.entrega-atrasada {
+  color: var(--error);
+  font-weight: 600;
+}
+.cliente-fechas {
+  font-size: 13px;
   color: var(--on-surface-variant);
 }
-.resumen-texto strong {
+.saldo-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--surface-container-high);
+}
+.saldo {
+  margin: 0;
+  color: var(--on-surface-variant);
+  font-size: 14px;
+}
+.saldo-label {
+  font-weight: 500;
+}
+.saldo-valor {
+  font-size: 20px;
+  font-weight: 700;
   color: var(--on-surface);
+  font-variant-numeric: tabular-nums;
 }
 .deuda {
   color: var(--error);
   font-weight: bold;
+}
+.pago-chip {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  white-space: nowrap;
+}
+.pago-chip--pagada {
+  background-color: var(--success-bg);
+  color: var(--success-text);
+}
+.pago-chip--pendiente {
+  background-color: var(--warning-bg);
+  color: var(--warning-text);
 }
 
 /* Premium Segmented Control Tabs */
@@ -360,46 +486,6 @@ async function openObsPrompt(id_prenda) {
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.fechas {
-  margin-bottom: 16px;
-}
-.fechas p {
-  margin: 4px 0;
-  color: var(--on-surface-variant);
-}
-.fechas p strong {
-  color: var(--on-surface);
-}
-.estado-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 16px;
-  border-top: 1px solid var(--surface-container-highest);
-  padding-top: 16px;
-}
-.btn-danger {
-  background-color: var(--error);
-  color: var(--on-error);
-}
-.btn-secondary {
-  background-color: transparent;
-  border: 1px solid var(--outline-variant);
-  color: var(--on-surface);
-}
-.telegram-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px dashed var(--surface-container-highest);
-}
-.telegram-btn {
-  background-color: #2AABEE; /* Color oficial de Telegram */
-  color: white;
-  border: none;
-}
 .section-header {
   display: flex;
   justify-content: space-between;

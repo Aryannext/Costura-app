@@ -1,78 +1,84 @@
 <template>
   <div class="card prenda-card">
-    <div class="prenda-header">
-      <div class="title">
+    <div class="prenda-top">
+      <div class="prenda-titulo">
         <h4>{{ prenda.tipo_nombre }}</h4>
-        <span class="valor" v-if="!isEditing">${{ prenda.valor }}</span>
-        <input type="number" v-else v-model.number="editValor" class="edit-input-valor" />
+        <p class="desc" v-if="!isEditing">{{ prenda.descripcion_arreglo }}</p>
       </div>
-      <StatusBadge :estado="prenda.estado_nombre" />
-    </div>
-    
-    <div class="prenda-body">
-      <p class="desc" v-if="!isEditing">{{ prenda.descripcion_arreglo }}</p>
-      <textarea v-else v-model="editDescripcion" class="edit-textarea" rows="3"></textarea>
+      <span class="valor" v-if="!isEditing">{{ formatearMoneda(prenda.valor) }}</span>
     </div>
 
-    <!-- Edit mode actions -->
-    <div v-if="isEditing" class="edit-actions">
-      <button class="btn btn-primary btn-sm" @click="saveEdit">Guardar</button>
-      <button class="btn btn-outline btn-sm" @click="cancelEdit">Cancelar</button>
-    </div>
-
-    <!-- Acciones Rápidas -->
-    <div class="prenda-actions" v-if="!readonly && !isEditing">
-      <button class="icon-btn" @click="startEdit" title="Editar Información">
-        <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-      </button>
-      <button class="icon-btn" @click="$emit('take-photo')" title="Tomar Fotografía">
-        <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-      </button>
-      <button class="icon-btn" @click="$emit('add-obs')" title="Añadir Observación">
-        <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-      </button>
-      
-      <!-- Cambio de estado rápido -->
-      <select v-model="estadoLocal" @change="onEstadoChange" class="estado-select">
-        <option value="1">Pendiente</option>
-        <option value="2">En Proceso</option>
-        <option value="3">Terminada</option>
-        <option value="4">Entregada</option>
-      </select>
-    </div>
-
-    <!-- Toggles para ver fotos y observaciones -->
-    <div class="prenda-footer">
-      <button class="link-btn" @click="showFotos = !showFotos">
-        {{ showFotos ? 'Ocultar Fotos' : 'Ver Fotos' }}
-      </button>
-      <button class="link-btn" @click="showObs = !showObs">
-        {{ showObs ? 'Ocultar Obs.' : 'Ver Obs.' }}
-      </button>
-    </div>
-
-    <!-- Galerías dinámicas -->
-    <div v-if="showFotos" class="fotos-grid">
-      <div v-if="fotos.length === 0" class="empty-mini">No hay fotos</div>
-      <div 
-        v-for="f in fotos" 
-        :key="f.id_fotografia" 
-        class="foto-container"
-      >
-        <img :src="getImgSrc(f.ruta_archivo)" class="foto-thumb" @click="openPhotoViewer(f)" />
-        <button v-if="!readonly" class="delete-foto-btn" @click.stop="onDeleteFoto(f.id_fotografia)" title="Eliminar Foto">×</button>
+    <div v-if="isEditing" class="edicion">
+      <label class="campo">
+        <span>Arreglo</span>
+        <textarea v-model="editDescripcion" class="edit-textarea" rows="2"></textarea>
+      </label>
+      <label class="campo">
+        <span>Valor</span>
+        <input type="number" inputmode="numeric" v-model.number="editValor" class="edit-input-valor" />
+      </label>
+      <div class="edit-actions">
+        <button class="btn-guardar" @click="saveEdit">Guardar</button>
+        <button class="btn-cancelar-edicion" @click="cancelEdit">Cancelar</button>
       </div>
     </div>
 
-    <div v-if="showObs" class="obs-list">
-      <div v-if="observaciones.length === 0" class="empty-mini">No hay observaciones</div>
+    <!-- Los cuatro estados a la vista: se ve dónde va la prenda y se cambia de un toque.
+         El valor viene siempre de la prenda, no de un estado propio (P1-14). -->
+    <div class="estados" role="group" aria-label="Estado de la prenda">
+      <button
+        v-for="e in ESTADOS"
+        :key="e.id"
+        type="button"
+        class="estado-btn"
+        :class="[`estado-btn--${e.clase}`, { 'is-actual': prenda.id_estado_prenda === e.id }]"
+        :aria-pressed="prenda.id_estado_prenda === e.id"
+        :disabled="readonly || bloqueado(e.id)"
+        :title="bloqueado(e.id) ? 'Primero márcala como Terminada' : undefined"
+        @click="cambiarEstado(e.id)"
+      >{{ e.nombre }}</button>
+    </div>
+
+    <div class="acciones">
+      <button type="button" class="accion" :class="{ 'is-abierta': showFotos }" :aria-expanded="showFotos" @click="showFotos = !showFotos">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M3 9a2 2 0 0 1 2-2h.9a2 2 0 0 0 1.7-.9l.8-1.2A2 2 0 0 1 10.1 4h3.8a2 2 0 0 1 1.7.9l.8 1.2a2 2 0 0 0 1.7.9H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><circle cx="12" cy="13" r="3"></circle></svg>
+        Fotos<span v-if="numFotos" class="cnt">{{ numFotos }}</span>
+      </button>
+      <button type="button" class="accion" :class="{ 'is-abierta': showObs }" :aria-expanded="showObs" @click="showObs = !showObs">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        Notas<span v-if="numNotas" class="cnt">{{ numNotas }}</span>
+      </button>
+      <button v-if="!readonly" type="button" class="accion" :disabled="isEditing" @click="startEdit">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg>
+        Editar
+      </button>
+    </div>
+
+    <div v-if="showFotos" class="panel fotos-grid">
+      <div v-for="f in fotos" :key="f.id_fotografia" class="foto-container">
+        <img :src="resolvePhotoSrc(f.ruta_archivo)" class="foto-thumb" alt="Fotografía de la prenda" role="button" tabindex="0" @click="openPhotoViewer(f)" @keydown.enter="openPhotoViewer(f)" />
+        <button v-if="!readonly" class="delete-foto-btn" @click.stop="onDeleteFoto(f.id_fotografia)" aria-label="Eliminar foto">×</button>
+      </div>
+      <button v-if="!readonly" type="button" class="foto-nueva" @click="$emit('take-photo')">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+        <span>Tomar foto</span>
+      </button>
+      <p v-else-if="fotos.length === 0" class="empty-mini">No hay fotos</p>
+    </div>
+
+    <div v-if="showObs" class="panel obs-list">
       <div v-for="o in observaciones" :key="o.id_observacion" class="obs-item">
         <small>{{ new Date(o.fecha_registro).toLocaleDateString() }}</small>
         <p>{{ o.descripcion }}</p>
       </div>
+      <p v-if="observaciones.length === 0 && readonly" class="empty-mini">No hay notas</p>
+      <button v-if="!readonly" type="button" class="nota-nueva" @click="$emit('add-obs')">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+        Añadir nota
+      </button>
     </div>
-    <!-- Photo Viewer Modal -->
-    <PhotoViewerModal 
+
+    <PhotoViewerModal
       v-model:show="showViewer"
       :photoUrl="selectedPhotoUrl"
     />
@@ -80,17 +86,18 @@
 </template>
 
 <script setup>
-import { ref, watch, inject } from 'vue';
-import StatusBadge from '../common/StatusBadge.vue';
+import { ref, computed, watch, inject } from 'vue';
 import PhotoViewerModal from '../common/PhotoViewerModal.vue';
 import { usePrendas } from '../../composables/usePrendas.js';
-import { Capacitor } from '@capacitor/core';
+import { resolvePhotoSrc } from '../../services/photoStorage.js';
+import { formatearMoneda } from '../../services/formato.js';
 
-const getImgSrc = (path) => {
-  if (!path) return '';
-  if (path.startsWith('http') || path.startsWith('data:')) return path;
-  return Capacitor.convertFileSrc(path);
-};
+const ESTADOS = [
+  { id: 1, nombre: 'Pendiente', clase: 'pendiente' },
+  { id: 2, nombre: 'En proceso', clase: 'proceso' },
+  { id: 3, nombre: 'Terminada', clase: 'terminada' },
+  { id: 4, nombre: 'Entregada', clase: 'entregada' }
+];
 
 const props = defineProps({
   prenda: {
@@ -103,15 +110,35 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['take-photo', 'add-obs', 'estado-changed']);
+const emit = defineEmits(['take-photo', 'add-obs', 'estado-changed', 'prenda-actualizada']);
 
 const { fetchFotos, fetchObservaciones, removeFoto, editPrenda } = usePrendas();
+const toast = inject('toast', null);
 
-const estadoLocal = ref(props.prenda.id_estado_prenda);
 const showFotos = ref(false);
 const showObs = ref(false);
 const fotos = ref([]);
 const observaciones = ref([]);
+const fotosCargadas = ref(false);
+const notasCargadas = ref(false);
+
+// Antes de abrir el panel, el conteo sale de lo que ya trae la prenda.
+const numFotos = computed(() => fotosCargadas.value ? fotos.value.length : (props.prenda.fotografias?.length || 0));
+const numNotas = computed(() => notasCargadas.value ? observaciones.value.length : (props.prenda.observaciones?.length || 0));
+
+// CP-18: una prenda sólo se entrega cuando ya está terminada.
+function bloqueado(estado) {
+  return estado === 4 && props.prenda.id_estado_prenda < 3;
+}
+
+function cambiarEstado(estado) {
+  if (estado === props.prenda.id_estado_prenda) return;
+  if (bloqueado(estado)) {
+    if (toast) toast('Primero marca la prenda como Terminada', 'error');
+    return;
+  }
+  emit('estado-changed', props.prenda.id_prenda, estado);
+}
 
 const isEditing = ref(false);
 const editValor = ref(0);
@@ -131,54 +158,35 @@ async function saveEdit() {
   try {
     await editPrenda(props.prenda.id_prenda, editDescripcion.value, editValor.value, props.prenda.id_orden);
     isEditing.value = false;
-    emit('estado-changed'); // Trigger refresh in parent
+    // Evento propio: 'estado-changed' sin argumentos se interpretaba como un
+    // cambio de estado de la prenda undefined y no refrescaba el saldo.
+    emit('prenda-actualizada', props.prenda.id_prenda);
   } catch (e) {
     // Error is natively handled by useAsyncAction
   }
 }
 
-watch(() => props.prenda.id_estado_prenda, (newVal) => {
-  estadoLocal.value = newVal;
-});
+async function cargarFotos() {
+  fotos.value = (await fetchFotos(props.prenda.id_prenda)) || [];
+  fotosCargadas.value = true;
+}
 
-// Load data lazily when toggles are clicked
-watch(showFotos, async (val) => {
-  if (val && fotos.value.length === 0) {
-    fotos.value = await fetchFotos(props.prenda.id_prenda);
-  }
-});
+async function cargarNotas() {
+  observaciones.value = (await fetchObservaciones(props.prenda.id_prenda)) || [];
+  notasCargadas.value = true;
+}
 
-watch(showObs, async (val) => {
-  if (val && observaciones.value.length === 0) {
-    observaciones.value = await fetchObservaciones(props.prenda.id_prenda);
-  }
-});
+watch(showFotos, (abierto) => { if (abierto && !fotosCargadas.value) cargarFotos(); });
+watch(showObs, (abierto) => { if (abierto && !notasCargadas.value) cargarNotas(); });
 
-// Expose refresh method so parent can trigger reload
+// El padre la llama después de tomar una foto o añadir una nota.
 const refreshData = async () => {
-  if (showFotos.value) fotos.value = await fetchFotos(props.prenda.id_prenda);
-  if (showObs.value) observaciones.value = await fetchObservaciones(props.prenda.id_prenda);
+  if (showFotos.value || fotosCargadas.value) await cargarFotos();
+  if (showObs.value || notasCargadas.value) await cargarNotas();
 };
 
 defineExpose({ refreshData });
 
-const toast = inject('toast');
-
-function onEstadoChange() {
-  const newEstado = parseInt(estadoLocal.value);
-  const oldEstado = props.prenda.id_estado_prenda;
-  
-  if (newEstado === 4 && oldEstado < 3) {
-    // Cannot deliver if not finished
-    estadoLocal.value = oldEstado; // revert
-    toast('No se puede entregar una prenda que no está Terminada', 'error');
-    return;
-  }
-  
-  emit('estado-changed', props.prenda.id_prenda, newEstado);
-}
-
-// Photo Viewer Logic
 const showViewer = ref(false);
 const selectedPhotoUrl = ref('');
 
@@ -191,7 +199,7 @@ async function onDeleteFoto(id_fotografia) {
   if (confirm("¿Estás seguro de eliminar esta fotografía?")) {
     try {
       await removeFoto(id_fotografia);
-      fotos.value = await fetchFotos(props.prenda.id_prenda);
+      await cargarFotos();
     } catch (e) {
       // Error natively handled
     }
@@ -200,160 +208,136 @@ async function onDeleteFoto(id_fotografia) {
 </script>
 
 <style scoped>
+/* Sin margin-bottom: la separación la pone la lista (gap). Un margen dentro del
+   contenedor deslizable dejaba ver la franja roja de "Eliminar" bajo cada tarjeta. */
 .prenda-card {
-  margin-bottom: 12px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
-.prenda-header {
+.ic { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+.prenda-top {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
+  align-items: flex-start;
+  gap: 12px;
 }
-.title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.title h4 {
-  margin: 0;
-  color: var(--primary);
-}
-.valor {
-  font-weight: 600;
-}
-.edit-input-valor {
-  width: 80px;
+.prenda-titulo { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.prenda-titulo h4 { margin: 0; font-size: 16px; font-weight: 700; color: var(--primary); }
+.desc { margin: 0; font-size: 14px; color: var(--on-surface-variant); }
+.valor { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.edicion { display: flex; flex-direction: column; gap: 10px; }
+.campo { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 500; color: var(--on-surface-variant); }
+.edit-textarea { width: 100%; font-family: inherit; resize: vertical; }
+.edit-input-valor { width: 140px; }
+.edit-actions { display: flex; gap: 8px; }
+.btn-guardar { flex: 1; }
+.btn-cancelar-edicion { flex: 1; background: transparent; border: 1px solid var(--outline-variant); color: var(--primary); }
+.btn-cancelar-edicion:hover:not(:disabled) { background: var(--surface-container-low); box-shadow: none; transform: none; }
+
+.estados {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
   padding: 4px;
-  border: 1px solid var(--outline);
-  border-radius: 4px;
+  border-radius: 10px;
+  background: var(--surface-container-low);
 }
-.edit-textarea {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid var(--outline);
-  border-radius: 4px;
-  font-family: inherit;
-  resize: vertical;
+.estado-btn {
+  min-height: 36px;
+  padding: 4px 2px;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--on-surface-variant);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
 }
-.edit-actions {
+.estado-btn:hover:not(:disabled) { background: var(--surface-container-high); color: var(--on-surface); box-shadow: none; transform: none; }
+.estado-btn:disabled { opacity: 1; background: transparent; color: var(--outline-variant); cursor: not-allowed; }
+.estado-btn.is-actual { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06); }
+.estado-btn--pendiente.is-actual, .estado-btn--pendiente.is-actual:disabled { background: var(--warning-bg); color: var(--warning-text); }
+.estado-btn--proceso.is-actual, .estado-btn--proceso.is-actual:disabled { background: var(--info-bg); color: var(--info-text); }
+.estado-btn--terminada.is-actual, .estado-btn--terminada.is-actual:disabled { background: var(--success-bg); color: var(--success-text); }
+.estado-btn--entregada.is-actual, .estado-btn--entregada.is-actual:disabled { background: var(--surface-container-highest); color: var(--on-surface); }
+
+.acciones { display: flex; gap: 8px; }
+.accion {
+  flex: 1;
   display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.prenda-body .desc {
-  margin: 0 0 12px 0;
-  font-size: 14px;
-}
-.prenda-actions {
-  display: flex;
-  gap: 10px;
   align-items: center;
-  padding-top: 12px;
-  border-top: 1px solid var(--surface-container-high);
-}
-.icon-btn {
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 6px;
   background: var(--surface-container-lowest);
   border: 1px solid var(--outline-variant);
-  border-radius: var(--radius-md);
-  padding: 6px 10px;
-  cursor: pointer;
-  color: var(--on-surface-variant);
+  color: var(--primary);
+  font-size: 14px;
 }
-.icon-btn:hover {
+.accion:hover:not(:disabled) { background: var(--surface-container-low); box-shadow: none; transform: none; }
+.accion.is-abierta { background: var(--surface-container); border-color: var(--primary); }
+.cnt {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
   background: var(--surface-container);
   color: var(--primary);
-}
-.estado-select {
-  flex: 1;
-  padding: 6px;
-  min-height: unset;
-}
-.prenda-footer {
-  display: flex;
-  gap: 16px;
-  margin-top: 12px;
-}
-.link-btn {
-  background: transparent !important;
-  border: none;
-  color: var(--primary);
-  padding: 0;
   font-size: 12px;
-  text-decoration: none;
-  cursor: pointer;
-  font-weight: 500;
-  min-height: unset;
-  box-shadow: none !important;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
-.link-btn:hover, .link-btn:active, .link-btn:focus {
-  text-decoration: underline;
-  background-color: transparent !important;
-  box-shadow: none !important;
-  transform: none !important;
-}
+
+.panel { padding-top: 4px; }
 .fotos-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
   gap: 8px;
-  margin-top: 12px;
 }
-.foto-container {
-  position: relative;
-  width: 100%;
-  height: 80px;
-}
-.foto-thumb {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--outline-variant);
-  cursor: pointer;
-}
+.foto-container { position: relative; width: 100%; height: 80px; }
+.foto-thumb { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--outline-variant); cursor: pointer; }
 .delete-foto-btn {
   position: absolute;
   top: -8px;
   right: -8px;
-  background: #ff3b30; /* Red */
+  background: var(--error);
   color: white;
-  border: none;
   border-radius: 50%;
-  width: 24px !important;
-  height: 24px !important;
-  min-height: 24px !important;
+  width: 24px;
+  height: 24px;
+  min-height: 24px;
+  padding: 0;
   font-size: 14px;
   font-weight: bold;
   line-height: 1;
-  cursor: pointer;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 0 !important;
-  box-shadow: var(--shadow-level-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.obs-list {
-  margin-top: 12px;
+.foto-nueva {
+  height: 80px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-.obs-item {
-  background-color: var(--surface-container-low);
-  padding: 8px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--surface-container-high);
-}
-.obs-item small {
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: transparent;
+  border: 1px dashed var(--outline);
   color: var(--primary);
-  font-weight: 500;
-}
-.obs-item p {
-  margin: 4px 0 0 0;
-  font-size: 13px;
-}
-.empty-mini {
   font-size: 12px;
-  color: var(--on-surface-variant);
-  font-style: italic;
 }
+.foto-nueva:hover:not(:disabled) { background: var(--surface-container-low); box-shadow: none; transform: none; }
+
+.obs-list { display: flex; flex-direction: column; gap: 8px; }
+.obs-item { background-color: var(--surface-container-low); padding: 8px; border-radius: var(--radius-md); border: 1px solid var(--surface-container-high); }
+.obs-item small { color: var(--primary); font-weight: 500; }
+.obs-item p { margin: 4px 0 0 0; font-size: 13px; }
+.nota-nueva { display: flex; align-items: center; justify-content: center; gap: 6px; background: transparent; border: 1px dashed var(--outline); color: var(--primary); }
+.nota-nueva:hover:not(:disabled) { background: var(--surface-container-low); box-shadow: none; transform: none; }
+.empty-mini { margin: 0; font-size: 12px; color: var(--on-surface-variant); font-style: italic; }
 </style>

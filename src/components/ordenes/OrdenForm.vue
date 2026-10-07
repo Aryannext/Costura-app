@@ -30,12 +30,20 @@
           required 
           class="mb-2"
         />
-        <input 
-          type="tel" 
-          v-model="nuevoCliente.telefono" 
-          placeholder="Teléfono" 
+        <input
+          type="tel"
+          v-model="nuevoCliente.telefono"
+          placeholder="Celular (ej. 3001234567)"
+          inputmode="numeric"
+          required
         />
       </div>
+    </div>
+
+    <div class="form-group">
+      <label for="fecha_recepcion">¿Cuándo recibiste la ropa?</label>
+      <!-- Por defecto hoy; un día anterior sirve para pasar a la app órdenes viejas -->
+      <input type="date" id="fecha_recepcion" v-model="form.fecha_recepcion" :max="today" required />
     </div>
 
     <div class="form-group">
@@ -47,11 +55,11 @@
         <button type="button" class="chip-btn" @click="setFecha(7)">1 semana</button>
       </div>
 
-      <input type="date" id="fecha_entrega" v-model="form.fecha_entrega_estimada" required :min="today" />
+      <input type="date" id="fecha_entrega" v-model="form.fecha_entrega_estimada" required :min="form.fecha_recepcion" />
     </div>
     
-    <div v-if="error" class="error-message">
-      {{ error }}
+    <div v-if="error || errorLocal" class="error-message">
+      {{ errorLocal || error?.message || error }}
     </div>
 
     <div class="form-actions">
@@ -66,6 +74,8 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { getAllClientes, createCliente } from '../../database/queries/clientes.js';
+import { fechaLocalISO } from '../../services/fechas.js';
+import { validators } from '../../services/validators.js';
 
 const props = defineProps({
   fixedClienteId: {
@@ -73,27 +83,31 @@ const props = defineProps({
     default: null
   },
   loading: Boolean,
-  error: String
+  // useAsyncAction entrega un Error; se acepta también texto
+  error: { type: [String, Error, Object], default: '' }
 });
 
 const emit = defineEmits(['submit', 'cancel']);
 
 const form = ref({
   id_cliente: props.fixedClienteId || '',
+  fecha_recepcion: fechaLocalISO(),
   fecha_entrega_estimada: ''
 });
+const errorLocal = ref('');
 
 const clientesList = ref([]);
 const creandoCliente = ref(false);
 const nuevoCliente = ref({ nombre: '', telefono: '' });
 const isSubmittingLocal = ref(false);
 
-// format today as YYYY-MM-DD for the min attribute of date input
-const today = new Date().toISOString().split('T')[0];
+// Fecha mínima del selector, en hora local: con toISOString() el formulario
+// dejaba de aceptar "hoy" a partir de las 19:00.
+const today = fechaLocalISO();
 
 onMounted(async () => {
   if (!props.fixedClienteId) {
-    clientesList.value = await getAllClientes(1000, 0); 
+    clientesList.value = await getAllClientes();
   }
 });
 
@@ -109,20 +123,27 @@ function toggleNuevoCliente() {
 function setFecha(daysAdded) {
   const date = new Date();
   date.setDate(date.getDate() + daysAdded);
-  form.value.fecha_entrega_estimada = date.toISOString().split('T')[0];
+  form.value.fecha_entrega_estimada = fechaLocalISO(date);
 }
 
 async function handleSubmit() {
   isSubmittingLocal.value = true;
+  errorLocal.value = '';
   try {
     if (creandoCliente.value) {
-      // Registrar cliente primero
+      // Misma validación que el formulario de Clientes (antes se saltaba, A07)
+      validators.validateCliente(nuevoCliente.value);
       const newId = await createCliente(nuevoCliente.value);
       form.value.id_cliente = newId;
+      creandoCliente.value = false;
+      clientesList.value = await getAllClientes();
     }
-    emit('submit', form.value);
+    const { fecha_recepcion, ...orden } = form.value;
+    // Hoy: SQLite guarda fecha y hora actuales. Día anterior: se guarda ese día.
+    if (fecha_recepcion && fecha_recepcion < today) orden.fecha_creacion = `${fecha_recepcion} 12:00:00`;
+    emit('submit', orden);
   } catch (err) {
-    console.error(err);
+    errorLocal.value = err.message;
   } finally {
     isSubmittingLocal.value = false;
   }

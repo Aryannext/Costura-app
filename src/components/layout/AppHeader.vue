@@ -14,7 +14,7 @@
     </div>
 
     <!-- Notifications Drawer/Modal -->
-    <div v-if="showNotifications" class="notifications-overlay" @click.self="toggleNotifications">
+    <div v-if="showNotifications" class="notifications-overlay" @click.self="toggleNotifications" @keydown.esc="toggleNotifications">
       <div class="notifications-panel card">
         <div class="panel-header">
           <h3 class="headline-sm">Notificaciones</h3>
@@ -31,7 +31,10 @@
             <div 
               v-if="updateAvailable"
               class="notification-item update-item"
+              role="button"
+              tabindex="0"
               @click="triggerUpdate"
+              @keydown.enter="triggerUpdate"
             >
               <div class="notif-content">
                 <strong>✨ Nueva versión disponible (v{{ updateVersion }})</strong>
@@ -43,7 +46,10 @@
               v-for="orden in urgentOrders" 
               :key="orden.id_orden" 
               class="notification-item"
+              role="button"
+              tabindex="0"
               @click="goToOrder(orden.id_orden)"
+              @keydown.enter="goToOrder(orden.id_orden)"
             >
               <div class="notif-content">
                 <strong>Orden #{{ orden.id_orden }} - {{ orden.cliente_nombre }}</strong>
@@ -73,33 +79,29 @@ import Icon from '../common/Icon.vue';
 import UpdateModal from '../updates/UpdateModal.vue';
 import { useOrdenes } from '../../composables/useOrdenes.js';
 import { useUpdates } from '../../composables/useUpdates.js';
+import { aFechaLocal } from '../../services/fechas.js';
+import { esOrdenActiva } from '../../services/estadoOrden.js';
+import { clasificarVencimiento, VENCIMIENTO } from '../../services/vencimientos.js';
+import { useConfiguracionNegocio } from '../../composables/useConfiguracionNegocio.js';
 
 const router = useRouter();
 const toast = inject('toast');
 const { ordenes, fetchOrdenes } = useOrdenes();
 const { updateAvailable, updateVersion, promptUpdate, applyUpdate, showUpdatePrompt } = useUpdates();
 const showNotifications = ref(false);
+const { diasAnticipacion, cargarDiasAnticipacion } = useConfiguracionNegocio();
 
 onMounted(() => {
   fetchOrdenes();
+  cargarDiasAnticipacion();
 });
 
 const urgentOrders = computed(() => {
-  const todayDate = new Date();
-  todayDate.setHours(0,0,0,0);
-  const futureDate = new Date();
-  futureDate.setDate(todayDate.getDate() + 3); // Por vencer en los próximos 3 días
-  
-  return ordenes.value.filter(o => {
-    // Solo órdenes activas (Pendiente, En Proceso, Lista)
-    if (o.id_estado_orden > 3) return false;
-    
-    if (!o.fecha_entrega_estimada) return false;
-    
-    const entregaDate = new Date(o.fecha_entrega_estimada);
-    // Include if past due or due within 3 days
-    return entregaDate < futureDate;
-  }).sort((a, b) => new Date(a.fecha_entrega_estimada) - new Date(b.fecha_entrega_estimada));
+  const hoy = new Date();
+  return ordenes.value
+    // RN-04: una orden sin prendas no avisa. RN-38: el período lo configura el negocio.
+    .filter(o => esOrdenActiva(o) && clasificarVencimiento(o.fecha_entrega_estimada, hoy, diasAnticipacion.value))
+    .sort((a, b) => aFechaLocal(a.fecha_entrega_estimada) - aFechaLocal(b.fecha_entrega_estimada));
 });
 
 const totalNotifications = computed(() => {
@@ -107,10 +109,7 @@ const totalNotifications = computed(() => {
 });
 
 function isAtrasada(orden) {
-  const todayDate = new Date();
-  todayDate.setHours(0,0,0,0);
-  const entregaDate = new Date(orden.fecha_entrega_estimada);
-  return entregaDate < todayDate;
+  return clasificarVencimiento(orden.fecha_entrega_estimada, new Date(), diasAnticipacion.value) === VENCIMIENTO.ATRASADA;
 }
 
 function formatDate(dateStr) {
@@ -145,7 +144,8 @@ async function handleConfirmUpdate() {
 <style scoped>
 .app-header {
   background-color: var(--surface-container-lowest);
-  padding: 0 var(--spacing-md);
+  /* Alineada con la columna centrada de 560 px en pantallas anchas */
+  padding: 0 max(var(--spacing-md), calc((100% - 560px) / 2 + var(--spacing-md)));
   height: 56px;
   border-bottom: 1px solid var(--surface-container-high);
   display: flex;

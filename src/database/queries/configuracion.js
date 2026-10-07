@@ -11,7 +11,13 @@ export async function getConfig(clave) {
 
 export async function updateConfig(clave, valor) {
     if (!db) throw new Error("Database not initialized");
-    await db.run("UPDATE configuracion SET valor = ? WHERE clave = ?", [valor, clave]);
+    // UPSERT: un UPDATE simple no hacía nada si la clave todavía no existía,
+    // y eso es justo lo que pasa con las claves que no vienen sembradas.
+    await db.run(
+        `INSERT INTO configuracion (clave, valor) VALUES (?, ?)
+         ON CONFLICT(clave) DO UPDATE SET valor = excluded.valor`,
+        [clave, valor ?? '']
+    );
     await saveDb();
 }
 

@@ -1,11 +1,15 @@
 <template>
-  <div id="app-container">
+  <!-- `inert` mientras está bloqueado: el overlay tapa la vista, pero sin esto
+       el teclado todavía podía tabular hasta el buscador de clientes de detrás. -->
+  <div id="app-container" :inert="isLocked">
     <AppHeader v-if="showLayout" />
     
     <main class="main-content">
       <router-view v-slot="{ Component }">
         <transition :name="transitionName" mode="out-in">
-          <component :is="Component" />
+          <!-- La clave por ruta vuelve a montar la vista al pasar de /ordenes/3 a /ordenes/2
+               (p. ej. desde la campana): reutilizarla dejaba a la vista la orden anterior. -->
+          <component :is="Component" :key="$route.path" />
         </transition>
       </router-view>
     </main>
@@ -13,6 +17,11 @@
     <AppNav v-if="showLayout" />
     <AppToast ref="toastRef" />
   </div>
+
+  <!-- Fuera del contenedor inerte, para que sí se pueda usar. Cubre la app
+       sin desmontar la vista: al desbloquear se sigue justo donde se estaba,
+       con el formulario a medio llenar intacto. -->
+  <AppLockScreen v-if="isLocked" />
 </template>
 
 <script setup>
@@ -21,15 +30,19 @@ import { useRoute } from 'vue-router';
 import AppHeader from './components/layout/AppHeader.vue';
 import AppNav from './components/layout/AppNav.vue';
 import AppToast from './components/layout/AppToast.vue';
-import { App as CapacitorApp } from '@capacitor/app';
-import { logout } from './services/auth.js';
+import AppLockScreen from './components/layout/AppLockScreen.vue';
+import { mustChangePassword, isLocked } from './services/auth.js';
 
 const route = useRoute();
 const toastRef = ref(null);
 const transitionName = ref('slide-left');
 
 const showLayout = computed(() => {
-  return route.name !== 'Login';
+  if (route.name === 'Login') return false;
+  // Durante el cambio obligatorio de contraseña se oculta la navegación: no hay
+  // ningún otro sitio al que se pueda ir hasta que la clave deje de ser la de fábrica.
+  if (route.name === 'CambiarPassword' && mustChangePassword.value) return false;
+  return true;
 });
 
 watch(
@@ -70,6 +83,10 @@ provide('toast', (msg, type) => {
   padding-bottom: 60px; /* Space for AppNav */
   overflow-y: auto;
   position: relative;
+  /* En pantallas anchas la app es una columna centrada, no pegada a la izquierda */
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
 }
 
 /* iOS Slide Transitions */

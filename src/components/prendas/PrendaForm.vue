@@ -31,7 +31,7 @@
     </div>
     
     <div v-if="error" class="error-message">
-      {{ error }}
+      {{ error?.message || error }}
     </div>
 
     <div class="form-actions">
@@ -59,7 +59,8 @@ const props = defineProps({
     required: true
   },
   loading: Boolean,
-  error: String
+  // useAsyncAction entrega un Error; se acepta también texto
+  error: { type: [String, Error, Object], default: '' }
 });
 
 const emit = defineEmits(['submit', 'cancel']);

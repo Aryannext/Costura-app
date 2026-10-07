@@ -60,7 +60,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, inject } from 'vue';
-import { useTelegramBot } from '../composables/useTelegramBot.js';
+import { useTelegramBot, leerConfigTelegram, guardarConfigTelegram } from '../composables/useTelegramBot.js';
 import { useBackupRestore } from '../composables/useBackupRestore.js';
 import { useTelegramReports } from '../composables/useTelegramReports.js';
 import CryptoModal from '../components/telegram/CryptoModal.vue';
@@ -87,9 +87,10 @@ const { generarReporte } = useTelegramReports(toast);
 
 let saveTimeout = null;
 
-onMounted(() => {
-    botToken.value = localStorage.getItem('telegram_bot_token') || '';
-    chatId.value = localStorage.getItem('telegram_chat_id') || '';
+onMounted(async () => {
+    const config = await leerConfigTelegram();
+    botToken.value = config.botToken || '';
+    chatId.value = config.chatId || '';
 });
 
 onUnmounted(() => {
@@ -99,11 +100,16 @@ onUnmounted(() => {
 function guardarConfiguracion() {
     loading.value = true;
     if (saveTimeout) clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(() => {
-        localStorage.setItem('telegram_bot_token', botToken.value);
-        localStorage.setItem('telegram_chat_id', chatId.value);
-        toast('Configuración guardada exitosamente.', 'success');
-        loading.value = false;
+    saveTimeout = setTimeout(async () => {
+        try {
+            await guardarConfigTelegram(botToken.value, chatId.value);
+            toast('Configuración guardada exitosamente.', 'success');
+        } catch (e) {
+            console.error("Error guardando la configuración de Telegram", e);
+            toast('No se pudo guardar la configuración.', 'error');
+        } finally {
+            loading.value = false;
+        }
     }, 500);
 }
 

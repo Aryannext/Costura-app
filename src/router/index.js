@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { isAuthenticated } from '../services/auth.js';
+import { isAuthenticated, requiresPasswordChange } from '../services/auth.js';
 
 const routes = [
     {
@@ -63,6 +63,12 @@ const routes = [
         meta: { requiresAuth: true, index: 1 }
     },
     {
+        path: '/cambiar-clave',
+        name: 'CambiarPassword',
+        component: () => import('../views/CambiarPasswordView.vue'),
+        meta: { requiresAuth: true, index: 2 }
+    },
+    {
         path: '/:pathMatch(.*)*',
         redirect: '/'
     }
@@ -75,14 +81,25 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
     const isAuth = await isAuthenticated();
-    
+
     if (to.meta.requiresAuth && !isAuth) {
         next({ path: '/login', query: { redirect: to.fullPath } });
-    } else if (to.path === '/login' && isAuth) {
-        next('/');
-    } else {
-        next();
+        return;
     }
+
+    if (to.path === '/login' && isAuth) {
+        next('/');
+        return;
+    }
+
+    // Mientras la contraseña siga siendo la de fábrica no se puede usar el resto
+    // de la aplicación: cualquier ruta autenticada desvía al cambio obligatorio.
+    if (isAuth && requiresPasswordChange() && to.path !== '/cambiar-clave') {
+        next('/cambiar-clave');
+        return;
+    }
+
+    next();
 });
 
 export default router;

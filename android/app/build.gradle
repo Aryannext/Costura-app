@@ -1,14 +1,68 @@
 apply plugin: 'com.android.application'
 
+import groovy.json.JsonSlurper
+
+// ─── Versionado ───────────────────────────────────────────────────────────────
+// package.json es la única fuente de la versión. El versionCode se deriva de
+// ella (1.1.2 -> 10102) para que cada release suba de número sin editarlo a
+// mano: Play Store rechaza cualquier subida que no incremente el versionCode.
+// ANDROID_VERSION_CODE lo sobreescribe cuando hace falta recompilar una misma
+// versión (por ejemplo, un reintento de subida).
+def appVersionName = new JsonSlurper()
+        .parseText(file("$rootDir/../package.json").getText("UTF-8"))
+        .version
+        .toString()
+
+def semver = (appVersionName =~ /^(\d+)\.(\d+)\.(\d+)/)
+if (!semver.find()) {
+    throw new GradleException(
+        "La versión '${appVersionName}' declarada en package.json no es un semver " +
+        "válido (mayor.menor.parche).")
+}
+def derivedVersionCode = semver.group(1).toInteger() * 10000 +
+                         semver.group(2).toInteger() * 100 +
+                         semver.group(3).toInteger()
+def appVersionCode = (System.getenv("ANDROID_VERSION_CODE") ?: derivedVersionCode)
+        .toString().toInteger()
+
+// ─── Firma del release ────────────────────────────────────────────────────────
+// Las credenciales se leen del entorno (CI) o de gradle.properties local /
+// ~/.gradle/gradle.properties. Nunca del repositorio. Si no hay keystore
+// configurado el release compila sin firmar, para no bloquear a quien sólo
+// quiere probar la app en su teléfono.
+def releaseSecret = { String envName, String propName ->
+    System.getenv(envName) ?: (project.hasProperty(propName) ? project.property(propName) : null)
+}
+def keystorePath = releaseSecret("ANDROID_KEYSTORE_PATH", "costuraKeystorePath")
+def hasReleaseKeystore = keystorePath != null && file(keystorePath).exists()
+
+if (!hasReleaseKeystore) {
+    logger.lifecycle(
+        "CosturaApp: sin keystore de release configurado; assembleRelease producirá " +
+        "un APK SIN FIRMAR. Define ANDROID_KEYSTORE_PATH para firmarlo.")
+}
+
 android {
     namespace = "com.costura.app"
     compileSdk = rootProject.ext.compileSdkVersion
+
+    signingConfigs {
+        if (hasReleaseKeystore) {
+            release {
+                storeFile file(keystorePath)
+                storePassword releaseSecret("ANDROID_KEYSTORE_PASSWORD", "costuraKeystorePassword")
+                keyAlias releaseSecret("ANDROID_KEY_ALIAS", "costuraKeyAlias")
+                keyPassword releaseSecret("ANDROID_KEY_PASSWORD", "costuraKeyPassword")
+            }
+        }
+    }
+
     defaultConfig {
         applicationId "com.costura.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode appVersionCode
+        versionName appVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -18,11 +72,69 @@ android {
     }
     buildTypes {
         release {
+            if (hasReleaseKeystore) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 }
+
+// ─── Guardia de sincronización del bundle web ─────────────────────────────────
+// El APK sólo puede contener el bundle recién compilado. Si alguien compila
+// desde Android Studio sin haber corrido `npm run sync:android`, el build se
+// detiene aquí en lugar de producir un instalable con código viejo.
+def bundledWebIndex = file("src/main/assets/public/index.html")
+def watchedSources = [
+    file("$rootDir/../src"),
+    file("$rootDir/../index.html"),
+    file("$rootDir/../vite.config.js"),
+    file("$rootDir/../package.json")
+]
+def skipWebAssetCheck = project.hasProperty("skipWebAssetCheck")
+
+def verifyWebAssets = tasks.register("verifyWebAssetsUpToDate") {
+    description = "Falla si el bundle web empaquetado es más viejo que el código fuente."
+    doLast {
+        if (skipWebAssetCheck) {
+            logger.lifecycle("verifyWebAssetsUpToDate: omitido por -PskipWebAssetCheck")
+            return
+        }
+        if (!bundledWebIndex.exists()) {
+            throw new GradleException(
+                "No hay bundle web empaquetado en app/src/main/assets/public.\n\n" +
+                "Ejecuta primero:  npm run sync:android")
+        }
+
+        def newestMillis = 0L
+        def newestFile = null
+        watchedSources.findAll { it.exists() }.each { entry ->
+            if (entry.isDirectory()) {
+                entry.eachFileRecurse(groovy.io.FileType.FILES) { f ->
+                    if (f.lastModified() > newestMillis) {
+                        newestMillis = f.lastModified()
+                        newestFile = f
+                    }
+                }
+            } else if (entry.lastModified() > newestMillis) {
+                newestMillis = entry.lastModified()
+                newestFile = entry
+            }
+        }
+
+        if (newestMillis > bundledWebIndex.lastModified()) {
+            throw new GradleException(
+                "El bundle web empaquetado está desactualizado: el APK saldría con código viejo.\n\n" +
+                "  Bundle empaquetado : ${new Date(bundledWebIndex.lastModified())}\n" +
+                "  Código más reciente: ${newestFile?.name} (${new Date(newestMillis)})\n\n" +
+                "Ejecuta:  npm run sync:android\n" +
+                "(o añade -PskipWebAssetCheck si sabes lo que haces)")
+        }
+    }
+}
+
+tasks.named("preBuild") { dependsOn(verifyWebAssets) }
 
 repositories {
     flatDir{

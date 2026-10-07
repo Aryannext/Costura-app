@@ -1,0 +1,152 @@
+{
+  "reviewDate": "2026-10-06",
+  "runtime": "v24.19.0",
+  "scope": "Lógica original con SQLite en memoria y dobles de servicios; sin navegador, hardware ni datos reales.",
+  "reproduced": 14,
+  "total": 14,
+  "results": [
+    {
+      "id": "A01",
+      "name": "Eliminar anuncia éxito y conserva el pago",
+      "reproduced": true,
+      "detail": {
+        "remainingPayments": 1,
+        "messages": [
+          "Pago eliminado y saldo recalculado"
+        ]
+      }
+    },
+    {
+      "id": "A02",
+      "name": "Recordatorios masivos registran envíos sin transporte",
+      "reproduced": true,
+      "detail": {
+        "reportedAsSent": 1,
+        "networkRequests": 0,
+        "notificationRows": 1
+      }
+    },
+    {
+      "id": "A03",
+      "name": "Reapertura deja orden Pendiente con prendas entregadas y fecha antigua",
+      "reproduced": true,
+      "detail": {
+        "id_estado_orden": 1,
+        "fecha_entrega_real": "2026-10-05 10:00:00"
+      }
+    },
+    {
+      "id": "A04",
+      "name": "Marcar Lista admite prendas En Proceso",
+      "reproduced": true,
+      "detail": {
+        "orderState": 3,
+        "garmentState": 2
+      }
+    },
+    {
+      "id": "A05",
+      "name": "Regresar prenda a En Proceso deja orden Lista",
+      "reproduced": true,
+      "detail": {
+        "orderState": 3,
+        "garmentState": 2
+      }
+    },
+    {
+      "id": "A06",
+      "name": "Reducir precio después de pagar produce saldo negativo",
+      "reproduced": true,
+      "detail": {
+        "valor_total": 80000,
+        "saldo_pendiente": -20000
+      }
+    },
+    {
+      "id": "A07",
+      "name": "Alta directa de cliente acepta teléfono vacío",
+      "reproduced": true,
+      "detail": {
+        "insertedPhone": ""
+      }
+    },
+    {
+      "id": "A08",
+      "name": "Reporte Telegram omite orden vencida por usar campo inexistente",
+      "reproduced": true,
+      "detail": {
+        "overdueDate": "2026-10-05",
+        "wrongField": "fecha_entrega",
+        "sent": "📊 *Reporte Diario - Costura App*\n\n🔹 *Órdenes Activas:* 1\n✅ *Listas para Entregar:* 0\n"
+      }
+    },
+    {
+      "id": "A09",
+      "name": "Fecha de hoy rechazada al interpretarse como UTC en Bogotá",
+      "reproduced": true,
+      "detail": {
+        "selectedDate": "2026-10-06",
+        "localNow": "2026-10-06T15:00:00-05:00",
+        "rejected": true
+      }
+    },
+    {
+      "id": "A10",
+      "name": "Sesión persistida antigua se acepta sin verificar expiración",
+      "reproduced": true,
+      "detail": {
+        "storedLoginTime": 0,
+        "authenticated": true
+      }
+    },
+    {
+      "id": "A11",
+      "name": "Recibo usa fecha_recepcion inexistente y omite detalles de prendas y pagos",
+      "reproduced": true,
+      "detail": {
+        "emptyReceptionDate": true,
+        "sent": "🧾 *RECIBO DIGITAL - ATELIER*\n\n*Orden:* #1\n*Cliente:* Cliente de prueba\n*Fecha de Recepción:* \n*Entrega Estimada:* 05/10/2026\n\n*Estado:* En Proceso\n\n💰 *PRESUPUESTO*\nTotal: $100000\nAbono: $0\n*Saldo:* $100000\n"
+      }
+    },
+    {
+      "id": "A12",
+      "name": "Listado inicial muestra solo 50 de 51 clientes",
+      "reproduced": true,
+      "detail": {
+        "registered": 51,
+        "initialList": 50
+      }
+    },
+    {
+      "id": "A13",
+      "name": "Alarma diaria repite el número calculado al abrir el panel",
+      "reproduced": true,
+      "detail": {
+        "title": "Entregas de Hoy 👗",
+        "body": "Tienes 2 orden(es) programadas para entregar el día de hoy. ¡Revisa el taller!",
+        "id": 1,
+        "schedule": {
+          "on": {
+            "hour": 8,
+            "minute": 0
+          },
+          "repeats": true
+        },
+        "sound": null,
+        "attachments": null,
+        "actionTypeId": "",
+        "extra": null
+      }
+    },
+    {
+      "id": "A14",
+      "name": "Entrega general admite deuda y prendas aún En Proceso",
+      "reproduced": true,
+      "detail": {
+        "id_estado_orden": 4,
+        "saldo_pendiente": 100000,
+        "garmentState": 4
+      }
+    }
+  ]
+}

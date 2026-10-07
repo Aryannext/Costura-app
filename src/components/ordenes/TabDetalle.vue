@@ -1,54 +1,69 @@
 <template>
-  <div>
-    <div class="card">
-      <div class="fechas">
-        <p><strong>Creación:</strong> {{ formatDate(orden.fecha_creacion) }}</p>
-        <p><strong>Entrega Estimada:</strong> {{ formatDate(orden.fecha_entrega_estimada) }}</p>
-        <p v-if="orden.fecha_entrega_real"><strong>Entrega Real:</strong> {{ formatDate(orden.fecha_entrega_real) }}</p>
-      </div>
+  <div class="tab-detalle">
+    <!-- Siguiente paso: una sola acción principal, según el estado -->
+    <section v-if="orden.id_estado_orden === 3" class="card paso">
+      <span class="paso-estado paso-estado--ok">
+        <svg class="ic ic16" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg>
+        Todas las prendas están terminadas
+      </span>
+      <button class="btn-principal" @click="$emit('cambiar-estado', 4, 'Entregada')">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"></path><path d="M3 8l9 5 9-5"></path><path d="M12 13v8"></path></svg>
+        Entregar orden
+      </button>
+      <span v-if="orden.saldo_pendiente > 0" class="paso-nota">
+        El cliente aún debe {{ formatearMoneda(orden.saldo_pendiente) }}: te pediremos confirmar antes de entregar.
+      </span>
+    </section>
 
-      <div class="estado-actions" v-if="orden.id_estado_orden !== 4 && orden.id_estado_orden !== 5">
-        <button v-if="orden.id_estado_orden === 1" @click="$emit('cambiar-estado', 2, 'En Proceso')">Iniciar Proceso</button>
-        <button v-if="orden.id_estado_orden === 2" @click="$emit('cambiar-estado', 3, 'Lista para Entregar')">Marcar Lista</button>
-        <button v-if="orden.id_estado_orden === 3" @click="$emit('cambiar-estado', 4, 'Entregada')">Entregar</button>
-        <button class="btn-danger" @click="$emit('cambiar-estado', 5, 'Cancelada')">Cancelar Orden</button>
-      </div>
-      <div class="estado-actions" v-if="orden.id_estado_orden === 4">
-        <button class="btn-secondary" @click="$emit('cambiar-estado', 1, 'Pendiente')">Reabrir Orden</button>
-      </div>
+    <!-- RN-06 y RN-17: el estado avanza solo según las prendas -->
+    <p v-else-if="orden.id_estado_orden === 1 || orden.id_estado_orden === 2" class="estado-ayuda">
+      El estado avanza solo: la orden pasa a <strong>Lista para Entregar</strong> cuando todas sus prendas estén terminadas.
+    </p>
 
-      <div class="telegram-actions">
-        <button class="btn-small telegram-btn" @click="$emit('notificar-telegram', 'LISTA_ENTREGA')">
-          <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-          Avisar Lista
-        </button>
-        <button 
-          class="btn-small telegram-btn" 
-          @click="$emit('notificar-telegram', 'RECORDATORIO_PAGO')" 
-          v-if="orden.saldo_pendiente > 0"
-        >
-          <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-          Recordar Pago
-        </button>
-        
-        <button 
-          class="btn-primary" 
-          @click="$emit('generar-recibo')"
-        >
-          <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display:inline; width:18px; margin-right:4px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-          Recibo (Telegram)
-        </button>
+    <section v-else-if="orden.id_estado_orden === 4" class="card paso">
+      <span class="paso-estado">
+        <svg class="ic ic16" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg>
+        Entregada el {{ fechaCorta(orden.fecha_entrega_real) }}
+      </span>
+      <button class="btn-secundario" @click="$emit('cambiar-estado', 2, 'En Proceso')">Reabrir orden</button>
+      <span class="paso-nota">Vuelve a En Proceso para corregir lo que haga falta.</span>
+    </section>
 
-        <button 
-          class="btn-primary" 
-          style="background-color: var(--primary);" 
-          @click="$emit('generar-recibo-nativo')"
-        >
-          <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display:inline; width:18px; margin-right:4px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
-          Compartir Recibo
+    <!-- Avisos y recibos: una lista con nombre, en vez de cuatro botones de estilos distintos -->
+    <section class="card lista">
+      <!-- D-03: los avisos abren WhatsApp con el mensaje escrito; la modista pulsa Enviar -->
+      <template v-if="puedeAvisarRecibida || puedeAvisarLista || debeAlgo">
+        <h3 class="grupo">Avisar al cliente por WhatsApp</h3>
+        <button v-if="puedeAvisarRecibida" class="fila" @click="$emit('avisar-whatsapp', 'RECIBIDA')">
+          <span class="fila-ic"><svg class="ic" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 01-12.6 7.3L3 20l1.3-5A8.4 8.4 0 1121 11.5z"></path></svg></span>
+          <span class="fila-t"><b>Confirmar que recibiste la ropa</b><small>Le llegan las prendas y la fecha de entrega</small></span>
+          <svg class="ic chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg>
         </button>
-      </div>
-    </div>
+        <!-- RN-31: el aviso de orden lista sólo con la orden Lista para Entregar -->
+        <button v-if="puedeAvisarLista" class="fila" @click="$emit('avisar-whatsapp', 'LISTA_ENTREGA')">
+          <span class="fila-ic"><svg class="ic" viewBox="0 0 24 24"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4z"></path></svg></span>
+          <span class="fila-t"><b>Avisar que está lista</b><small>Se abre WhatsApp con el mensaje escrito</small></span>
+          <svg class="ic chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg>
+        </button>
+        <button v-if="debeAlgo" class="fila" @click="$emit('avisar-whatsapp', 'RECORDATORIO_PAGO')">
+          <span class="fila-ic"><svg class="ic" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle></svg></span>
+          <span class="fila-t"><b>Recordar el pago</b><small>Debe {{ formatearMoneda(orden.saldo_pendiente) }}</small></span>
+          <svg class="ic chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg>
+        </button>
+      </template>
+
+      <h3 class="grupo">Recibo</h3>
+      <button class="fila" @click="$emit('generar-recibo')">
+        <span class="fila-ic"><svg class="ic" viewBox="0 0 24 24"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"></path><path d="M9 7h6"></path><path d="M9 11h6"></path><path d="M9 15h4"></path></svg></span>
+        <span class="fila-t"><b>Enviarme el recibo</b><small>Te llega a tu chat de Telegram</small></span>
+        <svg class="ic chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg>
+      </button>
+      <button class="fila" @click="$emit('generar-recibo-nativo')">
+        <span class="fila-ic"><svg class="ic" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M8.6 13.5l6.8 4"></path><path d="M15.4 6.5l-6.8 4"></path></svg></span>
+        <span class="fila-t"><b>Compartir recibo</b><small>WhatsApp, correo u otra app</small></span>
+        <svg class="ic chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg>
+      </button>
+    </section>
 
     <div class="historial-section">
       <h3>Historial de Actividad</h3>
@@ -60,34 +75,44 @@
       </ul>
     </div>
 
-    <div class="historial-section" style="margin-top: 24px;">
+    <div class="historial-section">
       <h3>Historial de Notificaciones</h3>
       <ul class="timeline" v-if="notificaciones && notificaciones.length > 0">
         <li v-for="notif in notificaciones" :key="'notif-'+notif.id_notificacion">
           <span class="time">{{ formatTime(notif.fecha_envio) }}</span>
-          <span class="desc"><strong>Telegram ({{ notif.tipo_nombre }}):</strong> {{ notif.mensaje }}</span>
+          <span class="desc"><strong>{{ notif.tipo_nombre }}:</strong> {{ notif.mensaje }}</span>
         </li>
       </ul>
-      <p v-else class="empty-mini">No se han enviado notificaciones.</p>
+      <p v-else class="empty-mini">Todavía no hay avisos para esta orden.</p>
     </div>
+
+    <!-- Cancelar queda al final, lejos de la acción principal -->
+    <section v-if="orden.id_estado_orden >= 1 && orden.id_estado_orden <= 3" class="zona-cancelar">
+      <button class="btn-cancelar" @click="$emit('cambiar-estado', 5, 'Cancelada')">
+        <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M5.6 5.6l12.8 12.8"></path></svg>
+        Cancelar orden
+      </button>
+      <span>No admite más prendas ni pagos. Los pagos registrados se conservan.</span>
+    </section>
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue';
+import { formatearMoneda } from '../../services/formato.js';
+import { fechaCorta } from '../../services/fechas.js';
+
 const props = defineProps({
   orden: { type: Object, required: true },
   historial: { type: Array, default: () => [] },
   notificaciones: { type: Array, default: () => [] }
 });
 
-const emit = defineEmits(['cambiar-estado', 'notificar-telegram', 'generar-recibo', 'generar-recibo-nativo']);
+defineEmits(['cambiar-estado', 'avisar-whatsapp', 'generar-recibo', 'generar-recibo-nativo']);
 
-function formatDate(dateStr) {
-  if (!dateStr) return '';
-  const dateOnly = dateStr.split('T')[0].split(' ')[0];
-  const [year, month, day] = dateOnly.split('-');
-  return `${day}/${month}/${year}`;
-}
+const puedeAvisarRecibida = computed(() => props.orden.id_estado_orden === 1 || props.orden.id_estado_orden === 2);
+const puedeAvisarLista = computed(() => props.orden.id_estado_orden === 3);
+const debeAlgo = computed(() => props.orden.saldo_pendiente > 0 && props.orden.id_estado_orden !== 5);
 
 function formatTime(dateStr) {
   if (!dateStr) return '';
@@ -97,17 +122,63 @@ function formatTime(dateStr) {
 </script>
 
 <style scoped>
-.fechas p { margin: 4px 0; color: var(--on-surface-variant); }
-.fechas p strong { color: var(--on-surface); }
-.estado-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; border-top: 1px solid var(--surface-container-highest); padding-top: 16px; }
-.btn-danger { background-color: var(--error); color: var(--on-error); }
-.btn-secondary { background-color: transparent; border: 1px solid var(--outline-variant); color: var(--on-surface); }
-.telegram-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--surface-container-highest); }
-.telegram-btn { background-color: #2AABEE; color: white; border: none; }
-.historial-section { margin-top: 16px; }
-.historial-section h3 { margin-bottom: 12px; color: var(--on-surface); }
+.tab-detalle { display: flex; flex-direction: column; gap: 16px; }
+.card { margin: 0; }
+.ic { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.ic16 { width: 16px; height: 16px; }
+
+.paso { display: flex; flex-direction: column; gap: 10px; }
+.paso-estado { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--on-surface-variant); }
+.paso-estado--ok { color: var(--success-text); }
+.paso-nota { font-size: 12px; color: var(--on-surface-variant); }
+.btn-principal { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; font-weight: 600; }
+.btn-secundario { width: 100%; background: transparent; border: 1px solid var(--outline-variant); color: var(--primary); }
+.btn-secundario:hover:not(:disabled) { background: var(--surface-container-low); box-shadow: none; transform: none; }
+.estado-ayuda { margin: 0; padding: 10px 12px; border-radius: var(--radius-md); background: var(--info-bg); color: var(--info-text); font-size: 13px; line-height: 1.4; }
+
+.lista { padding: 0; overflow: hidden; }
+.grupo { margin: 0; padding: 14px 16px 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--outline); }
+.grupo + .fila, .fila + .fila { border-top: 1px solid var(--surface-container-high); }
+.fila + .grupo { border-top: 1px solid var(--surface-container-high); }
+.fila {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 60px;
+  padding: 10px 16px;
+  background: transparent;
+  color: var(--on-surface);
+  border-radius: 0;
+  text-align: left;
+  font-weight: 400;
+}
+.fila:hover:not(:disabled) { background: var(--surface-container-low); transform: none; box-shadow: none; }
+.fila-ic { width: 36px; height: 36px; border-radius: 10px; background: var(--surface-container); color: var(--primary); display: flex; align-items: center; justify-content: center; flex: none; }
+.fila-t { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.fila-t b { font-size: 15px; font-weight: 500; }
+.fila-t small { font-size: 12px; color: var(--on-surface-variant); }
+.chevron { color: var(--outline); }
+
+.historial-section h3 { margin: 0 0 12px; font-size: 17px; color: var(--on-surface); }
 .timeline { list-style: none; padding: 0; margin: 0; }
 .timeline li { padding: 10px 0; border-bottom: 1px solid var(--surface-container-highest); display: flex; flex-direction: column; }
 .timeline .time { font-size: 0.8rem; color: var(--primary); margin-bottom: 4px; font-weight: 500; }
 .timeline .desc { color: var(--on-surface-variant); }
+.empty-mini { margin: 0; font-size: 13px; color: var(--on-surface-variant); }
+
+.zona-cancelar { display: flex; flex-direction: column; gap: 2px; padding-bottom: 8px; }
+.zona-cancelar span { font-size: 12px; color: var(--on-surface-variant); }
+.btn-cancelar {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  background: transparent;
+  color: var(--error);
+  font-size: 15px;
+  font-weight: 600;
+}
+.btn-cancelar:hover:not(:disabled) { background: transparent; box-shadow: none; transform: none; text-decoration: underline; }
 </style>

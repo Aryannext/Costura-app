@@ -1,4 +1,5 @@
 import { db, saveDb } from '../connection.js';
+import { condicionOrdenActiva } from './estadoOrden.js';
 
 export async function getAllOrdenes() {
     if (!db) throw new Error("Database not initialized");
@@ -30,9 +31,11 @@ export async function createOrden(orden) {
     await db.beginTransaction();
     let isCommitted = false;
     try {
+        // fecha_creacion es opcional: permite pasar a la app ropa recibida antes
+        // de empezar a usarla. Sin ella, SQLite pone la fecha y hora actuales.
         const resOrden = await db.run(
-            "INSERT INTO orden_trabajo (fecha_entrega_estimada, valor_total, saldo_pendiente, id_cliente, id_estado_orden) VALUES (?, 0, 0, ?, 1)",
-            [orden.fecha_entrega_estimada, orden.id_cliente],
+            "INSERT INTO orden_trabajo (fecha_creacion, fecha_entrega_estimada, valor_total, saldo_pendiente, id_cliente, id_estado_orden) VALUES (COALESCE(?, datetime('now','localtime')), ?, 0, 0, ?, 1)",
+            [orden.fecha_creacion ?? null, orden.fecha_entrega_estimada, orden.id_cliente],
             false
         );
 
@@ -84,7 +87,9 @@ export async function changeEstado(id_orden, id_estado_orden, nombre_estado, cur
         });
     } else {
         set.push({
-            statement: "UPDATE orden_trabajo SET id_estado_orden = ? WHERE id_orden = ?",
+            // Cancelar o reabrir: la orden deja de estar Lista para Entregar (RN-37).
+            // Al entregar, en cambio, fecha_lista se conserva como dato histórico.
+            statement: "UPDATE orden_trabajo SET id_estado_orden = ?, fecha_lista = NULL WHERE id_orden = ?",
             values: [id_estado_orden, id_orden]
         });
     }
@@ -93,7 +98,7 @@ export async function changeEstado(id_orden, id_estado_orden, nombre_estado, cur
     let id_tipo_actividad = 3; // Cambio de estado por defecto
     if (id_estado_orden === 4) id_tipo_actividad = 5; // Entrega
     if (id_estado_orden === 5) id_tipo_actividad = 6; // Cancelacion
-    if (id_estado_orden === 1 && current_orden?.id_estado_orden === 4) id_tipo_actividad = 7; // Reapertura
+    if (id_estado_orden === 2 && current_orden?.id_estado_orden === 4) id_tipo_actividad = 7; // Reapertura (RN-16: vuelve a En Proceso)
 
     set.push({
         statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
@@ -110,6 +115,23 @@ export async function registrarHistorialActividad(id_orden, id_tipo_actividad, d
         [descripcion, id_orden, id_tipo_actividad],
         false
     );
+}
+
+/**
+ * Entregas pendientes agrupadas por día, para armar los recordatorios locales.
+ * Ambas fechas se pasan en hora local ('YYYY-MM-DD'), igual que se guardan.
+ */
+export async function getEntregasPorDia(desdeISO, hastaISO) {
+    if (!db) throw new Error("Database not initialized");
+    const result = await db.query(`
+        SELECT date(fecha_entrega_estimada) AS dia, COUNT(*) AS total
+        FROM orden_trabajo
+        WHERE ${condicionOrdenActiva()}
+          AND date(fecha_entrega_estimada) BETWEEN ? AND ?
+        GROUP BY dia
+        ORDER BY dia ASC
+    `, [desdeISO, hastaISO]);
+    return result.values || [];
 }
 
 export async function getHistorialByOrden(id_orden) {

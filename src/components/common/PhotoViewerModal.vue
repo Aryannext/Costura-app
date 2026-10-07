@@ -1,7 +1,7 @@
 <template>
   <teleport to="body">
     <transition name="fade-scale">
-      <div v-if="show" class="photo-viewer-overlay" @click.self="close">
+      <div v-if="show" class="photo-viewer-overlay" @click.self="close" @keydown.esc="close">
         <div class="photo-viewer-header">
           <button class="close-btn" @click="close">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -10,8 +10,8 @@
           </button>
         </div>
         
-        <div class="photo-viewer-content" @click.self="close">
-          <img :src="getImgSrc(photoUrl)" class="photo-img" />
+        <div class="photo-viewer-content" @click.self="close" @keydown.esc="close">
+          <img :src="resolvePhotoSrc(photoUrl)" class="photo-img" />
         </div>
       </div>
     </transition>
@@ -20,13 +20,7 @@
 
 <script setup>
 import { useHaptics } from '../../composables/useHaptics.js';
-import { Capacitor } from '@capacitor/core';
-
-const getImgSrc = (path) => {
-  if (!path) return '';
-  if (path.startsWith('http') || path.startsWith('data:')) return path;
-  return Capacitor.convertFileSrc(path);
-};
+import { resolvePhotoSrc } from '../../services/photoStorage.js';
 
 const props = defineProps({
   show: Boolean,

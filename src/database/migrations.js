@@ -125,5 +125,95 @@ export const migrations = [
       
       `INSERT OR IGNORE INTO configuracion(clave, valor) VALUES ('telegram_bot_token', ''), ('telegram_chat_id', ''), ('dias_anticipacion_vencer', '3'), ('dias_sin_reclamar', '30');`
     ]
+  },
+  {
+    // P1-4: hasta la v1 el saldo se acumulaba por diferencias y nunca se
+    // reconciliaba. Se recalculan todas las órdenes desde sus prendas y pagos.
+    // Desde aquí cada escritura lo recalcula (ver queries/saldo.js).
+    // El texto queda congelado a propósito: una migración ya aplicada en un
+    // teléfono no debe cambiar aunque la consulta de la app evolucione.
+    toVersion: 2,
+    statements: [
+      `UPDATE orden_trabajo SET
+          valor_total = (SELECT COALESCE(SUM(valor), 0) FROM prenda WHERE prenda.id_orden = orden_trabajo.id_orden),
+          saldo_pendiente = (SELECT COALESCE(SUM(valor), 0) FROM prenda WHERE prenda.id_orden = orden_trabajo.id_orden)
+                          - (SELECT COALESCE(SUM(valor), 0) FROM pago WHERE pago.id_orden = orden_trabajo.id_orden);`
+    ]
+  },
+  {
+    // P1-9: un pago no se borra, se anula. Queda visible con fecha y motivo y
+    // deja de contar en el saldo, para no perder el rastro del dinero (RN-14, RN-35).
+    toVersion: 3,
+    statements: [
+      `ALTER TABLE pago ADD COLUMN anulado_en TEXT;`,
+      `ALTER TABLE pago ADD COLUMN motivo_anulacion TEXT;`,
+      `INSERT OR IGNORE INTO tipo_actividad(id_tipo_actividad, nombre) VALUES (8, 'Anulación de pago'), (9, 'Eliminación de prenda');`
+    ]
+  },
+  {
+    // RN-06, RN-16 y RN-17: desde aquí el estado de la orden se deriva de sus
+    // prendas (services/estadoOrden.js). Hasta la v3 se fijaba a mano y podía
+    // contradecirlas. Se ajustan las órdenes abiertas con la misma regla y se
+    // deja constancia en el historial; entregadas y canceladas no se tocan.
+    // Una orden abierta con todas sus prendas entregadas tampoco: no hay fecha
+    // real de entrega que inventarle.
+    toVersion: 4,
+    statements: [
+      `INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad)
+       SELECT 'Estado ajustado automáticamente a ' ||
+              CASE nuevo WHEN 1 THEN 'Pendiente: la orden no tiene prendas'
+                         WHEN 2 THEN 'En Proceso: hay prendas pendientes o en proceso'
+                         ELSE 'Lista para Entregar: todas las prendas están terminadas' END,
+              id_orden, 3
+       FROM (
+         SELECT o.id_orden, o.id_estado_orden AS actual,
+           CASE
+             WHEN NOT EXISTS (SELECT 1 FROM prenda p WHERE p.id_orden = o.id_orden) THEN 1
+             WHEN EXISTS (SELECT 1 FROM prenda p WHERE p.id_orden = o.id_orden AND p.id_estado_prenda IN (1, 2)) THEN 2
+             WHEN EXISTS (SELECT 1 FROM prenda p WHERE p.id_orden = o.id_orden AND p.id_estado_prenda = 3) THEN 3
+             ELSE o.id_estado_orden
+           END AS nuevo
+         FROM orden_trabajo o
+         WHERE o.id_estado_orden IN (1, 2, 3)
+       )
+       WHERE nuevo <> actual;`,
+      `UPDATE orden_trabajo SET id_estado_orden =
+         CASE
+           WHEN NOT EXISTS (SELECT 1 FROM prenda p WHERE p.id_orden = orden_trabajo.id_orden) THEN 1
+           WHEN EXISTS (SELECT 1 FROM prenda p WHERE p.id_orden = orden_trabajo.id_orden AND p.id_estado_prenda IN (1, 2)) THEN 2
+           WHEN EXISTS (SELECT 1 FROM prenda p WHERE p.id_orden = orden_trabajo.id_orden AND p.id_estado_prenda = 3) THEN 3
+           ELSE id_estado_orden
+         END
+       WHERE id_estado_orden IN (1, 2, 3);`
+    ]
+  },
+  {
+    // RN-37 y P1-11: "sin reclamar" se mide desde que la orden quedó Lista para
+    // Entregar, no desde la fecha estimada. Desde aquí la transición a Lista
+    // sella `fecha_lista` (queries/estadoOrden.js) y salir de Lista la borra.
+    // Para las órdenes que ya están Lista se toma su última entrada en ese
+    // estado según el historial; si no hay ninguna, la fecha estimada de
+    // entrega, que es lo que se medía hasta ahora.
+    toVersion: 5,
+    statements: [
+      `ALTER TABLE orden_trabajo ADD COLUMN fecha_lista TEXT;`,
+      `UPDATE orden_trabajo SET fecha_lista = COALESCE(
+         (SELECT MAX(h.fecha_hora) FROM historial_actividad h
+          WHERE h.id_orden = orden_trabajo.id_orden
+            AND h.descripcion LIKE '%a Lista para Entregar%'),
+         fecha_entrega_estimada)
+       WHERE id_estado_orden = 3;`
+    ]
+  },
+  {
+    // Oct 2026: Bre-B (transferencias inmediatas del Banco de la República, sin
+    // costo entre personas), nombre del taller para los mensajes y el recibo, y
+    // tipos de aviso por WhatsApp. Solo inserta filas: no cambia datos existentes.
+    toVersion: 6,
+    statements: [
+      `INSERT OR IGNORE INTO metodo_pago(id_metodo_pago, nombre) VALUES (5, 'Bre-B');`,
+      `INSERT OR IGNORE INTO configuracion(clave, valor) VALUES ('nombre_taller', '');`,
+      `INSERT OR IGNORE INTO tipo_notificacion(id_tipo_notificacion, nombre) VALUES (4, 'Orden Recibida'), (5, 'En Proceso'), (6, 'Cobro');`
+    ]
   }
 ];

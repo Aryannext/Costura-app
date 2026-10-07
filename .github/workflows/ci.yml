@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, 'integracion-*' ]
   pull_request:
     branches: [ main ]
 
@@ -12,18 +12,59 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    
+
+    # Vite 8 exige Node 20.19+ o 22.12+; se usa 24, la versión del entorno de desarrollo
     - name: Use Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20.x'
+        node-version: '24.x'
         cache: 'npm'
-        
+
+    # `npm ci` en lugar de `npm install`: instala exactamente lo que dice el
+    # lockfile y falla si package.json y package-lock.json no concuerdan. Con
+    # `npm install` una dependencia sin declarar pasaba desapercibida porque
+    # llegaba como transitiva de otro paquete.
+    # --ignore-scripts: ninguna dependencia necesita scripts de instalación
     - name: Install dependencies
-      run: npm install
-      
+      run: npm ci --ignore-scripts
+
     - name: Run Tests & Coverage
       run: npm run test:unit
-      
+
     - name: Build Project
       run: npm run build
+
+  # La imagen web: se construye, se levanta y se comprueba con peticiones reales
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Construir la imagen
+      run: docker build -t costura-web .
+
+    - name: Levantar el contenedor
+      run: |
+        docker run -d --name costura -p 8080:8080 costura-web
+        for i in $(seq 1 30); do curl -fs http://localhost:8080/healthz && break; sleep 1; done
+
+    - name: Comprobar rutas, tipos y encabezados
+      run: |
+        set -e
+        # Una ruta profunda de Vue Router devuelve la app, no un 404
+        curl -fs http://localhost:8080/ordenes/3 | grep -q '<div id="app">'
+        # Los archivos de la app se piden desde la raíz (compilado con base /)
+        JS=$(curl -fs http://localhost:8080/ | grep -o 'src="/assets/[^"]*\.js"' | head -1 | cut -d'"' -f2)
+        test -n "$JS"
+        curl -fsI "http://localhost:8080$JS" | grep -qi 'content-type: application/javascript'
+        curl -fsI "http://localhost:8080$JS" | grep -qi 'x-content-type-options: nosniff'
+        # Un archivo que no existe en /assets da 404, no index.html
+        test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/assets/no-existe.js)" = "404"
+        # SQLite del navegador: el .wasm con su tipo correcto
+        WASM=$(docker exec costura sh -c 'cd /usr/share/nginx/html && find . -name "*.wasm" | head -1' | sed 's#^\.##')
+        curl -fsI "http://localhost:8080$WASM" | grep -qi 'content-type: application/wasm'
+        echo "Imagen web verificada"
+
+    - name: Registro del contenedor si algo falla
+      if: failure()
+      run: docker logs costura

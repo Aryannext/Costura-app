@@ -1,11 +1,24 @@
 import { ref } from 'vue';
 import { getAllOrdenes, getOrdenById, createOrden, changeEstado as updateEstadoOrdenDB, getHistorialByOrden } from '../database/queries/ordenes.js';
 import { validators } from '../services/validators.js';
+import { formatearMoneda } from '../services/formato.js';
 import { useAsyncAction } from './useAsyncAction.js';
 
 const ordenes = ref([]);
 const ordenActual = ref(null);
 const historial = ref([]);
+
+/**
+ * RN-30 permite entregar una orden que todavía tiene saldo, así que no se
+ * bloquea. Pero la entrega es el último momento en que el cliente está delante,
+ * y hasta ahora ocurría sin ningún aviso (P1-4). Devuelve el texto de la
+ * confirmación, o null si la entrega no necesita confirmarse.
+ */
+export function mensajeConfirmacionEntrega(orden) {
+    if (!orden || !(orden.saldo_pendiente > 0)) return null;
+    return `El cliente todavía debe ${formatearMoneda(orden.saldo_pendiente)} de un total de ${formatearMoneda(orden.valor_total)}. ` +
+        `¿Entregar la orden de todos modos?`;
+}
 
 export function useOrdenes() {
 
@@ -28,7 +41,11 @@ export function useOrdenes() {
 
     const saveOrden = async (ordenData) => {
         return execute(async () => {
-            validators.validateFechaEntrega(ordenData.fecha_entrega_estimada);
+            validators.validateFechaRecepcion(ordenData.fecha_creacion);
+            validators.validateFechaEntrega(
+                ordenData.fecha_entrega_estimada,
+                ordenData.fecha_creacion ? ordenData.fecha_creacion.slice(0, 10) : undefined
+            );
             const id = await createOrden(ordenData);
             return id;
         }, {
@@ -39,12 +56,10 @@ export function useOrdenes() {
 
     const changeEstado = async (id_orden, id_estado_orden, estadoNombre, ordenActualData) => {
         return execute(async () => {
-            let accion = null;
-            if (id_estado_orden === 5) accion = 'cancelar';
-            else if (id_estado_orden === 1 && ordenActualData && ordenActualData.id_estado_orden === 4) accion = 'reabrir';
-
-            if (accion && ordenActualData) {
-                validators.validateOrdenAccionPermitida(ordenActualData, accion);
+            // A mano sólo se entrega, se cancela o se reabre (a En Proceso, RN-16).
+            // Los demás estados los deriva el sistema de las prendas (RN-06, RN-17).
+            if (ordenActualData) {
+                validators.validateCambioManualEstado(ordenActualData, id_estado_orden);
             }
 
             await updateEstadoOrdenDB(id_orden, id_estado_orden, estadoNombre, ordenActualData);

@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Capacitor } from '@capacitor/core';
-import { importDatabaseFromJson, sqlite, initDatabase } from '../connection.js';
+import { importDatabaseFromJson, sqlite, initDatabase, db } from '../connection.js';
 
 vi.mock('@capacitor/core', () => ({
     Capacitor: {
@@ -11,7 +11,16 @@ vi.mock('@capacitor/core', () => ({
 const mockDb = vi.hoisted(() => ({
     open: vi.fn(),
     execute: vi.fn(),
-    exportToJson: vi.fn()
+    close: vi.fn(),
+    exportToJson: vi.fn(),
+    // initDatabase ejecuta las migraciones de verdad; el ejecutor necesita
+    // consultar la tabla de control y envolver cada migración en su transacción.
+    query: vi.fn().mockResolvedValue({ values: [] }),
+    run: vi.fn().mockResolvedValue({}),
+    executeSet: vi.fn().mockResolvedValue({}),
+    beginTransaction: vi.fn(),
+    commitTransaction: vi.fn(),
+    rollbackTransaction: vi.fn()
 }));
 
 vi.mock('@capacitor-community/sqlite', () => {
@@ -19,6 +28,7 @@ vi.mock('@capacitor-community/sqlite', () => {
         SQLiteConnection: class {
             importFromJson = vi.fn();
             saveToStore = vi.fn();
+            closeConnection = vi.fn();
             checkConnectionsConsistency = vi.fn().mockResolvedValue({ result: true });
             isConnection = vi.fn().mockResolvedValue({ result: true });
             retrieveConnection = vi.fn().mockResolvedValue(mockDb);
@@ -32,102 +42,160 @@ vi.mock('../migrations.js', () => ({
     migrations: [{ statements: ["CREATE TABLE fake;"] }]
 }));
 
-// Mock DOM for jeep-sqlite
-global.window = {};
-global.document = {
-    createElement: vi.fn(() => ({})),
-    body: { appendChild: vi.fn() }
-};
-global.customElements = {
-    whenDefined: vi.fn().mockResolvedValue()
-};
 vi.mock('jeep-sqlite/loader', () => ({
     defineCustomElements: vi.fn()
 }));
 
+// `window` y `document` son los reales de jsdom: sustituirlos por objetos planos
+// dejaba a initDatabase sin `document.querySelector` y tumbaba el fichero entero.
+// Lo único que hay que fingir es la definición del custom element, porque el
+// loader de jeep-sqlite está simulado y `whenDefined` no se resolvería nunca.
+vi.stubGlobal('customElements', {
+    whenDefined: vi.fn().mockResolvedValue(undefined),
+    define: vi.fn(),
+    get: vi.fn()
+});
+
 describe('Database Connection & Restore', () => {
-    beforeAll(async () => {
-        Capacitor.getPlatform.mockReturnValue('web');
-        await initDatabase();
-    });
-
-    beforeEach(() => {
+    beforeEach(async () => {
         vi.clearAllMocks();
-        mockDb.exportToJson.mockReset();
-        sqlite.importFromJson.mockReset();
-        sqlite.saveToStore.mockReset();
         Capacitor.getPlatform.mockReturnValue('web');
+
+        mockDb.exportToJson.mockReset();
+        mockDb.close.mockReset();
+        mockDb.query.mockResolvedValue({ values: [] });
+        mockDb.run.mockResolvedValue({});
+        sqlite.importFromJson.mockReset();
+        sqlite.closeConnection.mockReset();
+        sqlite.saveToStore.mockReset();
+
+        // Cada prueba arranca con una conexión viva: importDatabaseFromJson la
+        // cierra a propósito y deja `db` en null.
+        await initDatabase();
+
+        // El arranque deja rastro en los mocks; se limpia para que las
+        // aserciones hablen sólo de la restauración.
+        vi.clearAllMocks();
     });
 
-    describe('importDatabaseFromJson with Snapshot/Rollback', () => {
-        it('debe restaurar exitosamente y guardar en disco si es web', async () => {
-            const validJson = JSON.stringify({ database: "costura_db", mode: "full" });
-            const mockSnapshot = { export: { database: "costura_db", mode: "full", old: true } };
+    describe('guardado de la base web', () => {
+        it('guarda en el navegador después de cada escritura confirmada', async () => {
+            await db.executeSet([{ statement: 'INSERT', values: [] }], true);
+            expect(sqlite.saveToStore).toHaveBeenCalledTimes(1);
 
-            mockDb.exportToJson.mockResolvedValueOnce(mockSnapshot);
+            await db.run('UPDATE', []);
+            expect(sqlite.saveToStore).toHaveBeenCalledTimes(2);
+
+            await db.execute('DELETE');
+            expect(sqlite.saveToStore).toHaveBeenCalledTimes(3);
+        });
+
+        it('dentro de una transacción manual espera al commit', async () => {
+            await db.beginTransaction();
+            await db.run('INSERT', [], false);
+            await db.executeSet([], false);
+            expect(sqlite.saveToStore).not.toHaveBeenCalled();
+
+            await db.commitTransaction();
+            expect(sqlite.saveToStore).toHaveBeenCalledTimes(1);
+        });
+
+        it('las lecturas no guardan', async () => {
+            await db.query('SELECT 1');
+            expect(sqlite.saveToStore).not.toHaveBeenCalled();
+        });
+
+        it('en Android no envuelve la conexión: SQLite ya escribe en archivo', async () => {
+            Capacitor.getPlatform.mockReturnValue('android');
+            await initDatabase();
+            vi.clearAllMocks();
+
+            await db.executeSet([], true);
+
+            expect(db).toBe(mockDb);
+            expect(sqlite.saveToStore).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('importDatabaseFromJson con snapshot y rollback', () => {
+        const snapshot = { export: { database: "costura_db", mode: "full", old: true } };
+        const snapshotSerializado = JSON.stringify(snapshot.export, null, 2);
+
+        it('Restauración correcta -> importa el respaldo y devuelve true', async () => {
+            const respaldo = JSON.stringify({ database: "costura_db", mode: "full" });
+            mockDb.exportToJson.mockResolvedValueOnce(snapshot);
             sqlite.importFromJson.mockResolvedValueOnce({});
-            sqlite.saveToStore.mockResolvedValueOnce();
 
-            const result = await importDatabaseFromJson(validJson);
+            const resultado = await importDatabaseFromJson(respaldo);
 
-            expect(result).toBe(true);
+            expect(resultado).toBe(true);
             expect(mockDb.exportToJson).toHaveBeenCalledWith('full');
-            expect(sqlite.importFromJson).toHaveBeenCalledWith(validJson);
             expect(sqlite.importFromJson).toHaveBeenCalledTimes(1);
-            expect(sqlite.saveToStore).toHaveBeenCalledWith("costura_db");
+            expect(sqlite.importFromJson).toHaveBeenCalledWith(respaldo);
         });
 
-        it('debe fallar si el JSON es inválido, hacer rollback al snapshot y propagar error', async () => {
-            const invalidJson = "{ invalid json }";
-            const mockSnapshot = { export: { valid: "snapshot" } };
+        // Regresión de P0-7: importFromJson escribe sobre su propio handle. Si la
+        // conexión anterior seguía viva, su copia en memoria acababa guardándose
+        // encima y la restauración no restauraba nada.
+        it('Suelta la conexión ANTES de importar y no la vuelve a guardar encima', async () => {
+            const respaldo = JSON.stringify({ database: "costura_db" });
+            const orden = [];
 
-            mockDb.exportToJson.mockResolvedValueOnce(mockSnapshot);
+            mockDb.exportToJson.mockResolvedValueOnce(snapshot);
+            mockDb.close.mockImplementationOnce(async () => { orden.push('cerrar base'); });
+            sqlite.closeConnection.mockImplementationOnce(async () => { orden.push('soltar conexión'); });
+            sqlite.importFromJson.mockImplementationOnce(async () => { orden.push('importar'); return {}; });
 
-            await expect(importDatabaseFromJson(invalidJson)).rejects.toThrow("Fallo la restauración del Backup. Se revirtieron los cambios.");
+            await importDatabaseFromJson(respaldo);
 
-            expect(mockDb.exportToJson).toHaveBeenCalledTimes(1);
-            expect(sqlite.importFromJson).toHaveBeenCalledTimes(1);
-            expect(sqlite.importFromJson).toHaveBeenCalledWith(JSON.stringify(mockSnapshot.export, null, 2)); // Rollback
-            expect(sqlite.saveToStore).toHaveBeenCalledWith("costura_db"); // Guarda el rollback
+            expect(orden).toEqual(['cerrar base', 'soltar conexión', 'importar']);
+            expect(sqlite.closeConnection).toHaveBeenCalledWith("costura_db", false);
+            expect(sqlite.saveToStore).not.toHaveBeenCalled();
         });
 
-        it('debe fallar durante importFromJson, hacer rollback y propagar error', async () => {
-            const validJson = JSON.stringify({ some: "data" });
-            const mockSnapshot = { export: { valid: "snapshot" } };
+        it('JSON inválido -> falla antes de tocar la base de datos', async () => {
+            mockDb.exportToJson.mockResolvedValueOnce(snapshot);
 
-            mockDb.exportToJson.mockResolvedValueOnce(mockSnapshot);
+            await expect(importDatabaseFromJson("{ json roto }"))
+                .rejects.toThrow("El archivo de respaldo no contiene un JSON válido.");
 
-            const importError = new Error("Sintaxis SQL inválida en JSON");
-            sqlite.importFromJson.mockRejectedValueOnce(importError); // Falla importación principal
-            sqlite.importFromJson.mockResolvedValueOnce({}); // Éxito en rollback
+            expect(sqlite.closeConnection).not.toHaveBeenCalled();
+            expect(sqlite.importFromJson).not.toHaveBeenCalled();
+        });
 
-            await expect(importDatabaseFromJson(validJson)).rejects.toThrow("Fallo la restauración del Backup. Se revirtieron los cambios.");
+        it('Falla la importación -> revierte al snapshot y propaga el error', async () => {
+            const respaldo = JSON.stringify({ some: "data" });
+            mockDb.exportToJson.mockResolvedValueOnce(snapshot);
+            sqlite.importFromJson.mockRejectedValueOnce(new Error("Sintaxis SQL inválida en JSON"));
+            sqlite.importFromJson.mockResolvedValueOnce({});
+
+            await expect(importDatabaseFromJson(respaldo))
+                .rejects.toThrow("Falló la restauración del respaldo. Se revirtieron los cambios.");
 
             expect(sqlite.importFromJson).toHaveBeenCalledTimes(2);
-            expect(sqlite.importFromJson).toHaveBeenNthCalledWith(1, validJson);
-            expect(sqlite.importFromJson).toHaveBeenNthCalledWith(2, JSON.stringify(mockSnapshot.export, null, 2));
-            expect(sqlite.saveToStore).toHaveBeenCalledWith("costura_db");
+            expect(sqlite.importFromJson).toHaveBeenNthCalledWith(1, respaldo);
+            expect(sqlite.importFromJson).toHaveBeenNthCalledWith(2, snapshotSerializado);
         });
 
-        it('debe propagar un error crítico si el rollback también falla', async () => {
-            const validJson = JSON.stringify({ some: "data" });
-            const mockSnapshot = { export: { valid: "snapshot" } };
-
-            mockDb.exportToJson.mockResolvedValueOnce(mockSnapshot);
-
+        it('Falla también el rollback -> error crítico', async () => {
+            const respaldo = JSON.stringify({ some: "data" });
+            mockDb.exportToJson.mockResolvedValueOnce(snapshot);
             sqlite.importFromJson.mockRejectedValueOnce(new Error("Error primario"));
             sqlite.importFromJson.mockRejectedValueOnce(new Error("Error catastrófico en rollback"));
 
-            await expect(importDatabaseFromJson(validJson)).rejects.toThrow("CRÍTICO: Corrupción de base de datos irrecuperable.");
+            await expect(importDatabaseFromJson(respaldo))
+                .rejects.toThrow("CRÍTICO: Corrupción de base de datos irrecuperable.");
 
             expect(sqlite.importFromJson).toHaveBeenCalledTimes(2);
         });
 
-        it('debe fallar inmediatamente si no puede crear el snapshot', async () => {
+        it('No se puede crear el snapshot -> no se intenta importar nada', async () => {
             mockDb.exportToJson.mockRejectedValueOnce(new Error("DB not initialized"));
 
-            await expect(importDatabaseFromJson("{}")).rejects.toThrow("No se pudo crear el snapshot de seguridad antes de restaurar.");
+            await expect(importDatabaseFromJson("{}"))
+                .rejects.toThrow("No se pudo crear el snapshot de seguridad antes de restaurar.");
 
+            expect(sqlite.closeConnection).not.toHaveBeenCalled();
             expect(sqlite.importFromJson).not.toHaveBeenCalled();
         });
     });

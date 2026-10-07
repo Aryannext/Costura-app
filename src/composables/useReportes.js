@@ -9,8 +9,11 @@ export function useReportes() {
         ordenesListas: 0,
         ordenesAtrasadas: 0,
         ordenesSinReclamar: 0,
-        saldosPendientes: 0
+        diasSinReclamar: 0,
+        saldosPendientes: 0,
+        ordenesPorCobrar: 0
     });
+    const atrasadas = ref([]);
     const ordenesRecientes = ref([]);
     const proximasEntregas = ref([]);
 
@@ -22,6 +25,7 @@ export function useReportes() {
         return execute(async () => {
             const data = await getDashboardData();
             kpis.value = data.kpis;
+            atrasadas.value = data.atrasadas;
             ordenesRecientes.value = data.ordenesRecientes;
             proximasEntregas.value = data.proximasEntregas;
         });
@@ -29,6 +33,7 @@ export function useReportes() {
 
     return {
         kpis,
+        atrasadas,
         ordenesRecientes,
         proximasEntregas,
         loading,

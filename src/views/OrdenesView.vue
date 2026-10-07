@@ -25,14 +25,23 @@
         :class="{ active: currentTab === 'historial' }" 
         @click="currentTab = 'historial'"
       >Historial</button>
+      <button
+        class="tab-btn"
+        :class="{ active: currentTab === 'porCobrar' }"
+        @click="currentTab = 'porCobrar'"
+      >Por cobrar</button>
     </div>
+
+    <p v-if="currentTab === 'porCobrar' && ordenesFiltradas.length > 0" class="total-por-cobrar">
+      Total por cobrar: <strong>{{ formatearMoneda(totalPorCobrar(ordenesFiltradas)) }}</strong>
+    </p>
 
     <div v-if="loading && ordenesFiltradas.length === 0" class="loading-state">
       <SkeletonLoader :count="4" height="88px" />
     </div>
     
     <div v-else-if="ordenesFiltradas.length === 0" class="empty-state">
-      <p class="body-md">No hay órdenes en esta categoría.</p>
+      <p class="body-md">{{ mensajeVacio }}</p>
     </div>
 
     <transition-group name="stagger" tag="div" v-else class="ordenes-list stagger-list">
@@ -66,6 +75,8 @@
 import { ref, computed, onMounted, inject } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useOrdenes } from '../composables/useOrdenes.js';
+import { ordenesPorCobrar, totalPorCobrar } from '../services/estadoOrden.js';
+import { formatearMoneda } from '../services/formato.js';
 import OrdenCard from '../components/ordenes/OrdenCard.vue';
 import OrdenForm from '../components/ordenes/OrdenForm.vue';
 import SkeletonLoader from '../components/common/SkeletonLoader.vue';
@@ -75,7 +86,9 @@ const router = useRouter();
 const toast = inject('toast');
 const { ordenes, loading, error, fetchOrdenes, saveOrden } = useOrdenes();
 
-const currentTab = ref('activas');
+// El panel enlaza con ?tab=por-cobrar (HU-36).
+const PESTANA_DESDE_RUTA = { 'por-cobrar': 'porCobrar', historial: 'historial' };
+const currentTab = ref(PESTANA_DESDE_RUTA[route.query.tab] || 'activas');
 const showAddForm = ref(false);
 const preselectedClienteId = ref(null);
 const searchQuery = ref('');
@@ -97,6 +110,11 @@ const ordenesFiltradas = computed(() => {
     filtradas = filtradas.filter(o => o.cliente_nombre?.toLowerCase().includes(q));
   }
 
+  if (currentTab.value === 'porCobrar') {
+    // HU-36: sólo órdenes con deuda, de mayor a menor. Incluye las entregadas (RN-30).
+    return ordenesPorCobrar(filtradas);
+  }
+
   if (currentTab.value === 'activas') {
     // Pendiente (1), En Proceso (2), Lista para Entregar (3)
     return filtradas.filter(o => [1, 2, 3].includes(o.id_estado_orden));
@@ -105,6 +123,12 @@ const ordenesFiltradas = computed(() => {
     return filtradas.filter(o => [4, 5].includes(o.id_estado_orden));
   }
 });
+
+const mensajeVacio = computed(() =>
+  currentTab.value === 'porCobrar'
+    ? 'No hay órdenes pendientes de pago.' // CP-76
+    : 'No hay órdenes en esta categoría.'
+);
 
 function goToDetail(id) {
   router.push(`/ordenes/${id}`);
@@ -173,6 +197,13 @@ async function handleAddOrden(ordenData) {
   background-color: var(--surface-container-lowest);
   color: var(--primary);
   box-shadow: var(--shadow-level-1);
+}
+.total-por-cobrar {
+  margin: -8px 0 16px;
+  color: var(--on-surface-variant);
+}
+.total-por-cobrar strong {
+  color: var(--error);
 }
 .empty-state {
   text-align: center;

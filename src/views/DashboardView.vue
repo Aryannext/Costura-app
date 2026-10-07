@@ -1,23 +1,20 @@
 <template>
   <div class="dashboard-view">
-    <div class="header flex-between align-center">
-      <h2 class="display-lg">Resumen de tu taller</h2>
-      <button class="btn-primary" @click="enviarRecordatorios" :disabled="notifLoading">
-        <Icon v-if="!notifLoading" name="bell-ringing" className="btn-icon icon-sm" />
-        {{ notifLoading ? 'Procesando...' : 'Enviar Recordatorios' }}
-      </button>
-    </div>
+    <header class="hoy">
+      <h2>Hoy en el taller</h2>
+      <span class="hoy-fecha">{{ fechaHoy }}</span>
+    </header>
 
     <!-- Buscador Global -->
     <div class="global-search-container">
       <div class="search-input-wrapper">
         <Icon name="search" className="search-icon icon-sm" />
-        <input 
-          type="text" 
-          class="input-field global-search-input" 
-          v-model="globalQuery" 
+        <input
+          type="text"
+          class="input-field global-search-input"
+          v-model="globalQuery"
           @input="performSearch"
-          placeholder="Buscar cliente, teléfono o # de orden..." 
+          placeholder="Buscar cliente, teléfono o # de orden"
         />
       </div>
     </div>
@@ -27,146 +24,121 @@
         <SkeletonLoader :count="3" height="60px" />
       </div>
       <div v-else>
-        <!-- Resultados Clientes -->
-        <div class="section" v-if="searchResults.clientes.length > 0">
-          <h3 class="headline-sm mb-2 flex-align-center gap-2">
-            <Icon name="user" className="icon-sm" />
-            Clientes encontrados
-          </h3>
-          <div class="ordenes-list stagger-list">
-            <div class="list-card" v-for="c in searchResults.clientes" :key="c.id_cliente" @click="router.push(`/clientes/${c.id_cliente}`)">
-              <div class="list-card-content">
-                <div class="list-card-title">{{ c.nombre }}</div>
-                <div class="list-card-subtitle">{{ c.telefono || 'Sin teléfono' }}</div>
-              </div>
-            </div>
+        <div class="grupo" v-if="searchResults.clientes.length > 0">
+          <h3 class="grupo-t">Clientes</h3>
+          <div class="card lista">
+            <button class="fila" v-for="c in searchResults.clientes" :key="c.id_cliente" @click="router.push(`/clientes/${c.id_cliente}`)">
+              <span class="fila-t"><b>{{ c.nombre }}</b><small>{{ c.telefono || 'Sin teléfono' }}</small></span>
+            </button>
           </div>
         </div>
 
-        <!-- Resultados Órdenes -->
-        <div class="section" v-if="searchResults.ordenes.length > 0">
-          <h3 class="headline-sm mb-2 flex-align-center gap-2">
-            <Icon name="monitor" className="icon-sm" />
-            Órdenes encontradas
-          </h3>
-          <div class="ordenes-list stagger-list">
-            <div class="list-card" v-for="o in searchResults.ordenes" :key="o.id_orden" @click="goToDetail(o.id_orden)">
-              <div class="list-card-content">
-                <div class="list-card-title">#{{ o.id_orden }} - {{ o.cliente_nombre }}</div>
-                <div class="list-card-subtitle">Estado: {{ o.estado_nombre }}</div>
-              </div>
-              <div class="badge" :class="getBadgeClass(o.id_estado_orden)">{{ o.estado_nombre }}</div>
-            </div>
+        <div class="grupo" v-if="searchResults.ordenes.length > 0">
+          <h3 class="grupo-t">Órdenes</h3>
+          <div class="card lista">
+            <button class="fila" v-for="o in searchResults.ordenes" :key="o.id_orden" @click="goToDetail(o.id_orden)">
+              <span class="fila-t"><b>{{ o.cliente_nombre }} · #{{ o.id_orden }}</b></span>
+              <StatusBadge :estado="o.estado_nombre" />
+            </button>
           </div>
         </div>
 
-        <div v-if="searchResults.clientes.length === 0 && searchResults.ordenes.length === 0" class="empty-state card">
-          <p class="body-md">No se encontraron resultados para "{{ globalQuery }}"</p>
+        <div v-if="searchResults.clientes.length === 0 && searchResults.ordenes.length === 0" class="card vacio">
+          No se encontraron resultados para "{{ globalQuery }}"
         </div>
       </div>
     </div>
 
     <div v-else>
       <div v-if="loading" class="loading-state pt-4">
-        <SkeletonLoader :count="4" height="100px" />
+        <SkeletonLoader :count="4" height="80px" />
       </div>
 
+      <!-- En vez de seis cifras, lo que hay que hacer hoy, de lo más urgente a lo menos -->
       <div v-else class="dashboard-content">
-      <!-- KPIs -->
-      <div class="kpi-grid">
-        <div class="kpi-card highlight-blue">
-          <span class="kpi-value">{{ kpis.ordenesActivas || 0 }}</span>
-          <span class="kpi-label">Órdenes Activas</span>
-        </div>
-        <div class="kpi-card highlight-yellow">
-          <span class="kpi-value">{{ kpis.ordenesEnProceso || 0 }}</span>
-          <span class="kpi-label">En Proceso</span>
-        </div>
-        <div class="kpi-card highlight-green">
-          <span class="kpi-value">{{ kpis.ordenesListas || 0 }}</span>
-          <span class="kpi-label">Listas para Entrega</span>
-        </div>
-        <div class="kpi-card highlight-red">
-          <span class="kpi-value">{{ kpis.ordenesAtrasadas || 0 }}</span>
-          <span class="kpi-label">Atrasadas</span>
-        </div>
-        <div class="kpi-card highlight-orange">
-          <span class="kpi-value">{{ kpis.ordenesSinReclamar || 0 }}</span>
-          <span class="kpi-label">Sin Reclamar</span>
-        </div>
-        <div class="kpi-card highlight-danger">
-          <span class="kpi-value">${{ kpis.saldosPendientes || 0 }}</span>
-          <span class="kpi-label">Pagos Pendientes</span>
-        </div>
-      </div>
+        <!-- HU-36: la cifra lleva a la lista de órdenes que la componen -->
+        <button class="card por-cobrar kpi-card--enlace" @click="irAPorCobrar">
+          <span class="por-cobrar-t">
+            <small>Por cobrar</small>
+            <span class="por-cobrar-valor">
+              <b class="kpi-value">{{ formatearMoneda(kpis.saldosPendientes) }}</b>
+              <small v-if="kpis.ordenesPorCobrar">en {{ plural(kpis.ordenesPorCobrar, 'orden', 'órdenes') }}</small>
+            </span>
+          </span>
+          <svg class="ic chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg>
+        </button>
 
-      <!-- Próximas Entregas -->
-      <div class="recent-orders section">
-        <div class="section-header">
-          <h3 class="headline-sm">Próximas entregas</h3>
-          <button class="btn-ghost btn-small" @click="router.push('/ordenes')">Ver todas</button>
-        </div>
-
-        <div v-if="proximasEntregas.length === 0" class="empty-state card">
-          <p class="body-md">No hay entregas próximas.</p>
-        </div>
-
-        <transition-group name="stagger" tag="div" v-else class="ordenes-list stagger-list">
-          <div class="list-card" v-for="orden in proximasEntregas" :key="orden.id_orden" @click="goToDetail(orden.id_orden)">
-             <div class="list-card-content">
-                <div class="list-card-title">{{ orden.cliente_nombre }}</div>
-                <div class="list-card-subtitle">Entrega: {{ formatDate(orden.fecha_entrega_estimada) }}</div>
-             </div>
-             <div class="badge" :class="getBadgeClass(orden.id_estado_orden)">{{ orden.estado_nombre }}</div>
+        <section v-if="atrasadas.length > 0" class="grupo grupo--atrasadas">
+          <h3 class="grupo-t"><i class="punto punto--error"></i>Atrasadas<span class="cuenta">{{ kpis.ordenesAtrasadas }}</span></h3>
+          <div class="card lista">
+            <button class="fila" v-for="orden in atrasadas" :key="orden.id_orden" @click="goToDetail(orden.id_orden)">
+              <span class="fila-t">
+                <b>{{ orden.cliente_nombre }} · #{{ orden.id_orden }}</b>
+                <small class="texto-error">Debía entregarse el {{ fechaCorta(orden.fecha_entrega_estimada) }}</small>
+              </span>
+              <StatusBadge :estado="orden.estado_nombre" />
+            </button>
           </div>
-        </transition-group>
-      </div>
+        </section>
 
-      <!-- Actividad Reciente -->
-      <div class="recent-orders section">
-        <div class="section-header">
-          <h3 class="headline-sm">Actividad reciente</h3>
-        </div>
-
-        <div v-if="ordenesRecientes.length === 0" class="empty-state card">
-          <p class="body-md">No hay actividad reciente.</p>
-        </div>
-
-        <transition-group name="stagger" tag="div" v-else class="ordenes-list stagger-list">
-          <div class="list-card" v-for="orden in ordenesRecientes" :key="orden.id_orden" @click="goToDetail(orden.id_orden)">
-             <div class="list-card-content">
-                <div class="list-card-title">Nueva orden: {{ orden.cliente_nombre }}</div>
-                <div class="list-card-subtitle">Creada: {{ formatDate(orden.fecha_creacion) }}</div>
-             </div>
-             <div class="badge" :class="getBadgeClass(orden.id_estado_orden)">{{ orden.estado_nombre }}</div>
+        <section class="grupo grupo--proximas">
+          <h3 class="grupo-t"><i class="punto punto--info"></i>Para entregar pronto<span class="cuenta">{{ proximasEntregas.length }}</span></h3>
+          <div v-if="proximasEntregas.length === 0" class="card vacio">No hay entregas próximas.</div>
+          <div v-else class="card lista">
+            <button class="fila" v-for="orden in proximasEntregas" :key="orden.id_orden" @click="goToDetail(orden.id_orden)">
+              <span class="fila-t">
+                <b>{{ orden.cliente_nombre }} · #{{ orden.id_orden }}</b>
+                <small>Entrega: {{ etiquetaDia(orden.fecha_entrega_estimada) }}<template v-if="orden.saldo_pendiente > 0"> · debe {{ formatearMoneda(orden.saldo_pendiente) }}</template></small>
+              </span>
+              <StatusBadge :estado="orden.estado_nombre" />
+            </button>
           </div>
-        </transition-group>
-      </div>
+        </section>
+
+        <section v-if="kpis.ordenesListas > 0" class="grupo grupo--listas">
+          <h3 class="grupo-t"><i class="punto punto--ok"></i>Listas, esperando al cliente<span class="cuenta">{{ kpis.ordenesListas }}</span></h3>
+          <div class="card listas">
+            <span class="fila-t">
+              <b>{{ plural(kpis.ordenesListas, 'orden lista', 'órdenes listas') }}</b>
+              <small v-if="kpis.ordenesSinReclamar > 0">{{ plural(kpis.ordenesSinReclamar, 'lleva', 'llevan') }} más de {{ kpis.diasSinReclamar }} días sin que la recojan</small>
+              <small v-else>{{ kpis.ordenesListas === 1 ? 'Espera que el cliente pase a recogerla' : 'Esperan que los clientes pasen a recogerlas' }}</small>
+            </span>
+            <button class="btn-recordar" @click="enviarRecordatorios" :disabled="notifLoading">
+              <svg class="ic" viewBox="0 0 24 24"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4z"></path></svg>
+              {{ notifLoading ? 'Enviando...' : (kpis.ordenesListas === 1 ? 'Recordar al cliente' : `Recordar a los ${kpis.ordenesListas} clientes`) }}
+            </button>
+          </div>
+        </section>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, inject } from 'vue';
+import { onMounted, inject } from 'vue';
 import { useRouter } from 'vue-router';
 import { useReportes } from '../composables/useReportes.js';
 import { useNotificaciones } from '../composables/useNotificaciones.js';
 import { useNotificacionesLocales } from '../composables/useNotificacionesLocales.js';
 import { useSearch } from '../composables/useSearch.js';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import SkeletonLoader from '../components/common/SkeletonLoader.vue';
 import Icon from '../components/common/Icon.vue';
+// P1-13: el mapa propio de colores estaba desplazado en uno (4 se pintaba como
+// Lista, 5 como Entregada). StatusBadge colorea por nombre, igual que el resto.
+import StatusBadge from '../components/common/StatusBadge.vue';
+import { formatearMoneda } from '../services/formato.js';
+import { fechaCorta, fechaLarga, etiquetaDia } from '../services/fechas.js';
 
 const router = useRouter();
 const toast = inject('toast');
-const { kpis, proximasEntregas, ordenesRecientes, loading, fetchDashboardData } = useReportes();
+const { kpis, atrasadas, proximasEntregas, loading, fetchDashboardData } = useReportes();
 const { loading: notifLoading, triggerRecordatorios } = useNotificaciones();
 const { requestPermissions, scheduleDailyReminders } = useNotificacionesLocales();
 
 // Búsqueda Global (Delegada al composable para DIP)
 const { globalQuery, searchLoading, searchResults, performSearch } = useSearch();
+
+const fechaHoy = fechaLarga(new Date());
 
 onMounted(async () => {
   try {
@@ -179,12 +151,21 @@ onMounted(async () => {
   await scheduleDailyReminders();
 });
 
+/** "1 orden", "3 órdenes". */
+function plural(n, singular, varios) {
+  return `${n} ${n === 1 ? singular : varios}`;
+}
+
 async function enviarRecordatorios() {
-  const count = await triggerRecordatorios();
-  if (count > 0) {
-    toast(`Se enviaron ${count} recordatorios automáticos.`, 'success');
-  } else {
-    toast('No hay nuevas órdenes pendientes de recordar hoy.', 'info');
+  try {
+    const count = await triggerRecordatorios();
+    if (count > 0) {
+      toast(`Te llegó a Telegram la lista de ${count} cliente(s) para recordar por WhatsApp.`, 'success');
+    } else {
+      toast('Ya se les recordó hoy a estos clientes.', 'info');
+    }
+  } catch (err) {
+    // El composable ya mostró el error
   }
 }
 
@@ -192,192 +173,94 @@ function goToDetail(id) {
   router.push(`/ordenes/${id}`);
 }
 
-function formatDate(dateString) {
-    if (!dateString) return 'Sin fecha';
-    try {
-        const date = new Date(dateString);
-        return format(date, 'd MMM, yyyy', { locale: es });
-    } catch(e) {
-        return dateString;
-    }
-}
-
-function getBadgeClass(idEstado) {
-    switch(idEstado) {
-        case 1: return 'badge-neutral'; // Recibida
-        case 2: return 'badge-warning'; // En Proceso
-        case 3: return 'badge-warning'; // Prueba
-        case 4: return 'badge-success'; // Lista
-        case 5: return 'badge-info'; // Entregada
-        case 6: return 'badge-error'; // Cancelada
-        default: return 'badge-neutral';
-    }
+function irAPorCobrar() {
+  router.push({ path: '/ordenes', query: { tab: 'por-cobrar' } });
 }
 </script>
 
 <style scoped>
-/* Utility Classes for this view */
-.flex-between { display: flex; justify-content: space-between; }
-.align-center { align-items: center; }
-.flex-align-center { display: flex; align-items: center; }
-.gap-2 { gap: 8px; }
-.pt-4 { padding-top: 20px; }
-.icon-sm { width: 20px; height: 20px; }
-
 .dashboard-view {
-  padding: 24px 16px 80px 16px;
-}
-.header {
-  margin-bottom: 24px;
-}
-.header h2 {
-  color: var(--on-surface);
-}
-
-.global-search-container {
-  margin-bottom: 24px;
-}
-
-.search-input-wrapper {
-  position: relative;
+  padding: 20px 16px 80px 16px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 16px;
 }
+.pt-4 { padding-top: 8px; }
+.icon-sm { width: 20px; height: 20px; }
+.ic { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.card { margin: 0; }
 
-.search-icon {
-  position: absolute;
-  left: 16px;
-  color: var(--on-surface-variant);
-}
+.hoy { display: flex; flex-direction: column; gap: 2px; }
+.hoy h2 { margin: 0; font-size: 24px; line-height: 30px; font-weight: 700; letter-spacing: -0.03em; color: var(--on-surface); }
+.hoy-fecha { font-size: 14px; color: var(--on-surface-variant); }
 
+.search-input-wrapper { position: relative; display: flex; align-items: center; }
+.search-icon { position: absolute; left: 16px; color: var(--on-surface-variant); }
 .global-search-input {
   width: 100%;
   font-size: 16px;
-  padding: 14px 16px 14px 44px;
+  padding: 12px 16px 12px 44px;
   border-radius: var(--radius-lg);
   background-color: var(--surface-container-lowest);
   border: 1px solid var(--surface-container-high);
   box-shadow: var(--shadow-level-1);
 }
+.global-search-input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
 
-.global-search-input:focus {
-  border-color: var(--primary);
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
-}
+.dashboard-content, .search-results > div { display: flex; flex-direction: column; gap: 20px; }
 
-.mb-2 {
-  margin-bottom: 12px;
-}
-
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+.por-cobrar {
+  width: 100%;
+  display: flex;
+  align-items: center;
   gap: 12px;
-  margin-bottom: 32px;
-}
-.kpi-card {
-  background-color: var(--surface-container-lowest);
-  border: 1px solid var(--surface-container-high);
-  border-radius: var(--radius-lg);
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  box-shadow: var(--shadow-level-1);
-}
-.kpi-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--on-surface-variant);
-  margin-top: 4px;
-}
-.kpi-value {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--on-surface);
-}
-
-/* KPI Highlights mapping closely to the screenshot */
-.highlight-blue { border-left: 4px solid var(--info-color); }
-.highlight-blue .kpi-value { color: var(--info-text); }
-
-.highlight-yellow { border-left: 4px solid var(--warning-color); }
-.highlight-yellow .kpi-value { color: var(--warning-text); }
-
-.highlight-green { border-left: 4px solid var(--success-color); }
-.highlight-green .kpi-value { color: var(--success-text); }
-
-.highlight-red { border-left: 4px solid var(--error); }
-.highlight-red .kpi-value { color: var(--error); }
-
-.highlight-orange { border-left: 4px solid #f97316; }
-.highlight-orange .kpi-value { color: #c2410c; }
-
-.highlight-danger { border-left: 4px solid var(--error-text); }
-.highlight-danger .kpi-value { color: var(--error-text); }
-
-
-.section {
-  margin-bottom: 32px;
-}
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-.section-header h3 {
-  color: var(--on-surface);
-}
-
-.ordenes-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.list-card {
-  background: var(--surface-container-lowest);
-  border: 1px solid var(--surface-container-high);
-  border-radius: var(--radius-md);
   padding: 12px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.list-card:hover {
-  background: var(--surface-container-low);
-  border-color: var(--outline-variant);
-}
-
-.list-card-content {
-  display: flex;
-  flex-direction: column;
-}
-.list-card-title {
-  font-weight: 600;
-  font-size: 14px;
+  background: var(--surface-container-lowest);
   color: var(--on-surface);
+  text-align: left;
+  font-weight: 400;
 }
-.list-card-subtitle {
-  font-size: 12px;
-  color: var(--on-surface-variant);
-  margin-top: 2px;
-}
+.por-cobrar:hover:not(:disabled) { background: var(--surface-container-low); transform: none; box-shadow: var(--shadow-level-1); }
+.kpi-card--enlace { cursor: pointer; }
+.por-cobrar-t { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.por-cobrar-t > small { font-size: 13px; font-weight: 500; color: var(--on-surface-variant); }
+.por-cobrar-valor { display: flex; align-items: baseline; gap: 8px; }
+.por-cobrar-valor small { font-size: 13px; color: var(--on-surface-variant); }
+.kpi-value { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.chevron { color: var(--outline); }
 
-.empty-state {
-  text-align: center;
-  padding: 30px;
-  color: var(--on-surface-variant);
-}
+.grupo { display: flex; flex-direction: column; gap: 8px; }
+.grupo-t { margin: 0; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--on-surface-variant); }
+.punto { width: 8px; height: 8px; border-radius: 4px; flex: none; }
+.punto--error { background: var(--error); }
+.punto--info { background: var(--info-color); }
+.punto--ok { background: var(--success-color); }
+.cuenta { margin-left: auto; font-size: 12px; color: var(--outline); font-variant-numeric: tabular-nums; }
 
-/* Specific Badge Colors */
-.badge-neutral { background: var(--surface-dim); color: var(--on-surface-variant); }
-.badge-warning { background: var(--warning-bg); color: var(--warning-text); }
-.badge-success { background: var(--success-bg); color: var(--success-text); }
-.badge-info { background: var(--info-bg); color: var(--info-text); }
-.badge-error { background: var(--error-container); color: var(--on-error-container); }
+.lista { padding: 0; overflow: hidden; }
+.fila {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 12px 16px;
+  background: transparent;
+  color: var(--on-surface);
+  border-radius: 0;
+  text-align: left;
+  font-weight: 400;
+}
+.fila + .fila { border-top: 1px solid var(--surface-container-high); }
+.fila:hover:not(:disabled) { background: var(--surface-container-low); transform: none; box-shadow: none; }
+.fila-t { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.fila-t b { font-size: 15px; font-weight: 600; }
+.fila-t small { font-size: 12px; color: var(--on-surface-variant); }
+.texto-error { color: var(--error) !important; }
+
+.listas { display: flex; flex-direction: column; gap: 12px; }
+.btn-recordar { display: flex; align-items: center; justify-content: center; gap: 8px; background: transparent; border: 1px solid var(--outline-variant); color: var(--primary); }
+.btn-recordar:hover:not(:disabled) { background: var(--surface-container-low); box-shadow: none; transform: none; }
+
+.vacio { text-align: center; padding: 24px; color: var(--on-surface-variant); font-size: 14px; }
 </style>

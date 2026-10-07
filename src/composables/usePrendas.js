@@ -1,7 +1,8 @@
 import { ref } from 'vue';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
-import { Filesystem, Directory } from '@capacitor/filesystem';
+import { savePhotoFromBase64, deletePhotoFile } from '../services/photoStorage.js';
 import { validators } from '../services/validators.js';
+import { ESTADO_ORDEN } from '../services/estadoOrden.js';
 import { useAsyncAction } from './useAsyncAction.js';
 import { 
     getTiposPrenda, 
@@ -14,8 +15,11 @@ import {
     getFotografiasByPrenda,
     deleteFotografia,
     updatePrenda,
+    getContextoPrenda,
+    eliminarPrenda,
     getDescripcionesFrecuentes
 } from '../database/queries/prendas.js';
+import { getOrdenById } from '../database/queries/ordenes.js';
 
 const tiposPrenda = ref([]);
 const prendas = ref([]);
@@ -40,6 +44,12 @@ export function usePrendas() {
     const savePrenda = async (prendaData) => {
         return execute(async () => {
             validators.validatePrenda(prendaData);
+
+            // RN-12, P1-15: antes sólo la pantalla ocultaba el botón "+ Prenda".
+            const orden = await getOrdenById(prendaData.id_orden);
+            if (!orden) throw new Error("La orden no existe.");
+            validators.validateOrdenAccionPermitida(orden, 'agregar_prenda');
+
             const id = await createPrenda(prendaData);
             await fetchPrendas(prendaData.id_orden); // refresh list
             return id;
@@ -51,9 +61,11 @@ export function usePrendas() {
 
     const editPrenda = async (id_prenda, descripcion_arreglo, valor, id_orden) => {
         return execute(async () => {
-            if (valor <= 0) throw new Error("El valor debe ser mayor a cero");
             if (!descripcion_arreglo || descripcion_arreglo.trim() === '') throw new Error("La descripción es obligatoria");
-            
+
+            const { totalOtrasPrendas, totalPagado } = await getContextoPrenda(id_prenda, id_orden);
+            validators.validateValorPrendaContraPagos({ valorNuevo: valor, totalOtrasPrendas, totalPagado });
+
             await updatePrenda(id_prenda, descripcion_arreglo, valor, id_orden);
             await fetchPrendas(id_orden);
         }, {
@@ -62,21 +74,33 @@ export function usePrendas() {
         });
     };
 
-    const changeEstado = async (id_prenda, id_estado_prenda, id_orden, currentOrdenStatus = 0) => {
+    const removePrenda = async (id_prenda, id_orden) => {
         return execute(async () => {
-            await updateEstadoPrenda(id_prenda, id_estado_prenda, id_orden);
+            const contexto = await getContextoPrenda(id_prenda, id_orden);
+            validators.validateEliminarPrenda(contexto);
+
+            const rutasDeFotos = await eliminarPrenda(id_prenda, id_orden, contexto);
+            await Promise.all(rutasDeFotos.map(deletePhotoFile));
             await fetchPrendas(id_orden);
-            
-            let shouldPromptCompletion = false;
-            // Regla de Negocio: Si la prenda pasa a lista (>=3) y la orden no está lista (<3)
-            if (id_estado_prenda >= 3 && currentOrdenStatus < 3) {
-                // Verificar si TODAS las prendas de esta orden están listas
-                const allReady = prendas.value.every(p => p.id_estado_prenda >= 3);
-                if (allReady) {
-                    shouldPromptCompletion = true;
-                }
-            }
-            return { shouldPromptCompletion };
+        }, {
+            successMessage: 'Prenda eliminada',
+            toastError: true
+        });
+    };
+
+    const changeEstado = async (id_prenda, id_estado_prenda, id_orden) => {
+        return execute(async () => {
+            // El <select> de PrendaCard entrega el valor como texto.
+            const estadoNuevo = Number(id_estado_prenda);
+
+            const { estadoPrenda } = await getContextoPrenda(id_prenda, id_orden);
+            validators.validateCambioEstadoPrenda(estadoPrenda, estadoNuevo);
+
+            const { desde, hacia } = await updateEstadoPrenda(id_prenda, estadoNuevo, id_orden);
+            await fetchPrendas(id_orden);
+
+            // La orden ya cambió sola (RN-06); la vista sólo ofrece el aviso.
+            return { ordenPasoALista: hacia === ESTADO_ORDEN.LISTA && desde !== ESTADO_ORDEN.LISTA };
         }, {
             successMessage: 'Estado de la prenda actualizado',
             toastError: true
@@ -103,27 +127,21 @@ export function usePrendas() {
                 throw e;
             }
 
-            let finalUri = '';
-            
+            // Se guarda sólo el nombre del archivo, no la ruta absoluta: el
+            // directorio de datos cambia de sitio al reinstalar, y con rutas
+            // absolutas las fotos quedaban apuntando a la nada.
+            let rutaGuardada = '';
+
             if (image.base64String) {
                 const fileName = `prenda_${id_prenda}_${new Date().getTime()}.jpeg`;
-                await Filesystem.writeFile({
-                    path: fileName,
-                    data: image.base64String,
-                    directory: Directory.Data
-                });
-                const stat = await Filesystem.getUri({
-                    path: fileName,
-                    directory: Directory.Data
-                });
-                finalUri = stat.uri;
+                rutaGuardada = await savePhotoFromBase64(image.base64String, fileName);
             } else if (image.webPath) {
-                finalUri = image.webPath;
+                rutaGuardada = image.webPath;
             }
-            
-            if (finalUri) {
-                await saveFotografia(id_prenda, finalUri);
-                return finalUri;
+
+            if (rutaGuardada) {
+                await saveFotografia(id_prenda, rutaGuardada);
+                return rutaGuardada;
             }
             return null;
         }, {
@@ -182,6 +200,7 @@ export function usePrendas() {
         fetchPrendas,
         savePrenda,
         editPrenda,
+        removePrenda,
         changeEstado,
         takePhoto,
         fetchFotos,
