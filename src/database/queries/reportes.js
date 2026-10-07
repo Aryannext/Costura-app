@@ -136,20 +136,29 @@ export async function getReporteFinanciero(startDate, endDate) {
     reporte.kpis.ingresosTotales = resPagos.values[0]?.total || 0;
 
     // 2. Órdenes Nuevas y Ticket Promedio
+    // Las canceladas no son trabajo: antes una orden cancelada de $300.000 subía
+    // el promedio de dos órdenes de $20.000 y $40.000 a $120.000. Las órdenes sin
+    // prendas (valor 0, recién creadas) tampoco cuentan para el promedio.
     const resOrdenes = await db.query(
-        "SELECT count(id_orden) as total, SUM(valor_total) as valor_sum FROM orden_trabajo WHERE date(fecha_creacion) >= ? AND date(fecha_creacion) <= ?",
+        `SELECT count(id_orden) as total,
+                SUM(CASE WHEN valor_total > 0 THEN 1 ELSE 0 END) as con_valor,
+                SUM(valor_total) as valor_sum
+         FROM orden_trabajo
+         WHERE id_estado_orden <> 5 AND date(fecha_creacion) >= ? AND date(fecha_creacion) <= ?`,
         [startDate, endDate]
     );
     reporte.kpis.ordenesNuevas = resOrdenes.values[0]?.total || 0;
+    const conValor = resOrdenes.values[0]?.con_valor || 0;
     const valorSum = resOrdenes.values[0]?.valor_sum || 0;
-    reporte.kpis.ticketPromedio = reporte.kpis.ordenesNuevas > 0 ? (valorSum / reporte.kpis.ordenesNuevas).toFixed(2) : 0;
+    // Número redondeado a pesos (antes toFixed devolvía un texto con centavos)
+    reporte.kpis.ticketPromedio = conValor > 0 ? Math.round(valorSum / conValor) : 0;
 
-    // 3. Prendas Procesadas (en base a órdenes creadas en el rango)
+    // 3. Prendas Procesadas (de órdenes recibidas en el rango y no canceladas)
     const resPrendas = await db.query(`
         SELECT count(p.id_prenda) as total 
         FROM prenda p
         JOIN orden_trabajo o ON p.id_orden = o.id_orden
-        WHERE date(o.fecha_creacion) >= ? AND date(o.fecha_creacion) <= ?
+        WHERE o.id_estado_orden <> 5 AND date(o.fecha_creacion) >= ? AND date(o.fecha_creacion) <= ?
     `, [startDate, endDate]);
     reporte.kpis.prendasProcesadas = resPrendas.values[0]?.total || 0;
 
