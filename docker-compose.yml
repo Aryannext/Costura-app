@@ -1,0 +1,15 @@
+# Despliegue de la versión web en el VPS.
+#   docker compose up -d --build
+# Queda en http://IP-DEL-VPS:8080. Si el VPS usa Dokploy, Traefik o un proxy
+# con dominio y HTTPS, apunta el proxy al puerto 80 del contenedor y quita "ports".
+services:
+  web:
+    build:
+      context: .
+      args:
+        # Enlace público del APK para el botón "Descargar App (Android)"
+        VITE_APK_DOWNLOAD_URL: ${VITE_APK_DOWNLOAD_URL:-}
+    image: costura-web
+    restart: unless-stopped
+    ports:
+      - "8080:80"

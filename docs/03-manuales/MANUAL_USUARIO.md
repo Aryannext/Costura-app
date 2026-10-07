@@ -27,7 +27,7 @@ Al entrar verás **Hoy en el taller**: lo que tienes que hacer hoy, de lo más u
 - **Por cobrar:** cuánto dinero tienes "en la calle" y en cuántas órdenes. Tócalo para ver quién te debe.
 - **Atrasadas:** las órdenes cuya fecha de entrega ya pasó, con el día en que debían entregarse. Sólo aparece si tienes alguna.
 - **Para entregar pronto:** lo que se entrega desde hoy en adelante, con "Hoy", "Mañana" o la fecha, y lo que falta por cobrar.
-- **Listas, esperando al cliente:** cuántas órdenes están listas y cuántas llevan más de 30 días sin que las recojan (contados desde el día en que quedaron listas). El botón **Recordar** les manda el recordatorio a esos clientes.
+- **Listas, esperando al cliente:** cuántas órdenes están listas y cuántas llevan más de 30 días sin que las recojan. Se cuentan desde el día en que quedaron listas o desde la fecha que prometiste, la que sea más tarde (ver sección 8). El botón **Recordar** te manda a Telegram un mensaje con un enlace de WhatsApp por cada cliente: tocas cada enlace y envías. Si Telegram no está configurado o no hay internet, la app te lo dice y no anota nada como enviado.
 - **La campana de arriba:** te muestra las órdenes atrasadas y las que se entregan pronto. Tú decides qué es "pronto" en **Ajustes → Aviso de entregas próximas**: por defecto son 3 días, y puedes poner de 0 (sólo lo de hoy) a 30.
 - **Buscador:** escribe un nombre, un teléfono o un número de orden y aparece al instante, separado en *Clientes* y *Órdenes*.
 
@@ -56,8 +56,10 @@ La pantalla **Órdenes** tiene tres pestañas: **Activas**, **Historial** (entre
 
 1. Ve a **"Órdenes"** y presiona **"+ Nueva Orden"**.
 2. **Selecciona al cliente.** Si es nuevo, puedes crearlo ahí mismo sin salir del formulario.
-3. Elige la **fecha de entrega** que le prometiste. Puedes ponerla para hoy mismo si es un arreglo rápido.
-4. Presiona **Guardar**.
+3. **¿Cuándo recibiste la ropa?** Por defecto es hoy. Si estás pasando a la app ropa que recibiste antes de empezar a usarla, elige ese día.
+4. Elige la **fecha de entrega** que le prometiste. Puedes ponerla para hoy mismo si es un arreglo rápido.
+5. Presiona **Guardar**.
+6. **Escribe el número de la orden (#) en la bolsa** con marcador y cinta, o pégale una etiqueta. Así siempre sabes de quién es cada bolsa, aunque se revuelvan en la mesa.
 
 > **El precio no se pone aquí.** La orden nace en cero y el total se va calculando solo a medida que le añades prendas. Es a propósito: así el total siempre coincide con lo que hay dentro.
 
@@ -74,7 +76,7 @@ Debajo hay tres pestañas. Si la orden todavía tiene prendas por terminar se ab
   - **Fotos:** abre las fotos de la prenda y toca **Tomar foto** para fotografiar el daño. Toca una foto para verla en grande, o la "X" roja para borrarla.
   - **Notas:** abre las notas y toca **Añadir nota** para anotar cosas como "cortar 2 dedos de largo".
   - **Editar:** cambia la descripción o el precio.
-- **Pagos** — cuando el cliente venga a abonar, entra aquí y registra el valor. El saldo se actualiza solo.
+- **Pagos** — cuando el cliente venga a abonar, entra aquí y registra el valor, el medio (Efectivo, Nequi, Daviplata, Transferencia o **Bre-B**) y el día. Si el abono fue antes de usar la app, elige ese día. El saldo se actualiza solo.
 
 **Corregir errores**
 
@@ -109,7 +111,23 @@ Lo que la app **sí** te impide:
 
 ---
 
-## 6. Telegram: tu asistente y tu red de seguridad
+## 6. Avisarle al cliente por WhatsApp (gratis)
+
+En **Detalle**, sección *Avisar al cliente por WhatsApp*:
+
+- **Confirmar que recibiste la ropa** — le llegan las prendas que dejó y la fecha de entrega.
+- **Avisar que está lista** — solo aparece con la orden Lista para Entregar.
+- **Recordar el pago** — solo si te debe.
+
+Al tocar cualquiera, **se abre WhatsApp con el mensaje ya escrito**, dirigido al celular del cliente (la app le agrega el +57). Tú lo lees, lo cambias si quieres y pulsas Enviar. La app no envía nada sola, por eso en el historial aparece como "aviso preparado".
+
+Cuando terminas la última prenda, la app también te pregunta si quieres avisar; si dices que sí, pasa lo mismo.
+
+**Pon el nombre de tu taller** en **Ajustes → Tu taller**. Sale en los mensajes y en el recibo.
+
+---
+
+## 7. Telegram: tu asistente y tu red de seguridad
 
 Ve a **Ajustes → Telegram** y pega el token de tu bot y tu chat id.
 
@@ -125,7 +143,18 @@ Dentro del archivo va todo: clientes, órdenes, prendas, pagos, historial, la co
 
 ---
 
-## 7. Ayuda dentro de la app
+## 8. Ropa que nadie recoge
+
+Una orden aparece **sin reclamar** cuando está lista y han pasado más de 30 días desde la fecha que le prometiste al cliente (o desde que la terminaste, si fue después). La ley (Ley 1480 de 2011, art. 18, y Decreto 1413 de 2018) dice:
+
+1. Pasado un mes de la fecha de entrega, debes **pedirle al cliente que la recoja**. Un mensaje por WhatsApp sirve; guárdalo como prueba.
+2. Si en los dos meses siguientes no la recoge, se considera abandonada y hay un procedimiento para disponer de ella.
+
+**No vendas ni regales la prenda antes de cumplir ese procedimiento.** La ropa sigue siendo del cliente.
+
+---
+
+## 9. Ayuda dentro de la app
 
 En **Ajustes → Instrucciones y tutorial** hay un tutorial guiado que te lleva de la mano por la pantalla: te señala dónde tocar para crear un cliente, una orden o registrar una prenda.
 
