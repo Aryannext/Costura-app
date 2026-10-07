@@ -37,6 +37,7 @@ import { db } from '../database/connection.js';
 import { migrations } from '../database/migrations.js';
 import { runMigrations } from '../database/migrationRunner.js';
 import { createOrden, getOrdenById } from '../database/queries/ordenes.js';
+import { getClienteById } from '../database/queries/clientes.js';
 import {
     createPrenda, saveFotografia, getObservacionesByPrenda, getFotografiasByPrenda, getPrendasByOrden, addObservacion
 } from '../database/queries/prendas.js';
@@ -72,7 +73,7 @@ async function uno(sql, params = []) {
 }
 
 function cliente(telefono = '3001234567', nombre = 'Ana') {
-    return useClientes().saveCliente({ nombre, telefono });
+    return useClientes().saveCliente({ nombre, telefono, autoriza_datos: true });
 }
 
 async function orden(fecha = enDias(5)) {
@@ -131,13 +132,13 @@ beforeEach(async () => {
 
 describe('RN-01 · un cliente necesita nombre y teléfono', () => {
     it('sin teléfono no se registra', async () => {
-        await expect(useClientes().saveCliente({ nombre: 'Ana', telefono: '' }))
+        await expect(useClientes().saveCliente({ nombre: 'Ana', telefono: '', autoriza_datos: true }))
             .rejects.toThrow('El número de teléfono es obligatorio.');
         expect((await uno('SELECT COUNT(*) AS n FROM cliente')).n).toBe(0);
     });
 
     it('sin nombre no se registra', async () => {
-        await expect(useClientes().saveCliente({ nombre: '  ', telefono: '3001234567' }))
+        await expect(useClientes().saveCliente({ nombre: '  ', telefono: '3001234567', autoriza_datos: true }))
             .rejects.toThrow('El nombre del cliente es obligatorio.');
     });
 
@@ -911,5 +912,49 @@ describe('P1-8 · el detalle de la orden carga notas y fotos sin una consulta po
         expect(porId[b].observaciones).toHaveLength(2);
         expect(porId[a].fotografias).toEqual([]);
         expect(porId[b].fotografias.map(f => f.ruta_archivo)).toEqual(['prenda_b.jpeg']);
+    });
+});
+
+describe('Ley 1581 · datos personales de las clientas', () => {
+    it('sin autorización no se registra la clienta', async () => {
+        await expect(useClientes().saveCliente({ nombre: 'Ana', telefono: '3001234567' }))
+            .rejects.toThrow('autorización');
+        expect(await filas('SELECT * FROM cliente')).toHaveLength(0);
+    });
+
+    it('con autorización se guarda la fecha como prueba', async () => {
+        const id = await cliente();
+        expect((await getClienteById(id)).fecha_autorizacion_datos).toMatch(FECHA_HORA);
+    });
+
+    it('una clienta antigua sin autorización puede registrarla después', async () => {
+        await db.run("INSERT INTO cliente (nombre, telefono) VALUES ('Vieja', '3110000000')");
+        const { id_cliente } = await uno('SELECT id_cliente FROM cliente');
+        expect((await getClienteById(id_cliente)).fecha_autorizacion_datos).toBeNull();
+
+        await useClientes().registrarAutorizacion(id_cliente);
+        expect((await getClienteById(id_cliente)).fecha_autorizacion_datos).toMatch(FECHA_HORA);
+    });
+
+    it('borrar sus datos deja la orden entregada y pagada, sin nombre ni celular', async () => {
+        const { id, a } = await ordenLista(20000);
+        await abonar(id, 20000);
+        await cambiarOrden(id, O.ENTREGADA);
+        const { id_cliente } = await getOrdenById(id);
+
+        await useClientes().borrarDatosPersonales(id_cliente);
+
+        const c = await getClienteById(id_cliente);
+        expect(c.nombre).toBe('Clienta retirada');
+        expect(c.telefono).toBe('');
+        expect(c.fecha_autorizacion_datos).toBeNull();
+        expect((await getOrdenById(id)).valor_total).toBe(20000);
+    });
+
+    it('no deja borrar los datos si hay una orden abierta o un saldo pendiente', async () => {
+        const { id } = await ordenLista(20000);
+        const { id_cliente } = await getOrdenById(id);
+        await expect(useClientes().borrarDatosPersonales(id_cliente)).rejects.toThrow('órdenes abiertas o saldo pendiente');
+        expect((await getClienteById(id_cliente)).nombre).toBe('Ana');
     });
 });

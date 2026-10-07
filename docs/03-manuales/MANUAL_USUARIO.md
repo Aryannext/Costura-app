@@ -42,7 +42,14 @@ Una orden a la que todavía no le has puesto prendas **no cuenta** como atrasada
 1. Toca **"Clientes"** en el menú de abajo.
 2. Presiona **"+ Nuevo Cliente"**.
 3. Ingresa Nombre y Teléfono. El teléfono es importante: es el que se usa para los avisos de WhatsApp.
-4. Tocando el nombre de un cliente ves todo su **historial**: cuánto te ha pagado, cuántas prendas le has arreglado y si es cliente frecuente.
+4. **Pídele permiso para guardar sus datos.** Toca *Ver el aviso para leérselo*, léeselo (o envíaselo por WhatsApp desde **Ajustes → Datos de tus clientas**) y, si acepta, marca la casilla. Sin esa casilla la app no la registra: lo exige la Ley 1581 de 2012, y la app guarda la fecha como prueba.
+5. Tocando el nombre de un cliente ves todo su **historial**: cuánto te ha pagado, cuántas prendas le has arreglado y si es cliente frecuente.
+
+---
+
+**Clientas que ya tenías antes de esta versión:** en su detalle verás *Sin autorización de datos registrada*. Envíale el aviso por WhatsApp y, cuando te diga que sí, toca *Ya autorizó: registrar*.
+
+**Si una clienta pide que borres sus datos:** en su detalle toca *Borrar sus datos personales*. Se borran el nombre, el celular y la dirección; sus órdenes y pagos quedan para tus cuentas, sin datos personales. Solo se puede si no tiene órdenes abiertas ni te debe.
 
 ---
 

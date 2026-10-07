@@ -215,5 +215,14 @@ export const migrations = [
       `INSERT OR IGNORE INTO configuracion(clave, valor) VALUES ('nombre_taller', '');`,
       `INSERT OR IGNORE INTO tipo_notificacion(id_tipo_notificacion, nombre) VALUES (4, 'Orden Recibida'), (5, 'En Proceso'), (6, 'Cobro');`
     ]
+  },
+  {
+    // Ley 1581 de 2012: prueba de la autorización de la clienta para guardar sus
+    // datos. NULL = clienta registrada antes de esta versión, sin autorización
+    // registrada todavía (la app lo muestra y permite registrarla).
+    toVersion: 7,
+    statements: [
+      `ALTER TABLE cliente ADD COLUMN fecha_autorizacion_datos TEXT;`
+    ]
   }
 ];

@@ -78,6 +78,7 @@ Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · 
 | RNF-08 · contraseñas cifradas | ✅ | bcrypt con salt 10. **Cambio obligatorio** de la clave de fábrica en el primer acceso |
 | RNF-09 · cierre por inactividad | ✅ | 15 minutos, más bloqueo al reanudar tras 2 minutos en segundo plano |
 | RNF-10 a RNF-12 · integridad | ✅ | `validators.js`, con pruebas para cada regla |
+| Ley 1581 · datos personales | ✅ | Aviso de privacidad (`services/avisoPrivacidad.js`), autorización obligatoria validada en `createCliente` con su fecha como prueba (migración 7), registro para clientas antiguas y borrado de datos personales (`anonimizarCliente`) · pruebas en `reglasNegocio.spec.js` |
 | RNF-13 · disponibilidad del servidor | ⛔ | **Derogado.** No hay servidor: la arquitectura es offline-first en un solo dispositivo |
 | RNF-14 · dos dispositivos en red local | ⛔ | **Derogado.** Incompatible con la arquitectura elegida. Requeriría sincronización, que no está en el alcance |
 | RNF-15 · navegadores de escritorio | ⚠️ | Funciona en modo desarrollo. El objetivo real es el APK; el soporte de escritorio no se prueba en CI |

@@ -87,7 +87,12 @@ El documento de requisitos original hablaba de "navegador en la red local" con u
 
 La app guarda nombre y celular de los clientes de la modista. Ella es la **responsable del tratamiento**. El desarrollador no recibe esos datos porque todo queda en el teléfono (D-06).
 
-**Pendiente mínimo (P-03):** un texto corto de autorización que la modista pueda leerle o enviarle al cliente al registrarlo, y un aviso de privacidad en la app.
+**Cómo lo cumple la app (7 oct):**
+- **Aviso de privacidad** (`src/services/avisoPrivacidad.js`): para qué se usan los datos, quién es la responsable y qué derechos tiene la clienta. Se ve y se comparte desde **Ajustes → Datos de tus clientas**, y se puede abrir al registrarla.
+- **Autorización previa:** una casilla obligatoria al registrar una clienta, en el formulario de Clientes y en el de una orden nueva. La regla se valida en `createCliente`, en la capa de datos, así que ninguna pantalla puede saltársela.
+- **Prueba de la autorización:** la fecha se guarda en `cliente.fecha_autorizacion_datos` (migración 7).
+- **Clientas registradas antes:** su detalle dice "Sin autorización de datos registrada" y permite enviarles el aviso por WhatsApp y registrar que autorizaron.
+- **Derecho de supresión:** *Borrar sus datos personales*, en el detalle de la clienta, deja el nombre, el celular y la dirección vacíos. Sus órdenes y pagos se conservan sin datos personales, porque son la contabilidad del taller. No se permite con órdenes abiertas o saldo pendiente.
 
 **Datos que salen del teléfono** (hay que decirlo en la ficha técnica):
 - Los mensajes de WhatsApp que la modista decide enviar.
@@ -143,7 +148,7 @@ El manual decía que no se podía; el requisito RN-30 decía que sí se podía s
 | --- | --- | --- |
 | P-01 | ~~El respaldo no incluye las fotos~~ **Resuelto en la rama de septiembre:** las incluye hasta el límite de Telegram y avisa si no caben | — |
 | P-02 | ~~Clave `admin123` sin cambio obligatorio~~ **Resuelto en la rama de septiembre:** cambio obligatorio en el primer ingreso | — |
-| P-03 | Falta el texto de autorización de datos (D-08) | Requisito legal |
+| P-03 | ~~Falta el texto de autorización de datos~~ **Resuelto (7 oct):** aviso, casilla obligatoria con fecha como prueba y borrado de datos personales (D-08) | — |
 | P-04 | Verificar dónde y cómo se guarda el token de Telegram en la rama unida y que la ficha técnica lo describa igual | Afirmar en la sustentación algo que el código no hace |
 | P-05 | ~~Capgo sin cuenta~~ **Resuelto (7 oct):** hay cuenta de Capgo; se mantienen las actualizaciones OTA | Documentar en el manual técnico cómo se publica una actualización |
 | P-06 | Probar en un teléfono Android real: cámara, alarma de las 8 a. m., huella, abrir WhatsApp | Las pruebas automáticas corren en navegador, no en el teléfono |

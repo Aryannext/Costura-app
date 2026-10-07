@@ -4,7 +4,7 @@ Planos del sistema **regenerados desde el código fuente**, no desde el diseño 
 
 Están escritos en Mermaid, con el tema neutral (blanco y negro): GitHub y la mayoría de editores los dibujan solos.
 
-> **Versión del esquema documentada:** 6 (`schema_migrations`)
+> **Versión del esquema documentada:** 7 (`schema_migrations`)
 > **Última revisión contra el código:** 7 de octubre de 2026 (rama `integracion-octubre`)
 
 ---
@@ -134,6 +134,7 @@ erDiagram
         TEXT nombre "NOT NULL"
         TEXT telefono "NOT NULL"
         TEXT direccion
+        TEXT fecha_autorizacion_datos "Ley 1581, migración 7"
     }
     orden_trabajo {
         INTEGER id_orden PK
@@ -287,6 +288,7 @@ flowchart LR
     O4(["Entregar orden"])
     O5(["Cancelar o reabrir orden"])
     I1(["Seleccionar o registrar cliente"])
+    I2(["Aceptar el aviso de privacidad"])
     X2(["Avisar al cliente que está lista"])
 
     M --- C1
@@ -295,11 +297,14 @@ flowchart LR
     M --- O3
     M --- O4
     M --- O5
+    C1 ~~~ I2
+    C1 -.->|«include» Ley 1581| I2
     O1 -.->|«include»| I1
     O3 ~~~ X2
     X2 -.->|«extend» si la orden queda Lista| O3
 ```
 
+- **Registrar cliente** siempre incluye que la clienta acepte el aviso de privacidad (Ley 1581); la app guarda la fecha como prueba.
 - **Crear orden** siempre incluye elegir al cliente o registrarlo ahí mismo. Pide la fecha en que se recibió la ropa (hoy o un día anterior) y la fecha prometida.
 - **Avisar al cliente que está lista** extiende *Cambiar estado de una prenda*: solo se ofrece cuando esa prenda era la última por terminar.
 - **Cambiar estado de una prenda** mueve sola la orden (sección 6.2).

@@ -39,7 +39,7 @@ async function asentar() {
 }
 
 async function montarOrdenConPrendas(valores, fecha_entrega_estimada = '2099-01-01') {
-    const id_cliente = await createCliente({ nombre: 'Ana', telefono: '3001234567' });
+    const id_cliente = await createCliente({ nombre: 'Ana', telefono: '3001234567', autoriza_datos: true });
     const id_orden = await createOrden({ id_cliente, fecha_entrega_estimada });
     for (const valor of valores) {
         await createPrenda({ id_orden, valor, descripcion_arreglo: 'Basta', id_tipo_prenda: 1 });

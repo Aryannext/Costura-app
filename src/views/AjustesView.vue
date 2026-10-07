@@ -44,6 +44,24 @@
     </section>
 
     <section class="grupo">
+      <h3 class="grupo-t">Datos de tus clientas</h3>
+      <!-- Ley 1581 de 2012: el aviso que se lee o envía a la clienta al registrarla -->
+      <div class="card bloque control">
+        <span class="fila-t">
+          <b>Aviso de privacidad</b>
+          <small>Léeselo o envíaselo a cada clienta nueva. Sin su autorización la app no la registra.</small>
+        </span>
+        <div class="control-fila">
+          <button type="button" class="btn-guardar-taller" @click="verAvisoPrivacidad = !verAvisoPrivacidad">
+            {{ verAvisoPrivacidad ? 'Ocultar' : 'Ver aviso' }}
+          </button>
+          <button type="button" class="btn-guardar-taller" @click="compartirAvisoPrivacidad">Compartir</button>
+        </div>
+        <pre v-if="verAvisoPrivacidad" class="aviso-texto">{{ textoAviso }}</pre>
+      </div>
+    </section>
+
+    <section class="grupo">
       <h3 class="grupo-t">Notificaciones</h3>
       <!-- P1-7: el aviso de las 8:00 depende de dos permisos de Android -->
       <div v-if="estadoAvisoDiario !== 'no-disponible'" class="card bloque control">
@@ -131,7 +149,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject } from 'vue';
+import { ref, computed, onMounted, inject } from 'vue';
 import { useRouter } from 'vue-router';
 import { logout } from '../services/auth.js';
 import { CapacitorUpdater } from '@capgo/capacitor-updater';
@@ -144,6 +162,8 @@ import { getConfig, updateConfig } from '../database/queries/configuracion.js';
 import { useNotificacionesLocales } from '../composables/useNotificacionesLocales.js';
 import { useBackupRestore } from '../composables/useBackupRestore.js';
 import CryptoModal from '../components/telegram/CryptoModal.vue';
+import { textoAvisoPrivacidad } from '../services/avisoPrivacidad.js';
+import { Share } from '@capacitor/share';
 
 const router = useRouter();
 const toast = inject('toast');
@@ -187,6 +207,16 @@ async function activarAvisoDiario() {
 }
 
 const nombreTaller = ref('');
+const verAvisoPrivacidad = ref(false);
+const textoAviso = computed(() => textoAvisoPrivacidad(nombreTaller.value));
+
+async function compartirAvisoPrivacidad() {
+  try {
+    await Share.share({ title: 'Aviso de privacidad', text: textoAviso.value, dialogTitle: 'Enviar el aviso de privacidad' });
+  } catch (e) {
+    if (!/cancel/i.test(e?.message || '')) toast('No se pudo compartir el aviso', 'error');
+  }
+}
 const guardandoTaller = ref(false);
 const tallerGuardado = ref(false);
 
@@ -297,6 +327,7 @@ function handleLogout() {
 .paso-valor { width: 28px; text-align: center; font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .input-taller { flex: 1; min-width: 0; }
 .btn-activar-aviso { align-self: flex-start; }
+.aviso-texto { white-space: pre-wrap; font-family: inherit; font-size: 0.85rem; background: var(--surface-container-low); border-radius: var(--radius-md); padding: 10px; margin: 0; }
 .btn-guardar-taller { flex-shrink: 0; }
 .guardado { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--success-text); }
 </style>
