@@ -2,7 +2,7 @@
   <div>
     <div class="card">
       <div class="fechas">
-        <p><strong>Creación:</strong> {{ formatDate(orden.fecha_creacion) }}</p>
+        <p><strong>Recibida:</strong> {{ formatDate(orden.fecha_creacion) }}</p>
         <p><strong>Entrega Estimada:</strong> {{ formatDate(orden.fecha_entrega_estimada) }}</p>
         <p v-if="orden.fecha_entrega_real"><strong>Entrega Real:</strong> {{ formatDate(orden.fecha_entrega_real) }}</p>
       </div>
@@ -14,43 +14,27 @@
         <button class="btn-danger" @click="$emit('cambiar-estado', 5, 'Cancelada')">Cancelar Orden</button>
       </div>
       <div class="estado-actions" v-if="orden.id_estado_orden === 4">
-        <button class="btn-secondary" @click="$emit('cambiar-estado', 1, 'Pendiente')">Reabrir Orden</button>
+        <!-- Reabrir vuelve a En Proceso (RN-16), no a Pendiente -->
+        <button class="btn-secondary" @click="$emit('cambiar-estado', 2, 'En Proceso')">Reabrir Orden</button>
       </div>
 
-      <div class="telegram-actions">
-        <button class="btn-small telegram-btn" @click="$emit('notificar-telegram', 'LISTA_ENTREGA')">
-          <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-          Avisar Lista
+      <!-- Avisos al cliente: abren WhatsApp con el mensaje escrito; la modista pulsa Enviar -->
+      <div class="aviso-actions" v-if="orden.id_estado_orden !== 5">
+        <button v-if="orden.id_estado_orden <= 2" class="btn-small whatsapp-btn" @click="$emit('avisar-whatsapp', 'RECIBIDA')">
+          WhatsApp: recibimos tu ropa
         </button>
-        <button 
-          class="btn-small telegram-btn" 
-          @click="$emit('notificar-telegram', 'RECORDATORIO_PAGO')" 
-          v-if="orden.saldo_pendiente > 0"
-        >
-          <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-          Recordar Pago
+        <button v-if="orden.id_estado_orden === 3" class="btn-small whatsapp-btn" @click="$emit('avisar-whatsapp', 'LISTA_ENTREGA')">
+          WhatsApp: tu orden está lista
         </button>
-        
-        <button 
-          class="btn-primary" 
-          @click="$emit('generar-recibo')"
-        >
-          <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display:inline; width:18px; margin-right:4px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-          Recibo (Telegram)
+        <button v-if="orden.saldo_pendiente > 0" class="btn-small whatsapp-btn" @click="$emit('avisar-whatsapp', 'RECORDATORIO_PAGO')">
+          WhatsApp: recordar saldo
         </button>
-
-        <button 
-          class="btn-primary" 
-          style="background-color: var(--primary);" 
-          @click="$emit('generar-recibo-nativo')"
-        >
-          <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display:inline; width:18px; margin-right:4px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
-          Compartir Recibo
-        </button>
+        <button class="btn-small" @click="$emit('generar-recibo-nativo')">Compartir recibo</button>
+        <button class="btn-small btn-secondary" @click="$emit('generar-recibo')">Copia del recibo a mi Telegram</button>
       </div>
     </div>
 
-    <div class="historial-section">
+<div class="historial-section">
       <h3>Historial de Actividad</h3>
       <ul class="timeline" v-if="historial && historial.length > 0">
         <li v-for="item in historial" :key="'act-'+item.id_actividad">
@@ -65,10 +49,10 @@
       <ul class="timeline" v-if="notificaciones && notificaciones.length > 0">
         <li v-for="notif in notificaciones" :key="'notif-'+notif.id_notificacion">
           <span class="time">{{ formatTime(notif.fecha_envio) }}</span>
-          <span class="desc"><strong>Telegram ({{ notif.tipo_nombre }}):</strong> {{ notif.mensaje }}</span>
+          <span class="desc"><strong>{{ notif.tipo_nombre }}:</strong> {{ notif.mensaje }}</span>
         </li>
       </ul>
-      <p v-else class="empty-mini">No se han enviado notificaciones.</p>
+      <p v-else class="empty-mini">Todavía no se han preparado avisos.</p>
     </div>
   </div>
 </template>
@@ -80,7 +64,7 @@ const props = defineProps({
   notificaciones: { type: Array, default: () => [] }
 });
 
-const emit = defineEmits(['cambiar-estado', 'notificar-telegram', 'generar-recibo', 'generar-recibo-nativo']);
+const emit = defineEmits(['cambiar-estado', 'avisar-whatsapp', 'generar-recibo', 'generar-recibo-nativo']);
 
 function formatDate(dateStr) {
   if (!dateStr) return '';
@@ -102,8 +86,9 @@ function formatTime(dateStr) {
 .estado-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; border-top: 1px solid var(--surface-container-highest); padding-top: 16px; }
 .btn-danger { background-color: var(--error); color: var(--on-error); }
 .btn-secondary { background-color: transparent; border: 1px solid var(--outline-variant); color: var(--on-surface); }
-.telegram-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--surface-container-highest); }
-.telegram-btn { background-color: #2AABEE; color: white; border: none; }
+.aviso-actions { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--surface-container-highest); }
+.aviso-actions button { min-height: 48px; font-size: 1rem; }
+.whatsapp-btn { background-color: #25D366; color: #0b3d1f; border: none; font-weight: 600; }
 .historial-section { margin-top: 16px; }
 .historial-section h3 { margin-bottom: 12px; color: var(--on-surface); }
 .timeline { list-style: none; padding: 0; margin: 0; }

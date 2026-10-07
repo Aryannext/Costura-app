@@ -1,5 +1,6 @@
 import { useTelegramBot } from './useTelegramBot.js';
 import { useOrdenes } from './useOrdenes.js';
+import { hoyLocal } from '../services/fechas.js';
 
 export function useTelegramReports(toast) {
     const { sendTelegramMessage } = useTelegramBot();
@@ -10,7 +11,10 @@ export function useTelegramReports(toast) {
             await fetchOrdenes();
             const activas = ordenes.value.filter(o => o.id_estado_orden < 4);
             const terminadas = ordenes.value.filter(o => o.id_estado_orden === 3);
-            const atrasadas = activas.filter(o => new Date(o.fecha_entrega) < new Date());
+            // El campo real es fecha_entrega_estimada (antes fecha_entrega, que no existe: A08).
+            // Se comparan textos 'YYYY-MM-DD' locales para no depender de zonas horarias.
+            const hoy = hoyLocal();
+            const atrasadas = activas.filter(o => o.fecha_entrega_estimada && o.fecha_entrega_estimada.slice(0, 10) < hoy);
 
             let reporte = `📊 *Reporte Diario - Costura App*\n\n`;
             reporte += `🔹 *Órdenes Activas:* ${activas.length}\n`;

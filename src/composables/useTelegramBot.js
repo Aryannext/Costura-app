@@ -21,11 +21,10 @@ export function useTelegramBot() {
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: chatId,
-                    text: text,
-                    parse_mode: parseMode
-                })
+                // Sin parseMode se envía texto plano (útil si el texto trae enlaces)
+                body: JSON.stringify(parseMode
+                    ? { chat_id: chatId, text: text, parse_mode: parseMode }
+                    : { chat_id: chatId, text: text })
             });
 
             if (!response.ok) {

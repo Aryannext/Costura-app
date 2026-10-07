@@ -2,6 +2,7 @@ import { ref } from 'vue';
 import { exportDatabaseToJson, importDatabaseFromJson } from '../database/connection.js';
 import { cryptoService } from '../services/cryptoService.js';
 import { useTelegramBot } from './useTelegramBot.js';
+import { hoyLocal } from '../services/fechas.js';
 
 export function useBackupRestore(toast, callbacks = {}) {
     const { sendTelegramDocument } = useTelegramBot();
@@ -73,7 +74,7 @@ export function useBackupRestore(toast, callbacks = {}) {
         try {
             const jsonContent = await exportDatabaseToJson();
             const encryptedBlobString = await cryptoService.encryptBackup(jsonContent, password);
-            const dateStr = new Date().toISOString().split('T')[0];
+            const dateStr = hoyLocal();
             const filename = `costura_backup_secure_${dateStr}.json`;
 
             const success = await sendTelegramDocument(encryptedBlobString, filename, "📦 Copia de seguridad CIFRADA de la base de datos.\nPara restaurarla usa el botón 'Restaurar BD' e ingresa tu contraseña maestra.");

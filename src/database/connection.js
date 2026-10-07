@@ -56,6 +56,10 @@ export async function saveDb() {
     }
 }
 
+// La versión del esquema se guarda en configuracion.schema_version.
+// No se usa PRAGMA user_version porque el plugin de SQLite lo maneja para su propio versionado.
+// La v1 usa CREATE ... IF NOT EXISTS, así que se puede ejecutar siempre sin riesgo;
+// las siguientes (ALTER TABLE) se ejecutan una sola vez.
 async function runMigrations(db) {
     const { migrations } = await import('./migrations.js');
     for (const stmt of migrations[0].statements) {
@@ -64,6 +68,26 @@ async function runMigrations(db) {
         } catch(e) {
             console.error("Error executing stmt: " + stmt, e);
         }
+    }
+
+    const res = await db.query("SELECT valor FROM configuracion WHERE clave = 'schema_version'");
+    let actual = res.values && res.values.length > 0 ? parseInt(res.values[0].valor, 10) : 1;
+
+    for (const migration of migrations.slice(1)) {
+        if (migration.toVersion <= actual) continue;
+        for (const stmt of migration.statements) {
+            try {
+                await db.execute(stmt);
+            } catch (e) {
+                // Si una ejecución anterior se interrumpió, la columna ya puede existir.
+                if (!String(e?.message || e).includes('duplicate column')) throw e;
+            }
+        }
+        await db.run(
+            "INSERT OR REPLACE INTO configuracion (clave, valor) VALUES ('schema_version', ?)",
+            [String(migration.toVersion)]
+        );
+        actual = migration.toVersion;
     }
 }
 

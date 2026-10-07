@@ -1,5 +1,20 @@
 import { db, saveDb } from '../connection.js';
-import { registrarHistorialActividad } from './ordenes.js';
+import { getEstadosPrendas, getTotalPagado, sentenciasTransicion } from './ordenes.js';
+import { ESTADO_ORDEN, estadoOrdenSegunPrendas, validarNuevoTotal } from '../../services/reglasOrden.js';
+
+async function getOrdenBasica(id_orden) {
+    const res = await db.query("SELECT id_estado_orden, valor_total FROM orden_trabajo WHERE id_orden = ?", [id_orden]);
+    if (!res.values || res.values.length === 0) throw new Error("Orden no encontrada");
+    return res.values[0];
+}
+
+// Agrega al set las sentencias para que la orden quede en el estado que
+// corresponde a sus prendas. Devuelve el estado final de la orden.
+function agregarRecalculo(set, id_orden, estadoActual, estadosPrendas, motivo) {
+    const estadoNuevo = estadoOrdenSegunPrendas(estadoActual, estadosPrendas);
+    set.push(...sentenciasTransicion(id_orden, estadoActual, estadoNuevo, motivo));
+    return estadoNuevo;
+}
 
 export async function getTiposPrenda() {
     if (!db) throw new Error("Database not initialized");
@@ -35,27 +50,74 @@ export async function getPrendasByOrden(id_orden) {
 export async function createPrenda(prenda) {
     if (!db) throw new Error("Database not initialized");
 
+    const orden = await getOrdenBasica(prenda.id_orden);
+    if (orden.id_estado_orden === ESTADO_ORDEN.ENTREGADA || orden.id_estado_orden === ESTADO_ORDEN.CANCELADA) {
+        throw new Error("No se pueden agregar prendas a una orden entregada o cancelada.");
+    }
+    const estados = (await getEstadosPrendas(prenda.id_orden)).map(p => p.id_estado_prenda);
+
     const set = [
         {
-            // 1. Update orden_trabajo total & saldo
             statement: "UPDATE orden_trabajo SET valor_total = valor_total + ?, saldo_pendiente = saldo_pendiente + ? WHERE id_orden = ?",
             values: [prenda.valor, prenda.valor, prenda.id_orden]
         },
         {
-            // 2. Registrar historial: 2 = Modificación
             statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
             values: ["Prenda añadida a la orden", prenda.id_orden, 2]
-        },
-        {
-            // 3. Insert prenda (id_estado_prenda = 1 = Pendiente)
-            // Se ejecuta al final para que el lastId devuelto corresponda al id_prenda recién creado.
-            statement: "INSERT INTO prenda (descripcion_arreglo, valor, id_orden, id_tipo_prenda, id_estado_prenda) VALUES (?, ?, ?, ?, 1)",
-            values: [prenda.descripcion_arreglo, prenda.valor, prenda.id_orden, prenda.id_tipo_prenda]
         }
     ];
+    // Si la orden estaba Lista y llega una prenda nueva sin hacer, vuelve a En Proceso (A05)
+    if (estados.length > 0) {
+        agregarRecalculo(set, prenda.id_orden, orden.id_estado_orden, [...estados, 1], 'se agregó una prenda');
+    }
+    // El INSERT va al final para que lastId sea el id_prenda recién creado
+    set.push({
+        statement: "INSERT INTO prenda (descripcion_arreglo, valor, id_orden, id_tipo_prenda, id_estado_prenda) VALUES (?, ?, ?, ?, 1)",
+        values: [prenda.descripcion_arreglo, prenda.valor, prenda.id_orden, prenda.id_tipo_prenda]
+    });
 
     const result = await db.executeSet(set, true);
     return result.changes.lastId;
+}
+
+// Elimina la prenda con sus fotos y observaciones y descuenta su valor (A01).
+// No se permite si el cliente ya pagó más de lo que quedaría como total.
+export async function deletePrenda(id_prenda) {
+    if (!db) throw new Error("Database not initialized");
+
+    const res = await db.query("SELECT id_orden, valor FROM prenda WHERE id_prenda = ?", [id_prenda]);
+    if (!res.values || res.values.length === 0) throw new Error("Prenda no encontrada");
+    const { id_orden, valor } = res.values[0];
+
+    const orden = await getOrdenBasica(id_orden);
+    if (orden.id_estado_orden === ESTADO_ORDEN.ENTREGADA || orden.id_estado_orden === ESTADO_ORDEN.CANCELADA) {
+        throw new Error("No se pueden eliminar prendas de una orden entregada o cancelada.");
+    }
+    validarNuevoTotal(orden.valor_total - valor, await getTotalPagado(id_orden));
+
+    const fotosRes = await db.query("SELECT ruta_archivo FROM fotografia WHERE id_prenda = ?", [id_prenda]);
+    const restantes = (await getEstadosPrendas(id_orden))
+        .filter(p => p.id_prenda !== id_prenda)
+        .map(p => p.id_estado_prenda);
+
+    const set = [
+        { statement: "DELETE FROM observacion WHERE id_prenda = ?", values: [id_prenda] },
+        { statement: "DELETE FROM fotografia WHERE id_prenda = ?", values: [id_prenda] },
+        { statement: "DELETE FROM prenda WHERE id_prenda = ?", values: [id_prenda] },
+        {
+            statement: "UPDATE orden_trabajo SET valor_total = valor_total - ?, saldo_pendiente = saldo_pendiente - ? WHERE id_orden = ?",
+            values: [valor, valor, id_orden]
+        },
+        {
+            statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
+            values: [`Prenda #${id_prenda} eliminada ($${valor})`, id_orden, 2]
+        }
+    ];
+    agregarRecalculo(set, id_orden, orden.id_estado_orden, restantes, 'se eliminó una prenda');
+
+    await db.executeSet(set, true);
+    // Las rutas se devuelven para borrar los archivos de foto después de confirmar en la base
+    return (fotosRes.values || []).map(f => f.ruta_archivo);
 }
 
 export async function addObservacion(id_prenda, descripcion) {
@@ -76,29 +138,24 @@ export async function addFotografia(id_prenda, ruta_archivo) {
     await saveDb();
 }
 
+// Cambia el estado de una prenda y recalcula el de la orden en la misma transacción.
+// Devuelve { estadoAnterior, estadoOrden } para que la pantalla ofrezca avisar al cliente.
 export async function updateEstadoPrenda(id_prenda, id_estado_prenda, id_orden) {
     if (!db) throw new Error("Database not initialized");
 
-    // 1. Forecast the state by reading current data BEFORE the transaction
-    const result = await db.query("SELECT id_prenda, id_estado_prenda FROM prenda WHERE id_orden = ?", [id_orden]);
-    const prendas = result.values || [];
-
-    // Simular el cambio en memoria
-    const prendaTarget = prendas.find(p => p.id_prenda === id_prenda);
-    if (prendaTarget) {
-        prendaTarget.id_estado_prenda = id_estado_prenda;
-    } else {
-        // Fallback: Si no estaba cargada por alguna razón, la añadimos simulada
-        prendas.push({ id_prenda, id_estado_prenda });
+    const orden = await getOrdenBasica(id_orden);
+    if (orden.id_estado_orden === ESTADO_ORDEN.CANCELADA) {
+        throw new Error("La orden está cancelada.");
     }
 
-    const allDelivered = prendas.every(p => p.id_estado_prenda === 4);
-    const allDone = prendas.every(p => p.id_estado_prenda === 3 || p.id_estado_prenda === 4);
+    const prendas = await getEstadosPrendas(id_orden);
+    const objetivo = prendas.find(p => p.id_prenda === id_prenda);
+    if (!objetivo) throw new Error("La prenda no pertenece a esta orden.");
+    if (id_estado_prenda === 4 && objetivo.id_estado_prenda < 3) {
+        throw new Error("No se puede entregar una prenda que no está Terminada.");
+    }
+    objetivo.id_estado_prenda = id_estado_prenda;
 
-    const orderStateRes = await db.query("SELECT id_estado_orden FROM orden_trabajo WHERE id_orden = ?", [id_orden]);
-    const currentOrderState = orderStateRes.values && orderStateRes.values.length > 0 ? orderStateRes.values[0].id_estado_orden : 0;
-
-    // 2. Build the atomic set
     const set = [
         {
             statement: "UPDATE prenda SET id_estado_prenda = ? WHERE id_prenda = ?",
@@ -109,35 +166,14 @@ export async function updateEstadoPrenda(id_prenda, id_estado_prenda, id_orden) 
             values: [`Estado de prenda #${id_prenda} actualizado`, id_orden, 2]
         }
     ];
+    const estadoOrden = agregarRecalculo(
+        set, id_orden, orden.id_estado_orden, prendas.map(p => p.id_estado_prenda), 'automático según las prendas'
+    );
+    // Antes se insertaba aquí una notificación "Orden Lista" que nunca se enviaba (A02).
+    // Ahora solo se registra un aviso cuando la modista realmente abre WhatsApp.
 
-    // 3. Append auto-transition logic if conditions are met
-    if (allDelivered && currentOrderState < 4) {
-        set.push({
-            statement: "UPDATE orden_trabajo SET id_estado_orden = 4, fecha_entrega_real = datetime('now','localtime') WHERE id_orden = ?",
-            values: [id_orden]
-        });
-        set.push({
-            statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
-            values: ["Estado cambiado automáticamente a Entregada porque todas las prendas fueron entregadas", id_orden, 5]
-        });
-    } else if (allDone && !allDelivered && currentOrderState < 3) {
-        set.push({
-            statement: "UPDATE orden_trabajo SET id_estado_orden = 3 WHERE id_orden = ?",
-            values: [id_orden]
-        });
-        set.push({
-            statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
-            values: ["Estado cambiado automáticamente a Lista para Entregar porque todas las prendas están terminadas", id_orden, 3]
-        });
-        // Notificacion automatica "Orden Lista"
-        set.push({
-            statement: "INSERT INTO notificacion (mensaje, id_orden, id_tipo_notificacion) VALUES (?, ?, ?)",
-            values: ["Su orden está lista para ser reclamada.", id_orden, 2]
-        });
-    }
-
-    // 4. Execute atomically
     await db.executeSet(set, true);
+    return { estadoAnterior: orden.id_estado_orden, estadoOrden };
 }
 
 export async function getObservacionesByPrenda(id_prenda) {
@@ -186,6 +222,11 @@ export async function updatePrenda(id_prenda, descripcion_arreglo, valor_nuevo, 
 
     const valor_viejo = resPrenda.values[0].valor;
     const diferencia = valor_nuevo - valor_viejo;
+
+    if (diferencia < 0) {
+        const orden = await getOrdenBasica(id_orden);
+        validarNuevoTotal(orden.valor_total + diferencia, await getTotalPagado(id_orden));
+    }
 
     // 2. Build the atomic set
     const set = [

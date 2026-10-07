@@ -45,7 +45,7 @@
         :historial="historial"
         :notificaciones="notificaciones"
         @cambiar-estado="cambiarEstado"
-        @notificar-telegram="notificarTelegram"
+        @avisar-whatsapp="avisarWhatsApp"
         @generar-recibo="generarReciboTelegram"
         @generar-recibo-nativo="generarReciboNativo"
       />
@@ -60,6 +60,7 @@
           @take-photo="handleTakePhoto"
           @add-obs="openObsPrompt"
           @estado-changed="handleEstadoPrenda"
+          @prenda-editada="refrescarTodo"
           ref="tabPrendasRef"
         />
         <TabPagos 
@@ -113,9 +114,7 @@ import { usePrendas } from '../composables/usePrendas.js';
 import { usePagos } from '../composables/usePagos.js';
 import { useNotificaciones } from '../composables/useNotificaciones.js';
 import StatusBadge from '../components/common/StatusBadge.vue';
-import PrendaCard from '../components/prendas/PrendaCard.vue';
 import SkeletonLoader from '../components/common/SkeletonLoader.vue';
-import SwipeItem from '../components/common/SwipeItem.vue';
 import TabDetalle from '../components/ordenes/TabDetalle.vue';
 import TabPrendas from '../components/ordenes/TabPrendas.vue';
 import TabPagos from '../components/ordenes/TabPagos.vue';
@@ -123,6 +122,7 @@ import TimelineProgressBar from '../components/ordenes/TimelineProgressBar.vue';
 import OrdenModals from '../components/ordenes/OrdenModals.vue';
 import { useOrdenTelegram } from '../composables/useOrdenTelegram.js';
 import { useOrdenModals } from '../composables/useOrdenModals.js';
+import { ESTADO_ORDEN } from '../services/reglasOrden.js';
 
 const route = useRoute();
 const router = useRouter();
@@ -130,39 +130,36 @@ const toast = inject('toast');
 
 const tab = ref('detalle');
 
-
-const {
-  showConfirmModal, confirmMessage, requestConfirm, executeConfirm, cancelConfirm,
-  showPromptModal, promptMessage, requestPrompt, executePrompt, cancelPrompt,
-  showActionSheet, actionSheetTitle, actionSheetMessage, actionSheetActions, openDeleteSheet, handleSheetAction
-} = useOrdenModals();
-
-
 // Ordenes logic
 const { ordenActual, historial, loading, fetchOrden, changeEstado, clearCurrentState: clearOrdenState } = useOrdenes();
 
 // Prendas logic
-const { 
+const {
   tiposPrenda, prendas, loading: prendasLoading, error: prendasError,
-  fetchTiposPrenda, fetchPrendas, savePrenda, changeEstado: changeEstadoPrenda,
+  fetchTiposPrenda, fetchPrendas, savePrenda, changeEstado: changeEstadoPrenda, removePrenda,
   takePhoto, addNewObservacion, clearCurrentState: clearPrendasState
 } = usePrendas();
 
 // Pagos logic
 const {
   metodosPago, pagos, loading: pagosLoading, error: pagosError,
-  fetchMetodosPago, fetchPagos, savePago
+  fetchMetodosPago, fetchPagos, savePago, removePago
 } = usePagos();
 
-// Telegram Bot Logic
-const { enviarAlertaOrdenListaBot, generarReciboTelegram, generarReciboNativo, notificarTelegram } = useOrdenTelegram(ordenActual);
+// Avisos al cliente (WhatsApp) y recibos
+const { avisarWhatsApp: abrirAviso, generarReciboTelegram, generarReciboNativo } = useOrdenTelegram(ordenActual);
 
 // Notificaciones logic
-const { notificaciones, fetchNotificaciones, saveNotificacion } = useNotificaciones();
+const { notificaciones, fetchNotificaciones } = useNotificaciones();
+
+const {
+  showConfirmModal, confirmMessage, requestConfirm, executeConfirm, cancelConfirm,
+  showPromptModal, promptMessage, requestPrompt, executePrompt, cancelPrompt,
+  showActionSheet, actionSheetTitle, actionSheetMessage, actionSheetActions, openDeleteSheet, handleSheetAction
+} = useOrdenModals({ onDelete: eliminar });
 
 const showPrendaForm = ref(false);
 const showPagoForm = ref(false);
-const prendaRefs = ref({});
 const tabPrendasRef = ref(null);
 
 onMounted(async () => {
@@ -189,37 +186,61 @@ watch(tab, async (newTab) => {
   }
 });
 
+// Cabecera (estado, total, saldo), historial y la pestaña visible
+async function refrescarTodo() {
+  const id = ordenActual.value.id_orden;
+  await fetchOrden(id);
+  await fetchNotificaciones(id);
+  if (tab.value === 'prendas') await fetchPrendas(id);
+  if (tab.value === 'pagos') await fetchPagos(id);
+}
 
+async function avisarWhatsApp(tipo) {
+  await abrirAviso(tipo);
+  await fetchNotificaciones(ordenActual.value.id_orden);
+}
 
-
-
-async function cambiarEstado(id_estado, nombre) {
-  try {
-    await changeEstado(ordenActual.value.id_orden, id_estado, nombre, ordenActual.value);
-    toast(`Estado actualizado a: ${nombre}`, 'success');
-
-    if (id_estado === 3) {
-      requestConfirm("¿Deseas usar el Bot de Telegram para enviarte el aviso de orden lista (con enlace a WhatsApp)?", () => {
-        enviarAlertaOrdenListaBot();
-      });
-    }
-  } catch (err) {
-    toast(err.message, 'error');
+// Cuando la orden llega a En Proceso o Lista se ofrece avisar al cliente.
+// Es una pregunta y no un envío automático: la modista decide si escribe.
+function ofrecerAviso(estadoNuevo) {
+  if (estadoNuevo === ESTADO_ORDEN.LISTA) {
+    requestConfirm('La orden quedó Lista. ¿Quieres avisarle al cliente por WhatsApp?', () => avisarWhatsApp('LISTA_ENTREGA'));
+  } else if (estadoNuevo === ESTADO_ORDEN.EN_PROCESO) {
+    requestConfirm('¿Quieres contarle al cliente que ya empezaste su arreglo?', () => avisarWhatsApp('EN_PROCESO'));
   }
 }
 
+async function cambiarEstado(id_estado, nombre) {
+  // Política A14: se permite entregar con deuda ("fiado", RN-30) pero se pide confirmación
+  const saldo = ordenActual.value.saldo_pendiente;
+  if (id_estado === ESTADO_ORDEN.ENTREGADA && saldo > 0) {
+    requestConfirm(
+      `El cliente aún debe $${Number(saldo).toLocaleString('es-CO')}. ¿Entregar de todas formas? El saldo seguirá pendiente.`,
+      () => aplicarCambioEstado(id_estado, nombre)
+    );
+    return;
+  }
+  await aplicarCambioEstado(id_estado, nombre);
+}
 
+async function aplicarCambioEstado(id_estado, nombre) {
+  try {
+    const estadoAnterior = ordenActual.value.id_estado_orden;
+    await changeEstado(ordenActual.value.id_orden, id_estado, nombre);
+    if (estadoAnterior < id_estado) ofrecerAviso(id_estado);
+  } catch (err) {
+    // El composable ya mostró el mensaje de error
+  }
+}
 
 async function handleAddPrenda(prendaData) {
   try {
     prendaData.id_orden = ordenActual.value.id_orden;
     await savePrenda(prendaData);
     showPrendaForm.value = false;
-    toast('Prenda añadida exitosamente', 'success');
-    // Refresh order totals and history
-    fetchOrden(ordenActual.value.id_orden);
+    await fetchOrden(ordenActual.value.id_orden);
   } catch (err) {
-    toast(err.message, 'error');
+    // El composable ya mostró el mensaje de error
   }
 }
 
@@ -228,68 +249,60 @@ async function handleAddPago(pagoData) {
     pagoData.id_orden = ordenActual.value.id_orden;
     await savePago(pagoData, ordenActual.value.saldo_pendiente);
     showPagoForm.value = false;
-    toast('Pago registrado exitosamente', 'success');
-    // Refresh order totals
-    fetchOrden(ordenActual.value.id_orden);
+    await fetchOrden(ordenActual.value.id_orden);
   } catch (err) {
-    toast(err.message, 'error');
+    // El composable ya mostró el mensaje de error
+  }
+}
+
+async function eliminar(tipo, id) {
+  try {
+    const idOrden = ordenActual.value.id_orden;
+    if (tipo === 'prenda') await removePrenda(id, idOrden);
+    else await removePago(id, idOrden);
+    await fetchOrden(idOrden);
+  } catch (err) {
+    // El composable ya mostró el mensaje de error
   }
 }
 
 async function handleEstadoPrenda(id_prenda, id_estado) {
   try {
-    const currentOrdenStatus = ordenActual.value ? ordenActual.value.id_estado_orden : 0;
-    const result = await changeEstadoPrenda(id_prenda, id_estado, ordenActual.value.id_orden, currentOrdenStatus);
-    
-    // La capa de negocio (usePrendas) indica si debemos sugerir autocompletar
-    if (result && result.shouldPromptCompletion) {
-      requestConfirm("¡Todas las prendas están terminadas! ¿Deseas marcar la orden como 'Lista para Entregar'?", async () => {
-        await cambiarEstado(3, 'Lista para Entregar');
-      });
-    }
+    const { estadoAnterior, estadoOrden } = await changeEstadoPrenda(id_prenda, id_estado, ordenActual.value.id_orden);
+    // La base de datos ya ajustó la orden; refrescamos la cabecera (A05)
+    await fetchOrden(ordenActual.value.id_orden);
+    if (estadoOrden !== estadoAnterior && estadoOrden > estadoAnterior) ofrecerAviso(estadoOrden);
   } catch (err) {
-    // Errores ya son manejados por el useAsyncAction del composable
-    console.error(err);
+    await fetchPrendas(ordenActual.value.id_orden); // revertir el selector visualmente
   }
 }
 
-function setPrendaRef(el, id_prenda) {
-  if (el) prendaRefs.value[id_prenda] = el;
+// Las tarjetas viven dentro de TabPrendas; se usan las referencias que esa pestaña expone (A15)
+function refrescarTarjeta(id_prenda) {
+  tabPrendasRef.value?.prendaRefs?.[id_prenda]?.refreshData();
 }
 
 async function handleTakePhoto(id_prenda) {
   try {
     const uri = await takePhoto(id_prenda);
-    if (uri) {
-      toast('Fotografía guardada', 'success');
-      if (prendaRefs.value[id_prenda]) {
-        if (tabPrendasRef.value && tabPrendasRef.value.prendaRefs) { tabPrendasRef.value.prendaRefs[id_prenda]?.refreshData(); }
-      }
-    }
+    if (uri) refrescarTarjeta(id_prenda);
   } catch (err) {
-    toast(err.message, 'error');
+    // El composable ya mostró el mensaje de error
   }
 }
-
-
 
 async function openObsPrompt(id_prenda) {
   requestPrompt('Escribe la nueva observación:', async (obs) => {
     if (obs && obs.trim() !== '') {
       try {
         await addNewObservacion(id_prenda, obs.trim());
-        toast('Observación añadida', 'success');
-        if (prendaRefs.value[id_prenda]) {
-          if (tabPrendasRef.value && tabPrendasRef.value.prendaRefs) { tabPrendasRef.value.prendaRefs[id_prenda]?.refreshData(); }
-        }
+        refrescarTarjeta(id_prenda);
       } catch (err) {
-        toast('Error al añadir observación', 'error');
+        // El composable ya mostró el mensaje de error
       }
     }
   });
 }
-
-
 </script>
 
 <style scoped>

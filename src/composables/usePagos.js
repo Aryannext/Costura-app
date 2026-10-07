@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { getMetodosPago, getPagosByOrden, registrarPago } from '../database/queries/pagos.js';
+import { getMetodosPago, getPagosByOrden, registrarPago, deletePago } from '../database/queries/pagos.js';
 import { validators } from '../services/validators.js';
 import { useAsyncAction } from './useAsyncAction.js';
 
@@ -35,7 +35,18 @@ export function usePagos() {
         });
     };
 
+    const removePago = async (id_pago, id_orden) => {
+        return execute(async () => {
+            await deletePago(id_pago);
+            await fetchPagos(id_orden);
+        }, {
+            successMessage: 'Pago eliminado y saldo recalculado',
+            toastError: true
+        });
+    };
+
     return {
+        removePago,
         metodosPago,
         pagos,
         loading,

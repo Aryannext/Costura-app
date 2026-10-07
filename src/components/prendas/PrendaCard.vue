@@ -103,7 +103,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['take-photo', 'add-obs', 'estado-changed']);
+const emit = defineEmits(['take-photo', 'add-obs', 'estado-changed', 'prenda-editada']);
 
 const { fetchFotos, fetchObservaciones, removeFoto, editPrenda } = usePrendas();
 
@@ -131,7 +131,9 @@ async function saveEdit() {
   try {
     await editPrenda(props.prenda.id_prenda, editDescripcion.value, editValor.value, props.prenda.id_orden);
     isEditing.value = false;
-    emit('estado-changed'); // Trigger refresh in parent
+    // Evento propio: antes se emitía estado-changed sin argumentos y el padre
+    // intentaba cambiar el estado de una prenda indefinida (A16)
+    emit('prenda-editada');
   } catch (e) {
     // Error is natively handled by useAsyncAction
   }

@@ -28,7 +28,8 @@ export function useOrdenes() {
 
     const saveOrden = async (ordenData) => {
         return execute(async () => {
-            validators.validateFechaEntrega(ordenData.fecha_entrega_estimada);
+            validators.validateFechaRecepcion(ordenData.fecha_creacion);
+            validators.validateFechaEntrega(ordenData.fecha_entrega_estimada, ordenData.fecha_creacion);
             const id = await createOrden(ordenData);
             return id;
         }, {
@@ -37,17 +38,11 @@ export function useOrdenes() {
         });
     };
 
-    const changeEstado = async (id_orden, id_estado_orden, estadoNombre, ordenActualData) => {
+    // Las reglas (prendas terminadas, no cancelar entregadas, reabrir) se validan
+    // en la capa de datos; aquí solo se refresca y se muestra el resultado.
+    const changeEstado = async (id_orden, id_estado_orden, estadoNombre) => {
         return execute(async () => {
-            let accion = null;
-            if (id_estado_orden === 5) accion = 'cancelar';
-            else if (id_estado_orden === 1 && ordenActualData && ordenActualData.id_estado_orden === 4) accion = 'reabrir';
-
-            if (accion && ordenActualData) {
-                validators.validateOrdenAccionPermitida(ordenActualData, accion);
-            }
-
-            await updateEstadoOrdenDB(id_orden, id_estado_orden, estadoNombre, ordenActualData);
+            await updateEstadoOrdenDB(id_orden, id_estado_orden);
             await fetchOrden(id_orden); // refresh
         }, {
             successMessage: `Estado actualizado a: ${estadoNombre}`,

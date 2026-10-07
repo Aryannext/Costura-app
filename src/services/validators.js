@@ -1,3 +1,5 @@
+import { parseFechaLocal } from './fechas.js';
+
 export const validators = {
     // RN-01: nombre + teléfono obligatorios
     validateCliente: (cliente) => {
@@ -17,15 +19,25 @@ export const validators = {
     },
 
     // RN-05: fecha_entrega_estimada >= fecha_creacion
+    // Las fechas se comparan como días de calendario locales (A09).
     validateFechaEntrega: (fechaEntregaEstimada, fechaCreacion) => {
-        const entrega = new Date(fechaEntregaEstimada);
-        const creacion = fechaCreacion ? new Date(fechaCreacion) : new Date();
-        // compare only the dates without time
-        entrega.setHours(0,0,0,0);
-        creacion.setHours(0,0,0,0);
-        
+        if (!fechaEntregaEstimada) {
+            throw new Error("La fecha estimada de entrega es obligatoria.");
+        }
+        const entrega = parseFechaLocal(fechaEntregaEstimada);
+        const creacion = parseFechaLocal(fechaCreacion || new Date());
+
         if (entrega < creacion) {
             throw new Error("La fecha estimada de entrega no puede ser anterior a la fecha de creación.");
+        }
+        return true;
+    },
+
+    // La ropa puede haberse recibido antes de usar la app, pero nunca en el futuro.
+    validateFechaRecepcion: (fechaRecepcion) => {
+        if (!fechaRecepcion) return true;
+        if (parseFechaLocal(fechaRecepcion) > parseFechaLocal(new Date())) {
+            throw new Error("La fecha de recepción no puede ser posterior a hoy.");
         }
         return true;
     },

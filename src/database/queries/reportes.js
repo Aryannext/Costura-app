@@ -1,4 +1,5 @@
 import { db } from '../connection.js';
+import { hoyLocal } from '../../services/fechas.js';
 
 export async function getDashboardData() {
     if (!db) throw new Error("Database not initialized");
@@ -31,17 +32,20 @@ export async function getDashboardData() {
     kpis.ordenesListas = resListas.values[0]?.total || 0;
 
     // Ordenes Atrasadas (fecha_entrega_estimada < hoy y no entregada/cancelada)
-    const today = new Date().toISOString().split('T')[0];
+    const today = hoyLocal();
     const resAtrasadas = await db.query(
         "SELECT count(*) as total FROM orden_trabajo WHERE date(fecha_entrega_estimada) < ? AND id_estado_orden NOT IN (4, 5)",
         [today]
     );
     kpis.ordenesAtrasadas = resAtrasadas.values[0]?.total || 0;
 
-    // Ordenes Sin Reclamar (3=Lista para entrega y fecha de entrega estimada < hoy - 30 días)
+    // Ordenes Sin Reclamar (RN-37): llevan N días en estado Lista. Se mide desde fecha_lista,
+    // no desde la entrega estimada (A18). N se configura en configuracion.dias_sin_reclamar.
+    const resDias = await db.query("SELECT valor FROM configuracion WHERE clave = 'dias_sin_reclamar'");
+    const diasSinReclamar = parseInt(resDias.values?.[0]?.valor, 10) || 30;
     const resSinReclamar = await db.query(
-        "SELECT count(*) as total FROM orden_trabajo WHERE id_estado_orden = 3 AND date(fecha_entrega_estimada) < date(?, '-30 days')",
-        [today]
+        "SELECT count(*) as total FROM orden_trabajo WHERE id_estado_orden = 3 AND date(fecha_lista) <= date(?, ?)",
+        [today, `-${diasSinReclamar} days`]
     );
     kpis.ordenesSinReclamar = resSinReclamar.values[0]?.total || 0;
 

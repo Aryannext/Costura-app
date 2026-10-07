@@ -32,15 +32,43 @@ export async function registrarPago(pago) {
             statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
             values: [`Abono de $${pago.valor} registrado`, pago.id_orden, 4]
         },
-        {
-            // 3. Register payment (última sentencia para que lastId devuelva el id_pago)
-            statement: "INSERT INTO pago (valor, id_orden, id_metodo_pago) VALUES (?, ?, ?)",
-            values: [pago.valor, pago.id_orden, pago.id_metodo_pago]
-        }
+        // 3. Register payment (última sentencia para que lastId devuelva el id_pago).
+        // fecha_pago es opcional: sirve para registrar abonos recibidos antes de usar la app.
+        pago.fecha_pago
+            ? {
+                statement: "INSERT INTO pago (valor, id_orden, id_metodo_pago, fecha_pago) VALUES (?, ?, ?, ?)",
+                values: [pago.valor, pago.id_orden, pago.id_metodo_pago, pago.fecha_pago]
+            }
+            : {
+                statement: "INSERT INTO pago (valor, id_orden, id_metodo_pago) VALUES (?, ?, ?)",
+                values: [pago.valor, pago.id_orden, pago.id_metodo_pago]
+            }
     ];
 
     // executeSet con transaction=true asegura atomicidad y autoSave a IndexedDB.
     const result = await db.executeSet(set, true);
 
     return result.changes.lastId;
+}
+
+// Elimina un pago registrado por error y devuelve su valor al saldo (A01).
+export async function deletePago(id_pago) {
+    if (!db) throw new Error("Database not initialized");
+
+    const res = await db.query("SELECT id_orden, valor FROM pago WHERE id_pago = ?", [id_pago]);
+    if (!res.values || res.values.length === 0) throw new Error("Pago no encontrado");
+    const { id_orden, valor } = res.values[0];
+
+    const set = [
+        { statement: "DELETE FROM pago WHERE id_pago = ?", values: [id_pago] },
+        {
+            statement: "UPDATE orden_trabajo SET saldo_pendiente = saldo_pendiente + ? WHERE id_orden = ?",
+            values: [valor, id_orden]
+        },
+        {
+            statement: "INSERT INTO historial_actividad (descripcion, id_orden, id_tipo_actividad) VALUES (?, ?, ?)",
+            values: [`Pago de $${valor} eliminado; el saldo se recalculó`, id_orden, 4]
+        }
+    ];
+    await db.executeSet(set, true);
 }

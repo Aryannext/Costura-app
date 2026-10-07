@@ -29,6 +29,7 @@
           @take-photo="$emit('take-photo', prenda.id_prenda)"
           @add-obs="$emit('add-obs', prenda.id_prenda)"
           @estado-changed="(id_prenda, id_estado) => $emit('estado-changed', id_prenda, id_estado)"
+          @prenda-editada="$emit('prenda-editada')"
           :ref="el => setPrendaRef(el, prenda.id_prenda)"
         />
       </SwipeItem>
@@ -53,7 +54,8 @@ const emit = defineEmits([
   'delete-prenda',
   'take-photo',
   'add-obs',
-  'estado-changed'
+  'estado-changed',
+  'prenda-editada'
 ]);
 
 const prendaRefs = ref({});

@@ -32,6 +32,12 @@
       </small>
     </div>
     
+    <div class="form-group">
+      <label for="fecha_pago">Fecha del pago</label>
+      <!-- Permite registrar abonos recibidos antes de empezar a usar la app -->
+      <input type="date" id="fecha_pago" v-model="form.fecha" :max="hoy" required />
+    </div>
+
     <div v-if="error" class="error-message">
       {{ error }}
     </div>
@@ -47,6 +53,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
+import { hoyLocal } from '../../services/fechas.js';
 
 const props = defineProps({
   metodosPago: {
@@ -63,9 +70,12 @@ const props = defineProps({
 
 const emit = defineEmits(['submit', 'cancel']);
 
+const hoy = hoyLocal();
+
 const form = ref({
   id_metodo_pago: '',
-  valor: props.saldoPendiente
+  valor: props.saldoPendiente,
+  fecha: hoy
 });
 
 onMounted(() => {
@@ -81,7 +91,10 @@ watch(() => props.metodosPago, (newVal) => {
 }, { immediate: true });
 
 function handleSubmit() {
-  emit('submit', { ...form.value });
+  const { fecha, ...pago } = form.value;
+  // Si es de hoy, la base de datos pone la hora exacta; si es anterior, se guarda ese día
+  if (fecha && fecha < hoy) pago.fecha_pago = `${fecha} 12:00:00`;
+  emit('submit', pago);
 }
 </script>
 

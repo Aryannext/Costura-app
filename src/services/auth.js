@@ -8,6 +8,24 @@ let inactivityTimer = null;
 
 let currentUser = null;
 
+// La sesión se guarda en Preferences para no pedir la clave cada vez que Android
+// cierra la app en segundo plano, pero vence tras 15 minutos sin uso (RNF-09, fallo A10).
+// lastActivity se escribe como máximo cada 30 s para no gastar batería.
+const PERSIST_EVERY = 30 * 1000;
+let lastPersist = 0;
+
+async function guardarSesion() {
+    if (!currentUser) return;
+    currentUser.lastActivity = Date.now();
+    lastPersist = currentUser.lastActivity;
+    await Preferences.set({ key: 'auth_user', value: JSON.stringify(currentUser) });
+}
+
+export function sesionVigente(sesion, ahora = Date.now()) {
+    const ultima = sesion?.lastActivity ?? sesion?.loginTime;
+    return typeof ultima === 'number' && ahora - ultima >= 0 && ahora - ultima < INACTIVITY_TIMEOUT;
+}
+
 export async function login(username, password) {
     const user = await getUsuarioByUsername(username);
     if (!user) {
@@ -26,7 +44,7 @@ export async function login(username, password) {
         username: user.username,
         loginTime: Date.now()
     };
-    await Preferences.set({ key: 'auth_user', value: JSON.stringify(currentUser) });
+    await guardarSesion();
 
     startInactivityTimer();
     return true;
@@ -43,7 +61,7 @@ export async function biometricLogin() {
         username: user.username,
         loginTime: Date.now()
     };
-    await Preferences.set({ key: 'auth_user', value: JSON.stringify(currentUser) });
+    await guardarSesion();
 
     startInactivityTimer();
     return true;
@@ -63,8 +81,14 @@ export async function isAuthenticated() {
         try {
             const { value } = await Preferences.get({ key: 'auth_user' });
             if (value) {
-                currentUser = JSON.parse(value);
-                startInactivityTimer();
+                const sesion = JSON.parse(value);
+                if (sesionVigente(sesion)) {
+                    currentUser = sesion;
+                    await guardarSesion();
+                    startInactivityTimer();
+                } else {
+                    await Preferences.remove({ key: 'auth_user' });
+                }
             }
         } catch (e) {
             console.error("Error loading session:", e);
@@ -106,6 +130,10 @@ function resetInactivityTimer() {
     inactivityTimer = setTimeout(() => {
         logout();
     }, INACTIVITY_TIMEOUT);
+
+    if (Date.now() - lastPersist > PERSIST_EVERY) {
+        guardarSesion().catch(e => console.error("Error guardando actividad:", e));
+    }
     
     // Throttle the resets slightly to avoid performance issues
     resetDebounce = setTimeout(() => {

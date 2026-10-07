@@ -1,7 +1,8 @@
-import { ref, inject } from 'vue';
+import { ref } from 'vue';
 
-export function useOrdenModals() {
-  const toast = inject('toast');
+// onDelete(type, id): función que realmente elimina. Antes el action sheet solo
+// mostraba "eliminado" sin borrar nada (A01).
+export function useOrdenModals({ onDelete } = {}) {
 
   // Confirm Modal
   const showConfirmModal = ref(false);
@@ -70,15 +71,12 @@ export function useOrdenModals() {
     showActionSheet.value = true;
   }
 
-  function handleSheetAction(action) {
-    if (action.id === 'delete') {
-      if (currentDeletePayload?.type === 'prenda') {
-        if (toast) toast('Prenda eliminada', 'success');
-      } else if (currentDeletePayload?.type === 'pago') {
-        if (toast) toast('Pago eliminado y saldo recalculado', 'success');
-      }
-    }
+  async function handleSheetAction(action) {
+    const payload = currentDeletePayload;
     currentDeletePayload = null;
+    if (action.id === 'delete' && payload && onDelete) {
+      await onDelete(payload.type, payload.id);
+    }
   }
 
   return {

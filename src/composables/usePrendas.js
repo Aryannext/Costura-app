@@ -14,6 +14,7 @@ import {
     getFotografiasByPrenda,
     deleteFotografia,
     updatePrenda,
+    deletePrenda,
     getDescripcionesFrecuentes
 } from '../database/queries/prendas.js';
 
@@ -62,23 +63,33 @@ export function usePrendas() {
         });
     };
 
-    const changeEstado = async (id_prenda, id_estado_prenda, id_orden, currentOrdenStatus = 0) => {
+    // Devuelve { estadoAnterior, estadoOrden }: la base de datos ya movió la orden
+    // al estado que corresponde; la pantalla solo decide si ofrece avisar al cliente.
+    const changeEstado = async (id_prenda, id_estado_prenda, id_orden) => {
         return execute(async () => {
-            await updateEstadoPrenda(id_prenda, id_estado_prenda, id_orden);
+            const resultado = await updateEstadoPrenda(id_prenda, id_estado_prenda, id_orden);
             await fetchPrendas(id_orden);
-            
-            let shouldPromptCompletion = false;
-            // Regla de Negocio: Si la prenda pasa a lista (>=3) y la orden no está lista (<3)
-            if (id_estado_prenda >= 3 && currentOrdenStatus < 3) {
-                // Verificar si TODAS las prendas de esta orden están listas
-                const allReady = prendas.value.every(p => p.id_estado_prenda >= 3);
-                if (allReady) {
-                    shouldPromptCompletion = true;
-                }
-            }
-            return { shouldPromptCompletion };
+            return resultado;
         }, {
             successMessage: 'Estado de la prenda actualizado',
+            toastError: true
+        });
+    };
+
+    const removePrenda = async (id_prenda, id_orden) => {
+        return execute(async () => {
+            const rutasFotos = await deletePrenda(id_prenda);
+            // Los archivos se borran después de confirmar en la base; si falla, solo queda un archivo huérfano
+            for (const ruta of rutasFotos) {
+                try {
+                    await Filesystem.deleteFile({ path: ruta });
+                } catch (e) {
+                    console.warn('No se pudo borrar la foto', ruta, e);
+                }
+            }
+            await fetchPrendas(id_orden);
+        }, {
+            successMessage: 'Prenda eliminada',
             toastError: true
         });
     };
@@ -183,6 +194,7 @@ export function usePrendas() {
         savePrenda,
         editPrenda,
         changeEstado,
+        removePrenda,
         takePhoto,
         fetchFotos,
         removeFoto,

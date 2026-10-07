@@ -180,11 +180,15 @@ onMounted(async () => {
 });
 
 async function enviarRecordatorios() {
-  const count = await triggerRecordatorios();
-  if (count > 0) {
-    toast(`Se enviaron ${count} recordatorios automáticos.`, 'success');
-  } else {
-    toast('No hay nuevas órdenes pendientes de recordar hoy.', 'info');
+  try {
+    const count = await triggerRecordatorios();
+    if (count > 0) {
+      toast(`Te llegó a Telegram la lista de ${count} cliente(s) para recordar por WhatsApp.`, 'success');
+    } else {
+      toast('No hay órdenes listas pendientes de recordar hoy.', 'info');
+    }
+  } catch (err) {
+    // El composable ya mostró el mensaje de error
   }
 }
 

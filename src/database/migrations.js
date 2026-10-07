@@ -125,5 +125,21 @@ export const migrations = [
       
       `INSERT OR IGNORE INTO configuracion(clave, valor) VALUES ('telegram_bot_token', ''), ('telegram_chat_id', ''), ('dias_anticipacion_vencer', '3'), ('dias_sin_reclamar', '30');`
     ]
+  },
+  {
+    // v2 (oct 2026): fecha en que la orden quedó Lista (A18), nombre del taller
+    // para los mensajes, Bre-B como método de pago y nuevos tipos de aviso.
+    toVersion: 2,
+    statements: [
+      `ALTER TABLE orden_trabajo ADD COLUMN fecha_lista TEXT;`,
+      `UPDATE orden_trabajo SET fecha_lista = (
+          SELECT MAX(h.fecha_hora) FROM historial_actividad h
+          WHERE h.id_orden = orden_trabajo.id_orden AND h.descripcion LIKE '%Lista%'
+       ) WHERE id_estado_orden = 3;`,
+      `UPDATE orden_trabajo SET fecha_lista = fecha_entrega_estimada WHERE id_estado_orden = 3 AND fecha_lista IS NULL;`,
+      `INSERT OR IGNORE INTO configuracion(clave, valor) VALUES ('nombre_taller', '');`,
+      `INSERT OR IGNORE INTO metodo_pago(id_metodo_pago, nombre) VALUES (5, 'Bre-B');`,
+      `INSERT OR IGNORE INTO tipo_notificacion(id_tipo_notificacion, nombre) VALUES (4, 'Orden Recibida'), (5, 'En Proceso'), (6, 'Cobro');`
+    ]
   }
 ];

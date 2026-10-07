@@ -33,9 +33,17 @@
         <input 
           type="tel" 
           v-model="nuevoCliente.telefono" 
-          placeholder="Teléfono" 
+          placeholder="Celular (ej. 3001234567)" 
+          inputmode="numeric"
+          required
         />
       </div>
+    </div>
+
+    <div class="form-group">
+      <label for="fecha_recepcion">¿Cuándo recibiste la ropa?</label>
+      <!-- Por defecto hoy; se puede elegir un día anterior para pasar órdenes viejas a la app -->
+      <input type="date" id="fecha_recepcion" v-model="form.fecha_recepcion" :max="today" required />
     </div>
 
     <div class="form-group">
@@ -47,11 +55,11 @@
         <button type="button" class="chip-btn" @click="setFecha(7)">1 semana</button>
       </div>
 
-      <input type="date" id="fecha_entrega" v-model="form.fecha_entrega_estimada" required :min="today" />
+      <input type="date" id="fecha_entrega" v-model="form.fecha_entrega_estimada" required :min="form.fecha_recepcion" />
     </div>
     
-    <div v-if="error" class="error-message">
-      {{ error }}
+    <div v-if="error || errorLocal" class="error-message">
+      {{ errorLocal || error }}
     </div>
 
     <div class="form-actions">
@@ -66,6 +74,8 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { getAllClientes, createCliente } from '../../database/queries/clientes.js';
+import { validators } from '../../services/validators.js';
+import { hoyLocal, sumarDias } from '../../services/fechas.js';
 
 const props = defineProps({
   fixedClienteId: {
@@ -78,22 +88,25 @@ const props = defineProps({
 
 const emit = defineEmits(['submit', 'cancel']);
 
+// Fechas locales: toISOString() adelantaba un día después de las 7 p. m. (A09)
+const today = hoyLocal();
+
 const form = ref({
   id_cliente: props.fixedClienteId || '',
+  fecha_recepcion: today,
   fecha_entrega_estimada: ''
 });
+const errorLocal = ref('');
 
 const clientesList = ref([]);
 const creandoCliente = ref(false);
 const nuevoCliente = ref({ nombre: '', telefono: '' });
 const isSubmittingLocal = ref(false);
 
-// format today as YYYY-MM-DD for the min attribute of date input
-const today = new Date().toISOString().split('T')[0];
 
 onMounted(async () => {
   if (!props.fixedClienteId) {
-    clientesList.value = await getAllClientes(1000, 0); 
+    clientesList.value = await getAllClientes();
   }
 });
 
@@ -107,22 +120,27 @@ function toggleNuevoCliente() {
 }
 
 function setFecha(daysAdded) {
-  const date = new Date();
-  date.setDate(date.getDate() + daysAdded);
-  form.value.fecha_entrega_estimada = date.toISOString().split('T')[0];
+  form.value.fecha_entrega_estimada = sumarDias(daysAdded);
 }
 
 async function handleSubmit() {
   isSubmittingLocal.value = true;
+  errorLocal.value = '';
   try {
     if (creandoCliente.value) {
-      // Registrar cliente primero
+      // Misma validación que el formulario de Clientes (antes se saltaba, A07)
+      validators.validateCliente(nuevoCliente.value);
       const newId = await createCliente(nuevoCliente.value);
       form.value.id_cliente = newId;
+      creandoCliente.value = false;
+      clientesList.value = await getAllClientes();
     }
-    emit('submit', form.value);
+    const { fecha_recepcion, ...orden } = form.value;
+    // Hoy: SQLite guarda fecha y hora actuales. Día anterior: se guarda ese día.
+    if (fecha_recepcion && fecha_recepcion < today) orden.fecha_creacion = `${fecha_recepcion} 12:00:00`;
+    emit('submit', orden);
   } catch (err) {
-    console.error(err);
+    errorLocal.value = err.message;
   } finally {
     isSubmittingLocal.value = false;
   }

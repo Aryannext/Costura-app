@@ -1,5 +1,4 @@
 import { LocalNotifications } from '@capacitor/local-notifications';
-import { db } from '../database/connection.js';
 
 export function useNotificacionesLocales() {
     
@@ -20,32 +19,19 @@ export function useNotificacionesLocales() {
             const status = await LocalNotifications.checkPermissions();
             if (status.display !== 'granted') return;
 
-            // Obtener órdenes a entregar hoy
-            // Buscamos órdenes en estado 2 (En proceso) o 3 (Lista para entregar) o 1 (Pendiente)
-            // cuya fecha estimada sea HOY.
-            const hoyStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-            
-            const result = await db.query(`
-                SELECT COUNT(*) as pendientes_hoy 
-                FROM orden_trabajo 
-                WHERE date(fecha_entrega_estimada) = ? AND id_estado_orden < 4
-            `, [hoyStr]);
-
-            let pendientes = 0;
-            if (result.values && result.values.length > 0) {
-                pendientes = result.values[0].pendientes_hoy;
-            }
-
-            // Cancelar programaciones previas para evitar duplicados
+            // Una alarma repetitiva no puede consultar la base de datos cuando suena, así que
+            // su texto es fijo. Antes llevaba el conteo del día en que se programó y quedaba
+            // desactualizado, o no se programaba si ese día había cero entregas (A13).
+            // Ahora siempre se programa con un texto general a las 8:00 a. m.
             await LocalNotifications.cancel({ notifications: [{ id: 1 }] });
 
-            if (pendientes > 0) {
+            {
                 // Programar notificación diaria a las 8:00 AM
                 await LocalNotifications.schedule({
                     notifications: [
                         {
-                            title: 'Entregas de Hoy 👗',
-                            body: `Tienes ${pendientes} orden(es) programadas para entregar el día de hoy. ¡Revisa el taller!`,
+                            title: 'Buenos días 👗',
+                            body: 'Abre la app para ver qué prendas tienes que entregar hoy.',
                             id: 1,
                             schedule: { 
                                 on: { hour: 8, minute: 0 },

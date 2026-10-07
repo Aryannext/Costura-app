@@ -6,6 +6,18 @@
     </div>
 
     <div class="settings-list">
+      <!-- Aparece en los mensajes de WhatsApp y en el recibo -->
+      <div class="card setting-card taller-card">
+        <div class="setting-info" style="width: 100%;">
+          <h4 class="headline-sm">Nombre de tu taller</h4>
+          <p class="body-md">Así te verán tus clientes en los avisos y recibos.</p>
+          <div class="taller-row">
+            <input type="text" v-model="nombreTaller" placeholder="Ej. Arreglos Doña Rosa" maxlength="40" />
+            <button @click="guardarNombreTaller">Guardar</button>
+          </div>
+        </div>
+      </div>
+
       <div class="card setting-card" @click="router.push('/ayuda')">
         <div class="setting-info">
           <h4 class="headline-sm">Ayuda e Instrucciones</h4>
@@ -61,6 +73,7 @@ import { CapacitorUpdater } from '@capgo/capacitor-updater';
 import { Capacitor } from '@capacitor/core';
 import { useUpdates } from '../composables/useUpdates.js';
 import { inject } from 'vue';
+import { getConfig, updateConfig } from '../database/queries/configuracion.js';
 
 const router = useRouter();
 const currentVersion = ref('1.0.0 (Local/Base)');
@@ -68,11 +81,23 @@ const currentBundleId = ref('');
 const { manualCheck } = useUpdates();
 const toast = inject('toast');
 
+const nombreTaller = ref('');
+
+async function guardarNombreTaller() {
+  try {
+    await updateConfig('nombre_taller', nombreTaller.value.trim());
+    toast('Nombre del taller guardado', 'success');
+  } catch (e) {
+    toast('No se pudo guardar el nombre', 'error');
+  }
+}
+
 function triggerManualUpdate() {
   manualCheck(toast);
 }
 
 onMounted(async () => {
+    nombreTaller.value = (await getConfig('nombre_taller')) || '';
     if (Capacitor.isNativePlatform()) {
         try {
             const { bundle } = await CapacitorUpdater.current();
@@ -141,4 +166,7 @@ function handleLogout() {
   height: 24px;
   color: var(--on-surface-variant);
 }
+.taller-card { cursor: default; }
+.taller-row { display: flex; gap: 8px; margin-top: 10px; }
+.taller-row input { flex: 1; min-width: 0; }
 </style>

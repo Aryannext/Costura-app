@@ -11,7 +11,10 @@ vi.mock('@capacitor/core', () => ({
 const mockDb = vi.hoisted(() => ({
     open: vi.fn(),
     execute: vi.fn(),
-    exportToJson: vi.fn()
+    exportToJson: vi.fn(),
+    // runMigrations consulta configuracion.schema_version
+    query: vi.fn().mockResolvedValue({ values: [{ valor: '1' }] }),
+    run: vi.fn()
 }));
 
 vi.mock('@capacitor-community/sqlite', () => {
@@ -34,7 +37,9 @@ vi.mock('../migrations.js', () => ({
 
 // Mock DOM for jeep-sqlite
 global.window = {};
+// initDatabase usa querySelector para no crear dos <jeep-sqlite>; sin él el beforeAll fallaba
 global.document = {
+    querySelector: vi.fn(() => null),
     createElement: vi.fn(() => ({})),
     body: { appendChild: vi.fn() }
 };
