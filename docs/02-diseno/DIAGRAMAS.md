@@ -4,8 +4,8 @@ Planos del sistema **regenerados desde el código fuente**, no desde el diseño 
 
 Están escritos en Mermaid: GitHub y la mayoría de editores los dibujan solos.
 
-> **Versión del esquema documentada:** 5 (`schema_migrations`)
-> **Última revisión contra el código:** 13 de septiembre de 2026
+> **Versión del esquema documentada:** 6 (`schema_migrations`)
+> **Última revisión contra el código:** 7 de octubre de 2026 (rama `integracion-octubre`)
 
 ---
 
@@ -41,6 +41,7 @@ flowchart TD
         Photo[photoStorage]
         Fechas[fechas]
         Backup[backupPayload]
+        Wsp[whatsapp · +57 y plantillas]
     end
 
     subgraph Datos ["Acceso a datos · database/"]
@@ -91,7 +92,7 @@ flowchart TD
     UB --> Backup
     UB --> Telegram
     UUp --> Capgo
-    UO --> WA
+    Wsp --> WA
     UO --> Share
 ```
 
@@ -227,7 +228,7 @@ erDiagram
     }
 ```
 
-`usuario`, `configuracion` y `schema_migrations` no tienen relaciones: son tablas de soporte. `configuracion` guarda el token del bot de Telegram y el chat id, de modo que entran solos en el respaldo cifrado.
+`usuario`, `configuracion` y `schema_migrations` no tienen relaciones: son tablas de soporte. `configuracion` guarda el token del bot de Telegram, el chat id, el nombre del taller y los días de aviso, de modo que entran solos en el respaldo cifrado. La migración 6 agrega Bre-B a `metodo_pago` y tres tipos de aviso a `tipo_notificacion`.
 
 **Índices** creados sobre claves foráneas y campos de búsqueda: `idx_cliente_nombre`, `idx_orden_cliente`, `idx_orden_estado`, `idx_orden_fecha_entrega`, `idx_prenda_orden`, `idx_pago_orden`, `idx_notificacion_orden`, `idx_historial_orden`.
 
@@ -235,50 +236,189 @@ erDiagram
 
 ## 3. Casos de uso
 
-Un solo actor: la modista, que es dueña y única usuaria del dispositivo.
+Un diagrama **por actor**, para que cada uno sea pequeño y se lea de un vistazo. Al final está la tabla que los junta. Los casos de uso son los óvalos; las flechas punteadas son relaciones:
+
+- **«include»**: el caso siempre ejecuta al otro.
+- **«extend»**: el otro caso se ofrece solo en cierta condición.
+
+| Actor | Tipo | Quién es |
+| --- | --- | --- |
+| **Modista** | Principal | Dueña del taller y única usuaria de la app |
+| **Cliente** | Secundario | Deja la ropa y recibe los avisos por WhatsApp. **No usa la app** |
+| **Bot de Telegram** | Sistema externo | Recibe respaldos, recibos y la lista de recordatorios para la modista |
+| **Reloj del sistema** | Actor temporal | Dispara lo que ocurre solo con el paso del tiempo |
+
+Como la modista hace muchas cosas, sus casos se dividen en cuatro diagramas por tema.
+
+### 3.1 Modista · Acceso y seguridad
 
 ```mermaid
 flowchart LR
-    Actor((Modista))
+    M["👩 Modista"]:::actor
+    A1(["Iniciar sesión con contraseña"])
+    A2(["Iniciar sesión con huella"])
+    A3(["Cambiar contraseña"])
+    A4(["Desbloquear la app"])
+    A5(["Cerrar sesión"])
+    X1(["Cambiar la clave de fábrica"])
 
-    subgraph Acceso ["Acceso"]
-        A1(Iniciar sesión con contraseña)
-        A2(Iniciar sesión con huella)
-        A3(Cambiar contraseña)
-        A4(Desbloquear la aplicación)
-    end
+    M --- A1
+    M --- A2
+    M --- A3
+    M --- A4
+    M --- A5
+    A1 ~~~ X1
+    X1 -.->|«extend» primer ingreso| A1
 
-    subgraph Taller ["Operación diaria"]
-        T1(Registrar y buscar clientes)
-        T2(Crear órdenes de trabajo)
-        T3(Registrar prendas y fotografías)
-        T4(Registrar abonos)
-        T5(Cambiar estados)
-        T6(Cancelar y reabrir órdenes)
-        T7(Buscar en todo el sistema)
-    end
-
-    subgraph Seguimiento ["Seguimiento"]
-        S1(Consultar el panel del día)
-        S2(Consultar reportes financieros)
-        S3(Recibir el aviso de las 8:00)
-        S4(Avisar al cliente por WhatsApp)
-        S5(Enviar recibos por Telegram)
-    end
-
-    subgraph Mantenimiento ["Mantenimiento"]
-        M1(Configurar el bot de Telegram)
-        M2(Generar respaldo cifrado)
-        M3(Restaurar desde respaldo)
-        M4(Buscar actualizaciones OTA)
-        M5(Ver el tutorial guiado)
-    end
-
-    Actor --> Acceso
-    Actor --> Taller
-    Actor --> Seguimiento
-    Actor --> Mantenimiento
+    classDef actor fill:#eef,stroke:#4338ca,stroke-width:2px,color:#1e1b4b
 ```
+
+### 3.2 Modista · Clientes, órdenes y prendas
+
+```mermaid
+flowchart LR
+    M["👩 Modista"]:::actor
+    C1(["Registrar cliente"])
+    O1(["Crear orden"])
+    O2(["Agregar prenda con foto y nota"])
+    O3(["Cambiar estado de una prenda"])
+    O4(["Entregar orden"])
+    O5(["Cancelar o reabrir orden"])
+    I1(["Seleccionar o registrar cliente"])
+    X2(["Avisar al cliente que está lista"])
+
+    M --- C1
+    M --- O1
+    M --- O2
+    M --- O3
+    M --- O4
+    M --- O5
+    O1 -.->|«include»| I1
+    O3 ~~~ X2
+    X2 -.->|«extend» si la orden queda Lista| O3
+
+    classDef actor fill:#eef,stroke:#4338ca,stroke-width:2px,color:#1e1b4b
+```
+
+- **Crear orden** siempre incluye elegir al cliente o registrarlo ahí mismo. Pide la fecha en que se recibió la ropa (hoy o un día anterior) y la fecha prometida.
+- **Avisar al cliente que está lista** extiende *Cambiar estado de una prenda*: solo se ofrece cuando esa prenda era la última por terminar.
+- **Cambiar estado de una prenda** mueve sola la orden (sección 6.2).
+- **Entregar orden** pide confirmación si el cliente todavía debe (RN-30).
+
+### 3.3 Modista · Cobros y consultas
+
+```mermaid
+flowchart LR
+    M["👩 Modista"]:::actor
+    P1(["Registrar abono"])
+    P2(["Anular un pago con motivo"])
+    P3(["Ver órdenes por cobrar"])
+    P4(["Consultar el panel del día"])
+    P5(["Consultar reporte financiero"])
+    P6(["Buscar cliente u orden"])
+
+    M --- P1
+    M --- P2
+    M --- P3
+    M --- P4
+    M --- P5
+    M --- P6
+
+    classDef actor fill:#eef,stroke:#4338ca,stroke-width:2px,color:#1e1b4b
+```
+
+**Registrar abono** pide el medio de pago (Efectivo, Nequi, Daviplata, Transferencia o Bre-B) y la fecha, que puede ser anterior a hoy.
+
+### 3.4 Modista · Comunicación con el cliente
+
+```mermaid
+flowchart LR
+    M["👩 Modista"]:::actor
+    W1(["Avisar por WhatsApp: ropa recibida"])
+    W2(["Avisar por WhatsApp: orden lista"])
+    W3(["Recordar el saldo por WhatsApp"])
+    W4(["Compartir recibo"])
+    W5(["Enviar recordatorios del día"])
+    CL["🧍 Cliente"]:::actor
+    TG["🤖 Bot de Telegram"]:::externo
+
+    M --- W1
+    M --- W2
+    M --- W3
+    M --- W4
+    M --- W5
+    W1 --- CL
+    W2 --- CL
+    W3 --- CL
+    W4 --- CL
+    W5 --- TG
+
+    classDef actor fill:#eef,stroke:#4338ca,stroke-width:2px,color:#1e1b4b
+    classDef externo fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0c4a6e
+```
+
+- Ningún aviso sale solo. La app abre WhatsApp con el mensaje escrito y el +57 del cliente; la modista pulsa Enviar (decisión D-03).
+- **Enviar recordatorios del día** le manda a **la modista**, por Telegram, un enlace de WhatsApp por cada cliente que no ha recogido su ropa. Solo queda registrado si Telegram confirma el envío.
+
+### 3.5 Modista · Configuración y respaldo
+
+```mermaid
+flowchart LR
+    M["👩 Modista"]:::actor
+    K1(["Configurar nombre del taller"])
+    K2(["Configurar días de aviso"])
+    K3(["Conectar el bot de Telegram"])
+    K4(["Respaldar datos cifrados"])
+    K5(["Restaurar un respaldo"])
+    K6(["Buscar actualización"])
+    TG["🤖 Bot de Telegram"]:::externo
+
+    M --- K1
+    M --- K2
+    M --- K3
+    M --- K4
+    M --- K5
+    M --- K6
+    K4 --- TG
+
+    classDef actor fill:#eef,stroke:#4338ca,stroke-width:2px,color:#1e1b4b
+    classDef externo fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0c4a6e
+```
+
+**Precondición de *Respaldar datos cifrados*:** el bot de Telegram debe estar conectado (K3). No es un «include», porque no se conecta el bot cada vez que se respalda.
+
+### 3.6 Reloj del sistema · lo que ocurre solo
+
+```mermaid
+flowchart LR
+    R["⏰ Reloj del sistema"]:::temporal
+    S1(["Avisar a las 8:00 las entregas del día"])
+    S2(["Bloquear la app al volver de segundo plano"])
+    S3(["Marcar órdenes atrasadas"])
+    S4(["Marcar órdenes sin reclamar"])
+
+    R --- S1
+    R --- S2
+    R --- S3
+    R --- S4
+
+    classDef temporal fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f
+```
+
+**Sin reclamar:** la orden está Lista y han pasado más de 30 días desde la fecha prometida, o desde que quedó Lista si fue después (RN-37 y Ley 1480 art. 18).
+
+### 3.7 Resumen: actor → casos de uso
+
+| Actor | Casos de uso | Diagrama |
+| --- | --- | --- |
+| Modista | Iniciar sesión (clave o huella), cambiar contraseña, cambiar la clave de fábrica, desbloquear, cerrar sesión | 3.1 |
+| Modista | Registrar cliente, crear orden, agregar prenda, cambiar estado de prenda, entregar, cancelar o reabrir | 3.2 |
+| Modista | Registrar abono, anular pago, ver por cobrar, panel del día, reporte financiero, buscar | 3.3 |
+| Modista | Avisos por WhatsApp (recibida, lista, saldo), compartir recibo, recordatorios del día | 3.4 |
+| Modista | Nombre del taller, días de aviso, bot de Telegram, respaldar, restaurar, actualizar | 3.5 |
+| Cliente | Recibe avisos y recibos por WhatsApp (no usa la app) | 3.4 |
+| Bot de Telegram | Recibe recordatorios del día y respaldos cifrados | 3.4, 3.5 |
+| Reloj del sistema | Aviso de las 8:00, bloqueo, atrasadas, sin reclamar | 3.6 |
 
 ---
 
@@ -292,14 +432,15 @@ flowchart TD
     P1 -- Sí --> P2[Registrar cliente]
     P1 -- No --> P3[Buscar cliente]
 
-    P2 --> P4[Crear orden con fecha de entrega]
+    P2 --> P4[Crear orden: fecha de recepción y fecha prometida]
     P3 --> P4
 
-    P4 --> P5[Añadir prendas, precios y fotos]
-    P5 --> P6[/El total de la orden se recalcula solo/]
+    P4 --> PB[Escribir el # de orden en la bolsa]
+    PB --> P5[Añadir prendas, precios y fotos]
+    P5 --> P6[/Total recalculado y orden En Proceso, solas/]
     P6 --> P7{¿Deja abono inicial?}
     P7 -- Sí --> P8[Registrar pago]
-    P7 -- No --> P9[Orden queda Pendiente]
+    P7 -- No --> P9[Opcional: WhatsApp 'recibimos tu ropa']
     P8 --> P9
 
     P9 --> P10[Coser: marcar prendas En Proceso]
@@ -309,11 +450,16 @@ flowchart TD
     P12 -- No --> P10
 
     P13 --> P14[La app ofrece avisar al cliente]
-    P14 --> P15[Enlace wa.me con mensaje precargado]
+    P14 --> P15[WhatsApp se abre con el mensaje y el +57]
 
-    P15 --> P16[Cliente regresa]
-    P16 --> P17[Registrar el saldo pendiente]
-    P17 --> P18[Marcar Entregada]
+    P15 --> P16{¿El cliente regresa?}
+    P16 -- No, pasa un mes --> P19[Recordatorio por WhatsApp · Ley 1480 art. 18]
+    P19 --> P16
+    P16 -- Sí --> P17{¿Paga el saldo?}
+    P17 -- Sí --> P20[Registrar pago]
+    P17 -- No, fiado --> P21[Confirmar entrega con deuda]
+    P20 --> P18[Entregar orden]
+    P21 --> P18
     P18 --> Fin([Se registra la fecha de entrega real])
 ```
 
@@ -420,7 +566,7 @@ Una orden *Entregada* o *Cancelada* no cambia por sus prendas.
 
 **Próxima a vencer** (RN-38, `clasificarVencimiento`): la fecha estimada cae entre hoy y hoy + N días, ambos incluidos, con N guardado en `configuracion.dias_anticipacion_vencer`.
 
-**Sin reclamar** (RN-37): la orden lleva más de N días *Lista para Entregar*, contados desde `orden_trabajo.fecha_lista`, con N en `configuracion.dias_sin_reclamar` (30 por defecto). La fecha se sella al entrar en *Lista*, se borra al salir hacia *En Proceso*, *Pendiente*, *Cancelada* o al reabrir, y se conserva al entregar.
+**Sin reclamar** (RN-37 y Ley 1480 art. 18): la orden está *Lista para Entregar* y pasaron más de N días desde la fecha más tardía entre `orden_trabajo.fecha_lista` y `fecha_entrega_estimada`, con N en `configuracion.dias_sin_reclamar` (30 por defecto). Al cliente no se le cuenta tiempo antes de la fecha prometida. La fecha se sella al entrar en *Lista*, se borra al salir hacia *En Proceso*, *Pendiente*, *Cancelada* o al reabrir, y se conserva al entregar.
 
 **Acciones manuales** (en `validators.validateCambioManualEstado`):
 
@@ -568,6 +714,33 @@ flowchart TD
 ```
 
 La distinción importa: **sin base de datos no hay taller**, así que un fallo ahí detiene el arranque. Un fallo normalizando una ruta de fotografía, en cambio, no puede impedir que la modista abra su aplicación.
+
+---
+
+## 10. Despliegue
+
+Dónde corre cada pieza. La app es la **misma** en el teléfono y en el navegador; lo que cambia es dónde guarda los datos.
+
+```mermaid
+flowchart LR
+    GH["⚙️ GitHub Actions<br/>prueba y construye"]
+    VPS["🖥️ VPS · contenedor Docker<br/>nginx con la app compilada"]
+    NAV["💻 Navegador<br/>app web + SQLite en IndexedDB"]
+    CAPGO["☁️ Capgo<br/>actualizaciones OTA"]
+    TEL["📱 Teléfono Android<br/>APK + SQLite + fotos"]
+    WA["💬 WhatsApp<br/>del cliente"]
+    TG["🤖 Telegram<br/>de la modista"]
+
+    GH -->|imagen| VPS
+    VPS -->|archivos estáticos| NAV
+    CAPGO -->|nueva versión| TEL
+    TEL -->|enlace wa.me| WA
+    TEL -->|respaldos y recordatorios| TG
+```
+
+- **No hay servidor de datos.** El contenedor solo entrega archivos.
+- **Los datos no se comparten:** lo que se registra en el navegador queda en ese navegador y no llega al teléfono (decisiones D-06 y D-13).
+- **Archivos de Docker:** `Dockerfile`, `docker/nginx.conf` y `docker-compose.yml`.
 
 ---
 

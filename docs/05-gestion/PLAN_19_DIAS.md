@@ -7,8 +7,8 @@ Fuente: *Proyecto Formativo ADSO*, sección 2.5.4 "Productos o resultados del pr
 | # | Producto exigido | Dónde está | Estado (7 oct) |
 | --- | --- | --- | --- |
 | 1 | Informe de análisis de requisitos | `docs/01-analisis/Costura.md` y `.docx` | **Existe**; hay que actualizarlo: alcance offline, IDs repetidos, requisitos nuevos |
-| 2 | Diseño arquitectónico en UML | `docs/02-diseno/DIAGRAMAS.md` | **Avanzado**: 9 diagramas regenerados desde el código (rama de septiembre). Faltan diagrama de clases, de secuencia y de despliegue (incluye Docker) |
-| 3 | Base de datos e interfaz implementadas | `src/` | **Funciona**: 343 pruebas unitarias y 3 E2E. Quedan P-03, P-04, P-06 y P-07 de `DECISIONES.md` |
+| 2 | Diseño arquitectónico en UML | `docs/02-diseno/DIAGRAMAS.md` | **Avanzado**: 16 diagramas verificados contra el código, incluidos casos de uso por actor y despliegue. Faltan el diagrama de clases y una secuencia |
+| 3 | Base de datos e interfaz implementadas | `src/` | **Funciona**: 347 pruebas unitarias y 3 E2E. Quedan P-03, P-04, P-06 y P-07 de `DECISIONES.md` |
 | 4 | Manual técnico y de usuario **en español e inglés** | `docs/03-manuales/` | Usuario ES listo; ficha técnica corregida. **Faltan**: manual técnico completo y las versiones en inglés |
 | 5 | Artículo de revisión bibliográfica sobre gestión de calidad del software (ES/EN) | — | **No se exige** para graduarse (confirmado el 7 oct). Fuera del plan |
 
@@ -48,8 +48,8 @@ Objetivo: que los documentos describan la app real.
    - IDs únicos;
    - historias de usuario nuevas: avisos por WhatsApp, órdenes con fecha anterior y pagos con Bre-B.
 2. Diagramas UML:
-   - revisar los 9 diagramas existentes contra lo agregado en octubre (WhatsApp, Bre-B, fechas anteriores);
-   - agregar diagrama de clases, 2 diagramas de secuencia ("cambiar estado de prenda" y "avisar por WhatsApp") y diagrama de despliegue (teléfono + navegador + contenedor Docker en el VPS).
+   - ✅ (7 oct) diagramas revisados contra el código; casos de uso divididos por actor (3.1–3.6) con «include»/«extend»; flujo del negocio corregido; diagrama de despliegue con Docker. Los 16 diagramas se renderizan sin errores;
+   - falta: diagrama de clases y una secuencia de "cambiar estado de prenda → la orden cambia sola → avisar por WhatsApp". Ya existen las secuencias de sesión y de respaldo.
 3. Tabla comparativa con apps existentes, que es la base del argumento de innovación (sección 4).
 
 ### Sprint 3 — "Manuales y sustentación" (lun 19 – jue 23)
