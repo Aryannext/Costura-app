@@ -23,13 +23,27 @@ export async function getPrendasByOrden(id_orden) {
 
     const prendas = result.values || [];
 
-    // Fetch observaciones for each prenda
-    for (let p of prendas) {
-        const obsRes = await db.query("SELECT * FROM observacion WHERE id_prenda = ? ORDER BY fecha_registro DESC", [p.id_prenda]);
-        p.observaciones = obsRes.values || [];
-
-        const photoRes = await db.query("SELECT * FROM fotografia WHERE id_prenda = ? ORDER BY fecha_registro DESC", [p.id_prenda]);
-        p.fotografias = photoRes.values || [];
+    // P1-8: observaciones y fotos de TODAS las prendas en dos consultas, no dos
+    // por prenda. Con 12 prendas eran 25 viajes al puente nativo; ahora son 3.
+    const [obsRes, fotoRes] = await Promise.all([
+        db.query(`SELECT o.* FROM observacion o JOIN prenda p ON p.id_prenda = o.id_prenda
+                  WHERE p.id_orden = ? ORDER BY o.fecha_registro DESC`, [id_orden]),
+        db.query(`SELECT f.* FROM fotografia f JOIN prenda p ON p.id_prenda = f.id_prenda
+                  WHERE p.id_orden = ? ORDER BY f.fecha_registro DESC`, [id_orden])
+    ]);
+    const porPrenda = (filas) => {
+        const mapa = new Map();
+        for (const fila of filas || []) {
+            if (!mapa.has(fila.id_prenda)) mapa.set(fila.id_prenda, []);
+            mapa.get(fila.id_prenda).push(fila);
+        }
+        return mapa;
+    };
+    const observaciones = porPrenda(obsRes.values);
+    const fotografias = porPrenda(fotoRes.values);
+    for (const p of prendas) {
+        p.observaciones = observaciones.get(p.id_prenda) || [];
+        p.fotografias = fotografias.get(p.id_prenda) || [];
     }
 
     return prendas;

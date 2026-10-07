@@ -72,7 +72,7 @@ Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · 
 
 | Req. | Estado | Nota |
 | --- | --- | --- |
-| RNF-01 a RNF-03 · rendimiento | ⚠️ | Los índices están creados. `getPrendasByOrden` hace N+1: dos consultas adicionales por prenda. Ver P1-8 |
+| RNF-01 a RNF-03 · rendimiento | ✅ | Los índices están creados. Desde el 7 de octubre `getPrendasByOrden` carga notas y fotos de todas las prendas en dos consultas (antes dos por prenda, P1-8) |
 | RNF-04 a RNF-06 · usabilidad | ✅ | Registro de orden en tres pantallas; confirmaciones por toast; diseño desde 360 px |
 | RNF-07 · autenticación | ✅ | `services/auth.js` + guardia del router |
 | RNF-08 · contraseñas cifradas | ✅ | bcrypt con salt 10. **Cambio obligatorio** de la clave de fábrica en el primer acceso |
@@ -82,7 +82,7 @@ Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · 
 | RNF-14 · dos dispositivos en red local | ⛔ | **Derogado.** Incompatible con la arquitectura elegida. Requeriría sincronización, que no está en el alcance |
 | RNF-15 · navegadores de escritorio | ⚠️ | Funciona en modo desarrollo. El objetivo real es el APK; el soporte de escritorio no se prueba en CI |
 | RNF-16 · adaptable a móvil y tableta | ✅ | |
-| RNF-17 · copia de seguridad descargable | ⚠️ | El respaldo es completo y cifrado, pero **el único destino es Telegram**. Sin bot configurado no hay copia posible. Falta una vía local |
+| RNF-17 · copia de seguridad descargable | ✅ | Respaldo completo y cifrado con dos destinos: Telegram, o **Ajustes → Guardar copia de seguridad**, que abre Compartir de Android (WhatsApp, Drive, correo) sin necesitar bot. Restaurar desde el mismo menú |
 | RNF-18 · restauración | ✅ | Con instantánea previa y rollback automático |
 | RNF-19 · registro de errores en archivo | ❌ | Sólo `console.error`, ilegible en un APK de producción. Sin telemetría no hay diagnóstico posible en el taller |
 | RNF-20 · separación de capas | ✅ | Cuatro capas. Dos excepciones conocidas, listadas abajo |
@@ -145,9 +145,11 @@ Ninguno impide publicar ni pone datos en riesgo.
 | --- | --- | --- |
 | P1-3 | Recargar en una ruta profunda deja la pantalla en blanco: `base: './'` con `createWebHistory` | `vite.config.js`, `router/index.js` |
 | P1-6 | Las transiciones entre vistas nunca se activan: el `watch` observa el objeto `route` completo, así que `to` y `from` son la misma referencia | `App.vue` |
-| P1-8 | N+1 al cargar el detalle de una orden | `queries/prendas.js` |
 
 **Cerrados el 7 de octubre:**
+
+- **P1-8** · el detalle de la orden ya no hace dos consultas por prenda: notas y fotos se cargan en dos consultas agrupadas (prueba en `reglasNegocio.spec.js`).
+- **Formularios** · cliente, orden, prenda y pago recibían el error como objeto y esperaban texto: un fallo mostraba "[object Object]". Ahora muestran el mensaje.
 
 - **P1-7** · Android 12+ (y Android 14 en instalaciones nuevas) trae apagado el permiso de alarmas exactas; sin él el aviso de las 8:00 se programaba inexacto y podía llegar horas tarde, sin que nadie lo supiera. Ahora *Ajustes → Aviso de las 8:00* muestra si llega a tiempo y, si no, un botón abre el ajuste de Android (`changeExactNotificationSetting`) o pide el permiso de notificaciones, y rearma los avisos (`useNotificacionesLocales.estadoAviso` / `activarAviso`).
 

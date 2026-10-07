@@ -127,7 +127,17 @@ Cuando terminas la última prenda, la app también te pregunta si quieres avisar
 
 ---
 
-## 7. Telegram: tu asistente y tu red de seguridad
+## 7. Copia de seguridad (sin Telegram)
+
+**Ajustes → Copia de seguridad → Guardar copia de seguridad.** Escribe una contraseña maestra (anótala en un lugar seguro: sin ella la copia no se puede abrir) y elige dónde guardarla: envíatela por WhatsApp a ti misma o a un familiar, o guárdala en Drive. **Hazlo una vez por semana.**
+
+Si cambias de teléfono o se borra la app: instala la app, entra, ve a **Ajustes → Restaurar una copia**, elige el archivo y escribe la contraseña maestra.
+
+En **Ajustes → Notificaciones** verás si el **aviso de las 8:00** llega a tiempo. Si dice que puede llegar tarde, toca **Activar la hora exacta** y enciende la opción que abre Android.
+
+---
+
+## 8. Telegram: tu asistente y tu red de seguridad
 
 Ve a **Ajustes → Telegram** y pega el token de tu bot y tu chat id.
 
@@ -143,7 +153,7 @@ Dentro del archivo va todo: clientes, órdenes, prendas, pagos, historial, la co
 
 ---
 
-## 8. Ropa que nadie recoge
+## 9. Ropa que nadie recoge
 
 Una orden aparece **sin reclamar** cuando está lista y han pasado más de 30 días desde la fecha que le prometiste al cliente (o desde que la terminaste, si fue después). La ley (Ley 1480 de 2011, art. 18, y Decreto 1413 de 2018) dice:
 
@@ -154,7 +164,7 @@ Una orden aparece **sin reclamar** cuando está lista y han pasado más de 30 d�
 
 ---
 
-## 9. Ayuda dentro de la app
+## 10. Ayuda dentro de la app
 
 En **Ajustes → Instrucciones y tutorial** hay un tutorial guiado que te lleva de la mano por la pantalla: te señala dónde tocar para crear un cliente, una orden o registrar una prenda.
 

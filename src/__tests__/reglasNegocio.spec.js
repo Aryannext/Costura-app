@@ -38,7 +38,7 @@ import { migrations } from '../database/migrations.js';
 import { runMigrations } from '../database/migrationRunner.js';
 import { createOrden, getOrdenById } from '../database/queries/ordenes.js';
 import {
-    createPrenda, saveFotografia, getObservacionesByPrenda, getFotografiasByPrenda
+    createPrenda, saveFotografia, getObservacionesByPrenda, getFotografiasByPrenda, getPrendasByOrden, addObservacion
 } from '../database/queries/prendas.js';
 import { registrarPago, getPagosByOrden } from '../database/queries/pagos.js';
 import { getNotificacionesByOrden, getOrdenesParaRecordar } from '../database/queries/notificaciones.js';
@@ -887,5 +887,29 @@ describe('Trabajos recibidos antes de usar la app (oct 2026)', () => {
         expect(pago.fecha_pago).toBe(fecha);
         expect(pago.metodo_nombre).toBe('Bre-B');
         expect((await getOrdenById(id)).saldo_pendiente).toBe(15000);
+    });
+});
+
+describe('P1-8 · el detalle de la orden carga notas y fotos sin una consulta por prenda', () => {
+    it('cada prenda recibe solo sus notas y fotos', async () => {
+        const id = await orden();
+        const a = await prenda(id, 10000, 'Basta');
+        const b = await prenda(id, 20000, 'Cremallera');
+        const otra = await orden();
+        const c = await prenda(otra, 5000, 'Botón');
+
+        await addObservacion(a, 'Cortar 2 dedos');
+        await addObservacion(b, 'Cremallera negra');
+        await addObservacion(b, 'Revisar el forro');
+        await addObservacion(c, 'No debe aparecer');
+        await saveFotografia(b, 'prenda_b.jpeg');
+
+        const prendas = await getPrendasByOrden(id);
+        const porId = Object.fromEntries(prendas.map(p => [p.id_prenda, p]));
+
+        expect(porId[a].observaciones.map(o => o.descripcion)).toEqual(['Cortar 2 dedos']);
+        expect(porId[b].observaciones).toHaveLength(2);
+        expect(porId[a].fotografias).toEqual([]);
+        expect(porId[b].fotografias.map(f => f.ruta_archivo)).toEqual(['prenda_b.jpeg']);
     });
 });

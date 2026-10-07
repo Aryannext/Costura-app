@@ -59,7 +59,7 @@
     </div>
     
     <div v-if="error || errorLocal" class="error-message">
-      {{ errorLocal || error }}
+      {{ errorLocal || error?.message || error }}
     </div>
 
     <div class="form-actions">
@@ -83,7 +83,8 @@ const props = defineProps({
     default: null
   },
   loading: Boolean,
-  error: String
+  // useAsyncAction entrega un Error; se acepta también texto
+  error: { type: [String, Error, Object], default: '' }
 });
 
 const emit = defineEmits(['submit', 'cancel']);

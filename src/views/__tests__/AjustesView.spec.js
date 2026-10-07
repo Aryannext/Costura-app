@@ -23,7 +23,9 @@ vi.mock('../../composables/useConfiguracionNegocio.js', async () => {
     };
 });
 vi.mock('../../composables/useTelegramBot.js', () => ({
-    leerConfigTelegram: vi.fn(async () => config.telegram)
+    leerConfigTelegram: vi.fn(async () => config.telegram),
+    // El respaldo de Ajustes (useBackupRestore) también lo importa
+    useTelegramBot: () => ({ sendTelegramDocument: vi.fn() })
 }));
 
 import AjustesView from '../AjustesView.vue';
@@ -41,7 +43,7 @@ describe('AjustesView', () => {
 
     it('agrupa las opciones por secciones y deja Cerrar sesión aparte', async () => {
         const wrapper = await montar();
-        expect(wrapper.findAll('.grupo-t').map(g => g.text())).toEqual(['Tu taller', 'Notificaciones', 'Seguridad', 'Ayuda']);
+        expect(wrapper.findAll('.grupo-t').map(g => g.text())).toEqual(['Tu taller', 'Notificaciones', 'Copia de seguridad', 'Seguridad', 'Ayuda']);
         expect(wrapper.find('.fila--peligro').text()).toContain('Cerrar sesión');
     });
 

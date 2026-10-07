@@ -69,6 +69,31 @@
     </section>
 
     <section class="grupo">
+      <h3 class="grupo-t">Copia de seguridad</h3>
+      <!-- RNF-17: respaldo sin depender de Telegram. El archivo va cifrado con la contraseña maestra -->
+      <div class="card bloque">
+        <button class="fila" @click="openBackupModal('archivo')">
+          <span class="fila-t"><b>Guardar copia de seguridad</b><small>Envíatela por WhatsApp o guárdala en Drive. Hazlo cada semana</small></span>
+          <svg class="ic chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg>
+        </button>
+        <button class="fila" @click="triggerRestore">
+          <span class="fila-t"><b>Restaurar una copia</b><small>Para un teléfono nuevo o si se borró la app</small></span>
+          <svg class="ic chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg>
+        </button>
+        <input type="file" ref="fileInput" accept=".json,application/json" style="display:none" @change="handleRestore" />
+      </div>
+    </section>
+
+    <CryptoModal
+      :show="showCryptoModal"
+      :mode="cryptoModalMode"
+      :isProcessing="isCryptoProcessing"
+      :error="cryptoError"
+      @close="closeCryptoModal"
+      @confirm="executeCryptoAction"
+    />
+
+    <section class="grupo">
       <h3 class="grupo-t">Seguridad</h3>
       <div class="card bloque">
         <button class="fila" @click="router.push('/cambiar-clave')">
@@ -116,6 +141,8 @@ import { leerConfigTelegram } from '../composables/useTelegramBot.js';
 import { DIAS_ANTICIPACION_MAXIMO } from '../services/vencimientos.js';
 import { getConfig, updateConfig } from '../database/queries/configuracion.js';
 import { useNotificacionesLocales } from '../composables/useNotificacionesLocales.js';
+import { useBackupRestore } from '../composables/useBackupRestore.js';
+import CryptoModal from '../components/telegram/CryptoModal.vue';
 
 const router = useRouter();
 const toast = inject('toast');
@@ -142,6 +169,15 @@ async function cambiarDias(delta) {
 }
 
 const { estadoAviso, activarAviso } = useNotificacionesLocales();
+
+const {
+  showCryptoModal, cryptoModalMode, isCryptoProcessing, cryptoError,
+  fileInput, openBackupModal, triggerRestore, handleRestore,
+  closeCryptoModal, executeCryptoAction
+} = useBackupRestore(toast, {
+  // La restauración deja la conexión cerrada: hay que reiniciar la app
+  onRestoreSuccess: () => setTimeout(() => window.location.reload(), 2000)
+});
 const estadoAvisoDiario = ref('no-disponible');
 
 async function activarAvisoDiario() {
