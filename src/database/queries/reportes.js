@@ -39,12 +39,14 @@ export async function getDashboardData() {
     );
     kpis.ordenesAtrasadas = resAtrasadas.values[0]?.total || 0;
 
-    // Ordenes Sin Reclamar (RN-37): llevan N días en estado Lista. Se mide desde fecha_lista,
-    // no desde la entrega estimada (A18). N se configura en configuracion.dias_sin_reclamar.
+    // Ordenes Sin Reclamar (RN-37 y Ley 1480 art. 18 / Decreto 1413 de 2018): Listas desde hace
+    // N días contados desde la fecha más tardía entre la entrega prometida y el día en que quedó
+    // Lista. Al cliente no se le puede contar tiempo antes de la fecha acordada ni antes de que
+    // la ropa estuviera lista (A18). N se configura en configuracion.dias_sin_reclamar.
     const resDias = await db.query("SELECT valor FROM configuracion WHERE clave = 'dias_sin_reclamar'");
     const diasSinReclamar = parseInt(resDias.values?.[0]?.valor, 10) || 30;
     const resSinReclamar = await db.query(
-        "SELECT count(*) as total FROM orden_trabajo WHERE id_estado_orden = 3 AND date(fecha_lista) <= date(?, ?)",
+        "SELECT count(*) as total FROM orden_trabajo WHERE id_estado_orden = 3 AND MAX(date(fecha_lista), date(fecha_entrega_estimada)) <= date(?, ?)",
         [today, `-${diasSinReclamar} days`]
     );
     kpis.ordenesSinReclamar = resSinReclamar.values[0]?.total || 0;

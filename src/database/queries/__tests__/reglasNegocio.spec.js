@@ -214,6 +214,10 @@ describe('Reglas de negocio con SQLite real', () => {
 
             db.ref.sql("UPDATE orden_trabajo SET fecha_lista = datetime('now','localtime','-31 days') WHERE id_orden = ?", [idOrden]);
             expect((await getDashboardData()).kpis.ordenesSinReclamar).toBe(1);
+
+            // Terminada antes de lo prometido: el plazo corre desde la fecha prometida (Ley 1480 art. 18)
+            db.ref.sql("UPDATE orden_trabajo SET fecha_lista = datetime('now','localtime','-40 days'), fecha_entrega_estimada = date('now','localtime','-10 days') WHERE id_orden = ?", [idOrden]);
+            expect((await getDashboardData()).kpis.ordenesSinReclamar).toBe(0);
         });
     });
 });

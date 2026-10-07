@@ -8,7 +8,7 @@ Este proyecto nació con un propósito muy claro: **ayudar a organizar una sastr
 
 ## 💡 ¿Qué construimos y por qué lo hicimos?
 
-Construimos una **Aplicación Móvil Híbrida**. Esto significa que usamos tecnologías web (las mismas que se usan para crear páginas web) para diseñar la aplicación, pero la empaquetamos de tal forma que se instala como una aplicación real en tu teléfono Android o iPhone.
+Construimos una **Aplicación Móvil Híbrida**. Esto significa que usamos tecnologías web (las mismas que se usan para crear páginas web) para diseñar la aplicación, pero la empaquetamos de tal forma que se instala como una aplicación real en tu teléfono Android (iOS sería posible con Capacitor, pero no se ha compilado ni probado).
 
 **¿Por qué lo hicimos así?**
 1. **Velocidad de desarrollo:** Es mucho más rápido diseñar pantallas bonitas con tecnologías web que programar en lenguajes nativos de Android (Java/Kotlin).
@@ -33,11 +33,9 @@ No usamos plantillas genéricas ni cosas pesadas como Bootstrap. Todo el diseño
 ### 4. SQLite Nativo (La Base de Datos)
 Aquí es donde se guarda todo (clientes, órdenes, prendas, medidas). En lugar de usar una base de datos web que se borra al limpiar el caché, usamos un plugin especial llamado `@capacitor-community/sqlite`. Esto crea un archivo real y permanente dentro de las tripas de tu teléfono.
 
-### 5. Telegram Bot API (El Asistente en la Nube)
-Dado que la app no tiene servidor propio, integramos Telegram. El bot actúa como un asistente gratuito que:
-- Te envía alertas diarias.
-- Recibe archivos `.json` con la copia de seguridad de tu base de datos para que nunca pierdas información.
-- Genera enlaces mágicos hacia WhatsApp para cobrar a los clientes.
+### 5. WhatsApp y Telegram (sin servidor y sin costo)
+- **Avisos al cliente por WhatsApp:** la app abre WhatsApp con el mensaje escrito (enlace `wa.me`) y la modista pulsa Enviar. Ver la decisión D-03 en `docs/05-gestion/DECISIONES.md`.
+- **Bot de Telegram, solo para la modista:** copias de seguridad cifradas, recibos, reporte diario a pedido y la lista de clientes por recordar.
 
 ---
 
@@ -51,19 +49,20 @@ Imagina que hiciste una página web muy bonita. Normalmente, la gente tiene que 
 **¿Cómo funciona en este proyecto?**
 Gracias a Capacitor, nuestra página web (hecha en Vue) ahora tiene **Súper Poderes Híbridos y Nativos**. Le pedimos a Capacitor que nos prestara herramientas del celular físico:
 - **Seguridad Biométrica Nativa (Huella / FaceID):** Integrado mediante `@aparajita/capacitor-biometric-auth`. Permite iniciar sesión en 1 segundo usando el lector de huellas o reconocimiento facial del teléfono, saltándose la contraseña con total seguridad.
-- **Notificaciones PUSH Locales (Alarma Cron 8:00 AM):** Integrado con `@capacitor/local-notifications`. Programa alarmas automáticas dentro del reloj interno del celular que notifican a primera hora las prendas que deben entregarse en el día, funcionando 100% offline sin servidor ni internet.
+- **Notificaciones PUSH Locales (Alarma Cron 8:00 AM):** Integrado con `@capacitor/local-notifications`. Programa una alarma diaria a las 8:00 a. m. que invita a revisar las entregas del día. Funciona sin servidor ni internet. El texto es general porque una alarma repetitiva no puede consultar la base de datos al sonar.
 - **Compartir Nativo (Share Sheet API):** Integrado con `@capacitor/share`. Al tocar "Compartir Recibo", abre el menú nativo del celular para compartir por WhatsApp, Correo, Bluetooth o Telegram.
 - **Cámara y Almacenamiento Permanente:** Toma fotos de prendas y las guarda directamente en la memoria persistente del celular (`Directory.Data`), sobreviviendo a borrados de caché.
-- **Seguridad Antisección en Memoria RAM:** Para evitar el secuestro de sesión por restauración de segundo plano de Android, la sesión se almacena de forma volátil en la memoria RAM del motor Javascript, destruyéndose al 100% cada vez que se cierra la aplicación.
+- **Sesión con vencimiento:** la sesión se guarda en `Preferences` junto con la hora de la última actividad. Al abrir o recargar la app se valida: si pasaron 15 minutos sin uso, se pide la clave otra vez.
 - **El Vibrador (Haptics) y Barra de Estado:** Retroalimentación táctil al pulsar botones y coloreado nativo de la barra superior.
 - **El Disco Duro Nativo (SQLite):** Bóveda relacional local (`@capacitor-community/sqlite`) optimizada con índices de alto rendimiento (`idx_orden_fecha_entrega`, etc.).
-- **Actualizaciones Silenciosas OTA (Over-The-Air):** Gracias a `@capgo/capacitor-updater`, la aplicación se puede actualizar automáticamente en segundo plano sin necesidad de pasar por la revisión de las tiendas de aplicaciones (Play Store / App Store).
+- **Actualizaciones OTA (Over-The-Air):** `@capgo/capacitor-updater` está instalado. Capgo es un servicio externo; ver el pendiente P-05 en `docs/05-gestion/DECISIONES.md`.
 
 ---
 
 ## 🛡️ Calidad de Código e Integración Continua (CI/CD)
 
-- **Pruebas Automatizadas:** El proyecto está configurado con **Vitest** y **Vue Test Utils** para garantizar que los componentes no se rompan a medida que la app crece.
+- **Pruebas unitarias:** `npm run test:unit`. Las reglas de negocio se prueban con **Vitest contra SQLite real en memoria** (`src/database/queries/__tests__/reglasNegocio.spec.js`, requiere Node 22.5+).
+- **Pruebas de punta a punta:** `PW_CHANNEL=msedge npx playwright test` recorre en el navegador el flujo completo de una orden. Usa el Edge instalado en Windows; con `npx playwright install chromium` también funciona sin la variable.
 - **GitHub Actions (CI/CD):** Cada vez que se sube código al repositorio, un robot de GitHub verifica automáticamente la integridad, instala dependencias y corre las pruebas (`npm run test:unit`) para garantizar la máxima calidad antes de publicar.
 
 ---
@@ -78,20 +77,16 @@ Si abres la carpeta del proyecto (`costura.app`), verás la siguiente estructura
   - 📂 **`assets/`**: Estilos modulares de Vanilla CSS, variables de diseño y recursos visuales.
   - 📂 **`components/`**: Arquitectura de micro-componentes modulares y reutilizables (`SkeletonLoader.vue`, `TabDetalle.vue`, `TabPrendas.vue`, `TabPagos.vue`).
   - 📂 **`composables/`**: Controladores de lógica de negocio reactiva (`useOrdenes.js`, `useNotificacionesLocales.js`, `useTelegramBot.js`).
-  - 📂 **`database/`**: Conector de base de datos SQLite (`connection.js`), migraciones (`migrations.js`) y consultas organizadas por entidad (`queries/`).
+  - 📂 **`database/`**: Conector de base de datos SQLite (`connection.js`), migraciones versionadas (`migrations.js`) y consultas organizadas por entidad (`queries/`).
+  - 📂 **`services/`**: Lógica pura sin interfaz: reglas de estados (`reglasOrden.js`), fechas locales, WhatsApp, recibo, validaciones, autenticación y cifrado.
+- 📁 **`tests/e2e/`**: Pruebas de punta a punta con Playwright.
   - 📂 **`views/`**: Vistas principales del sistema conectadas al enrutador Vue Router (`DashboardView.vue`, `LoginView.vue`, etc.).
 
 ---
 
-## 📚 Mapa Documental de Ingeniería (`/docs`)
+## 📚 Mapa Documental (`/docs`)
 
-Para comprender a fondo las especificaciones técnicas y operativas del proyecto, consulta los documentos de la carpeta `/docs/`:
-
-1. **`FICHA_TECNICA.md`**: Resumen ejecutivo de arquitectura, estándares de código, dependencias y protocolos de seguridad de la aplicación.
-2. **`MANUAL_USUARIO.md`**: Guía operativa visual y paso a paso para modistas, administradores y personal de atención en el taller.
-3. **`MEJORAS_ADICIONALES_FASE1.md`**: Documento de ingeniería formal con Requisitos Funcionales (RF), Requisitos No Funcionales (RNF) e Historias de Usuario de las integraciones nativas de hardware y optimizaciones.
-4. **`DIAGRAMAS.md`**: Planos arquitectónicos en Mermaid (Entidad-Relación de SQLite, casos de uso, arquitectura de software y flujo de estados).
-5. **`COSTURA_FASE2_REQUISITOS.md`**: Especificaciones y planificación de la próxima etapa evolutiva del sistema (Inventario de Bodega y Pruebas de Vestuario).
+Empieza por [`docs/README.md`](docs/README.md). Ahí está el índice completo, ordenado por fases: análisis, diseño, manuales, calidad, gestión y archivo.
 
 ---
 
@@ -102,7 +97,7 @@ Cualquier desarrollador o usuario puede descargar este proyecto desde GitHub, co
 ### 1. Prerequisitos de Software
 Asegúrate de tener instalado en tu sistema:
 - **Git**: Para clonar el repositorio.
-- **Node.js (v18 o superior)**: Entorno de ejecución de Javascript.
+- **Node.js 22.12 o superior (recomendado 24)**: Vite 8 y las pruebas con `node:sqlite` no funcionan en versiones anteriores.
 - **Android Studio (Opcional)**: Requerido solo si deseas compilar y generar el instalador móvil (`.APK` o `.AAB`).
 
 ### 2. Clonar el Proyecto desde GitHub

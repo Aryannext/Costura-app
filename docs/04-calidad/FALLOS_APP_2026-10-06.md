@@ -1,5 +1,7 @@
 # Fallos actuales de la app y diferencias con documentos y diagramas
 
+> **Actualización del 7 de octubre de 2026:** el estado de cada hallazgo está en la sección final, *Estado de corrección*. El texto original de la auditoría se conserva sin cambios como evidencia.
+
 **Fecha de la revisión:** 6 de octubre de 2026.  
 **Proyecto:** Costura App / Atelier Manager.  
 **Propósito:** identificar qué falla, qué documentos no describen la app y qué diagramas requieren cambios.
@@ -286,3 +288,40 @@ El fallo unitario proviene del doble de DOM en `src/database/__tests__/connectio
 La compilación exitosa y las 40 pruebas que pasaron no descartan los errores de negocio descritos: varias pruebas actuales comprueban llamadas SQL simuladas y no las invariantes financieras, transiciones o envíos reales.
 
 Las comprobaciones nativas (disparo de alarmas, biometría, cierre/reanudación y restauración de fotos en teléfono nuevo) requieren una prueba en dispositivo. La carpeta revisada no tiene `.git`, por lo que no se puede asociar este informe a un commit ni atribuir diferencias a una versión desplegada.
+
+
+---
+
+## Estado de corrección (7 de octubre de 2026)
+
+Verificación:
+- `npm run test:unit`: **66 pruebas aprobadas, 0 fallidas**, incluidas las del fallo de `connection.spec.js`.
+- `PW_CHANNEL=msedge npx playwright test`: **3 de 3** pruebas de punta a punta aprobadas.
+- `npm run build`: correcto.
+
+Cada corrección tiene una prueba en `src/database/queries/__tests__/reglasNegocio.spec.js` o en `src/services/__tests__/servicios.spec.js`. La prueba falla si el defecto vuelve.
+
+| ID | Estado | Qué se hizo |
+| --- | --- | --- |
+| A01 | Corregido | `deletePago` y `deletePrenda` reales, atómicos, con recálculo de saldo y del estado de la orden. Una prenda no se puede eliminar si lo pagado supera el nuevo total |
+| A02 | Corregido | No se insertan notificaciones al pasar a Lista. Los recordatorios masivos se registran solo si Telegram confirma el envío. Los avisos por WhatsApp se registran como "preparados" |
+| A03 | Corregido | Reabrir lleva a En Proceso, limpia `fecha_entrega_real` y devuelve las prendas a Terminada. Queda la actividad tipo Reapertura |
+| A04 | Corregido | Lista/Entregar validan en la capa de datos que todas las prendas estén Terminadas (`reglasOrden.validarCambioManual`) |
+| A05 | Corregido | El estado de la orden se recalcula al agregar, eliminar o cambiar prendas (`estadoOrdenSegunPrendas`) y la cabecera se refresca |
+| A06 | Corregido | Reducir un precio o eliminar una prenda por debajo de lo pagado se rechaza con un mensaje claro |
+| A07 | Corregido | El cliente creado desde la orden pasa por `validators.validateCliente` |
+| A08 | Corregido | El reporte usa `fecha_entrega_estimada` y compara fechas locales |
+| A09 | Corregido | `src/services/fechas.js`: fechas de calendario locales en validaciones, formularios, panel y respaldo |
+| A10 | Corregido | La sesión guarda la última actividad y vence a los 15 min, incluso con la app cerrada. README y pruebas E2E actualizados |
+| A11 | Corregido | `src/services/recibo.js`: fecha de recepción real, prendas y abonos |
+| A12 | Corregido | La agenda de clientes ya no tiene límite de 50 |
+| A13 | Corregido | La alarma diaria se programa siempre, con texto general |
+| A14 | Decidido | Se permite entregar con deuda, con confirmación (decisión D-11). Manual corregido |
+| A15 | Corregido | Fotos y observaciones refrescan la tarjeta mediante las referencias que expone `TabPrendas` |
+| A16 | Corregido | Editar una prenda emite `prenda-editada` y se recargan cabecera e historial |
+| A17 | **Pendiente** | El respaldo sigue sin incluir los archivos de fotos (P-01 en `DECISIONES.md`) |
+| A18 | Corregido | Nueva columna `fecha_lista` (migración v2). "Sin reclamar" cuenta desde la fecha más tardía entre la entrega prometida y la fecha en que quedó Lista, alineado con la Ley 1480 art. 18 |
+
+**Documentación:** el manual de usuario, la ficha técnica y el README ya describen el comportamiento actual. **Siguen pendientes** los diagramas y el documento de requisitos (sprint 2 de `05-gestion/PLAN_19_DIAS.md`).
+
+**Script de auditoría:** `auditoria/verificar.mjs` reproducía los defectos sobre el código original. Contra el código corregido ya no los reproduce, y eso es lo esperado. Se conserva como evidencia histórica.
