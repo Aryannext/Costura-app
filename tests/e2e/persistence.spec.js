@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { iniciarSesion } from './helpers.js';
 
 test.describe('Web Persistence E2E (jeep-sqlite IndexedDB)', () => {
     test('should persist client data across page reloads', async ({ page }) => {
@@ -8,14 +9,7 @@ test.describe('Web Persistence E2E (jeep-sqlite IndexedDB)', () => {
         await page.goto('/');
 
         // The App defaults to Login view if not authenticated
-        await page.waitForSelector('#username', { timeout: 15000 });
-        await page.fill('#username', 'admin');
-        await page.fill('#password', 'admin123');
-        await page.click('button[type="submit"]');
-
-        // Wait for the app to initialize the database and redirect
-        // It should render the main content view (e.g. Dashboard)
-        await expect(page.locator('.main-content')).toBeVisible({ timeout: 15000 });
+        await iniciarSesion(page);
 
         // Navigate to Clientes view via UI
         await page.locator('.nav-item', { hasText: 'Clientes' }).click();
@@ -53,11 +47,7 @@ test.describe('Web Persistence E2E (jeep-sqlite IndexedDB)', () => {
         await page.reload();
 
         // 6. Log back in and navigate to Clientes
-        await page.waitForSelector('#username', { timeout: 15000 });
-        await page.fill('#username', 'admin');
-        await page.fill('#password', 'admin123');
-        await page.click('button[type="submit"]');
-        await expect(page.locator('.main-content')).toBeVisible({ timeout: 15000 });
+        await iniciarSesion(page);
         await page.locator('.nav-item', { hasText: 'Clientes' }).click();
 
         // 7. Verify the client is STILL there!

@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { iniciarSesion } from './helpers.js';
 
 test.describe("Order Creation & Concurrency", () => {
   test("handles concurrent order creations cleanly without cross-contamination", async ({
@@ -21,11 +22,7 @@ test.describe("Order Creation & Concurrency", () => {
 
     // 1. Login and Setup
     await page.goto("/");
-    await page.waitForSelector("#username", { timeout: 15000 });
-    await page.fill("#username", "admin");
-    await page.fill("#password", "admin123");
-    await page.click('button[type="submit"]');
-    await expect(page.locator(".main-content")).toBeVisible({ timeout: 15000 });
+    await iniciarSesion(page);
 
     // 2. Create Initial Client via Orders View
     await page.locator(".nav-item", { hasText: "Órdenes" }).click();
@@ -37,6 +34,8 @@ test.describe("Order Creation & Concurrency", () => {
     await page
       .locator('input[placeholder="Nombre del cliente"]')
       .fill(clientName);
+    // El teléfono es obligatorio también al crear el cliente desde la orden (RN-01, A07)
+    await page.locator('input[type="tel"]').fill("3001234567");
     await page.getByText("Mañana", { exact: true }).click();
 
     // Normal submit for the first order to establish the client
@@ -145,12 +144,7 @@ test.describe("Order Creation & Concurrency", () => {
     await page.reload();
 
     // App redirects to login after reload
-    await page.waitForSelector("#username", { timeout: 15000 });
-    await page.fill("#username", "admin");
-    await page.fill("#password", "admin123");
-    await page.click('button[type="submit"]');
-
-    await expect(page.locator(".main-content")).toBeVisible({ timeout: 15000 });
+    await iniciarSesion(page);
 
     // Go to Orders list again
     await page.locator(".nav-item", { hasText: "Órdenes" }).click();
