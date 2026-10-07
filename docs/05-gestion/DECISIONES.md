@@ -129,5 +129,5 @@ Si la app se cierra y se abre antes de 15 minutos sin uso, no pide la clave otra
 | P-02 | La clave inicial es `admin123` y no se obliga a cambiarla | Cualquiera que conozca la app puede entrar. Lo primero que el instructor puede señalar en seguridad |
 | P-03 | Falta el texto de autorización de datos (D-08) | Requisito legal |
 | P-04 | El token de Telegram se guarda sin cifrar en localStorage | La ficha técnica decía lo contrario; ya se corrigió el texto, falta el código |
-| P-05 | Capgo (`autoUpdate: true`) es un servicio externo con plan de pago | Verificar si hay cuenta. Si no, desactivarlo para no depender de un tercero |
+| P-05 | ~~Capgo sin cuenta~~ **Resuelto (7 oct):** hay cuenta de Capgo; se mantienen las actualizaciones OTA | Documentar en el manual técnico cómo se publica una actualización |
 | P-06 | Probar en un teléfono Android real: cámara, alarma de las 8 a. m., huella, abrir WhatsApp | Las pruebas automáticas corren en navegador, no en el teléfono |

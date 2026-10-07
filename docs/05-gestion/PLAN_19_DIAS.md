@@ -10,7 +10,7 @@ Fuente: *Proyecto Formativo ADSO*, sección 2.5.4 "Productos o resultados del pr
 | 2 | Diseño arquitectónico en UML | `docs/02-diseno/DIAGRAMAS.md` | **Parcial**: 6 diagramas con diferencias; faltan clases, secuencia y despliegue |
 | 3 | Base de datos e interfaz implementadas | `src/` | **Funciona**; quedan los pendientes P-01 a P-06 de `DECISIONES.md` |
 | 4 | Manual técnico y de usuario **en español e inglés** | `docs/03-manuales/` | Usuario ES listo; ficha técnica corregida. **Faltan**: manual técnico completo y las versiones en inglés |
-| 5 | Artículo de revisión bibliográfica sobre gestión de calidad del software (ES/EN) | — | **No existe**. Confirmar con el instructor si es obligatorio para graduarse |
+| 5 | Artículo de revisión bibliográfica sobre gestión de calidad del software (ES/EN) | — | **No se exige** para graduarse (confirmado el 7 oct). Fuera del plan |
 
 ## 2. Scrum aplicado a un equipo de una persona
 
@@ -36,7 +36,7 @@ Objetivo: la app en un teléfono real con datos reales.
 1. Compilar el APK y probar en el teléfono (P-06): cámara, WhatsApp, alarma de las 8 a. m., huella.
 2. Obligar a cambiar la clave `admin123` en el primer ingreso (P-02).
 3. Agregar el texto de autorización de datos personales (P-03).
-4. Decidir sobre Capgo: desactivarlo si no hay cuenta (P-05).
+4. Capgo: hay cuenta, se mantiene (P-05 resuelto). Probar una actualización OTA en el teléfono.
 5. Capacitar a tu mamá 30 minutos y que registre de 5 a 10 órdenes reales.
 6. **Evidencia:** fotos o video corto de ella usándola; anotar sus quejas, porque son el insumo del sprint 2.
 
@@ -57,9 +57,8 @@ Objetivo: que los documentos describan la app real.
 ### Sprint 3 — "Manuales, artículo y sustentación" (lun 19 – jue 23)
 1. Manual técnico completo: instalación, arquitectura, base de datos, pruebas, despliegue del APK.
 2. Versiones en inglés del manual de usuario y del técnico.
-3. Artículo, si el instructor lo confirma.
-4. Evidencias de pruebas: salida de `npm run test:unit` y del E2E, y los casos de prueba CP-xx actualizados.
-5. Presentación: problema → solución → demostración en vivo → decisiones → trabajo futuro.
+3. Evidencias de pruebas: salida de `npm run test:unit` y del E2E, y los casos de prueba CP-xx actualizados.
+4. Presentación: problema → solución → demostración en vivo → decisiones → trabajo futuro.
 
 ### Colchón (vie 24 – sáb 25)
 Ensayo de la sustentación en voz alta, cronometrado, y entrega. **No meter funciones nuevas estos días.**
