@@ -41,10 +41,7 @@
           <p>{{ confirmMessage }}</p>
           <div class="confirm-actions">
             <button class="btn-secondary" @click="emit('cancelConfirm')">Cancelar</button>
-            <button class="btn-primary telegram-btn-modal" @click="emit('executeConfirm')">
-              <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-              Sí, Notificar
-            </button>
+            <button class="btn-primary" @click="emit('executeConfirm')">Sí</button>
           </div>
         </div>
       </div>

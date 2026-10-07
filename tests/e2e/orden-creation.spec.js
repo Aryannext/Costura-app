@@ -37,6 +37,8 @@ test.describe("Order Creation & Concurrency", () => {
     await page
       .locator('input[placeholder="Nombre del cliente"]')
       .fill(clientName);
+    // El teléfono es obligatorio también al crear el cliente desde la orden (RN-01)
+    await page.locator('input[type="tel"]').fill("3001234567");
     await page.getByText("Mañana", { exact: true }).click();
 
     // Normal submit for the first order to establish the client
@@ -144,12 +146,7 @@ test.describe("Order Creation & Concurrency", () => {
     await page.waitForTimeout(2000);
     await page.reload();
 
-    // App redirects to login after reload
-    await page.waitForSelector("#username", { timeout: 15000 });
-    await page.fill("#username", "admin");
-    await page.fill("#password", "admin123");
-    await page.click('button[type="submit"]');
-
+    // La sesión sigue vigente tras recargar (menos de 15 min sin uso, RNF-09)
     await expect(page.locator(".main-content")).toBeVisible({ timeout: 15000 });
 
     // Go to Orders list again

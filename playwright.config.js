@@ -14,7 +14,8 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      // PW_CHANNEL=msedge usa el Edge instalado en Windows sin descargar navegadores
+      use: { ...devices['Desktop Chrome'], channel: process.env.PW_CHANNEL || undefined },
     },
   ],
   webServer: {

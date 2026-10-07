@@ -52,12 +52,9 @@ test.describe('Web Persistence E2E (jeep-sqlite IndexedDB)', () => {
         // 5. Force a hard reload
         await page.reload();
 
-        // 6. Log back in and navigate to Clientes
-        await page.waitForSelector('#username', { timeout: 15000 });
-        await page.fill('#username', 'admin');
-        await page.fill('#password', 'admin123');
-        await page.click('button[type="submit"]');
+        // 6. La sesión sigue vigente (menos de 15 min sin uso, RNF-09): no pide clave otra vez
         await expect(page.locator('.main-content')).toBeVisible({ timeout: 15000 });
+        await expect(page.locator('#username')).toHaveCount(0);
         await page.locator('.nav-item', { hasText: 'Clientes' }).click();
 
         // 7. Verify the client is STILL there!
