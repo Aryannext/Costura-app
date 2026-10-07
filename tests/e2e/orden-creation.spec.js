@@ -36,6 +36,7 @@ test.describe("Order Creation & Concurrency", () => {
       .fill(clientName);
     // El teléfono es obligatorio también al crear el cliente desde la orden (RN-01, A07)
     await page.locator('input[type="tel"]').fill("3001234567");
+    await page.check("#autoriza_datos");
     await page.getByText("Mañana", { exact: true }).click();
 
     // Normal submit for the first order to establish the client

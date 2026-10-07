@@ -24,6 +24,32 @@
           <svg class="btn-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.242-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
           {{ clienteActual.direccion }}
         </p>
+
+        <!-- Ley 1581 de 2012: prueba de la autorización y derecho de supresión -->
+        <div class="datos-personales">
+          <p v-if="clienteActual.fecha_autorizacion_datos" class="autorizo">
+            Autorizó guardar sus datos el {{ formatDate(clienteActual.fecha_autorizacion_datos) }}
+          </p>
+          <template v-else-if="clienteActual.telefono">
+            <p class="sin-autorizacion">Sin autorización de datos registrada</p>
+            <div class="acciones-datos">
+              <button type="button" class="btn-small btn-secondary" @click="enviarAviso">Enviarle el aviso por WhatsApp</button>
+              <button type="button" class="btn-small" @click="registrarAutorizacion(clienteActual.id_cliente)">Ya autorizó: registrar</button>
+            </div>
+          </template>
+          <template v-if="clienteActual.telefono">
+            <button v-if="!confirmandoBorrado" type="button" class="btn-link btn-borrar" @click="confirmandoBorrado = true">
+              Borrar sus datos personales
+            </button>
+            <div v-else class="confirmar-borrado">
+              <p>Se borran el nombre, el celular y la dirección. Sus órdenes y pagos quedan sin datos personales. No se puede deshacer.</p>
+              <div class="acciones-datos">
+                <button type="button" class="btn-small btn-secondary" @click="confirmandoBorrado = false">No</button>
+                <button type="button" class="btn-small btn-peligro" @click="borrarDatos">Sí, borrar</button>
+              </div>
+            </div>
+          </template>
+        </div>
       </div>
 
       <div class="tabs" style="margin-bottom: 16px;">
@@ -122,14 +148,37 @@ import ClienteForm from '../components/clientes/ClienteForm.vue';
 import SkeletonLoader from '../components/common/SkeletonLoader.vue';
 import StatusBadge from '../components/common/StatusBadge.vue';
 import { formatearMoneda } from '../services/formato.js';
+import { textoAvisoPrivacidad } from '../services/avisoPrivacidad.js';
+import { abrirWhatsApp } from '../services/whatsapp.js';
+import { getConfig } from '../database/queries/configuracion.js';
 
 const route = useRoute();
 const router = useRouter();
 const toast = inject('toast');
-const { clienteActual, ordenesCliente, loading, error, fetchCliente, saveCliente, clearCurrentState } = useClientes();
+const { clienteActual, ordenesCliente, loading, error, fetchCliente, saveCliente, registrarAutorizacion, borrarDatosPersonales, clearCurrentState } = useClientes();
 const { notificaciones, loading: notifLoading, fetchNotificacionesCliente } = useNotificaciones();
 
 const showEditForm = ref(false);
+const confirmandoBorrado = ref(false);
+
+async function enviarAviso() {
+  try {
+    const taller = await getConfig('nombre_taller');
+    abrirWhatsApp(clienteActual.value.telefono, textoAvisoPrivacidad(taller));
+  } catch (e) {
+    toast(e.message || 'No se pudo abrir WhatsApp', 'error');
+  }
+}
+
+async function borrarDatos() {
+  try {
+    await borrarDatosPersonales(clienteActual.value.id_cliente);
+  } catch (e) {
+    // El composable ya mostró el mensaje
+  } finally {
+    confirmandoBorrado.value = false;
+  }
+}
 const tab = ref('ordenes');
 
 onMounted(() => {
@@ -301,4 +350,11 @@ async function handleEditCliente(clienteData) {
   font-size: 12px;
   font-weight: bold;
 }
+.datos-personales { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--surface-container-highest); display: flex; flex-direction: column; gap: 8px; }
+.autorizo { margin: 0; font-size: 0.85rem; color: var(--success-text, #047857); }
+.sin-autorizacion { margin: 0; font-size: 0.85rem; color: var(--error); font-weight: 600; }
+.acciones-datos { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn-link { background: none; border: none; padding: 0; color: var(--on-surface-variant); text-decoration: underline; cursor: pointer; font-size: 0.85rem; align-self: flex-start; }
+.confirmar-borrado p { margin: 0 0 8px; font-size: 0.85rem; }
+.btn-peligro { background-color: var(--error); color: var(--on-error, #fff); }
 </style>

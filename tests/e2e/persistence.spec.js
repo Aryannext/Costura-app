@@ -27,6 +27,8 @@ test.describe('Web Persistence E2E (jeep-sqlite IndexedDB)', () => {
         // 3. Fill the form
         await page.locator('input#nombre').fill(uniqueName);
         await page.locator('input#telefono').fill(uniquePhone);
+        // Ley 1581: autorización de la clienta para guardar sus datos
+        await page.check('#autoriza_datos_cliente');
 
         // Save
         await page.getByText('Guardar', { exact: true }).click();

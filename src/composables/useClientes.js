@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { getAllClientes, getClienteById, createCliente, updateCliente, searchClientes, getOrdenesByCliente } from '../database/queries/clientes.js';
+import { getAllClientes, getClienteById, createCliente, updateCliente, searchClientes, getOrdenesByCliente, registrarAutorizacionDatos, anonimizarCliente } from '../database/queries/clientes.js';
 import { validators } from '../services/validators.js';
 import { useAsyncAction } from './useAsyncAction.js';
 
@@ -60,6 +60,22 @@ export function useClientes() {
         }).then((res) => res?.id);
     };
 
+    // Ley 1581: autorización de clientas registradas antes de la versión 7
+    const registrarAutorizacion = async (id_cliente) => {
+        return execute(async () => {
+            await registrarAutorizacionDatos(id_cliente);
+            await fetchCliente(id_cliente);
+        }, { successMessage: 'Autorización registrada', toastError: true });
+    };
+
+    // Ley 1581: derecho de supresión. Las órdenes quedan, sin datos personales.
+    const borrarDatosPersonales = async (id_cliente) => {
+        return execute(async () => {
+            await anonimizarCliente(id_cliente);
+            await fetchCliente(id_cliente);
+        }, { successMessage: 'Datos personales borrados', toastError: true });
+    };
+
     const clearCurrentState = () => {
         clienteActual.value = null;
         ordenesCliente.value = [];
@@ -75,6 +91,8 @@ export function useClientes() {
         fetchCliente,
         search,
         saveCliente,
+        registrarAutorizacion,
+        borrarDatosPersonales,
         clearCurrentState
     };
 }

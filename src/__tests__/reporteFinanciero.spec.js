@@ -22,7 +22,7 @@ const hoy = fechaLocalISO();
 const enDias = (n) => fechaLocalISO(sumarDias(new Date(), n));
 
 async function ordenCon(valores, { cancelar = false } = {}) {
-    const id_cliente = await useClientes().saveCliente({ nombre: 'Ana', telefono: '3001234567' });
+    const id_cliente = await useClientes().saveCliente({ nombre: 'Ana', telefono: '3001234567', autoriza_datos: true });
     const id = await useOrdenes().saveOrden({ id_cliente, fecha_entrega_estimada: enDias(5) });
     for (const valor of valores) {
         await usePrendas().savePrenda({ id_orden: id, valor, descripcion_arreglo: 'Basta', id_tipo_prenda: 1 });

@@ -12,6 +12,8 @@
       <label for="direccion">Dirección</label>
       <input type="text" id="direccion" v-model="form.direccion" placeholder="Dirección (opcional)" />
     </div>
+
+    <AutorizacionDatos v-if="esNuevo" v-model="form.autoriza_datos" id-casilla="autoriza_datos_cliente" />
     
     <div v-if="error" class="error-message">
       {{ error?.message || error }}
@@ -27,7 +29,8 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
+import AutorizacionDatos from './AutorizacionDatos.vue';
 
 const props = defineProps({
   initialData: {
@@ -42,6 +45,8 @@ const props = defineProps({
 const emit = defineEmits(['submit', 'cancel']);
 
 const form = ref({ ...props.initialData });
+// La autorización se pide al registrar; al editar una clienta ya existe (o se registra en su detalle)
+const esNuevo = computed(() => !props.initialData?.id_cliente);
 
 watch(() => props.initialData, (newVal) => {
   form.value = { ...newVal };

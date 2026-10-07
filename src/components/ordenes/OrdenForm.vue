@@ -37,6 +37,7 @@
           inputmode="numeric"
           required
         />
+        <AutorizacionDatos v-model="nuevoCliente.autoriza_datos" />
       </div>
     </div>
 
@@ -76,6 +77,7 @@ import { ref, onMounted } from 'vue';
 import { getAllClientes, createCliente } from '../../database/queries/clientes.js';
 import { fechaLocalISO } from '../../services/fechas.js';
 import { validators } from '../../services/validators.js';
+import AutorizacionDatos from '../clientes/AutorizacionDatos.vue';
 
 const props = defineProps({
   fixedClienteId: {
@@ -98,7 +100,7 @@ const errorLocal = ref('');
 
 const clientesList = ref([]);
 const creandoCliente = ref(false);
-const nuevoCliente = ref({ nombre: '', telefono: '' });
+const nuevoCliente = ref({ nombre: '', telefono: '', autoriza_datos: false });
 const isSubmittingLocal = ref(false);
 
 // Fecha mínima del selector, en hora local: con toISOString() el formulario
@@ -114,7 +116,7 @@ onMounted(async () => {
 function toggleNuevoCliente() {
   creandoCliente.value = !creandoCliente.value;
   if (!creandoCliente.value) {
-    nuevoCliente.value = { nombre: '', telefono: '' };
+    nuevoCliente.value = { nombre: '', telefono: '', autoriza_datos: false };
   } else {
     form.value.id_cliente = ''; // reset select
   }

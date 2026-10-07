@@ -27,10 +27,14 @@ test('orden de punta a punta: cliente, fecha anterior, prenda, aviso WhatsApp, p
   await page.getByText('+ Nueva', { exact: true }).click();
   await page.getByText('+ Nuevo Cliente', { exact: true }).click();
   await page.fill('input[placeholder="Nombre del cliente"]', `Cliente E2E ${Date.now()}`);
+  // Ley 1581: sin la casilla de autorización la app no registra a la clienta
+  await page.check('#autoriza_datos');
   await page.fill('input[type="tel"]', '12');
   await page.getByText('Mañana', { exact: true }).click();
   await page.getByRole('button', { name: 'Crear Orden' }).click();
   await expect(page.locator('.error-message')).toContainText('teléfono');
+
+  // La pantalla del cliente muestra la prueba de la autorización (se revisa al final)
 
   // 2. Teléfono válido y ropa recibida hace 5 días (trabajo anterior a la app)
   const recibida = haceDias(5);
@@ -74,6 +78,11 @@ test('orden de punta a punta: cliente, fecha anterior, prenda, aviso WhatsApp, p
   await expect(modal).toContainText('15.000');
   await modal.locator('button').last().click();
   await expect(page.locator('.orden-header')).toContainText('Entregada');
+
+  // Ley 1581: la clienta quedó con la fecha de su autorización
+  await page.locator('.nav-item', { hasText: 'Clientes' }).click();
+  await page.locator('.cliente-card, .clientes-list > *').first().click();
+  await expect(page.locator('.autorizo')).toContainText('Autorizó guardar sus datos');
 
   expect(errores).toEqual([]);
 });
