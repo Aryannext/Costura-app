@@ -4,9 +4,9 @@ import { DatabaseSync } from 'node:sqlite';
 import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
-import { migrations } from '../../src/database/migrations.js';
+import { migrations } from '../../../src/database/migrations.js';
 
-const root = new URL('../../', import.meta.url);
+const root = new URL('../../../', import.meta.url);
 const results = [];
 let sequence = 0;
 let memory;
