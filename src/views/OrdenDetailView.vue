@@ -185,7 +185,6 @@ const { notificaciones, fetchNotificaciones, saveNotificacion } = useNotificacio
 
 const showPrendaForm = ref(false);
 const showPagoForm = ref(false);
-const prendaRefs = ref({});
 const tabPrendasRef = ref(null);
 
 onMounted(async () => {
@@ -324,8 +323,11 @@ async function avisarCliente(tipo) {
   }
 }
 
-function setPrendaRef(el, id_prenda) {
-  if (el) prendaRefs.value[id_prenda] = el;
+// A15: las tarjetas viven dentro de TabPrendas, que expone sus referencias.
+// Antes se revisaba un mapa local de esta vista que nunca se llenaba, y la
+// galería abierta no mostraba la foto o nota nueva hasta salir y volver.
+function refrescarTarjeta(id_prenda) {
+  tabPrendasRef.value?.prendaRefs?.[id_prenda]?.refreshData();
 }
 
 async function handleTakePhoto(id_prenda) {
@@ -333,9 +335,7 @@ async function handleTakePhoto(id_prenda) {
     const uri = await takePhoto(id_prenda);
     if (uri) {
       toast('Fotografía guardada', 'success');
-      if (prendaRefs.value[id_prenda]) {
-        if (tabPrendasRef.value && tabPrendasRef.value.prendaRefs) { tabPrendasRef.value.prendaRefs[id_prenda]?.refreshData(); }
-      }
+      refrescarTarjeta(id_prenda);
     }
   } catch (err) {
     toast(err.message, 'error');
@@ -350,9 +350,7 @@ async function openObsPrompt(id_prenda) {
       try {
         await addNewObservacion(id_prenda, obs.trim());
         toast('Observación añadida', 'success');
-        if (prendaRefs.value[id_prenda]) {
-          if (tabPrendasRef.value && tabPrendasRef.value.prendaRefs) { tabPrendasRef.value.prendaRefs[id_prenda]?.refreshData(); }
-        }
+        refrescarTarjeta(id_prenda);
       } catch (err) {
         toast('Error al añadir observación', 'error');
       }

@@ -35,11 +35,9 @@ No usamos plantillas genéricas ni cosas pesadas como Bootstrap. Todo el diseño
 ### 4. SQLite Nativo (La Base de Datos)
 Aquí es donde se guarda todo (clientes, órdenes, prendas, medidas). En lugar de usar una base de datos web que se borra al limpiar el caché, usamos un plugin especial llamado `@capacitor-community/sqlite`. Esto crea un archivo real y permanente dentro de las tripas de tu teléfono.
 
-### 5. Telegram Bot API (El Asistente en la Nube)
-Dado que la app no tiene servidor propio, integramos Telegram. El bot actúa como un asistente gratuito que:
-- Te envía alertas diarias.
-- Recibe archivos `.json` con la copia de seguridad de tu base de datos para que nunca pierdas información.
-- Genera enlaces mágicos hacia WhatsApp para cobrar a los clientes.
+### 5. WhatsApp y Telegram (sin servidor y sin costo)
+- **Avisos al cliente por WhatsApp:** la app abre WhatsApp con el mensaje escrito (enlace `wa.me`, con el +57) y la modista pulsa Enviar. Ver D-03 en `docs/05-gestion/DECISIONES.md`.
+- **Bot de Telegram, solo para la modista:** copia de seguridad cifrada, recibos, reporte y la lista diaria de clientes por recordar.
 
 ---
 
@@ -186,6 +184,9 @@ Junto a cada carpeta viven sus pruebas en `__tests__/`.
 
 | Documento | Qué contiene |
 | --- | --- |
+| [`docs/README.md`](docs/README.md) | Índice de toda la documentación, ordenada por fases |
+| [`docs/05-gestion/PLAN_19_DIAS.md`](docs/05-gestion/PLAN_19_DIAS.md) | Plan de cierre con Scrum hasta la entrega del 25 de octubre de 2026 |
+| [`docs/05-gestion/DECISIONES.md`](docs/05-gestion/DECISIONES.md) | Decisiones argumentadas: WhatsApp, pagos, Docker, tienda web, leyes |
 | [`docs/04-calidad/TRAZABILIDAD.md`](docs/04-calidad/TRAZABILIDAD.md) | **Empieza por aquí.** Cada requisito, su estado real y el archivo que lo implementa. Incluye los defectos abiertos |
 | [`docs/02-diseno/DIAGRAMAS.md`](docs/02-diseno/DIAGRAMAS.md) | Nueve diagramas Mermaid regenerados desde el código: arquitectura, entidad-relación, casos de uso, flujo de negocio, navegación, estados, sesión, respaldo y arranque |
 | [`docs/03-manuales/FICHA_TECNICA.md`](docs/03-manuales/FICHA_TECNICA.md) | Resumen técnico: stack, esquema, plugins, seguridad y despliegue |
@@ -203,7 +204,7 @@ Cualquier desarrollador o usuario puede descargar este proyecto desde GitHub, co
 ### 1. Prerequisitos de Software
 Asegúrate de tener instalado en tu sistema:
 - **Git**: Para clonar el repositorio.
-- **Node.js (v18 o superior)**: Entorno de ejecución de Javascript.
+- **Node.js 22.12 o superior (recomendado 24)**: Vite 8 no funciona en versiones anteriores.
 - **Android Studio (Opcional)**: Requerido solo si deseas compilar y generar el instalador móvil (`.APK` o `.AAB`).
 
 ### 2. Clonar el Proyecto desde GitHub
@@ -284,6 +285,20 @@ costuraKeyPassword=...
 #### Enlace de descarga del APK
 
 La pantalla de login muestra un botón de descarga cuando la app corre en un navegador. Su URL se inyecta en el build mediante `VITE_APK_DOWNLOAD_URL` (ver `.env.example`) y debe apuntar al instalable del release vigente. Si la variable no está definida, el botón no se muestra: es preferible a ofrecer una versión antigua.
+
+---
+
+## 🐳 Versión web con Docker
+
+La misma app de Vue se puede servir en un VPS para usarla desde el navegador: demostración, pruebas y página de descarga del APK. **No es un servidor de datos:** cada navegador guarda su propia base (ver D-13 en `docs/05-gestion/DECISIONES.md`).
+
+```bash
+docker compose up -d --build
+```
+
+Queda en `http://IP-DEL-VPS:8080`. Si el VPS usa un proxy con dominio y HTTPS (Dokploy, Traefik, Caddy), apunta el proxy al puerto 80 del contenedor. Para mostrar el botón de descarga del APK, define `VITE_APK_DOWNLOAD_URL` antes de construir.
+
+El CI construye la imagen en cada cambio, la levanta y comprueba con `curl` las rutas profundas, los tipos de archivo (incluido el `.wasm` de SQLite) y los encabezados de seguridad.
 
 ---
 

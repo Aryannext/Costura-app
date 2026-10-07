@@ -292,36 +292,34 @@ Las comprobaciones nativas (disparo de alarmas, biometría, cierre/reanudación 
 
 ---
 
-## Estado de corrección (7 de octubre de 2026)
+## Estado de corrección (7 de octubre de 2026, rama `integracion-octubre`)
 
-Verificación:
-- `npm run test:unit`: **66 pruebas aprobadas, 0 fallidas**, incluidas las del fallo de `connection.spec.js`.
-- `PW_CHANNEL=msedge npx playwright test`: **3 de 3** pruebas de punta a punta aprobadas.
-- `npm run build`: correcto.
+Esta auditoría se hizo sobre el `main` de agosto. La rama de septiembre (`fix/auditoria-produccion`) ya había corregido gran parte por su cuenta; en octubre se integró sobre ella lo que faltaba.
 
-Cada corrección tiene una prueba en `src/database/queries/__tests__/reglasNegocio.spec.js` o en `src/services/__tests__/servicios.spec.js`. La prueba falla si el defecto vuelve.
+Verificación en la rama unida:
+- `npm run test:unit`: 343 pruebas aprobadas.
+- `PW_CHANNEL=msedge npx playwright test`: 3 de 3 pruebas de punta a punta aprobadas.
+- CI de GitHub: pruebas, compilación e imagen Docker verificadas.
 
-| ID | Estado | Qué se hizo |
+| ID | Estado | Dónde se corrigió y cómo |
 | --- | --- | --- |
-| A01 | Corregido | `deletePago` y `deletePrenda` reales, atómicos, con recálculo de saldo y del estado de la orden. Una prenda no se puede eliminar si lo pagado supera el nuevo total |
-| A02 | Corregido | No se insertan notificaciones al pasar a Lista. Los recordatorios masivos se registran solo si Telegram confirma el envío. Los avisos por WhatsApp se registran como "preparados" |
-| A03 | Corregido | Reabrir lleva a En Proceso, limpia `fecha_entrega_real` y devuelve las prendas a Terminada. Queda la actividad tipo Reapertura |
-| A04 | Corregido | Lista/Entregar validan en la capa de datos que todas las prendas estén Terminadas (`reglasOrden.validarCambioManual`) |
-| A05 | Corregido | El estado de la orden se recalcula al agregar, eliminar o cambiar prendas (`estadoOrdenSegunPrendas`) y la cabecera se refresca |
-| A06 | Corregido | Reducir un precio o eliminar una prenda por debajo de lo pagado se rechaza con un mensaje claro |
-| A07 | Corregido | El cliente creado desde la orden pasa por `validators.validateCliente` |
-| A08 | Corregido | El reporte usa `fecha_entrega_estimada` y compara fechas locales |
-| A09 | Corregido | `src/services/fechas.js`: fechas de calendario locales en validaciones, formularios, panel y respaldo |
-| A10 | Corregido | La sesión guarda la última actividad y vence a los 15 min, incluso con la app cerrada. README y pruebas E2E actualizados |
-| A11 | Corregido | `src/services/recibo.js`: fecha de recepción real, prendas y abonos |
-| A12 | Corregido | La agenda de clientes ya no tiene límite de 50 |
-| A13 | Corregido | La alarma diaria se programa siempre, con texto general |
-| A14 | Decidido | Se permite entregar con deuda, con confirmación (decisión D-11). Manual corregido |
-| A15 | Corregido | Fotos y observaciones refrescan la tarjeta mediante las referencias que expone `TabPrendas` |
-| A16 | Corregido | Editar una prenda emite `prenda-editada` y se recargan cabecera e historial |
-| A17 | **Pendiente** | El respaldo sigue sin incluir los archivos de fotos (P-01 en `DECISIONES.md`) |
-| A18 | Corregido | Nueva columna `fecha_lista` (migración v2). "Sin reclamar" cuenta desde la fecha más tardía entre la entrega prometida y la fecha en que quedó Lista, alineado con la Ley 1480 art. 18 |
+| A01 | Corregido (sep) | Las prendas se eliminan de verdad, con fotos y notas. Los pagos se **anulan** con motivo y quedan visibles, en vez de borrarse (P1-9) |
+| A02 | Corregido (oct) | Los recordatorios masivos se registran solo si Telegram confirma el envío. El registro automático de "Lista" dice "falta avisarle al cliente". Los avisos por WhatsApp se registran como "preparados" |
+| A03 | Corregido (sep) | Reabrir vuelve a En Proceso (RN-16) |
+| A04 | Corregido (sep) | El estado de la orden se deriva de sus prendas; no hay forma manual de marcar Lista |
+| A05 | Corregido (sep) | Ídem: agregar o devolver una prenda recalcula el estado |
+| A06 | Corregido (sep) | El saldo se recalcula desde prendas y pagos y nunca queda negativo |
+| A07 | Corregido (oct) | El cliente creado desde la orden pasa por `validators.validateCliente` |
+| A08 | Corregido (sep) | El reporte usa `fecha_entrega_estimada` |
+| A09 | Corregido (sep) | `services/fechas.js` con fechas locales |
+| A10 | Corregido (sep) | Bloqueo al reanudar con huella o clave, y cambio obligatorio de la clave de fábrica |
+| A11 | Corregido (sep + oct) | Septiembre corrigió la fecha de recepción y los totales; octubre agregó el detalle de prendas y abonos vigentes |
+| A12 | Corregido (oct) | La agenda de clientes ya no se corta en 50 |
+| A13 | Corregido (sep) | Avisos de las 8:00 programados para 7 días con el conteo real de cada día |
+| A14 | Decidido (sep) | Se permite entregar con deuda, con confirmación (D-11) |
+| A15 | Corregido (oct) | Fotos y notas nuevas refrescan la galería abierta mediante las referencias que expone `TabPrendas` |
+| A16 | Corregido (sep) | La edición emite su propio evento (`prenda-actualizada`) |
+| A17 | Corregido (sep) | El respaldo incluye las fotos hasta el límite de Telegram y avisa si no caben |
+| A18 | Corregido (sep + oct) | Septiembre agregó `fecha_lista`. Octubre cuenta desde la fecha más tardía entre la entrega prometida y la fecha en que quedó Lista (Ley 1480 art. 18) |
 
-**Documentación:** el manual de usuario, la ficha técnica y el README ya describen el comportamiento actual. **Siguen pendientes** los diagramas y el documento de requisitos (sprint 2 de `05-gestion/PLAN_19_DIAS.md`).
-
-**Script de auditoría:** `auditoria/verificar.mjs` reproducía los defectos sobre el código original. Contra el código corregido ya no los reproduce, y eso es lo esperado. Se conserva como evidencia histórica.
+**Script de auditoría:** `auditoria/verificar.mjs` reproducía los defectos sobre el código de agosto. Contra el código actual ya no los reproduce, y eso es lo esperado. Se conserva como evidencia histórica.

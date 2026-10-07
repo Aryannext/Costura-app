@@ -7,8 +7,8 @@ Fuente: *Proyecto Formativo ADSO*, sección 2.5.4 "Productos o resultados del pr
 | # | Producto exigido | Dónde está | Estado (7 oct) |
 | --- | --- | --- | --- |
 | 1 | Informe de análisis de requisitos | `docs/01-analisis/Costura.md` y `.docx` | **Existe**; hay que actualizarlo: alcance offline, IDs repetidos, requisitos nuevos |
-| 2 | Diseño arquitectónico en UML | `docs/02-diseno/DIAGRAMAS.md` | **Parcial**: 6 diagramas con diferencias; faltan clases, secuencia y despliegue |
-| 3 | Base de datos e interfaz implementadas | `src/` | **Funciona**; quedan los pendientes P-01 a P-06 de `DECISIONES.md` |
+| 2 | Diseño arquitectónico en UML | `docs/02-diseno/DIAGRAMAS.md` | **Avanzado**: 9 diagramas regenerados desde el código (rama de septiembre). Faltan diagrama de clases, de secuencia y de despliegue (incluye Docker) |
+| 3 | Base de datos e interfaz implementadas | `src/` | **Funciona**: 343 pruebas unitarias y 3 E2E. Quedan P-03, P-04, P-06 y P-07 de `DECISIONES.md` |
 | 4 | Manual técnico y de usuario **en español e inglés** | `docs/03-manuales/` | Usuario ES listo; ficha técnica corregida. **Faltan**: manual técnico completo y las versiones en inglés |
 | 5 | Artículo de revisión bibliográfica sobre gestión de calidad del software (ES/EN) | — | **No se exige** para graduarse (confirmado el 7 oct). Fuera del plan |
 
@@ -34,7 +34,7 @@ Scrum **no es nuevo**: lo presentaron Schwaber y Sutherland en 1995 y su guía o
 ### Sprint 1 — "Que mi mamá la use de verdad" (mié 7 – lun 12)
 Objetivo: la app en un teléfono real con datos reales.
 1. Compilar el APK y probar en el teléfono (P-06): cámara, WhatsApp, alarma de las 8 a. m., huella.
-2. Obligar a cambiar la clave `admin123` en el primer ingreso (P-02).
+2. ~~Obligar a cambiar la clave `admin123`~~ (ya resuelto en la rama de septiembre). Desplegar la imagen Docker en el VPS (P-07).
 3. Agregar el texto de autorización de datos personales (P-03).
 4. Capgo: hay cuenta, se mantiene (P-05 resuelto). Probar una actualización OTA en el teléfono.
 5. Capacitar a tu mamá 30 minutos y que registre de 5 a 10 órdenes reales.
@@ -42,19 +42,17 @@ Objetivo: la app en un teléfono real con datos reales.
 
 ### Sprint 2 — "Análisis y diseño al día" (mar 13 – dom 18)
 Objetivo: que los documentos describan la app real.
-1. Actualizar `Costura.md`/`.docx`:
+1. `docs/01-analisis/Costura.md` se conserva como **documento histórico** (decisión de la rama de septiembre) y `docs/04-calidad/TRAZABILIDAD.md` ya es la matriz de trazabilidad. Para el informe de requisitos que exige el SENA, crear `docs/01-analisis/SRS.md` a partir de esos dos con:
    - estructura IEEE 830 (o su sucesora ISO/IEC/IEEE 29148:2018);
    - alcance offline (D-06);
    - IDs únicos;
-   - historias de usuario nuevas: avisos por WhatsApp, órdenes con fecha anterior y pagos con Bre-B;
-   - matriz de trazabilidad (requisito → código → prueba).
+   - historias de usuario nuevas: avisos por WhatsApp, órdenes con fecha anterior y pagos con Bre-B.
 2. Diagramas UML:
-   - corregir casos de uso y ER;
-   - **separar** los estados de orden y de prenda;
-   - agregar diagrama de clases, 2 diagramas de secuencia ("cambiar estado de prenda" y "avisar por WhatsApp") y diagrama de despliegue.
+   - revisar los 9 diagramas existentes contra lo agregado en octubre (WhatsApp, Bre-B, fechas anteriores);
+   - agregar diagrama de clases, 2 diagramas de secuencia ("cambiar estado de prenda" y "avisar por WhatsApp") y diagrama de despliegue (teléfono + navegador + contenedor Docker en el VPS).
 3. Tabla comparativa con apps existentes, que es la base del argumento de innovación (sección 4).
 
-### Sprint 3 — "Manuales, artículo y sustentación" (lun 19 – jue 23)
+### Sprint 3 — "Manuales y sustentación" (lun 19 – jue 23)
 1. Manual técnico completo: instalación, arquitectura, base de datos, pruebas, despliegue del APK.
 2. Versiones en inglés del manual de usuario y del técnico.
 3. Evidencias de pruebas: salida de `npm run test:unit` y del E2E, y los casos de prueba CP-xx actualizados.
@@ -84,10 +82,11 @@ Columnas sugeridas: costo, funciona sin internet, controla estados por prenda, a
 
 1. **¿Por qué no usó Telegram para avisar a los clientes?** → D-03 (un bot no puede escribir primero).
 2. **¿Qué pasa si se pierde el celular?** → Respaldo cifrado en Telegram; limitación P-01 (fotos).
-3. **¿Cómo garantiza que las reglas se cumplan?** → D-10 + pruebas con SQLite real (`reglasNegocio.spec.js`).
+3. **¿Cómo garantiza que las reglas se cumplan?** → D-10 + las 40 reglas como pruebas contra SQLite real (`src/__tests__/reglasNegocio.spec.js`).
 4. **¿Qué leyes aplican?** → Ley 1581 de 2012 (datos personales), Ley 1480 de 2011 art. 18 + Decreto 1413 de 2018 (recibo y bienes abandonados).
 5. **¿Qué hizo la IA y qué hizo usted?** → Ver sección 6.
 6. **¿Por qué no hizo la tienda web?** → D-07.
+7. **¿Para qué usó Docker?** → D-13: despliegue de la versión web para demostración y descarga del APK; no es un servidor de datos.
 
 ## 6. Cómo explicar el uso de IA sin que se te caiga la sustentación
 
@@ -97,7 +96,7 @@ Di la verdad y demuestra que entiendes. Para cada parte importante debes poder:
 - explicar por qué se hizo así (está en `DECISIONES.md`).
 
 **Ejercicio diario de 20 minutos durante los sprints:**
-1. Abre `src/services/reglasOrden.js` y explica en voz alta `estadoOrdenSegunPrendas`.
-2. Abre `src/database/queries/prendas.js → updateEstadoPrenda` y sigue qué pasa desde que tocas el selector de la prenda hasta que cambia la cabecera.
-3. Ejecuta `npx vitest run` y lee **una** prueba de `reglasNegocio.spec.js`.
-4. Rompe a propósito una regla en `reglasOrden.js` y mira qué prueba falla. Luego deshaz el cambio (`git checkout -- archivo`).
+1. Abre `src/services/estadoOrden.js` y explica en voz alta cómo se calcula el estado de la orden.
+2. Abre `src/database/queries/estadoOrden.js` y sigue qué pasa desde que tocas el estado de una prenda hasta que cambia la cabecera de la orden.
+3. Ejecuta `npx vitest run` y lee **una** prueba de `src/__tests__/reglasNegocio.spec.js`.
+4. Rompe a propósito una regla en `estadoOrden.js` y mira qué prueba falla. Luego deshaz el cambio (`git checkout -- archivo`).

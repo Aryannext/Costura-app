@@ -2,7 +2,7 @@
 
 Cada decisión dice **qué se eligió, qué se descartó y por qué**. Si el instructor pregunta "¿por qué no hizo X?", la respuesta está aquí. Si una decisión cambia, se actualiza este archivo con la fecha.
 
-Estado: 7 de octubre de 2026. Entrega: 25 de octubre de 2026.
+Estado: 7 de octubre de 2026, rama `integracion-octubre` (la rama de septiembre `fix/auditoria-produccion` + los cambios de octubre). Entrega: 25 de octubre de 2026.
 
 ---
 
@@ -64,7 +64,7 @@ El documento de requisitos original hablaba de "navegador en la red local" con u
 
 **Por qué es mejor para esta usuaria:** no tiene computador. Sin servidor no hay costo mensual ni datos de clientes en manos de terceros (ver D-08). Además funciona sin internet.
 
-**Costo de esta decisión:** si el teléfono se pierde, se pierden los datos. Por eso existe el respaldo por Telegram (ver pendiente P-01: el respaldo no incluye las fotos).
+**Costo de esta decisión:** si el teléfono se pierde, se pierden los datos. Por eso existe el respaldo cifrado por Telegram, que incluye las fotos mientras quepan en el límite de Telegram.
 
 **Acción pendiente:** marcar en el documento de requisitos los RNF de red local como **reemplazados** por esta decisión.
 
@@ -105,7 +105,7 @@ El recibo de la app incluye todo eso. **No es una factura electrónica.** Una mo
 
 ## D-10. Reglas de estados en la capa de datos
 
-Antes, las reglas ("no marcar Lista con prendas sin terminar") solo estaban en los botones, y se podían saltar. Ahora viven en `src/services/reglasOrden.js`, se validan dentro de `src/database/queries/` y se prueban contra SQLite real.
+Antes, las reglas ("no marcar Lista con prendas sin terminar") solo estaban en los botones, y se podían saltar. Ahora el estado de la orden **se deriva de sus prendas** (`src/services/estadoOrden.js` y `src/database/queries/estadoOrden.js`). Las 40 reglas RN-01 a RN-40 son pruebas contra SQLite real en `src/__tests__/reglasNegocio.spec.js`, y hay una prueba que falla si alguna regla del documento queda sin probar.
 
 **Argumento para la sustentación:** una regla de negocio que solo vive en la interfaz no es una regla, es una sugerencia.
 
@@ -115,9 +115,25 @@ El manual decía que no se podía; el requisito RN-30 decía que sí se podía s
 
 **Se eligió permitir**, porque en el contexto real se fía: la clienta se lleva la ropa y paga el viernes. Bloquearlo haría que la modista mintiera en la app (registrar un pago falso). La app avisa cuánto queda debiendo y el saldo sigue visible en *Pagos pendientes*.
 
-## D-12. Sesión de 15 minutos
+## D-12. Clave propia y bloqueo al reanudar
 
-Si la app se cierra y se abre antes de 15 minutos sin uso, no pide la clave otra vez; después sí (RNF-09). Con huella digital es un toque.
+- La clave de fábrica `admin123` es igual en todas las instalaciones, así que la app **obliga a cambiarla** en el primer ingreso.
+- Si la app se cierra, o el teléfono queda un rato sin uso, se **bloquea**. Se desbloquea con huella o con la clave y se vuelve a la misma pantalla (RNF-09).
+
+## D-13. Docker para la versión web, no para un servidor de datos
+
+**Pedido:** usar Docker, que es como se despliega en el VPS del autor.
+
+**Qué se hizo:** una imagen Docker (`Dockerfile`, `docker/nginx.conf`, `docker-compose.yml`) que sirve **la misma app de Vue** con nginx. El CI la construye, la levanta y la prueba con peticiones reales en cada cambio.
+
+**Para qué sirve:**
+1. **Demostración en la sustentación:** el instructor abre un enlace y usa la app sin instalar el APK.
+2. **Página de descarga del APK:** el botón "Descargar App (Android)" del login.
+3. **Evidencia del resultado de aprendizaje "desplegar el software de acuerdo con la arquitectura"** del proyecto formativo.
+
+**Lo que no hace, y por qué:** no guarda datos en el servidor. Cada navegador tiene su propia base en IndexedDB, igual que cada teléfono tiene la suya (D-06). Meter un backend solo para "usar Docker" contradiría D-06 y D-08 (datos de terceros en tu servidor) y no cabe en 19 días.
+
+**Aviso para la sustentación:** lo que alguien registre en la versión web se queda en su navegador. No sirve como "nube" para la modista.
 
 ---
 
@@ -125,9 +141,10 @@ Si la app se cierra y se abre antes de 15 minutos sin uso, no pide la clave otra
 
 | ID | Pendiente | Riesgo |
 | --- | --- | --- |
-| P-01 | El respaldo no incluye las fotos (A17) | En un teléfono nuevo se recuperan los datos pero no las fotos |
-| P-02 | La clave inicial es `admin123` y no se obliga a cambiarla | Cualquiera que conozca la app puede entrar. Lo primero que el instructor puede señalar en seguridad |
+| P-01 | ~~El respaldo no incluye las fotos~~ **Resuelto en la rama de septiembre:** las incluye hasta el límite de Telegram y avisa si no caben | — |
+| P-02 | ~~Clave `admin123` sin cambio obligatorio~~ **Resuelto en la rama de septiembre:** cambio obligatorio en el primer ingreso | — |
 | P-03 | Falta el texto de autorización de datos (D-08) | Requisito legal |
-| P-04 | El token de Telegram se guarda sin cifrar en localStorage | La ficha técnica decía lo contrario; ya se corrigió el texto, falta el código |
+| P-04 | Verificar dónde y cómo se guarda el token de Telegram en la rama unida y que la ficha técnica lo describa igual | Afirmar en la sustentación algo que el código no hace |
 | P-05 | ~~Capgo sin cuenta~~ **Resuelto (7 oct):** hay cuenta de Capgo; se mantienen las actualizaciones OTA | Documentar en el manual técnico cómo se publica una actualización |
 | P-06 | Probar en un teléfono Android real: cámara, alarma de las 8 a. m., huella, abrir WhatsApp | Las pruebas automáticas corren en navegador, no en el teléfono |
+| P-07 | Desplegar la imagen Docker en el VPS con dominio y HTTPS | Sin HTTPS el navegador puede bloquear funciones; para la demo se necesita un enlace estable |
