@@ -1,0 +1,166 @@
+openapi: 3.0.3
+info:
+  title: Borrador API de catálogo y reservas de prendas
+  version: 0.1.0
+  description: >-
+    Contrato parcial de análisis para reserva y pago coordinado con el taller.
+    No autoriza una implementación pública. Autenticación, privacidad, endpoints
+    de administración, carga de fotos, ventas y pasarela quedan pendientes de
+    las decisiones indicadas en PRD.md. Nombres de recursos alineados con el ER.
+x-estado: borrador-no-aprobado
+servers:
+  - url: /api/v1
+paths:
+  /publicacion:
+    get:
+      operationId: listarPublicacion
+      summary: Listar publicaciones disponibles con información pública
+      parameters:
+        - name: condicion
+          in: query
+          schema:
+            type: string
+            enum: [NUEVA, USADA]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Publicaciones publicadas y disponibles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListaPublicacion'
+  /publicacion/{id}:
+    get:
+      operationId: consultarPublicacion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Ficha pública disponible
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Publicacion'
+        '404':
+          description: No existe o no está disponible al público
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /reserva:
+    post:
+      operationId: crearReserva
+      description: >-
+        Borrador del comportamiento de inventario. Antes de implementarlo se
+        deben definir identidad del solicitante, recuperación segura de la
+        reserva, datos de contacto y protección contra abuso. No permite venta
+        ni confirma un pago.
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrearReserva'
+      responses:
+        '201':
+          description: Reserva creada con precio determinado por el servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reserva'
+        '200':
+          description: Reintento del mismo solicitante y misma clave devuelve la reserva original
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reserva'
+        '400':
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Producto indisponible o clave repetida con contenido distinto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Publicacion:
+      type: object
+      additionalProperties: false
+      required: [id, titulo, descripcion, condicion, talla, medidas, defectos, precio_minor, moneda, fotos, vendedor_nombre]
+      properties:
+        id: {type: string, format: uuid}
+        titulo: {type: string, minLength: 3, maxLength: 120}
+        descripcion: {type: string, minLength: 1, maxLength: 2000}
+        condicion: {type: string, enum: [NUEVA, USADA]}
+        talla: {type: string, minLength: 1, maxLength: 40}
+        medidas: {type: string, minLength: 1, maxLength: 500}
+        defectos: {type: string, minLength: 1, maxLength: 1000}
+        precio_minor: {type: integer, format: int64, minimum: 1}
+        moneda: {type: string, pattern: '^[A-Z]{3}$', description: Código ISO 4217 con unidad menor definida por la moneda}
+        fotos:
+          type: array
+          minItems: 1
+          items: {type: string, format: uri}
+        vendedor_nombre: {type: string, minLength: 1, maxLength: 120}
+    ListaPublicacion:
+      type: object
+      additionalProperties: false
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items: {$ref: '#/components/schemas/Publicacion'}
+        total: {type: integer, minimum: 0}
+    CrearReserva:
+      type: object
+      additionalProperties: false
+      required: [publicacion_id]
+      properties:
+        publicacion_id: {type: string, format: uuid}
+    Reserva:
+      type: object
+      additionalProperties: false
+      required: [id, publicacion_id, estado, vence_en, precio_minor_acordado, moneda]
+      properties:
+        id: {type: string, format: uuid}
+        publicacion_id: {type: string, format: uuid}
+        estado: {type: string, enum: [ACTIVA, VENCIDA, CANCELADA, CONVERTIDA]}
+        vence_en: {type: string, format: date-time}
+        precio_minor_acordado: {type: integer, format: int64, minimum: 1}
+        moneda: {type: string, pattern: '^[A-Z]{3}$'}
+    Error:
+      type: object
+      additionalProperties: false
+      required: [code, message]
+      properties:
+        code: {type: string, enum: [INVALID_PAYLOAD, NOT_FOUND, PRODUCT_UNAVAILABLE, IDEMPOTENCY_CONFLICT]}
+        message: {type: string, minLength: 1}

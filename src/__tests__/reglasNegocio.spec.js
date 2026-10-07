@@ -1,6 +1,6 @@
 // @vitest-environment node
 /**
- * Catálogo de reglas de negocio (docs/Costura.md, RN-01 a RN-40) como pruebas.
+ * Catálogo de reglas de negocio (docs/01-analisis/Costura.md, RN-01 a RN-40) como pruebas.
  *
  * Cada regla tiene su propio `describe` con el identificador del documento, y la
  * última prueba del archivo comprueba que no falte ninguna: si alguien añade una
@@ -11,7 +11,7 @@
  * una regla que sólo respeta la pantalla ocultando un botón no está cumplida.
  *
  * `it.fails` marca un incumplimiento conocido, con su defecto en
- * docs/TRAZABILIDAD.md. Esa prueba pasa mientras la regla siga rota; el día que
+ * docs/04-calidad/TRAZABILIDAD.md. Esa prueba pasa mientras la regla siga rota; el día que
  * se corrija empezará a fallar y habrá que cambiarla a `it`. Así ningún
  * incumplimiento queda escondido y ninguna corrección pasa sin prueba.
  */
@@ -850,8 +850,8 @@ describe('RN-40 · borrar una fotografía no borra la prenda', () => {
 // ── El catálogo está completo ─────────────────────────────────────────────
 
 describe('Catálogo de reglas', () => {
-    it('cada RN de docs/Costura.md tiene su bloque de pruebas en este archivo', () => {
-        const catalogo = readFileSync(new URL('../../docs/Costura.md', import.meta.url), 'utf8');
+    it('cada RN de docs/01-analisis/Costura.md tiene su bloque de pruebas en este archivo', () => {
+        const catalogo = readFileSync(new URL('../../docs/01-analisis/Costura.md', import.meta.url), 'utf8');
         const reglas = [...new Set([...catalogo.matchAll(/^RN-(\d{2})\./gm)].map(m => `RN-${m[1]}`))];
 
         const esteArchivo = readFileSync(new URL(import.meta.url), 'utf8');

@@ -140,7 +140,7 @@ npm run test:unit
 
 ## 📂 Estructura del Código
 
-La aplicación tiene **cuatro capas con dependencias en una sola dirección**: una vista nunca habla con la base de datos, y una consulta nunca sabe de Vue. El plano completo está en [`docs/DIAGRAMAS.md`](docs/DIAGRAMAS.md).
+La aplicación tiene **cuatro capas con dependencias en una sola dirección**: una vista nunca habla con la base de datos, y una consulta nunca sabe de Vue. El plano completo está en [`docs/02-diseno/DIAGRAMAS.md`](docs/02-diseno/DIAGRAMAS.md).
 
 ```
 src/
@@ -186,13 +186,13 @@ Junto a cada carpeta viven sus pruebas en `__tests__/`.
 
 | Documento | Qué contiene |
 | --- | --- |
-| [`docs/TRAZABILIDAD.md`](docs/TRAZABILIDAD.md) | **Empieza por aquí.** Cada requisito, su estado real y el archivo que lo implementa. Incluye los defectos abiertos |
-| [`docs/DIAGRAMAS.md`](docs/DIAGRAMAS.md) | Nueve diagramas Mermaid regenerados desde el código: arquitectura, entidad-relación, casos de uso, flujo de negocio, navegación, estados, sesión, respaldo y arranque |
-| [`FICHA_TECNICA.md`](FICHA_TECNICA.md) | Resumen técnico: stack, esquema, plugins, seguridad y despliegue |
-| [`MANUAL_USUARIO.md`](MANUAL_USUARIO.md) | Guía operativa para el taller |
-| [`docs/Costura.md`](docs/Costura.md) | Especificación original de Fase 1. Documento histórico, no se edita |
-| [`docs/MEJORAS_ADICIONALES_FASE1.md`](docs/MEJORAS_ADICIONALES_FASE1.md) | Valor añadido sobre la especificación original |
-| [`docs/COSTURA_FASE2_REQUISITOS.md`](docs/COSTURA_FASE2_REQUISITOS.md) | Alcance de la siguiente etapa |
+| [`docs/04-calidad/TRAZABILIDAD.md`](docs/04-calidad/TRAZABILIDAD.md) | **Empieza por aquí.** Cada requisito, su estado real y el archivo que lo implementa. Incluye los defectos abiertos |
+| [`docs/02-diseno/DIAGRAMAS.md`](docs/02-diseno/DIAGRAMAS.md) | Nueve diagramas Mermaid regenerados desde el código: arquitectura, entidad-relación, casos de uso, flujo de negocio, navegación, estados, sesión, respaldo y arranque |
+| [`docs/03-manuales/FICHA_TECNICA.md`](docs/03-manuales/FICHA_TECNICA.md) | Resumen técnico: stack, esquema, plugins, seguridad y despliegue |
+| [`docs/03-manuales/MANUAL_USUARIO.md`](docs/03-manuales/MANUAL_USUARIO.md) | Guía operativa para el taller |
+| [`docs/01-analisis/Costura.md`](docs/01-analisis/Costura.md) | Especificación original de Fase 1. Documento histórico, no se edita |
+| [`docs/01-analisis/MEJORAS_ADICIONALES_FASE1.md`](docs/01-analisis/MEJORAS_ADICIONALES_FASE1.md) | Valor añadido sobre la especificación original |
+| [`docs/01-analisis/COSTURA_FASE2_REQUISITOS.md`](docs/01-analisis/COSTURA_FASE2_REQUISITOS.md) | Alcance de la siguiente etapa |
 
 ---
 
