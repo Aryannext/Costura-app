@@ -14,7 +14,7 @@
     </div>
 
     <!-- Notifications Drawer/Modal -->
-    <div v-if="showNotifications" class="notifications-overlay" @click.self="toggleNotifications">
+    <div v-if="showNotifications" class="notifications-overlay" @click.self="toggleNotifications" @keydown.esc="toggleNotifications">
       <div class="notifications-panel card">
         <div class="panel-header">
           <h3 class="headline-sm">Notificaciones</h3>
@@ -31,7 +31,10 @@
             <div 
               v-if="updateAvailable"
               class="notification-item update-item"
+              role="button"
+              tabindex="0"
               @click="triggerUpdate"
+              @keydown.enter="triggerUpdate"
             >
               <div class="notif-content">
                 <strong>✨ Nueva versión disponible (v{{ updateVersion }})</strong>
@@ -43,7 +46,10 @@
               v-for="orden in urgentOrders" 
               :key="orden.id_orden" 
               class="notification-item"
+              role="button"
+              tabindex="0"
               @click="goToOrder(orden.id_orden)"
+              @keydown.enter="goToOrder(orden.id_orden)"
             >
               <div class="notif-content">
                 <strong>Orden #{{ orden.id_orden }} - {{ orden.cliente_nombre }}</strong>

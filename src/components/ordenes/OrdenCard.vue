@@ -1,5 +1,5 @@
 <template>
-  <div class="card orden-card" @click="$emit('click')">
+  <div class="card orden-card" role="button" tabindex="0" @click="$emit('click')" @keydown.enter="$emit('click')">
     <div class="orden-header">
       <span class="orden-id">#{{ orden.id_orden }}</span>
       <StatusBadge :estado="orden.estado_nombre" />

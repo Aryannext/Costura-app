@@ -68,11 +68,12 @@ async function bootstrap() {
     app.mount('#app');
 
     // Initialize Capgo OTA Updates
+    // Ninguna de las dos puede tumbar el arranque: si fallan, solo se registra
     const { initUpdates } = useUpdates();
-    initUpdates();
+    initUpdates().catch(e => console.warn("No se pudieron iniciar las actualizaciones OTA", e));
 
     // Bloqueo de la sesión al volver del segundo plano
-    initAppLock();
+    initAppLock().catch(e => console.warn("No se pudo iniciar el bloqueo de la app", e));
 
     // Configure Native Polish (Status Bar & Splash Screen)
     if (Capacitor.isNativePlatform()) {
@@ -89,4 +90,4 @@ async function bootstrap() {
     }
 }
 
-bootstrap();
+bootstrap().catch(e => console.error("Fallo inesperado al arrancar", e));

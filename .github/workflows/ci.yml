@@ -24,8 +24,9 @@ jobs:
     # lockfile y falla si package.json y package-lock.json no concuerdan. Con
     # `npm install` una dependencia sin declarar pasaba desapercibida porque
     # llegaba como transitiva de otro paquete.
+    # --ignore-scripts: ninguna dependencia necesita scripts de instalación
     - name: Install dependencies
-      run: npm ci
+      run: npm ci --ignore-scripts
 
     - name: Run Tests & Coverage
       run: npm run test:unit
@@ -44,7 +45,7 @@ jobs:
 
     - name: Levantar el contenedor
       run: |
-        docker run -d --name costura -p 8080:80 costura-web
+        docker run -d --name costura -p 8080:8080 costura-web
         for i in $(seq 1 30); do curl -fs http://localhost:8080/healthz && break; sleep 1; done
 
     - name: Comprobar rutas, tipos y encabezados

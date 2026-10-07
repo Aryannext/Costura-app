@@ -6,6 +6,12 @@ import { Capacitor } from '@capacitor/core';
  * Telegram rechaza documentos de más de 50 MB, y entre el base64 y el cifrado
  * el archivo final pesa cerca del doble que las fotos en crudo.
  */
+function sinBarrasFinales(texto) {
+    let fin = texto.length;
+    while (fin > 0 && texto[fin - 1] === '/') fin--;
+    return texto.slice(0, fin);
+}
+
 export const PHOTO_BACKUP_LIMIT_BYTES = 20 * 1024 * 1024;
 
 let baseUri = null;
@@ -17,7 +23,7 @@ let baseUri = null;
 export async function initPhotoStorage() {
     try {
         const { uri } = await Filesystem.getUri({ path: '', directory: Directory.Data });
-        baseUri = uri.replace(/\/+$/, '');
+        baseUri = sinBarrasFinales(uri);
     } catch (e) {
         console.warn("No se pudo resolver el directorio de fotografías", e);
         baseUri = null;

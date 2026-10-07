@@ -21,7 +21,7 @@ export async function cargarDiasAnticipacion() {
 
 export async function guardarDiasAnticipacion(dias) {
     // Un <input type="number"> vacío llega como '' y Number('') es 0: se trata como inválido.
-    const valor = dias === '' || dias === null || dias === undefined ? NaN : Number(dias);
+    const valor = dias === '' || dias === null || dias === undefined ? Number.NaN : Number(dias);
     validators.validateDiasAnticipacion(valor);
 
     await updateConfig(CLAVE_DIAS_ANTICIPACION, String(valor));

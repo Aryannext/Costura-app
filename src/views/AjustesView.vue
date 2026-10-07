@@ -80,7 +80,8 @@
           <span class="fila-t"><b>Restaurar una copia</b><small>Para un teléfono nuevo o si se borró la app</small></span>
           <svg class="ic chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg>
         </button>
-        <input type="file" ref="fileInput" accept=".json,application/json" style="display:none" @change="handleRestore" />
+        <label for="archivo-restaurar" class="sr-only">Archivo de copia de seguridad</label>
+        <input id="archivo-restaurar" type="file" ref="fileInput" accept=".json,application/json" style="display:none" @change="handleRestore" />
       </div>
     </section>
 

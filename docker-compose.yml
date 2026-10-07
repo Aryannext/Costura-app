@@ -1,7 +1,7 @@
 # Despliegue de la versión web en el VPS.
 #   docker compose up -d --build
 # Queda en http://IP-DEL-VPS:8080. Si el VPS usa Dokploy, Traefik o un proxy
-# con dominio y HTTPS, apunta el proxy al puerto 80 del contenedor y quita "ports".
+# con dominio y HTTPS, apunta el proxy al puerto 8080 del contenedor y quita "ports".
 services:
   web:
     build:
@@ -12,4 +12,4 @@ services:
     image: costura-web
     restart: unless-stopped
     ports:
-      - "8080:80"
+      - "8080:8080"

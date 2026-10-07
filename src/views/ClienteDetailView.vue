@@ -47,7 +47,10 @@
               v-for="orden in ordenesCliente" 
               :key="orden.id_orden" 
               class="card orden-card"
+              role="button"
+              tabindex="0"
               @click="goToOrdenDetail(orden.id_orden)"
+              @keydown.enter="goToOrdenDetail(orden.id_orden)"
             >
               <div class="orden-info">
                 <h4>Orden #{{ orden.id_orden }}</h4>

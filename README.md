@@ -296,7 +296,7 @@ La misma app de Vue se puede servir en un VPS para usarla desde el navegador: de
 docker compose up -d --build
 ```
 
-Queda en `http://IP-DEL-VPS:8080`. Si el VPS usa un proxy con dominio y HTTPS (Dokploy, Traefik, Caddy), apunta el proxy al puerto 80 del contenedor. Para mostrar el botón de descarga del APK, define `VITE_APK_DOWNLOAD_URL` antes de construir.
+Queda en `http://IP-DEL-VPS:8080`. Si el VPS usa un proxy con dominio y HTTPS (Dokploy, Traefik, Caddy), apunta el proxy al puerto 8080 del contenedor. nginx corre sin privilegios de root. Para mostrar el botón de descarga del APK, define `VITE_APK_DOWNLOAD_URL` antes de construir.
 
 El CI construye la imagen en cada cambio, la levanta y comprueba con `curl` las rutas profundas, los tipos de archivo (incluido el `.wasm` de SQLite) y los encabezados de seguridad.
 

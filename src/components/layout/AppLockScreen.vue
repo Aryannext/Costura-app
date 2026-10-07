@@ -13,7 +13,9 @@
       </p>
 
       <form @submit.prevent="handleUnlock" class="lock-form">
+        <label for="lock-password" class="sr-only">Contraseña</label>
         <input
+          id="lock-password"
           type="password"
           v-model="password"
           placeholder="Contraseña"

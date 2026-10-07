@@ -1,7 +1,7 @@
 <template>
   <teleport to="body">
     <transition name="fade-scale">
-      <div v-if="show" class="photo-viewer-overlay" @click.self="close">
+      <div v-if="show" class="photo-viewer-overlay" @click.self="close" @keydown.esc="close">
         <div class="photo-viewer-header">
           <button class="close-btn" @click="close">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -10,7 +10,7 @@
           </button>
         </div>
         
-        <div class="photo-viewer-content" @click.self="close">
+        <div class="photo-viewer-content" @click.self="close" @keydown.esc="close">
           <img :src="resolvePhotoSrc(photoUrl)" class="photo-img" />
         </div>
       </div>

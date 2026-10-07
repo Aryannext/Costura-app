@@ -56,7 +56,7 @@
 
     <div v-if="showFotos" class="panel fotos-grid">
       <div v-for="f in fotos" :key="f.id_fotografia" class="foto-container">
-        <img :src="resolvePhotoSrc(f.ruta_archivo)" class="foto-thumb" alt="Fotografía de la prenda" @click="openPhotoViewer(f)" />
+        <img :src="resolvePhotoSrc(f.ruta_archivo)" class="foto-thumb" alt="Fotografía de la prenda" role="button" tabindex="0" @click="openPhotoViewer(f)" @keydown.enter="openPhotoViewer(f)" />
         <button v-if="!readonly" class="delete-foto-btn" @click.stop="onDeleteFoto(f.id_fotografia)" aria-label="Eliminar foto">×</button>
       </div>
       <button v-if="!readonly" type="button" class="foto-nueva" @click="$emit('take-photo')">

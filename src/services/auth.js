@@ -193,7 +193,7 @@ export function startInactivityTimer() {
     window.addEventListener('scroll', resetInactivityTimer);
     
     inactivityTimer = setTimeout(() => {
-        logout();
+        logout().catch(e => console.error("Error cerrando la sesión por inactividad", e));
     }, INACTIVITY_TIMEOUT);
 }
 
@@ -216,7 +216,7 @@ function resetInactivityTimer() {
         clearTimeout(inactivityTimer);
     }
     inactivityTimer = setTimeout(() => {
-        logout();
+        logout().catch(e => console.error("Error cerrando la sesión por inactividad", e));
     }, INACTIVITY_TIMEOUT);
     
     // Throttle the resets slightly to avoid performance issues
