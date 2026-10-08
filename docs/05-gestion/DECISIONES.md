@@ -113,8 +113,8 @@ Cuando un negocio recibe un bien para prestar un servicio, debe entregar un reci
 - término de la garantía.
 
 El recibo de la app incluye todo eso desde el 7 de octubre (ANA-H02). La dirección sale solo si la clienta la dio. La **garantía** y las **condiciones del taller** se configuran en *Ajustes → Tu taller*:
-- **Garantía:** empieza vacía y el recibo no la muestra hasta que la dueña escriba los días. No la inventa la app.
-- **Condiciones:** empiezan con lo que dijo la dueña el 7 de octubre: *30 días hábiles después de la fecha de entrega para recoger y pagar; ya pagada, la prenda se guarda hasta 6 meses.*
+- **Garantía:** la que da la dueña (7 de octubre): *seis meses; si una costura se suelta o la prenda quedó grande o pequeña, se ajusta gratis*. Es texto, no un número de días, porque lo importante para la clienta es qué cubre. Si se deja vacía, el recibo no habla de garantía.
+- **Condiciones:** también las de la dueña: *30 días hábiles después de la fecha de entrega para recoger y pagar; ya pagada, la prenda se guarda hasta 6 meses.*
 
 Las condiciones son la regla del taller, **no un permiso para quedarse con la prenda**: antes de disponer de una prenda abandonada hay que cumplir el procedimiento de la ley (ver D-07 y la sección 9 del manual). La app no lo hace (ANA-H05). **No es una factura electrónica.** Una modista independiente normalmente no está obligada a facturar electrónicamente, pero eso depende de su situación tributaria y no lo decide la app.
 

@@ -133,7 +133,7 @@ Cuando terminas la última prenda, la app también te pregunta si quieres avisar
 **Pon el nombre de tu taller** en **Ajustes → Tu taller**. Sale en los mensajes y en el recibo.
 
 **El recibo** lleva el celular de la clienta (y su dirección, si te la dio), las prendas, los abonos y el saldo. Al final salen:
-- **la garantía de tus arreglos**, si la escribes en *Ajustes → Tu taller* (cuántos días tiene la clienta para que le arregles gratis una costura que se soltó). Si la dejas vacía, el recibo no habla de garantía;
+- **la garantía de tus arreglos.** Ya viene escrita: seis meses; si una costura se suelta o la prenda quedó grande o pequeña, se la ajustas gratis. La cambias en *Ajustes → Tu taller*; si la dejas vacía, el recibo no habla de garantía;
 - **tus condiciones para recoger y pagar.** Ya vienen escritas: 30 días hábiles después de la fecha de entrega para recoger y pagar; ya pagada, la prenda se guarda hasta 6 meses. Las puedes cambiar ahí mismo.
 
 ---

@@ -24,7 +24,7 @@ function formatDate(dateStr) {
  * P1-18: antes leía `fecha_recepcion`, `precio_total` y `abono_inicial`,
  * columnas que no existen. La fecha de recepción salía en blanco.
  */
-export function construirRecibo(orden, { markdown = true, prendas = [], pagos = [], taller = '', garantiaDias = '', condiciones = '' } = {}) {
+export function construirRecibo(orden, { markdown = true, prendas = [], pagos = [], taller = '', garantia = '', condiciones = '' } = {}) {
   const negrita = (texto) => (markdown ? `*${texto}*` : texto);
   const pagado = orden.valor_total - orden.saldo_pendiente;
 
@@ -45,9 +45,8 @@ export function construirRecibo(orden, { markdown = true, prendas = [], pagos = 
     orden.cliente_telefono ? `${negrita('Celular:')} ${orden.cliente_telefono}` : null,
     orden.cliente_direccion ? `${negrita('Dirección:')} ${orden.cliente_direccion}` : null
   ].filter(Boolean);
-  const dias = Number.parseInt(garantiaDias, 10);
   const condicionesTaller = [
-    dias > 0 ? `${negrita('Garantía del arreglo:')} ${dias} días` : null,
+    garantia?.trim() ? `${negrita('Garantía:')} ${garantia.trim()}` : null,
     condiciones?.trim() ? `${negrita('Condiciones:')} ${condiciones.trim()}` : null
   ].filter(Boolean);
 
@@ -91,11 +90,11 @@ export function useOrdenTelegram(ordenActual) {
   }
 
   async function reciboCompleto(o, opciones) {
-    const [prendas, pagos, taller, garantiaDias, condiciones] = await Promise.all([
+    const [prendas, pagos, taller, garantia, condiciones] = await Promise.all([
       getPrendasByOrden(o.id_orden), getPagosByOrden(o.id_orden), nombreTaller(),
-      getConfig('garantia_dias'), getConfig('condiciones_recibo')
+      getConfig('garantia_recibo'), getConfig('condiciones_recibo')
     ]);
-    return construirRecibo(o, { ...opciones, prendas, pagos, taller, garantiaDias: garantiaDias || '', condiciones: condiciones || '' });
+    return construirRecibo(o, { ...opciones, prendas, pagos, taller, garantia: garantia || '', condiciones: condiciones || '' });
   }
 
   // Aviso directo al cliente: abre WhatsApp con el mensaje escrito (D-03).
