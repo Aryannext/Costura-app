@@ -8,9 +8,9 @@
       </div>
 
       <div class="form-group" style="margin-bottom: 16px;">
-        <label>Contraseña Maestra</label>
+        <label for="contrasena-maestra">Contraseña Maestra</label>
         <div style="display: flex; position: relative;">
-          <input :type="showPassword ? 'text' : 'password'" class="input-field" style="width: 100%; padding-right: 40px;" v-model="password" :disabled="isProcessing" placeholder="Ej. mi-secreto-seguro-123" @keyup.enter="confirm" />
+          <input id="contrasena-maestra" :type="showPassword ? 'text' : 'password'" class="input-field" style="width: 100%; padding-right: 40px;" v-model="password" :disabled="isProcessing" placeholder="Ej. mi-secreto-seguro-123" @keyup.enter="confirm" />
           <button @click="showPassword = !showPassword" class="btn-ghost" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); padding: 4px;" type="button">
             {{ showPassword ? 'Ocultar' : 'Mostrar' }}
           </button>

@@ -11,7 +11,7 @@
         </div>
         
         <div class="photo-viewer-content" @click.self="close" @keydown.esc="close">
-          <img :src="resolvePhotoSrc(photoUrl)" class="photo-img" />
+          <img :src="resolvePhotoSrc(photoUrl)" class="photo-img" alt="Fotografía de la prenda" />
         </div>
       </div>
     </transition>

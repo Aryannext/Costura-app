@@ -132,7 +132,7 @@ Donde dice "rev. 2" el texto cambió frente al original; la sección 4 explica p
 | ID | Requisito | Estado |
 | --- | --- | --- |
 | RF-05 | Crear una orden para una clienta registrada, con la fecha en que se recibió la ropa (hoy o anterior) (rev. 2) | Cumple |
-| RF-06 | Asignar la fecha prometida de entrega, no anterior a la de recepción | Cumple |
+| RF-06 | Asignar la fecha prometida de entrega, no anterior a la de recepción. Es obligatoria: la dueña siempre acuerda fecha y precio al recibir (confirmado el 8 de octubre de 2026) | Cumple |
 | RF-07 | Consultar la información general de una orden | Cumple |
 | RF-08 | Ver las órdenes pendientes, separadas en activas, historial y por cobrar | Cumple |
 | RF-09 | Ver las órdenes ordenadas por fecha de entrega | Cumple |
@@ -313,7 +313,6 @@ RF-61 a RF-63 (bodega y venta de prendas abandonadas), RF-64 y RF-65 (exportar),
 
 | Pendiente | Qué falta | Afecta |
 | --- | --- | --- |
-| Recibir sin precio o sin fecha | A veces la ropa llega sin precio o sin fecha acordados, y hoy la app exige los dos. Hay que decidir con la dueña cómo registrarlo sin inventar datos | RF-05, RF-06, RF-19, RN-20 |
 | Buscar prendas | El buscador global no busca prendas | RF-70 |
 | Medir tiempos | Medir en el teléfono de la dueña con 500 órdenes | RNF-01, RNF-02, RNF-03, RNF-23 |
 | Archivo de errores | Guardar los errores en un archivo para poder diagnosticar en el taller | RNF-19 |

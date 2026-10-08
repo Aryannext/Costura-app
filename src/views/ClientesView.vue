@@ -6,7 +6,8 @@
     </div>
 
     <div class="search-bar">
-      <input type="text" v-model="searchQuery" @input="onSearch" placeholder="Buscar por nombre o teléfono..." />
+      <label for="buscar-clientes" class="sr-only">Buscar clientes</label>
+      <input id="buscar-clientes" type="text" v-model="searchQuery" @input="onSearch" placeholder="Buscar por nombre o teléfono..." />
     </div>
 
     <div v-if="loading && clientes.length === 0" class="loading-state">

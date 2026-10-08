@@ -53,7 +53,8 @@
         <div class="modal-content card confirm-modal">
           <h3>{{ promptTitle }}</h3>
           <p>{{ promptMessage }}</p>
-          <textarea v-model="localPromptInput" rows="3" placeholder="Escribe aquí..."></textarea>
+          <label for="texto-prompt" class="sr-only">{{ promptTitle }}</label>
+          <textarea id="texto-prompt" v-model="localPromptInput" rows="3" placeholder="Escribe aquí..."></textarea>
           <div class="confirm-actions" style="margin-top: 16px;">
             <button class="btn-secondary" @click="emit('cancelPrompt')">Cancelar</button>
             <button class="btn-primary" @click="handleExecutePrompt">Guardar</button>

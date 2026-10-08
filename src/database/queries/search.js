@@ -7,7 +7,7 @@ export async function globalSearch(query) {
     }
 
     const searchTerm = `%${query.trim()}%`;
-    const numSearch = isNaN(Number(query.trim())) ? null : Number(query.trim());
+    const numSearch = Number.isNaN(Number(query.trim())) ? null : Number(query.trim());
 
     // 1. Buscar clientes por nombre o teléfono
     const resClientes = await db.query(

@@ -89,7 +89,8 @@ El APK queda en `android/app/build/outputs/apk/debug/`. Para el de producción, 
 - **Guardia de Gradle:** la tarea `verifyWebAssetsUpToDate` detiene la compilación si el código web empaquetado es más viejo que `src/`.
 - **Versión:** sale de `package.json`. El `versionCode` es `mayor × 10000 + menor × 100 + parche` (1.1.2 → 10102).
 - **Firma:** las claves del keystore se leen de variables de entorno (`ANDROID_KEYSTORE_PATH`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`) o de `~/.gradle/gradle.properties`, nunca del repositorio.
-- **Permisos:** `INTERNET`, `USE_BIOMETRIC`, `POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`.
+- **Permisos:** `INTERNET`, `USE_BIOMETRIC`, `POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`. El tráfico sin cifrar está desactivado (`usesCleartextTraffic="false"`).
+- **Dependencias bloqueadas:** las versiones exactas de las librerías de Android están en `android/gradle.lockfile`, `android/app/gradle.lockfile` y `android/buildscript-gradle.lockfile`. Si se actualiza Capacitor o un plugin, se regeneran desde `android/` con `./gradlew buildEnvironment dependencies :app:dependencies --write-locks`.
 
 ## 6. Base de datos
 
@@ -183,5 +184,4 @@ Sin red en las operaciones del día a día, la velocidad la marca el teléfono. 
 | Problema | Efecto | Estado |
 | --- | --- | --- |
 | Errores solo en consola (RNF-19) | No hay archivo de errores para diagnosticar en el taller | Pendiente |
-| Recibir sin precio o sin fecha | La app exige los dos al registrar | Pendiente de decidir con la dueña |
 | `main.spec.js` se pasa del tiempo en computadores lentos | Falla localmente con la batería completa; en GitHub pasa | Solo afecta el entorno local |

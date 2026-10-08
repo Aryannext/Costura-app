@@ -1,7 +1,11 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    
+    // Versiones fijas de los plugins de compilación: quedan en buildscript-gradle.lockfile
+    configurations.classpath {
+        resolutionStrategy.activateDependencyLocking()
+    }
+
     repositories {
         google()
         mavenCentral()
@@ -16,6 +20,14 @@ buildscript {
 }
 
 apply from: "variables.gradle"
+
+// Bloqueo de dependencias: cada versión resuelta queda escrita en gradle.lockfile
+// y una compilación no puede bajar otra distinta sin que se note. Tras cambiar
+// una dependencia o un plugin de Capacitor se regeneran los archivos con:
+//   ./gradlew buildEnvironment dependencies :app:dependencies --write-locks
+dependencyLocking {
+    lockAllConfigurations()
+}
 
 allprojects {
     repositories {

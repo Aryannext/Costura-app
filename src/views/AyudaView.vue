@@ -9,7 +9,7 @@
     </div>
 
     <div class="misiones-list">
-      <div class="card mission-card" @click="playDashboardTour">
+      <div class="card mission-card" role="button" tabindex="0" @click="playDashboardTour" @keydown.enter="playDashboardTour">
         <div class="mission-icon"><Icon name="home" className="mission-svg" /></div>
         <div class="mission-info">
           <h3 class="headline-sm">Tour Rápido</h3>
@@ -21,7 +21,7 @@
       </div>
       
       <!-- Misión: Clientes -->
-      <div class="card mission-card" @click="playClienteTour">
+      <div class="card mission-card" role="button" tabindex="0" @click="playClienteTour" @keydown.enter="playClienteTour">
         <div class="mission-icon"><Icon name="users" className="mission-svg" /></div>
         <div class="mission-info">
           <h3 class="headline-sm">Crear un Cliente</h3>
@@ -33,7 +33,7 @@
       </div>
 
       <!-- Misión: Órdenes -->
-      <div class="card mission-card" @click="playOrdenTour">
+      <div class="card mission-card" role="button" tabindex="0" @click="playOrdenTour" @keydown.enter="playOrdenTour">
         <div class="mission-icon"><Icon name="clipboard" className="mission-svg" /></div>
         <div class="mission-info">
           <h3 class="headline-sm">Tu Primera Orden</h3>

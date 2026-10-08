@@ -1,7 +1,7 @@
 <template>
   <teleport to="body">
     <transition name="sheet-fade">
-      <div class="ios-action-sheet-overlay" v-if="modelValue" @click.self="close">
+      <div class="ios-action-sheet-overlay" v-if="modelValue" @click.self="close" @keydown.esc="close">
         <transition name="sheet-slide">
           <div class="ios-action-sheet" v-if="modelValue">
             <div class="sheet-header" v-if="title || message">

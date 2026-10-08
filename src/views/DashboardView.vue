@@ -9,7 +9,9 @@
     <div class="global-search-container">
       <div class="search-input-wrapper">
         <Icon name="search" className="search-icon icon-sm" />
+        <label for="buscador-global" class="sr-only">Buscar cliente, teléfono o número de orden</label>
         <input
+          id="buscador-global"
           type="text"
           class="input-field global-search-input"
           v-model="globalQuery"

@@ -54,7 +54,7 @@ Se hace en el teléfono de la dueña, con datos inventados, antes de usarla con 
 
 **Preguntas para la dueña al terminar:**
 1. ¿Qué fue lo más difícil?
-2. ¿Hay algo que hace en el cuaderno que la app no le deja hacer? (Por ejemplo, recibir ropa sin saber todavía el precio).
+2. ¿Hay algo que hace en el cuaderno que la app no le deja hacer?
 3. ¿Usaría la app mañana con una clienta real?
 
 Las respuestas van a [DECISIONES.md](../05-gestion/DECISIONES.md) si cambian algo de la app.
