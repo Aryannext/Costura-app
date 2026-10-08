@@ -2,8 +2,9 @@
 
 Correspondencia entre los requisitos especificados y el código que los implementa. Cada fila se verificó contra `src/`, no contra la intención original.
 
-> **Revisión:** 13 de septiembre de 2026 · versión 1.1.2 · esquema 5
-> **Suite de pruebas:** 332 en verde, 0 fallos esperados, 0 omitidas
+> **Revisión:** 7 de octubre de 2026 · versión 1.2.0 · esquema 8
+> **Suite de pruebas:** 363 unitarias en verde y 3 E2E (Playwright, a mano), 0 fallos esperados, 0 omitidas
+> Los hallazgos ANA-H01 a ANA-H06 vienen de `docs/01-analisis/REVISION_EQUIPO_ANALISTAS_2026-10-07.md`.
 
 Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · ❌ no implementado · 🚧 planificado
 
@@ -48,9 +49,9 @@ Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · 
 
 | Req. | Estado | Dónde vive |
 | --- | --- | --- |
-| RF-39, RF-40 · aviso automático al cliente | ⚠️ | Se registra una fila en `notificacion`, pero **nada sale del teléfono**. El aviso real depende de que la modista toque el enlace `wa.me`. No hay envío automático |
+| RF-39, RF-40 · aviso automático al cliente | ⚠️ | **Cambió por decisión D-03:** la app prepara el mensaje y abre WhatsApp; la modista pulsa Enviar. Se registra como "aviso preparado", nunca como recibido. El texto original pedía envío automático; la revisión 2 del requisito irá en el SRS (ANA-H03) |
 | RF-41 · historial de notificaciones | ✅ | `database/queries/notificaciones.js` |
-| RF-42 · resumen por Telegram | ✅ | `composables/useTelegramReports.js` |
+| RF-42 · resumen al cliente | ⚠️ | El recibo (`construirRecibo`) llega al cliente por compartir o WhatsApp. Telegram es solo de la modista (D-04), no del cliente como decía el texto original (ANA-H03) |
 
 ### Reportes y seguimiento · RF-43 a RF-48
 
@@ -58,7 +59,7 @@ Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · 
 | --- | --- | --- |
 | RF-44, RF-45, RF-46, RF-48 | ✅ | `database/queries/reportes.js`, `views/ReportesView.vue` |
 | RF-43 · próximas a vencer | ✅ | `clasificarVencimiento` en `services/vencimientos.js` (RN-38). Los días se leen de `dias_anticipacion_vencer` y se cambian en **Ajustes → Aviso de entregas próximas** (0 a 30). Sólo cuentan órdenes activas (RN-04) |
-| RF-47 · sin reclamar más de 30 días | ✅ | Se cuenta desde `orden_trabajo.fecha_lista`, sellada al entrar en *Lista para Entregar* (RN-37). Los días se leen de `dias_sin_reclamar`; no hay pantalla para cambiarlos |
+| RF-47 · sin reclamar más de 30 días | ✅ | **Alerta para la modista**, no el procedimiento legal de bienes abandonados (ANA-H05). Se cuenta desde `orden_trabajo.fecha_lista`, sellada al entrar en *Lista para Entregar* (RN-37). Los días se leen de `dias_sin_reclamar`; no hay pantalla para cambiarlos |
 
 ### Valor añadido de Fase 1
 
@@ -72,13 +73,13 @@ Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · 
 
 | Req. | Estado | Nota |
 | --- | --- | --- |
-| RNF-01 a RNF-03 · rendimiento | ✅ | Los índices están creados. Desde el 7 de octubre `getPrendasByOrden` carga notas y fotos de todas las prendas en dos consultas (antes dos por prenda, P1-8) |
+| RNF-01 a RNF-03 · rendimiento | ⚠️ | **Sin medir en el teléfono (ANA-H04).** Los índices están creados. Desde el 7 de octubre `getPrendasByOrden` carga notas y fotos de todas las prendas en dos consultas (antes dos por prenda, P1-8) |
 | RNF-04 a RNF-06 · usabilidad | ✅ | Registro de orden en tres pantallas; confirmaciones por toast; diseño desde 360 px |
 | RNF-07 · autenticación | ✅ | `services/auth.js` + guardia del router |
 | RNF-08 · contraseñas cifradas | ✅ | bcrypt con salt 10. **Cambio obligatorio** de la clave de fábrica en el primer acceso |
 | RNF-09 · cierre por inactividad | ✅ | 15 minutos, más bloqueo al reanudar tras 2 minutos en segundo plano |
 | RNF-10 a RNF-12 · integridad | ✅ | `validators.js`, con pruebas para cada regla |
-| Ley 1581 · datos personales | ✅ | Aviso de privacidad (`services/avisoPrivacidad.js`), autorización obligatoria validada en `createCliente` con su fecha como prueba (migración 7), registro para clientas antiguas y borrado de datos personales (`anonimizarCliente`) · pruebas en `reglasNegocio.spec.js` |
+| Ley 1581 · datos personales | ⚠️ | Mecanismos implementados; no es una certificación jurídica (ANA-H01). Aviso de privacidad (`services/avisoPrivacidad.js`, versión 2: dice que los avisos pasan por WhatsApp y Telegram), autorización obligatoria validada en `createCliente` con fecha y versión del aviso como prueba (migraciones 7 y 8), registro para clientas antiguas y borrado de datos personales (`anonimizarCliente`, que también limpia el nombre del historial de avisos) · pruebas en `reglasNegocio.spec.js` |
 | RNF-13 · disponibilidad del servidor | ⛔ | **Derogado.** No hay servidor: la arquitectura es offline-first en un solo dispositivo |
 | RNF-14 · dos dispositivos en red local | ⛔ | **Derogado.** Incompatible con la arquitectura elegida. Requeriría sincronización, que no está en el alcance |
 | RNF-15 · navegadores de escritorio | ⚠️ | Funciona en modo desarrollo. El objetivo real es el APK; el soporte de escritorio no se prueba en CI |
@@ -114,7 +115,7 @@ Las cuarenta reglas de [Costura.md](../01-analisis/Costura.md) son pruebas ejecu
 | RN-34 · resumen con datos actuales | ✅ | Recibos y avisos releen la orden al enviarse |
 | RN-35 · todo cambio en el historial | ✅ | Incluidas observaciones y fotografías, escritas en la misma transacción que el cambio |
 | RN-36 | ✅ | |
-| RN-37 · sin reclamar | ✅ | Medido desde la entrada en *Lista para Entregar*; la cuenta vuelve a cero si la orden sale de *Lista* |
+| RN-37 · sin reclamar | ✅ | Alerta operativa (ANA-H05). Medido desde la entrada en *Lista para Entregar*; la cuenta vuelve a cero si la orden sale de *Lista* |
 | RN-38 a RN-40 | ✅ | |
 
 **Resumen:** las 40 reglas se cumplen. Cualquier regresión rompe la CI.

@@ -16,7 +16,8 @@ export async function getAllOrdenes() {
 export async function getOrdenById(id_orden) {
     if (!db) throw new Error("Database not initialized");
     const result = await db.query(`
-        SELECT o.*, c.nombre as cliente_nombre, c.telefono as cliente_telefono, e.nombre as estado_nombre
+        SELECT o.*, c.nombre as cliente_nombre, c.telefono as cliente_telefono, c.direccion as cliente_direccion,
+               e.nombre as estado_nombre
         FROM orden_trabajo o
         JOIN cliente c ON o.id_cliente = c.id_cliente
         JOIN estado_orden e ON o.id_estado_orden = e.id_estado_orden

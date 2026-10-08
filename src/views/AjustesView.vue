@@ -19,6 +19,26 @@
           Guardado
         </span>
       </div>
+      <!-- Ley 1480 art. 18: garantía y condiciones que salen al final del recibo -->
+      <div class="card bloque control">
+        <label class="fila-t" for="garantia-dias">
+          <b>Garantía de tus arreglos (días)</b>
+          <small>Si una costura se suelta, cuántos días tiene la clienta para que se la arregles sin cobrar. Vacío: el recibo no muestra garantía.</small>
+        </label>
+        <input id="garantia-dias" v-model="garantiaDias" type="number" min="0" max="365" inputmode="numeric" placeholder="Ej. 15" class="input-taller" />
+        <label class="fila-t" for="condiciones-recibo">
+          <b>Condiciones para recoger y pagar</b>
+          <small>Salen al final del recibo.</small>
+        </label>
+        <textarea id="condiciones-recibo" v-model="condicionesRecibo" rows="3" maxlength="300" class="input-taller"></textarea>
+        <div class="control-fila">
+          <button class="btn-guardar-taller" :disabled="guardandoRecibo" @click="guardarCondicionesRecibo">Guardar</button>
+          <span v-if="reciboGuardado" class="guardado">
+            <svg class="ic ic16" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg>
+            Guardado
+          </span>
+        </div>
+      </div>
       <div class="card bloque control">
         <div class="control-fila">
           <span class="fila-t">
@@ -232,6 +252,29 @@ async function guardarNombreTaller() {
   }
 }
 
+const garantiaDias = ref('');
+const condicionesRecibo = ref('');
+const guardandoRecibo = ref(false);
+const reciboGuardado = ref(false);
+
+async function guardarCondicionesRecibo() {
+  const dias = String(garantiaDias.value ?? '').trim();
+  if (dias !== '' && !(Number.isInteger(Number(dias)) && Number(dias) >= 0)) {
+    toast('La garantía debe ser un número de días', 'error');
+    return;
+  }
+  guardandoRecibo.value = true;
+  try {
+    await updateConfig('garantia_dias', dias);
+    await updateConfig('condiciones_recibo', condicionesRecibo.value.trim());
+    reciboGuardado.value = true;
+  } catch (err) {
+    toast('No se pudieron guardar las condiciones del recibo', 'error');
+  } finally {
+    guardandoRecibo.value = false;
+  }
+}
+
 function triggerManualUpdate() {
   manualCheck(toast);
 }
@@ -241,6 +284,8 @@ onMounted(async () => {
   estadoAvisoDiario.value = await estadoAviso();
   try {
     nombreTaller.value = (await getConfig('nombre_taller')) || '';
+    garantiaDias.value = (await getConfig('garantia_dias')) || '';
+    condicionesRecibo.value = (await getConfig('condiciones_recibo')) || '';
   } catch (e) {
     nombreTaller.value = '';
   }

@@ -16,6 +16,8 @@ Este documento contiene la formalización de los nuevos requisitos para la expan
 **Épica 7: Módulo de Bodega / Papelería**
 Como modista/dueña, quiero gestionar las prendas abandonadas por más de 30 días, para incautarlas y ponerlas a la venta, recuperando la inversión.
 
+> **Requiere revalidación antes de implementarse (ANA-H05, 7 oct 2026).** Treinta días sin reclamar no vuelven abandonada una prenda ni dan derecho a venderla: la Ley 1480 art. 18 exige requerir a la clienta y seguir el procedimiento reglamentado. RF-61 a RF-63 quedan fuera de la entrega actual (D-07).
+
 **Épica 8: Exportación e Impresión**
 Como modista/dueña, quiero exportar la información financiera y generar tickets físicos, para compartir con contabilidad y entregar recibos en papel a los clientes.
 

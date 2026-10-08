@@ -3,7 +3,7 @@
 | | |
 | --- | --- |
 | **Versión** | 1.1.2 |
-| **Versión del esquema** | 5 |
+| **Versión del esquema** | 8 |
 | **Tipo** | Aplicación móvil híbrida (web empaquetada de forma nativa) |
 | **Plataforma objetivo** | Android. El proyecto iOS no está generado |
 | **Modo de operación** | Offline-first, un solo dispositivo |
@@ -37,7 +37,7 @@ El plano completo está en [`docs/02-diseno/DIAGRAMAS.md`](../02-diseno/DIAGRAMA
 - **Chart.js + vue-chartjs** · gráficas del módulo de reportes
 - **bcryptjs** · hash de contraseñas
 - **driver.js** · tutorial guiado
-- **Vitest + Vue Test Utils** · 332 pruebas, incluidas las 40 reglas de negocio
+- **Vitest + Vue Test Utils** · 363 pruebas, incluidas las 40 reglas de negocio
 - **sql.js** · SQLite real en las pruebas de saldo, estados, pagos, prendas y migraciones
 
 ## 3. Base de datos
@@ -95,7 +95,7 @@ El token y el chat id se guardan en la tabla `configuracion` de SQLite — **no 
 | Inactividad | Cierre de sesión automático a los 15 minutos |
 | Respaldos | AES-256-GCM con clave derivada por PBKDF2-SHA256 y 600 000 iteraciones. **El cifrado es propio, no el de Telegram** |
 | Datos en reposo | La base SQLite no está cifrada a nivel de fichero; la protección efectiva es la del sandbox de Android |
-| Privacidad | Los datos de clientes y las transacciones no salen del dispositivo, salvo el respaldo que la modista envía a su propio chat |
+| Privacidad | La base vive en el teléfono. Salen de él: los avisos de WhatsApp que la modista decide enviar (nombre y orden de la clienta), el resumen de recordatorios y los recibos que manda a su propio Telegram (nombres y celulares), el recibo que comparte con la clienta y el respaldo cifrado. Ver D-08 |
 
 ## 7. Despliegue
 
@@ -109,12 +109,14 @@ El procedimiento completo está en el [README](README.md#5-compilar-para-producc
 
 ## 8. Calidad
 
-- **332 pruebas** con Vitest. Las 40 reglas de negocio de la especificación tienen su propio bloque en `src/__tests__/reglasNegocio.spec.js`, y una prueba falla si alguna regla del catálogo queda sin probar. Los incumplimientos conocidos se marcan con `it.fails` y están listados en `docs/04-calidad/TRAZABILIDAD.md` sobre la capa de datos, los composables y los servicios. Las de saldo, estados de la orden, anulación de pagos, eliminación de prendas y migraciones corren contra SQLite real, no contra mocks
-- **GitHub Actions** en cada push y pull request: `npm ci`, `npm run test:unit` y `npm run build`
+- **363 pruebas** con Vitest (recuento del 7 de octubre de 2026). Las 40 reglas de negocio de la especificación tienen su propio bloque en `src/__tests__/reglasNegocio.spec.js`, y una prueba falla si alguna regla del catálogo queda sin probar. Los incumplimientos conocidos se marcan con `it.fails` y están listados en `docs/04-calidad/TRAZABILIDAD.md` sobre la capa de datos, los composables y los servicios. Las de saldo, estados de la orden, anulación de pagos, eliminación de prendas y migraciones corren contra SQLite real, no contra mocks
+- **GitHub Actions** en cada push y pull request: `npm ci`, `npm run test:unit` y `npm run build`, más la imagen Docker. Las 3 pruebas E2E de Playwright se corren a mano: la CI no las ejecuta
 - **Trinquete de cobertura** fijado justo por debajo de la cobertura real: la CI falla si alguien la hace bajar
 
 ## 9. Rendimiento
 
 Sin peticiones de red en las operaciones CRUD, la respuesta la marca el hardware local. Los índices mantienen las búsquedas en tiempo logarítmico al crecer el volumen.
 
-Salvedad conocida: `getPrendasByOrden` realiza dos consultas adicionales por prenda (problema N+1). Con una orden de doce prendas son veinticinco viajes al puente nativo. Registrado como P1-8 en [`docs/04-calidad/TRAZABILIDAD.md`](../04-calidad/TRAZABILIDAD.md).
+Desde el 7 de octubre `getPrendasByOrden` carga notas y fotos de todas las prendas en dos consultas (antes eran dos por prenda; P1-8 cerrado).
+
+**Pendiente (ANA-H04):** los tiempos que exigen RNF-01 a RNF-03 todavía no se han medido en el teléfono. Los índices son la implementación, no la prueba de que se cumplan.

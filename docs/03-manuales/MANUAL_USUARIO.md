@@ -49,7 +49,7 @@ Una orden a la que todavía no le has puesto prendas **no cuenta** como atrasada
 
 **Clientas que ya tenías antes de esta versión:** en su detalle verás *Sin autorización de datos registrada*. Envíale el aviso por WhatsApp y, cuando te diga que sí, toca *Ya autorizó: registrar*.
 
-**Si una clienta pide que borres sus datos:** en su detalle toca *Borrar sus datos personales*. Se borran el nombre, el celular y la dirección; sus órdenes y pagos quedan para tus cuentas, sin datos personales. Solo se puede si no tiene órdenes abiertas ni te debe.
+**Si una clienta pide que borres sus datos:** en su detalle toca *Borrar sus datos personales*. Se borran el nombre, el celular y la dirección, también en el historial de avisos; sus órdenes y pagos quedan para tus cuentas, sin datos personales. Si escribiste su nombre en las notas de una prenda, bórralo tú. Solo se puede si no tiene órdenes abiertas ni te debe.
 
 ---
 
@@ -132,6 +132,10 @@ Cuando terminas la última prenda, la app también te pregunta si quieres avisar
 
 **Pon el nombre de tu taller** en **Ajustes → Tu taller**. Sale en los mensajes y en el recibo.
 
+**El recibo** lleva el celular de la clienta (y su dirección, si te la dio), las prendas, los abonos y el saldo. Al final salen:
+- **la garantía de tus arreglos**, si la escribes en *Ajustes → Tu taller* (cuántos días tiene la clienta para que le arregles gratis una costura que se soltó). Si la dejas vacía, el recibo no habla de garantía;
+- **tus condiciones para recoger y pagar.** Ya vienen escritas: 30 días hábiles después de la fecha de entrega para recoger y pagar; ya pagada, la prenda se guarda hasta 6 meses. Las puedes cambiar ahí mismo.
+
 ---
 
 ## 7. Copia de seguridad (sin Telegram)
@@ -162,12 +166,12 @@ Dentro del archivo va todo: clientes, órdenes, prendas, pagos, historial, la co
 
 ## 9. Ropa que nadie recoge
 
-Una orden aparece **sin reclamar** cuando está lista y han pasado más de 30 días desde la fecha que le prometiste al cliente (o desde que la terminaste, si fue después). La ley (Ley 1480 de 2011, art. 18, y Decreto 1413 de 2018) dice:
+Una orden aparece **sin reclamar** cuando está lista y han pasado más de 30 días desde la fecha que le prometiste al cliente (o desde que la terminaste, si fue después). Es solo un aviso para ti: la app no declara abandonada ninguna prenda. Lo que pide la ley (Ley 1480 de 2011, art. 18, y Decreto 1413 de 2018):
 
 1. Pasado un mes de la fecha de entrega, debes **pedirle al cliente que la recoja**. Un mensaje por WhatsApp sirve; guárdalo como prueba.
 2. Si en los dos meses siguientes no la recoge, se considera abandonada y hay un procedimiento para disponer de ella.
 
-**No vendas ni regales la prenda antes de cumplir ese procedimiento.** La ropa sigue siendo del cliente.
+**No vendas ni regales la prenda antes de cumplir ese procedimiento**, aunque hayan pasado los 6 meses de tus condiciones. La ropa sigue siendo del cliente.
 
 ---
 

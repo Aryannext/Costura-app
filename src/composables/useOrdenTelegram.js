@@ -24,7 +24,7 @@ function formatDate(dateStr) {
  * P1-18: antes leía `fecha_recepcion`, `precio_total` y `abono_inicial`,
  * columnas que no existen. La fecha de recepción salía en blanco.
  */
-export function construirRecibo(orden, { markdown = true, prendas = [], pagos = [], taller = '' } = {}) {
+export function construirRecibo(orden, { markdown = true, prendas = [], pagos = [], taller = '', garantiaDias = '', condiciones = '' } = {}) {
   const negrita = (texto) => (markdown ? `*${texto}*` : texto);
   const pagado = orden.valor_total - orden.saldo_pendiente;
 
@@ -39,12 +39,24 @@ export function construirRecibo(orden, { markdown = true, prendas = [], pagos = 
     ? ['', `💵 ${negrita('ABONOS')}`, ...vigentes.map(p =>
         `${formatDate(p.fecha_pago)} ${p.metodo_nombre}: ${formatearMoneda(p.valor)}`)]
     : [];
+  // ANA-H02: el art. 18 también pide el teléfono y la dirección de quien entrega
+  // y el término de la garantía. Lo que no está configurado no se imprime.
+  const contacto = [
+    orden.cliente_telefono ? `${negrita('Celular:')} ${orden.cliente_telefono}` : null,
+    orden.cliente_direccion ? `${negrita('Dirección:')} ${orden.cliente_direccion}` : null
+  ].filter(Boolean);
+  const dias = Number.parseInt(garantiaDias, 10);
+  const condicionesTaller = [
+    dias > 0 ? `${negrita('Garantía del arreglo:')} ${dias} días` : null,
+    condiciones?.trim() ? `${negrita('Condiciones:')} ${condiciones.trim()}` : null
+  ].filter(Boolean);
 
   return [
     `🧾 ${negrita(`RECIBO DIGITAL - ${taller ? taller.toUpperCase() : 'ATELIER'}`)}`,
     '',
     `${negrita('Orden:')} #${orden.id_orden}`,
     `${negrita('Cliente:')} ${orden.cliente_nombre}`,
+    ...contacto,
     `${negrita('Fecha de Recepción:')} ${formatDate(orden.fecha_creacion)}`,
     `${negrita('Entrega Estimada:')} ${formatDate(orden.fecha_entrega_estimada)}`,
     '',
@@ -56,6 +68,7 @@ export function construirRecibo(orden, { markdown = true, prendas = [], pagos = 
     `Total: ${formatearMoneda(orden.valor_total)}`,
     `Pagado: ${formatearMoneda(pagado)}`,
     `${negrita('Saldo:')} ${formatearMoneda(orden.saldo_pendiente)}`,
+    ...(condicionesTaller.length ? ['', ...condicionesTaller] : []),
     ''
   ].join('\n');
 }
@@ -78,10 +91,11 @@ export function useOrdenTelegram(ordenActual) {
   }
 
   async function reciboCompleto(o, opciones) {
-    const [prendas, pagos, taller] = await Promise.all([
-      getPrendasByOrden(o.id_orden), getPagosByOrden(o.id_orden), nombreTaller()
+    const [prendas, pagos, taller, garantiaDias, condiciones] = await Promise.all([
+      getPrendasByOrden(o.id_orden), getPagosByOrden(o.id_orden), nombreTaller(),
+      getConfig('garantia_dias'), getConfig('condiciones_recibo')
     ]);
-    return construirRecibo(o, { ...opciones, prendas, pagos, taller });
+    return construirRecibo(o, { ...opciones, prendas, pagos, taller, garantiaDias: garantiaDias || '', condiciones: condiciones || '' });
   }
 
   // Aviso directo al cliente: abre WhatsApp con el mensaje escrito (D-03).

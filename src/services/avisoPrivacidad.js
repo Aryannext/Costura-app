@@ -3,6 +3,10 @@
 // del taller; la app solo le ayuda a informar, pedir la autorización y guardar
 // la prueba (fecha) de que la clienta la dio. Ver docs/05-gestion/DECISIONES.md, D-08.
 
+// Cambia cada vez que cambie el texto. Se guarda con la autorización de la
+// clienta para saber qué versión del aviso aceptó (ANA-H01).
+export const VERSION_AVISO = '2';
+
 export function textoAvisoPrivacidad(taller) {
     const nombre = (taller || '').trim() || 'el taller';
     return [
@@ -14,7 +18,9 @@ export function textoAvisoPrivacidad(taller) {
         '• avisarte por WhatsApp cuando tu ropa esté lista,',
         '• llevar las cuentas de tus abonos y saldos.',
         '',
-        'No vendemos ni compartimos tus datos con nadie. Se guardan en el celular del taller.',
+        'Tus datos se guardan en el celular del taller. No los vendemos ni se los damos a otras personas.',
+        'Para avisarte usamos WhatsApp, y el taller puede recibir sus recordatorios y recibos en su propio ' +
+        'Telegram; por eso tu nombre y tu número pasan por esos servicios. Las copias de seguridad van cifradas.',
         '',
         'Tienes derecho a conocer, actualizar y corregir tus datos, y a pedir que los borremos ' +
         'cuando no tengas trabajos ni saldos pendientes. Para eso escríbenos a este mismo número.',
