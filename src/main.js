@@ -7,7 +7,6 @@ import { setupDefaultUser } from './database/queries/auth.js';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Capacitor } from '@capacitor/core';
-import { useUpdates } from './composables/useUpdates.js';
 import { initAppLock } from './composables/useAppLock.js';
 import { initPhotoStorage } from './services/photoStorage.js';
 import { migrarConfigTelegramDesdeLocalStorage } from './composables/useTelegramBot.js';
@@ -67,12 +66,8 @@ async function bootstrap() {
     app.use(router);
     app.mount('#app');
 
-    // Initialize Capgo OTA Updates
-    // Ninguna de las dos puede tumbar el arranque: si fallan, solo se registra
-    const { initUpdates } = useUpdates();
-    initUpdates().catch(e => console.warn("No se pudieron iniciar las actualizaciones OTA", e));
-
-    // Bloqueo de la sesión al volver del segundo plano
+    // Bloqueo de la sesión al volver del segundo plano. No puede tumbar el
+    // arranque: si falla, solo se registra.
     initAppLock().catch(e => console.warn("No se pudo iniciar el bloqueo de la app", e));
 
     // Configure Native Polish (Status Bar & Splash Screen)

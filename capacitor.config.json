@@ -5,10 +5,6 @@
   "plugins": {
     "CapacitorSQLite": {
       "androidIsEncryption": false
-    },
-    "CapacitorUpdater": {
-      "autoUpdate": true,
-      "appId": "com.costura.app"
     }
   }
 }

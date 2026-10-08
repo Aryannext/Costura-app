@@ -192,8 +192,7 @@ flowchart LR
     K7(["Guardar copia de seguridad"])
     K8(["Enviar copia a Telegram"])
     K9(["Restaurar una copia"])
-    K10(["Buscar actualización"])
-    K11(["Ver el tutorial"])
+    K10(["Ver el tutorial"])
     TG["Bot de Telegram"]
 
     M --- K1
@@ -206,7 +205,6 @@ flowchart LR
     M --- K8
     M --- K9
     M --- K10
-    M --- K11
     K8 --- TG
 ```
 
@@ -244,7 +242,7 @@ flowchart LR
 | Modista | Crear orden; agregar, editar, eliminar y cambiar estado de prendas; fotos y notas; entregar, cancelar, reabrir | 2.3 |
 | Modista | Abonos, anulaciones, por cobrar, panel, reporte financiero, búsqueda | 2.4 |
 | Modista | Avisos por WhatsApp, recibos, recordatorios y reporte diario | 2.5 |
-| Modista | Taller, garantía y condiciones, días de aviso, aviso de privacidad, aviso de las 8:00, Telegram, copias, actualización, tutorial | 2.6 |
+| Modista | Taller, garantía y condiciones, días de aviso, aviso de privacidad, aviso de las 8:00, Telegram, copias, tutorial | 2.6 |
 | Cliente | Recibe avisos y recibos por WhatsApp (no usa la app) | 2.5 |
 | Bot de Telegram | Recibe recibos, recordatorios, reportes y copias para la modista | 2.5, 2.6 |
 | Reloj del sistema | Aviso de las 8:00, bloqueo, cierre por inactividad, atrasadas, sin reclamar | 2.7 |

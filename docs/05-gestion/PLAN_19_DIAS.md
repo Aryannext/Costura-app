@@ -36,7 +36,7 @@ Objetivo: la app en un teléfono real con datos reales.
 1. Compilar el APK y probar en el teléfono (P-06): cámara, WhatsApp, alarma de las 8 a. m., huella.
 2. ~~Obligar a cambiar la clave `admin123`~~ (ya resuelto en la rama de septiembre). Desplegar la imagen Docker en el VPS (P-07).
 3. ~~Agregar el texto de autorización de datos personales (P-03).~~ Resuelto el 7 oct.
-4. Capgo: hay cuenta, se mantiene (P-05 resuelto). Probar una actualización OTA en el teléfono.
+4. ~~Actualizaciones remotas~~ Se quitaron porque cobraban (D-14). Las versiones nuevas se instalan con un APK.
 5. Capacitar a tu mamá 30 minutos y que registre de 5 a 10 órdenes reales.
 6. **Evidencia:** fotos o video corto de ella usándola; anotar sus quejas, porque son el insumo del sprint 2.
 

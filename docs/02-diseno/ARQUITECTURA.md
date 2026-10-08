@@ -33,7 +33,6 @@ Cómo está construida la aplicación, sacado del código de `src/`. Si algo no 
 | Seguridad | bcryptjs (contraseña), Web Crypto (AES-256-GCM y PBKDF2 para el respaldo) | Proteger acceso y copias |
 | Gráficas | Chart.js + vue-chartjs | Reporte financiero |
 | Tutorial | driver.js | Guía paso a paso dentro de la app |
-| Actualizaciones | Capgo (OTA) | Publicar versiones nuevas sin reinstalar el APK |
 | Pruebas | Vitest + Vue Test Utils + sql.js; Playwright | Pruebas unitarias contra SQLite real y de punta a punta |
 | Versión web | Docker: nginx sin privilegios | Servir la misma app en un navegador (demostración) |
 
@@ -48,7 +47,7 @@ flowchart TB
     D["3b. Acceso a datos<br/>database/queries/ · saldo · migraciones"]
     BD[("SQLite<br/>en el teléfono")]
     N["Plugins de Capacitor<br/>cámara, archivos, huella, avisos, compartir"]
-    E["Servicios externos<br/>WhatsApp · Telegram · Capgo"]
+    E["Servicios externos<br/>WhatsApp · Telegram"]
 
     P --> L
     L --> S
@@ -64,7 +63,7 @@ flowchart TB
 | Capa | Contenido |
 | --- | --- |
 | Presentación | 11 rutas, una vista por ruta, y los componentes de cada módulo |
-| Lógica de la aplicación | 19 composables (sección 4.1) |
+| Lógica de la aplicación | 18 composables (sección 4.1) |
 | Servicios | 12 módulos (sección 4.2) |
 | Acceso a datos | 11 consultas, una por entidad, más conexión y migraciones (sección 4.3) |
 
@@ -106,7 +105,6 @@ Cada archivo con su responsabilidad. La prueba de documentación comprueba que n
 | `useTelegramReports` | Reporte diario de órdenes por Telegram |
 | `useBackupRestore` | Copia de seguridad cifrada (archivo o Telegram) y restauración |
 | `useAppLock` | Bloqueo al pasar a segundo plano |
-| `useUpdates` | Actualizaciones OTA con Capgo |
 | `useOrdenModals` | Confirmaciones y menús del detalle de la orden |
 | `useAsyncAction` | Estado de carga, error y aviso para cualquier acción |
 | `useHaptics` | Vibración al tocar |
@@ -190,7 +188,7 @@ flowchart TD
         M4[Reprogramar el aviso de las 8:00]
     end
 
-    Mant --> Mount[Montar Vue] --> OTA[initUpdates + initAppLock]
+    Mant --> Mount[Montar Vue] --> Bloqueo2[initAppLock]
 
     Bloqueo --> Pantalla[/Pantalla de Error Crítico/]
     Falla --> Pantalla
@@ -209,15 +207,13 @@ flowchart LR
     GH["GitHub Actions<br/>pruebas, compilación e imagen Docker"]
     VPS["VPS · contenedor Docker<br/>nginx con la app compilada"]
     NAV["Navegador<br/>app web + SQLite en IndexedDB"]
-    CAPGO["Capgo<br/>actualizaciones OTA"]
     TEL["Teléfono Android<br/>APK + SQLite + fotos"]
     WA["WhatsApp<br/>del cliente"]
     TG["Telegram<br/>de la modista"]
 
-    DEV -->|APK| TEL
+    DEV -->|"APK, también para cada versión nueva"| TEL
     GH -.->|"imagen · pendiente P-07"| VPS
     VPS -->|archivos estáticos| NAV
-    CAPGO -->|nueva versión| TEL
     TEL -->|enlace wa.me| WA
     TEL -->|recordatorios, recibos y copias| TG
 ```

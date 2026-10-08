@@ -101,8 +101,8 @@ describe('runMigrations', () => {
         expect(db.sentenciasEjecutadas).not.toContain(migracionTres.statements[0]);
     });
 
-    // Guardia contra reversiones OTA: Capgo puede devolver el teléfono a un
-    // bundle anterior, que no sabe leer un esquema más nuevo.
+    // Guardia contra versiones viejas: un APK anterior, o una copia hecha con
+    // una versión más nueva, no sabe leer un esquema más nuevo.
     it('Base más nueva que la aplicación -> se niega a continuar', async () => {
         const db = crearDbFalsa({ aplicadas: [1, 2, 3] });
 

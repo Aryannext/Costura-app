@@ -33,7 +33,7 @@ export default defineConfig({
       thresholds: {
         // Trinquete: se fijan justo por debajo de la cobertura real para que la
         // CI falle si alguien la hace bajar. Al añadir pruebas, súbelos.
-        // Medición del 8 de octubre de 2026: 62.20 / 58.81 / 64.20 / 65.31
+        // Medición del 8 de octubre de 2026: 62.94 / 59.97 / 64.80 / 66.22
         statements: 62,
         branches: 58,
         functions: 64,

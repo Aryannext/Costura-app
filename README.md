@@ -57,7 +57,7 @@ Gracias a Capacitor, nuestra página web (hecha en Vue) ahora tiene **Súper Pod
 - **Bloqueo al Reanudar:** La sesión se conserva entre aperturas, pero la aplicación se **bloquea** al pasar a segundo plano y exige huella o contraseña para volver a mostrar los datos si la ausencia superó los 2 minutos. En arranque en frío siempre se entra bloqueado. Salir un momento a responder un mensaje no cuesta una autenticación; dejar el teléfono encima del mostrador, sí. El bloqueo cubre la pantalla sin desmontar la vista, así que al desbloquear se sigue justo donde se estaba, con el formulario a medio llenar intacto. Por encima sigue actuando el cierre de sesión automático a los 15 minutos de inactividad.
 - **El Vibrador (Haptics) y Barra de Estado:** Retroalimentación táctil al pulsar botones y coloreado nativo de la barra superior.
 - **El Disco Duro Nativo (SQLite):** Bóveda relacional local (`@capacitor-community/sqlite`) optimizada con índices de alto rendimiento (`idx_orden_fecha_entrega`, etc.).
-- **Actualizaciones Silenciosas OTA (Over-The-Air):** Gracias a `@capgo/capacitor-updater`, la aplicación se puede actualizar automáticamente en segundo plano sin necesidad de pasar por la revisión de las tiendas de aplicaciones (Play Store / App Store).
+- **Actualizaciones gratis:** una versión nueva se instala con un APK nuevo encima del anterior, sin servicios de pago y sin perder los datos (ver el manual técnico).
 
 ---
 
@@ -97,7 +97,7 @@ Reglas que impone [`migrationRunner.js`](src/database/migrationRunner.js):
 - Cada migración corre **dentro de su propia transacción**. Si una sentencia falla, se revierte entera y la versión no se registra.
 - Un fallo **detiene el arranque** y muestra la pantalla de error crítico. Antes los errores se registraban en consola y la aplicación seguía con el esquema a medio aplicar, que es la peor combinación posible.
 - Sólo se ejecuta lo pendiente, en orden de `toVersion`. Las migraciones ya aplicadas no se repiten, así que un `INSERT OR IGNORE` de datos semilla no resucita filas que la dueña borró a propósito.
-- **Guardia contra reversiones OTA:** si la base de datos está en una versión más alta de la que entiende el código, la aplicación se niega a arrancar y pide actualizar. Capgo tiene `autoUpdate` activado y puede devolver el teléfono a un bundle anterior; dejar que ese código escriba sobre un esquema más nuevo corrompe los datos en silencio.
+- **Guardia contra versiones viejas:** si la base de datos está en una versión más alta de la que entiende el código, la aplicación se niega a arrancar y pide actualizar. Pasa si se instala un APK anterior o se restaura una copia hecha con una versión más nueva; dejar que ese código escriba sobre un esquema más nuevo corrompe los datos en silencio.
 
 > El número de versión que se pasa a `createConnection` es el del mecanismo de upgrade del plugin, que **no** se usa. Debe quedarse en `1`.
 
@@ -153,7 +153,7 @@ src/
 ├── composables/    Lógica de negocio · estado reactivo y orquestación
 │                     useOrdenes, usePrendas, useClientes, usePagos, useReportes,
 │                     useBackupRestore, useNotificacionesLocales, useAppLock,
-│                     useTelegramBot, useUpdates, useSearch, useAsyncAction…
+│                     useTelegramBot, useSearch, useAsyncAction…
 │
 ├── services/       Transversal · no pertenece a ninguna capa
 │                     auth · sesión, bloqueo y cambio de contraseña

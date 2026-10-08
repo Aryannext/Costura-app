@@ -152,6 +152,19 @@ El manual decía que no se podía; el requisito RN-30 decía que sí se podía s
 
 ---
 
+## D-14. Actualizaciones gratis: un APK nuevo encima del anterior
+
+**Antes:** la app traía un servicio de actualizaciones remotas que descargaba las versiones nuevas sola. Su plan gratuito se acabó y el servicio empezó a cobrar.
+
+**Se quitó por completo**, del código y de la documentación, porque:
+1. **El proyecto tiene que costar cero** para el taller y para el autor.
+2. **Sin el servicio, la app se conectaba igual a sus servidores** cada vez que se abría y mandaba datos del teléfono a un tercero, algo que el aviso de privacidad no dice (D-08).
+3. **El botón de buscar actualización iba a mostrar error** para siempre.
+
+**Cómo se actualiza ahora:** se compila un APK con una versión mayor y se instala encima del anterior; Android conserva los datos. El procedimiento está en el manual técnico, sección 6.
+
+**Lo que se pierde:** la actualización ya no llega sola. Hay que pasar el APK al teléfono. Con un solo teléfono en el taller, eso es aceptable.
+
 ## Pendientes conocidos (no resueltos en esta versión)
 
 | ID | Pendiente | Riesgo |
@@ -160,6 +173,6 @@ El manual decía que no se podía; el requisito RN-30 decía que sí se podía s
 | P-02 | ~~Clave `admin123` sin cambio obligatorio~~ **Resuelto en la rama de septiembre:** cambio obligatorio en el primer ingreso | — |
 | P-03 | ~~Falta el texto de autorización de datos~~ **Resuelto (7 oct):** aviso, casilla obligatoria con fecha como prueba y borrado de datos personales (D-08) | — |
 | P-04 | ~~Verificar dónde se guarda el token de Telegram~~ **Resuelto (8 oct):** en la tabla `configuracion` (`useTelegramBot.js`), igual que dice el manual técnico | — |
-| P-05 | ~~Capgo sin cuenta~~ **Resuelto (7 oct):** hay cuenta de Capgo; se mantienen las actualizaciones OTA | Documentar en el manual técnico cómo se publica una actualización |
+| P-05 | ~~Actualizaciones remotas~~ **Resuelto (8 oct):** se quitaron porque el servicio cobraba; las versiones nuevas se instalan con un APK (D-14) | — |
 | P-06 | Probar en un teléfono Android real: cámara, alarma de las 8 a. m., huella, abrir WhatsApp | Las pruebas automáticas corren en navegador, no en el teléfono |
 | P-07 | Desplegar la imagen Docker en el VPS con dominio y HTTPS | Sin HTTPS el navegador puede bloquear funciones; para la demo se necesita un enlace estable |

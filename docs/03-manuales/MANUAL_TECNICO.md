@@ -4,7 +4,7 @@ Para quien tenga que instalar, compilar, probar o mantener la aplicación.
 
 | | |
 | --- | --- |
-| **Versión de la app** | 1.1.2 (`package.json`) |
+| **Versión de la app** | 1.2.0 (`package.json`) |
 | **Versión del esquema** | 8 |
 | **Identificador Android** | `com.costura.app` |
 | **Tipo** | Aplicación móvil híbrida: web empaquetada como APK con Capacitor |
@@ -92,7 +92,22 @@ El APK queda en `android/app/build/outputs/apk/debug/`. Para el de producción, 
 - **Permisos:** `INTERNET`, `USE_BIOMETRIC`, `POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`. El tráfico sin cifrar está desactivado (`usesCleartextTraffic="false"`).
 - **Dependencias bloqueadas:** las versiones exactas de las librerías de Android están en `android/gradle.lockfile`, `android/app/gradle.lockfile` y `android/buildscript-gradle.lockfile`. Si se actualiza Capacitor o un plugin, se regeneran desde `android/` con `./gradlew buildEnvironment dependencies :app:dependencies --write-locks`.
 
-## 6. Base de datos
+## 6. Actualizar la app en el teléfono (gratis)
+
+Una versión nueva se instala con un **APK nuevo encima del anterior**. Android lo reemplaza y **conserva los datos**: la base, las fotos y la configuración. No se necesita ningún servicio de pago ni la Play Store.
+
+1. Subir la versión en `package.json`; tiene que ser mayor que la instalada: `npm version 1.2.1 --no-git-tag-version`.
+2. Compilar el APK (sección 5).
+3. Antes de instalar, en el teléfono: *Ajustes → Guardar copia de seguridad*.
+4. Pasar el APK al teléfono por WhatsApp, Drive o cable, abrirlo y tocar *Actualizar*.
+
+**Condiciones para que Android lo acepte encima del anterior:**
+- **La misma firma.** Los APK de prueba se firman con la clave de depuración de este computador (`~/.android/debug.keystore`). Un APK compilado en otro computador tiene otra firma: Android pide desinstalar primero, y eso **borra los datos** (por eso el paso 3). Para la versión final se usa la clave de release de la sección 5.
+- **Un `versionCode` mayor**, que se calcula solo desde `package.json`.
+
+**Si la versión trae una migración de la base** (la 1.2.0 trae la 8), no se puede volver a un APK anterior: la versión vieja no entiende el esquema nuevo y se niega a abrir. Si algo sale mal, se corrige y se instala una versión más nueva. Por eso, antes de instalar en el teléfono de la dueña, se prueba en el emulador.
+
+## 7. Base de datos
 
 - **Motor:** SQLite con `@capacitor-community/sqlite` en el teléfono, y `jeep-sqlite` sobre IndexedDB en el navegador. Base `costura_db`.
 - **Integridad:** `PRAGMA foreign_keys = ON`. Las escrituras de varias tablas van en una transacción.
@@ -111,7 +126,7 @@ El APK queda en `android/app/build/outputs/apk/debug/`. Para el de producción, 
 
 Después hay que actualizar el diagrama en `MODELO_DE_DATOS.md`; la prueba de documentación falla mientras no coincidan.
 
-## 7. Plugins nativos
+## 8. Plugins nativos
 
 | Plugin | Uso |
 | --- | --- |
@@ -125,17 +140,15 @@ Después hay que actualizar el diagrama en `MODELO_DE_DATOS.md`; la prueba de do
 | `@capacitor/share` | Compartir recibos, el aviso de privacidad y la copia de seguridad |
 | `@capacitor/haptics` | Vibración al tocar |
 | `@capacitor/status-bar`, `@capacitor/splash-screen` | Barra de estado y pantalla de inicio |
-| `@capgo/capacitor-updater` | Actualizaciones OTA |
 
-## 8. Integraciones externas
+## 9. Integraciones externas
 
 | Servicio | Cómo se usa | Configuración |
 | --- | --- | --- |
 | WhatsApp | Enlaces `wa.me` con el número en +57 y el mensaje escrito. No hay API: enviar es una acción de la modista | Ninguna |
 | Telegram (opcional) | `fetch` a `api.telegram.org` para enviarle a la modista recordatorios, recibos, el reporte diario y copias de seguridad | Token del bot y chat id en *Ajustes → Telegram*. Se guardan en la tabla `configuracion`, así entran en la copia de seguridad |
-| Capgo | Actualizaciones OTA con `autoUpdate` | Cuenta de Capgo del proyecto |
 
-## 9. Seguridad
+## 10. Seguridad
 
 | Aspecto | Implementación |
 | --- | --- |
@@ -147,13 +160,13 @@ Después hay que actualizar el diagrama en `MODELO_DE_DATOS.md`; la prueba de do
 | Datos en reposo | La base no está cifrada como archivo; la protege el aislamiento de Android |
 | Datos personales | Aviso de privacidad (versión 2), autorización con fecha y versión, y borrado a pedido. Salen del teléfono solo los avisos de WhatsApp, lo que la modista se manda a su Telegram, el recibo que comparte y la copia cifrada (D-08) |
 
-## 10. Copia de seguridad
+## 11. Copia de seguridad
 
 - **Formato 2:** la base completa (con la configuración) y las fotos en base64, mientras no pasen de 20 MB; si pasan, la copia sale sin fotos y la app lo dice. Las copias del formato 1, sin fotos, se siguen pudiendo restaurar.
 - **Destinos:** archivo por el menú Compartir (desde Ajustes, sin Telegram) o el bot de Telegram.
 - **Restauración:** primero las fotos, después una instantánea de la base, se cierra la conexión y se importa. Si la importación falla, se vuelve a la instantánea. Al final la app se recarga.
 
-## 11. Versión web con Docker
+## 12. Versión web con Docker
 
 ```bash
 docker compose up -d --build
@@ -164,7 +177,7 @@ docker compose up -d --build
 - Detrás de un proxy con dominio y HTTPS, se apunta al puerto 8080. El despliegue en el VPS está pendiente (P-07).
 - Para el botón de descarga del APK en el login, se define `VITE_APK_DOWNLOAD_URL` al construir.
 
-## 12. Calidad e integración continua
+## 13. Calidad e integración continua
 
 - **Pruebas unitarias:** Vitest y Vue Test Utils. Las de saldo, estados, pagos, prendas y migraciones corren contra **SQLite real** (sql.js), no contra simulaciones. Las 40 reglas de negocio están en `src/__tests__/reglasNegocio.spec.js`, y una prueba falla si alguna regla del SRS queda sin probar.
 - **Prueba de documentación:** `src/__tests__/documentacion.spec.js` falla si los documentos de diseño dejan de coincidir con el código (tablas, rutas, módulos y métodos del diagrama de clases), o si un enlace entre documentos está roto.
@@ -175,21 +188,21 @@ docker compose up -d --build
 
   | Medida | Cobertura |
   | --- | --- |
-  | Líneas | 65.3 % |
-  | Funciones | 64.2 % |
-  | Sentencias | 62.2 % |
-  | Ramas | 58.8 % |
+  | Líneas | 66.2 % |
+  | Funciones | 64.8 % |
+  | Sentencias | 62.9 % |
+  | Ramas | 60.0 % |
 
   Las vistas y componentes se prueban aparte, con Vue Test Utils y Playwright.
 - **Por qué SonarCloud no muestra la cobertura:** el proyecto usa el análisis automático de SonarCloud, que no lee informes de cobertura. Para verla allí habría que pasar al análisis desde GitHub Actions con un `SONAR_TOKEN`.
 
-## 13. Rendimiento
+## 14. Rendimiento
 
 Sin red en las operaciones del día a día, la velocidad la marca el teléfono. Hay ocho índices sobre claves foráneas y campos de búsqueda, y el detalle de una orden carga notas y fotos de todas sus prendas en dos consultas.
 
 **Pendiente:** medir en el teléfono de la dueña los tiempos de RNF-01 a RNF-03 con 500 órdenes.
 
-## 14. Problemas conocidos
+## 15. Problemas conocidos
 
 | Problema | Efecto | Estado |
 | --- | --- | --- |
