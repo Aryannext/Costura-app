@@ -160,6 +160,6 @@ El manual decía que no se podía; el requisito RN-30 decía que sí se podía s
 | P-02 | ~~Clave `admin123` sin cambio obligatorio~~ **Resuelto en la rama de septiembre:** cambio obligatorio en el primer ingreso | — |
 | P-03 | ~~Falta el texto de autorización de datos~~ **Resuelto (7 oct):** aviso, casilla obligatoria con fecha como prueba y borrado de datos personales (D-08) | — |
 | P-04 | ~~Verificar dónde se guarda el token de Telegram~~ **Resuelto (8 oct):** en la tabla `configuracion` (`useTelegramBot.js`), igual que dice el manual técnico | — |
-| P-05 | ~~Capgo sin cuenta~~ **Resuelto (7 oct):** hay cuenta de Capgo; se mantienen las actualizaciones OTA | Documentar en el manual técnico cómo se publica una actualización |
+| P-05 | ~~Capgo sin cuenta~~ **Resuelto (7 oct):** hay cuenta de Capgo; se mantienen las actualizaciones OTA. Cómo publicar: manual técnico, sección 6 (8 oct) | — |
 | P-06 | Probar en un teléfono Android real: cámara, alarma de las 8 a. m., huella, abrir WhatsApp | Las pruebas automáticas corren en navegador, no en el teléfono |
 | P-07 | Desplegar la imagen Docker en el VPS con dominio y HTTPS | Sin HTTPS el navegador puede bloquear funciones; para la demo se necesita un enlace estable |

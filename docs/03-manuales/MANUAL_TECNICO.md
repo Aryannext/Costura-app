@@ -4,7 +4,7 @@ Para quien tenga que instalar, compilar, probar o mantener la aplicación.
 
 | | |
 | --- | --- |
-| **Versión de la app** | 1.1.2 (`package.json`) |
+| **Versión de la app** | 1.2.0 (`package.json`) |
 | **Versión del esquema** | 8 |
 | **Identificador Android** | `com.costura.app` |
 | **Tipo** | Aplicación móvil híbrida: web empaquetada como APK con Capacitor |
@@ -92,7 +92,29 @@ El APK queda en `android/app/build/outputs/apk/debug/`. Para el de producción, 
 - **Permisos:** `INTERNET`, `USE_BIOMETRIC`, `POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`. El tráfico sin cifrar está desactivado (`usesCleartextTraffic="false"`).
 - **Dependencias bloqueadas:** las versiones exactas de las librerías de Android están en `android/gradle.lockfile`, `android/app/gradle.lockfile` y `android/buildscript-gradle.lockfile`. Si se actualiza Capacitor o un plugin, se regeneran desde `android/` con `./gradlew buildEnvironment dependencies :app:dependencies --write-locks`.
 
-## 6. Base de datos
+## 6. Publicar una actualización sin reinstalar (Capgo)
+
+La app trae `@capgo/capacitor-updater` con `autoUpdate`. Al abrirse, consulta si hay una versión nueva, la descarga y la deja lista; la campana avisa para instalarla.
+
+Una sola vez por computador, con la clave de API de la cuenta de Capgo (*Settings → API keys*):
+
+```bash
+npx @capgo/cli@latest login TU_CLAVE_DE_CAPGO
+```
+
+Cada vez que se publique:
+
+```bash
+npm version 1.2.1 --no-git-tag-version
+npm run build
+npx @capgo/cli@latest bundle upload --channel production
+```
+
+- **La versión tiene que ser mayor que la última publicada.** Capgo toma la de `package.json`; con la misma versión rechaza la subida.
+- **Capgo solo cambia la parte web:** pantallas, lógica y migraciones de la base. Un cambio nativo necesita un APK nuevo: un plugin nuevo, permisos de `AndroidManifest.xml` o `build.gradle`.
+- **Si algo sale mal**, desde el panel de Capgo se vuelve a la versión anterior. La app avisa a Capgo al arrancar bien (`notifyAppReady`); si no lo hace, Capgo regresa sola a la versión anterior.
+
+## 7. Base de datos
 
 - **Motor:** SQLite con `@capacitor-community/sqlite` en el teléfono, y `jeep-sqlite` sobre IndexedDB en el navegador. Base `costura_db`.
 - **Integridad:** `PRAGMA foreign_keys = ON`. Las escrituras de varias tablas van en una transacción.
@@ -111,7 +133,7 @@ El APK queda en `android/app/build/outputs/apk/debug/`. Para el de producción, 
 
 Después hay que actualizar el diagrama en `MODELO_DE_DATOS.md`; la prueba de documentación falla mientras no coincidan.
 
-## 7. Plugins nativos
+## 8. Plugins nativos
 
 | Plugin | Uso |
 | --- | --- |
@@ -127,7 +149,7 @@ Después hay que actualizar el diagrama en `MODELO_DE_DATOS.md`; la prueba de do
 | `@capacitor/status-bar`, `@capacitor/splash-screen` | Barra de estado y pantalla de inicio |
 | `@capgo/capacitor-updater` | Actualizaciones OTA |
 
-## 8. Integraciones externas
+## 9. Integraciones externas
 
 | Servicio | Cómo se usa | Configuración |
 | --- | --- | --- |
@@ -135,7 +157,7 @@ Después hay que actualizar el diagrama en `MODELO_DE_DATOS.md`; la prueba de do
 | Telegram (opcional) | `fetch` a `api.telegram.org` para enviarle a la modista recordatorios, recibos, el reporte diario y copias de seguridad | Token del bot y chat id en *Ajustes → Telegram*. Se guardan en la tabla `configuracion`, así entran en la copia de seguridad |
 | Capgo | Actualizaciones OTA con `autoUpdate` | Cuenta de Capgo del proyecto |
 
-## 9. Seguridad
+## 10. Seguridad
 
 | Aspecto | Implementación |
 | --- | --- |
@@ -147,13 +169,13 @@ Después hay que actualizar el diagrama en `MODELO_DE_DATOS.md`; la prueba de do
 | Datos en reposo | La base no está cifrada como archivo; la protege el aislamiento de Android |
 | Datos personales | Aviso de privacidad (versión 2), autorización con fecha y versión, y borrado a pedido. Salen del teléfono solo los avisos de WhatsApp, lo que la modista se manda a su Telegram, el recibo que comparte y la copia cifrada (D-08) |
 
-## 10. Copia de seguridad
+## 11. Copia de seguridad
 
 - **Formato 2:** la base completa (con la configuración) y las fotos en base64, mientras no pasen de 20 MB; si pasan, la copia sale sin fotos y la app lo dice. Las copias del formato 1, sin fotos, se siguen pudiendo restaurar.
 - **Destinos:** archivo por el menú Compartir (desde Ajustes, sin Telegram) o el bot de Telegram.
 - **Restauración:** primero las fotos, después una instantánea de la base, se cierra la conexión y se importa. Si la importación falla, se vuelve a la instantánea. Al final la app se recarga.
 
-## 11. Versión web con Docker
+## 12. Versión web con Docker
 
 ```bash
 docker compose up -d --build
@@ -164,7 +186,7 @@ docker compose up -d --build
 - Detrás de un proxy con dominio y HTTPS, se apunta al puerto 8080. El despliegue en el VPS está pendiente (P-07).
 - Para el botón de descarga del APK en el login, se define `VITE_APK_DOWNLOAD_URL` al construir.
 
-## 12. Calidad e integración continua
+## 13. Calidad e integración continua
 
 - **Pruebas unitarias:** Vitest y Vue Test Utils. Las de saldo, estados, pagos, prendas y migraciones corren contra **SQLite real** (sql.js), no contra simulaciones. Las 40 reglas de negocio están en `src/__tests__/reglasNegocio.spec.js`, y una prueba falla si alguna regla del SRS queda sin probar.
 - **Prueba de documentación:** `src/__tests__/documentacion.spec.js` falla si los documentos de diseño dejan de coincidir con el código (tablas, rutas, módulos y métodos del diagrama de clases), o si un enlace entre documentos está roto.
@@ -183,13 +205,13 @@ docker compose up -d --build
   Las vistas y componentes se prueban aparte, con Vue Test Utils y Playwright.
 - **Por qué SonarCloud no muestra la cobertura:** el proyecto usa el análisis automático de SonarCloud, que no lee informes de cobertura. Para verla allí habría que pasar al análisis desde GitHub Actions con un `SONAR_TOKEN`.
 
-## 13. Rendimiento
+## 14. Rendimiento
 
 Sin red en las operaciones del día a día, la velocidad la marca el teléfono. Hay ocho índices sobre claves foráneas y campos de búsqueda, y el detalle de una orden carga notas y fotos de todas sus prendas en dos consultas.
 
 **Pendiente:** medir en el teléfono de la dueña los tiempos de RNF-01 a RNF-03 con 500 órdenes.
 
-## 14. Problemas conocidos
+## 15. Problemas conocidos
 
 | Problema | Efecto | Estado |
 | --- | --- | --- |
