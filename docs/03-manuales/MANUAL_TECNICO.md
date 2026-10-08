@@ -174,7 +174,8 @@ docker compose up -d --build
 
 - Construcción en dos etapas: Node 24 compila y nginx sin privilegios (usuario 101, puerto 8080) sirve.
 - **No es un servidor de datos:** cada navegador guarda su propia base (D-13).
-- Detrás de un proxy con dominio y HTTPS, se apunta al puerto 8080. El despliegue en el VPS está pendiente (P-07).
+- Detrás de un proxy con dominio y HTTPS, se apunta al puerto 8080.
+- **En una subruta** (por ejemplo `proyectosena.online/costura-app/`) se construye con `--build-arg BASE_PATH=/costura-app/`, y el proxy reenvía `/costura-app/` a la raíz del contenedor. La app arma sus enlaces, sus rutas y la ubicación de `sql-wasm.wasm` con esa base, así que una recarga en una ruta interna sigue funcionando.
 - Para el botón de descarga del APK en el login, se define `VITE_APK_DOWNLOAD_URL` al construir.
 
 ## 13. Calidad e integración continua
