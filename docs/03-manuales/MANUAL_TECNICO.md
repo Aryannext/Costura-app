@@ -188,10 +188,10 @@ docker compose up -d --build
 
   | Medida | Cobertura |
   | --- | --- |
-  | Líneas | 65.3 % |
-  | Funciones | 64.2 % |
-  | Sentencias | 62.2 % |
-  | Ramas | 58.8 % |
+  | Líneas | 66.2 % |
+  | Funciones | 64.8 % |
+  | Sentencias | 62.9 % |
+  | Ramas | 60.0 % |
 
   Las vistas y componentes se prueban aparte, con Vue Test Utils y Playwright.
 - **Por qué SonarCloud no muestra la cobertura:** el proyecto usa el análisis automático de SonarCloud, que no lee informes de cobertura. Para verla allí habría que pasar al análisis desde GitHub Actions con un `SONAR_TOKEN`.
