@@ -9,38 +9,38 @@
     </div>
 
     <div class="misiones-list">
-      <div class="card mission-card" role="button" tabindex="0" @click="playDashboardTour" @keydown.enter="playDashboardTour">
+      <div class="card mission-card" role="button" tabindex="0" @click="playDashboardTour" @keydown.enter.self="playDashboardTour">
         <div class="mission-icon"><Icon name="home" className="mission-svg" /></div>
         <div class="mission-info">
           <h3 class="headline-sm">Tour Rápido</h3>
           <p class="body-sm">Conoce el panel principal y la barra de navegación.</p>
         </div>
         <div class="mission-action">
-          <button class="btn-primary btn-small">Jugar</button>
+          <button class="btn-primary btn-small" tabindex="-1">Jugar</button>
         </div>
       </div>
       
       <!-- Misión: Clientes -->
-      <div class="card mission-card" role="button" tabindex="0" @click="playClienteTour" @keydown.enter="playClienteTour">
+      <div class="card mission-card" role="button" tabindex="0" @click="playClienteTour" @keydown.enter.self="playClienteTour">
         <div class="mission-icon"><Icon name="users" className="mission-svg" /></div>
         <div class="mission-info">
           <h3 class="headline-sm">Crear un Cliente</h3>
           <p class="body-sm">Descubre cómo registrar a tus clientes en tu agenda.</p>
         </div>
         <div class="mission-action">
-          <button class="btn-primary btn-small">Jugar</button>
+          <button class="btn-primary btn-small" tabindex="-1">Jugar</button>
         </div>
       </div>
 
       <!-- Misión: Órdenes -->
-      <div class="card mission-card" role="button" tabindex="0" @click="playOrdenTour" @keydown.enter="playOrdenTour">
+      <div class="card mission-card" role="button" tabindex="0" @click="playOrdenTour" @keydown.enter.self="playOrdenTour">
         <div class="mission-icon"><Icon name="clipboard" className="mission-svg" /></div>
         <div class="mission-info">
           <h3 class="headline-sm">Tu Primera Orden</h3>
           <p class="body-sm">Aprende paso a paso cómo registrar un trabajo nuevo.</p>
         </div>
         <div class="mission-action">
-          <button class="btn-primary btn-small">Jugar</button>
+          <button class="btn-primary btn-small" tabindex="-1">Jugar</button>
         </div>
       </div>
     </div>
