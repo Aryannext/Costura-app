@@ -1,6 +1,6 @@
 // @vitest-environment node
 /**
- * Catálogo de reglas de negocio (docs/01-analisis/Costura.md, RN-01 a RN-40) como pruebas.
+ * Catálogo de reglas de negocio (docs/01-requisitos/SRS.md, sección 3.4, RN-01 a RN-40) como pruebas.
  *
  * Cada regla tiene su propio `describe` con el identificador del documento, y la
  * última prueba del archivo comprueba que no falte ninguna: si alguien añade una
@@ -852,9 +852,9 @@ describe('RN-40 · borrar una fotografía no borra la prenda', () => {
 // ── El catálogo está completo ─────────────────────────────────────────────
 
 describe('Catálogo de reglas', () => {
-    it('cada RN de docs/01-analisis/Costura.md tiene su bloque de pruebas en este archivo', () => {
-        const catalogo = readFileSync(new URL('../../docs/01-analisis/Costura.md', import.meta.url), 'utf8');
-        const reglas = [...new Set([...catalogo.matchAll(/^RN-(\d{2})\./gm)].map(m => `RN-${m[1]}`))];
+    it('cada RN del SRS vigente tiene su bloque de pruebas en este archivo', () => {
+        const catalogo = readFileSync(new URL('../../docs/01-requisitos/SRS.md', import.meta.url), 'utf8');
+        const reglas = [...new Set([...catalogo.matchAll(/^\| RN-(\d{2}) \|/gm)].map(m => `RN-${m[1]}`))];
 
         const esteArchivo = readFileSync(new URL(import.meta.url), 'utf8');
         const probadas = new Set([...esteArchivo.matchAll(/describe\('(RN-\d{2}) ·/g)].map(m => m[1]));

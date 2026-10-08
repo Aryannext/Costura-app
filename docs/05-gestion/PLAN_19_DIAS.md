@@ -6,10 +6,10 @@ Fuente: *Proyecto Formativo ADSO*, sección 2.5.4 "Productos o resultados del pr
 
 | # | Producto exigido | Dónde está | Estado (7 oct) |
 | --- | --- | --- | --- |
-| 1 | Informe de análisis de requisitos | `docs/01-analisis/Costura.md` y `.docx` | **Existe**; hay que actualizarlo: alcance offline, IDs repetidos, requisitos nuevos |
-| 2 | Diseño arquitectónico en UML | `docs/02-diseno/DIAGRAMAS.md` | **Avanzado**: 16 diagramas verificados contra el código, incluidos casos de uso por actor y despliegue. Faltan el diagrama de clases y una secuencia |
-| 3 | Base de datos e interfaz implementadas | `src/` | **Funciona**: 363 pruebas unitarias y 3 E2E (7 oct). Quedan P-04, P-06 y P-07 de `DECISIONES.md` y los hallazgos ANA-H03 y ANA-H04 |
-| 4 | Manual técnico y de usuario **en español e inglés** | `docs/03-manuales/` | Usuario ES listo; ficha técnica corregida. **Faltan**: manual técnico completo y las versiones en inglés |
+| 1 | Informe de análisis de requisitos | `docs/01-requisitos/SRS.md` | **Listo (7 oct):** SRS vigente con estructura IEEE 830 y el estado de cada requisito. El original queda en `historico/` |
+| 2 | Diseño arquitectónico en UML | `docs/02-diseno/` | **Listo (7 oct):** arquitectura, modelo de datos, casos de uso por actor con especificaciones, estados, cuatro secuencias y diagrama de clases. Una prueba automática los compara con el código |
+| 3 | Base de datos e interfaz implementadas | `src/` | **Funciona**: 371 pruebas unitarias y 3 E2E (8 oct). Quedan P-06 y P-07 de `DECISIONES.md` y el hallazgo ANA-H04 (medir tiempos) |
+| 4 | Manual técnico y de usuario **en español e inglés** | `docs/03-manuales/` | Usuario y técnico en español listos (7 oct). **Faltan** las versiones en inglés |
 | 5 | Artículo de revisión bibliográfica sobre gestión de calidad del software (ES/EN) | — | **No se exige** para graduarse (confirmado el 7 oct). Fuera del plan |
 
 ## 2. Scrum aplicado a un equipo de una persona
@@ -42,18 +42,19 @@ Objetivo: la app en un teléfono real con datos reales.
 
 ### Sprint 2 — "Análisis y diseño al día" (mar 13 – dom 18)
 Objetivo: que los documentos describan la app real.
-1. `docs/01-analisis/Costura.md` se conserva como **documento histórico** (decisión de la rama de septiembre) y `docs/04-calidad/TRAZABILIDAD.md` ya es la matriz de trazabilidad. Para el informe de requisitos que exige el SENA, crear `docs/01-analisis/SRS.md` a partir de esos dos con:
+1. ~~Crear el SRS~~ **Hecho el 7 oct:** `docs/01-requisitos/SRS.md`, a partir de `historico/Costura.md` y la matriz de trazabilidad, con:
    - estructura IEEE 830 (o su sucesora ISO/IEC/IEEE 29148:2018);
    - alcance offline (D-06);
    - IDs únicos;
    - historias de usuario nuevas: avisos por WhatsApp, órdenes con fecha anterior y pagos con Bre-B.
 2. Diagramas UML:
-   - ✅ (7 oct) diagramas revisados contra el código; casos de uso divididos por actor (3.1–3.6) con «include»/«extend»; flujo del negocio corregido; diagrama de despliegue con Docker. Los 16 diagramas se renderizan sin errores;
-   - falta: diagrama de clases y una secuencia de "cambiar estado de prenda → la orden cambia sola → avisar por WhatsApp". Ya existen las secuencias de sesión y de respaldo.
+   - ✅ (7 oct) documentación de diseño dividida en `ARQUITECTURA.md`, `MODELO_DE_DATOS.md`, `CASOS_DE_USO.md`, `COMPORTAMIENTO.md` y `CLASES.md`, revisada contra el código;
+   - ✅ diagrama de clases del dominio y secuencias de agregar prenda, registrar abono, sesión y copia de seguridad;
+   - ✅ `src/__tests__/documentacion.spec.js` falla si un diagrama deja de coincidir con el código.
 3. Tabla comparativa con apps existentes, que es la base del argumento de innovación (sección 4).
 
 ### Sprint 3 — "Manuales y sustentación" (lun 19 – jue 23)
-1. Manual técnico completo: instalación, arquitectura, base de datos, pruebas, despliegue del APK.
+1. ~~Manual técnico completo~~ **Hecho el 7 oct:** `docs/03-manuales/MANUAL_TECNICO.md`.
 2. Versiones en inglés del manual de usuario y del técnico.
 3. Evidencias de pruebas: salida de `npm run test:unit` y del E2E, y los casos de prueba CP-xx actualizados.
 4. Presentación: problema → solución → demostración en vivo → decisiones → trabajo futuro.
