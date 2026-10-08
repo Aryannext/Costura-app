@@ -59,6 +59,11 @@ export async function initDatabase() {
             jeepSqlite(window);
             if (!document.querySelector('jeep-sqlite')) {
                 const jeepEl = document.createElement('jeep-sqlite');
+                // jeep-sqlite busca /assets/sql-wasm.wasm en la raíz del dominio. Si la
+                // versión web vive en una subruta (proyectosena.online/costura-app/), el
+                // archivo está en esa subruta. BASE_URL es relativa ('./') en el APK.
+                const base = import.meta.env.BASE_URL;
+                jeepEl.setAttribute('wasmpath', base.startsWith('/') ? `${base}assets` : '/assets');
                 document.body.appendChild(jeepEl);
             }
             await customElements.whenDefined('jeep-sqlite');
