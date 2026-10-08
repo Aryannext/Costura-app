@@ -93,7 +93,7 @@ Se cerraron los 61 problemas que quedaban en `main` después del PR #5:
 | Errores en silencio (8) | Cada `catch` registra el error con `console.warn` o `console.error` |
 | Accesibilidad (15) | Las tarjetas que se tocan son `<button>` de verdad con la clase global `boton-tarjeta`; los estados de la prenda son un `<fieldset>`; el avance de la orden es una `<ol>`; la pantalla de bloqueo es un `<dialog>`; la miniatura de la foto va dentro de un botón; dos colores con más contraste |
 | Limpieza (20) | Cambios de una línea sin efecto en el comportamiento. `!(x > 0)` no se cambió por `x <= 0`, porque con un valor vacío no significan lo mismo |
-| `useUpdates.js` | Funciones pequeñas (`isNewer`, `marcarDisponible`, `avisar`). Antes se escribieron 7 pruebas del comportamiento existente, y siguen pasando |
+| `useUpdates.js` | Funciones pequeñas (`isNewer`, `marcarDisponible`, `avisar`). Antes se escribieron 7 pruebas del comportamiento existente, y siguen pasando. El módulo se eliminó después, al quitar las actualizaciones remotas de pago (D-14) |
 | Funciones dentro de composables (5) | Movidas a nivel de módulo; ninguna usaba estado interno |
 | `await` en bucles (8) | En paralelo donde las operaciones son independientes (tamaño de fotos, claves de Telegram). Uno tras otro, con `// NOSONAR` y la razón, en las migraciones, la lectura y escritura de fotos (memoria) y las escrituras sobre la misma conexión |
 | `await` de nivel superior (2) | En `main.js` y en el script de `index.html` |

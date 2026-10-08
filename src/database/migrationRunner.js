@@ -33,9 +33,9 @@ export async function runMigrations(db, migrations) {
     const versionQueEntiendeLaApp = ordenadas.at(-1)?.toVersion ?? 0;
     const versionEnLaBase = aplicadas.size ? Math.max(...aplicadas) : 0;
 
-    // Guardia contra reversiones OTA. Capgo tiene `autoUpdate` activado y puede
-    // devolver el teléfono a un bundle anterior; ese código no sabe leer un
-    // esquema más nuevo, y dejarle escribir encima corrompe los datos en
+    // Guardia contra versiones viejas: si se instala un APK anterior o se
+    // restaura una copia hecha con una versión más nueva, ese código no sabe
+    // leer el esquema, y dejarle escribir encima corrompe los datos en
     // silencio. Es preferible negarse a arrancar y pedir la actualización.
     if (versionEnLaBase > versionQueEntiendeLaApp) {
         throw new Error(

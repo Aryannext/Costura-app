@@ -3,10 +3,8 @@ import { mount, flushPromises } from '@vue/test-utils';
 
 const router = vi.hoisted(() => ({ push: vi.fn() }));
 vi.mock('vue-router', () => ({ useRouter: () => router }));
-vi.mock('@capgo/capacitor-updater', () => ({ CapacitorUpdater: { current: vi.fn() } }));
 vi.mock('@capacitor/core', () => ({ Capacitor: { isNativePlatform: () => false } }));
 vi.mock('../../services/auth.js', () => ({ logout: vi.fn() }));
-vi.mock('../../composables/useUpdates.js', () => ({ useUpdates: () => ({ manualCheck: vi.fn() }) }));
 
 const config = vi.hoisted(() => ({ guardar: null, telegram: { botToken: 'x', chatId: 'y' } }));
 vi.mock('../../composables/useConfiguracionNegocio.js', async () => {

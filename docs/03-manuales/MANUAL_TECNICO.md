@@ -92,28 +92,20 @@ El APK queda en `android/app/build/outputs/apk/debug/`. Para el de producción, 
 - **Permisos:** `INTERNET`, `USE_BIOMETRIC`, `POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`. El tráfico sin cifrar está desactivado (`usesCleartextTraffic="false"`).
 - **Dependencias bloqueadas:** las versiones exactas de las librerías de Android están en `android/gradle.lockfile`, `android/app/gradle.lockfile` y `android/buildscript-gradle.lockfile`. Si se actualiza Capacitor o un plugin, se regeneran desde `android/` con `./gradlew buildEnvironment dependencies :app:dependencies --write-locks`.
 
-## 6. Publicar una actualización sin reinstalar (Capgo)
+## 6. Actualizar la app en el teléfono (gratis)
 
-La app trae `@capgo/capacitor-updater` con `autoUpdate`. Al abrirse, consulta si hay una versión nueva, la descarga y la deja lista; la campana avisa para instalarla.
+Una versión nueva se instala con un **APK nuevo encima del anterior**. Android lo reemplaza y **conserva los datos**: la base, las fotos y la configuración. No se necesita ningún servicio de pago ni la Play Store.
 
-Una sola vez por computador, con la clave de API de la cuenta de Capgo (*Settings → API keys*):
+1. Subir la versión en `package.json`; tiene que ser mayor que la instalada: `npm version 1.2.1 --no-git-tag-version`.
+2. Compilar el APK (sección 5).
+3. Antes de instalar, en el teléfono: *Ajustes → Guardar copia de seguridad*.
+4. Pasar el APK al teléfono por WhatsApp, Drive o cable, abrirlo y tocar *Actualizar*.
 
-```bash
-npx @capgo/cli@latest login TU_CLAVE_DE_CAPGO
-```
+**Condiciones para que Android lo acepte encima del anterior:**
+- **La misma firma.** Los APK de prueba se firman con la clave de depuración de este computador (`~/.android/debug.keystore`). Un APK compilado en otro computador tiene otra firma: Android pide desinstalar primero, y eso **borra los datos** (por eso el paso 3). Para la versión final se usa la clave de release de la sección 5.
+- **Un `versionCode` mayor**, que se calcula solo desde `package.json`.
 
-Cada vez que se publique:
-
-```bash
-npm version 1.2.1 --no-git-tag-version
-npm run build
-npx @capgo/cli@latest bundle upload --channel production
-```
-
-- **La versión tiene que ser mayor que la última publicada.** Capgo toma la de `package.json`; con la misma versión rechaza la subida.
-- **Capgo solo cambia la parte web:** pantallas, lógica y migraciones de la base. Un cambio nativo necesita un APK nuevo: un plugin nuevo, permisos de `AndroidManifest.xml` o `build.gradle`.
-- **Si algo sale mal y la versión no cambió la base de datos**, desde el panel de Capgo se vuelve a la versión anterior. La app avisa a Capgo cuando arranca bien (`notifyAppReady`); si no lo hace, Capgo regresa sola a la versión anterior.
-- **Si la versión trae una migración** (la 1.2.0 trae la 8), **no se vuelve atrás: se publica una versión nueva corregida.** En cada teléfono que ya la abrió, la base quedó en el esquema nuevo. La versión anterior no lo entiende, `runMigrations` se niega a abrirla y la app queda en la pantalla de "Error Crítico". La vuelta automática de Capgo tampoco sirve, porque esa versión vieja nunca llega a llamar a `notifyAppReady`. Por eso, antes de publicar una versión con migración, hay que probarla en el emulador o en un teléfono de prueba.
+**Si la versión trae una migración de la base** (la 1.2.0 trae la 8), no se puede volver a un APK anterior: la versión vieja no entiende el esquema nuevo y se niega a abrir. Si algo sale mal, se corrige y se instala una versión más nueva. Por eso, antes de instalar en el teléfono de la dueña, se prueba en el emulador.
 
 ## 7. Base de datos
 
@@ -148,7 +140,6 @@ Después hay que actualizar el diagrama en `MODELO_DE_DATOS.md`; la prueba de do
 | `@capacitor/share` | Compartir recibos, el aviso de privacidad y la copia de seguridad |
 | `@capacitor/haptics` | Vibración al tocar |
 | `@capacitor/status-bar`, `@capacitor/splash-screen` | Barra de estado y pantalla de inicio |
-| `@capgo/capacitor-updater` | Actualizaciones OTA |
 
 ## 9. Integraciones externas
 
@@ -156,7 +147,6 @@ Después hay que actualizar el diagrama en `MODELO_DE_DATOS.md`; la prueba de do
 | --- | --- | --- |
 | WhatsApp | Enlaces `wa.me` con el número en +57 y el mensaje escrito. No hay API: enviar es una acción de la modista | Ninguna |
 | Telegram (opcional) | `fetch` a `api.telegram.org` para enviarle a la modista recordatorios, recibos, el reporte diario y copias de seguridad | Token del bot y chat id en *Ajustes → Telegram*. Se guardan en la tabla `configuracion`, así entran en la copia de seguridad |
-| Capgo | Actualizaciones OTA con `autoUpdate` | Cuenta de Capgo del proyecto |
 
 ## 10. Seguridad
 

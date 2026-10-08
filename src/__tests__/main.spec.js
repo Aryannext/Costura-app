@@ -11,9 +11,6 @@ vi.mock('../database/queries/auth.js', () => ({
 vi.mock('@capacitor/status-bar', () => ({ StatusBar: {}, Style: {} }));
 vi.mock('@capacitor/splash-screen', () => ({ SplashScreen: {} }));
 vi.mock('@capacitor/core', () => ({ Capacitor: { isNativePlatform: () => false } }));
-vi.mock('../composables/useUpdates.js', () => ({
-    useUpdates: () => ({ initUpdates: vi.fn() })
-}));
 vi.mock('../composables/useAppLock.js', () => ({
     initAppLock: vi.fn()
 }));

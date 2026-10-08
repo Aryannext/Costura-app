@@ -8,7 +8,7 @@
       <button class="btn-ghost icon-btn-header" aria-label="Notifications" @click="toggleNotifications">
         <div class="icon-wrapper">
           <Icon name="bell" className="bell-svg" />
-          <span v-if="totalNotifications > 0" class="badge-indicator" :class="{'update-badge': updateAvailable}">{{ totalNotifications }}</span>
+          <span v-if="totalNotifications > 0" class="badge-indicator">{{ totalNotifications }}</span>
         </div>
       </button>
     </div>
@@ -27,19 +27,6 @@
           </div>
           
           <div v-else class="notification-list">
-            <!-- OTA Update Notification -->
-            <button
-              v-if="updateAvailable"
-              type="button"
-              class="notification-item update-item boton-tarjeta"
-              @click="triggerUpdate"
-            >
-              <div class="notif-content">
-                <strong>✨ Nueva versión disponible (v{{ updateVersion }})</strong>
-                <p class="body-sm text-success">¡Toca aquí para actualizar la app!</p>
-              </div>
-            </button>
-
             <button
               v-for="orden in urgentOrders"
               :key="orden.id_orden"
@@ -58,32 +45,21 @@
       </div>
     </div>
     
-    <UpdateModal
-      :show="showUpdatePrompt"
-      :version="updateVersion"
-      changelog="• Mejoras visuales.&#10;• Corrección de errores menores.&#10;• Nuevas funciones disponibles."
-      @cancel="showUpdatePrompt = false"
-      @confirm="handleConfirmUpdate"
-    />
   </header>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, inject } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '../common/Icon.vue';
-import UpdateModal from '../updates/UpdateModal.vue';
 import { useOrdenes } from '../../composables/useOrdenes.js';
-import { useUpdates } from '../../composables/useUpdates.js';
 import { aFechaLocal } from '../../services/fechas.js';
 import { esOrdenActiva } from '../../services/estadoOrden.js';
 import { clasificarVencimiento, VENCIMIENTO } from '../../services/vencimientos.js';
 import { useConfiguracionNegocio } from '../../composables/useConfiguracionNegocio.js';
 
 const router = useRouter();
-const toast = inject('toast');
 const { ordenes, fetchOrdenes } = useOrdenes();
-const { updateAvailable, updateVersion, promptUpdate, applyUpdate, showUpdatePrompt } = useUpdates();
 const showNotifications = ref(false);
 const { diasAnticipacion, cargarDiasAnticipacion } = useConfiguracionNegocio();
 
@@ -101,7 +77,7 @@ const urgentOrders = computed(() => {
 });
 
 const totalNotifications = computed(() => {
-  return urgentOrders.value.length + (updateAvailable.value ? 1 : 0);
+  return urgentOrders.value.length;
 });
 
 function isAtrasada(orden) {
@@ -124,16 +100,6 @@ function toggleNotifications() {
 function goToOrder(id) {
   showNotifications.value = false;
   router.push(`/ordenes/${id}`);
-}
-
-function triggerUpdate() {
-  showNotifications.value = false;
-  promptUpdate();
-}
-
-async function handleConfirmUpdate() {
-  if (toast) toast("Aplicando actualización... La app se reiniciará en un instante.");
-  await applyUpdate();
 }
 </script>
 
@@ -280,22 +246,8 @@ h1 {
   transition: background-color 0.2s ease;
 }
 
-.update-item {
-  background-color: var(--success-bg); /* Light green */
-  border-color: var(--success-color);
-}
-
-.update-badge {
-  background-color: var(--success-color) !important;
-}
-
 .notification-item:hover {
   background-color: var(--surface-container);
-}
-
-.update-item:hover {
-  background-color: var(--success-bg);
-  filter: brightness(0.95);
 }
 
 .notif-content strong {

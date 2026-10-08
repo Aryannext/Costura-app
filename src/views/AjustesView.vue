@@ -149,14 +149,8 @@
           <span class="fila-t"><b>Instrucciones y tutorial</b><small>Guía paso a paso por la app</small></span>
           <svg class="ic chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg>
         </button>
-        <button class="fila" @click="triggerManualUpdate">
-          <span class="fila-t">
-            <b>Buscar actualización</b>
-            <small>Tienes la versión {{ currentVersion }}<template v-if="currentBundleId"> · {{ currentBundleId }}</template></small>
-          </span>
-          <svg class="ic chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg>
-        </button>
       </div>
+      <p class="version-app">Versión {{ versionApp }}</p>
     </section>
 
     <div class="card bloque">
@@ -172,9 +166,7 @@
 import { ref, computed, onMounted, inject } from 'vue';
 import { useRouter } from 'vue-router';
 import { logout } from '../services/auth.js';
-import { CapacitorUpdater } from '@capgo/capacitor-updater';
-import { Capacitor } from '@capacitor/core';
-import { useUpdates } from '../composables/useUpdates.js';
+import paquete from '../../package.json';
 import { useConfiguracionNegocio } from '../composables/useConfiguracionNegocio.js';
 import { leerConfigTelegram } from '../composables/useTelegramBot.js';
 import { DIAS_ANTICIPACION_MAXIMO } from '../services/vencimientos.js';
@@ -187,9 +179,8 @@ import { Share } from '@capacitor/share';
 
 const router = useRouter();
 const toast = inject('toast');
-const currentVersion = ref('de desarrollo');
-const currentBundleId = ref('');
-const { manualCheck } = useUpdates();
+// La versión se actualiza instalando un APK nuevo: se muestra para saber cuál tiene el teléfono
+const versionApp = paquete.version;
 
 // RN-38: el período de anticipación de "próximas a vencer" lo decide el negocio.
 const { diasAnticipacion, cargarDiasAnticipacion, guardarDiasAnticipacion } = useConfiguracionNegocio();
@@ -272,10 +263,6 @@ async function guardarCondicionesRecibo() {
   }
 }
 
-function triggerManualUpdate() {
-  manualCheck(toast);
-}
-
 onMounted(async () => {
   await cargarDiasAnticipacion();
   estadoAvisoDiario.value = await estadoAviso();
@@ -294,18 +281,6 @@ onMounted(async () => {
   } catch (e) {
     console.warn('No se pudo leer la configuración de Telegram', e);
     telegramConectado.value = false;
-  }
-
-  if (Capacitor.isNativePlatform()) {
-    try {
-      const { bundle } = await CapacitorUpdater.current();
-      if (bundle) {
-        currentVersion.value = bundle.version;
-        currentBundleId.value = bundle.id === 'builtin' ? '' : bundle.id;
-      }
-    } catch (e) {
-      console.warn("No se pudo obtener la versión de Capgo", e);
-    }
   }
 });
 
@@ -374,4 +349,5 @@ function handleLogout() {
 .aviso-texto { white-space: pre-wrap; font-family: inherit; font-size: 0.85rem; background: var(--surface-container-low); border-radius: var(--radius-md); padding: 10px; margin: 0; }
 .btn-guardar-taller { flex-shrink: 0; }
 .guardado { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--success-text); }
+.version-app { margin: 8px 4px 0; font-size: 12px; color: var(--on-surface-variant); }
 </style>

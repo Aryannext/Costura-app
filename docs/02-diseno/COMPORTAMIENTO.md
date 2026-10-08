@@ -44,7 +44,6 @@ flowchart TB
     Aju --> Tele["/telegram · bot, copia y reporte diario"]
     Aju --> Clave
     Aju --> Ayuda["/ayuda · tutorial guiado"]
-    Aju --> Actualiza[Buscar actualización OTA]
 ```
 
 - **Guardia de sesión:** sin sesión, cualquier ruta lleva a `/login`. Con la clave de fábrica, cualquier ruta lleva a `/cambiar-clave`.

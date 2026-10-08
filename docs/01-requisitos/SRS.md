@@ -50,7 +50,6 @@ Que una función esté fuera del alcance **no es un pendiente**: es una decisió
 | Aviso preparado | Mensaje de WhatsApp que la app arma y abre; enviarlo lo decide la modista |
 | Sin reclamar | Orden lista que nadie ha recogido en N días. Es una alerta, no un abandono legal |
 | Offline-first | La app trabaja con datos del teléfono y no necesita internet |
-| OTA | Actualización de la app sin reinstalar el APK |
 
 ### 1.4 Referencias
 
@@ -119,8 +118,8 @@ Una sola usuaria: la modista. Usa WhatsApp todos los días, pero no tiene formac
 | --- | --- |
 | Usuario | Pantallas móviles desde 360 px de ancho, barra de navegación inferior con cinco secciones, formularios en máximo tres pasos |
 | Hardware | Cámara (fotos de prendas), lector de huella (desbloqueo), almacenamiento interno (base y fotos), notificaciones locales |
-| Software | WhatsApp (enlaces `wa.me` con +57), menú Compartir de Android, API de bots de Telegram (opcional), Capgo para actualizaciones |
-| Comunicaciones | HTTPS hacia Telegram y Capgo. Todo lo demás funciona sin red |
+| Software | WhatsApp (enlaces `wa.me` con +57), menú Compartir de Android, API de bots de Telegram (opcional) |
+| Comunicaciones | HTTPS hacia Telegram. Todo lo demás funciona sin red |
 
 ### 3.2 Requisitos funcionales
 
