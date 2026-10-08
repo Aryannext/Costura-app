@@ -16,6 +16,91 @@ import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
 
+/**
+ * Lee del disco todas las fotografías referenciadas por la base de datos.
+ * Si en conjunto pesan más de lo que admite un documento de Telegram, se
+ * devuelven vacías: es preferible un respaldo sin fotos que ningún respaldo,
+ * porque los datos del taller pesan mucho más que las imágenes.
+ */
+async function recolectarFotografias() {
+    const filas = await getTodasLasFotografias();
+    const rutas = [...new Set(filas.map(f => f.ruta_archivo).filter(Boolean))];
+
+    if (rutas.length === 0) {
+        return { fotografias: {}, incluidas: 0, total: 0, excedeLimite: false, bytes: 0 };
+    }
+
+    // Medir es barato y cada foto es independiente: se hace en paralelo
+    const tamanos = await Promise.all(rutas.map(ruta => photoSizeInBytes(ruta)));
+    const bytes = tamanos.reduce((suma, t) => suma + t, 0);
+
+    if (bytes > PHOTO_BACKUP_LIMIT_BYTES) {
+        return { fotografias: {}, incluidas: 0, total: rutas.length, excedeLimite: true, bytes };
+    }
+
+    const fotografias = {};
+    let incluidas = 0;
+    for (const ruta of rutas) {
+        try {
+            // Una a la vez a propósito: en paralelo se cargarían hasta 20 MB juntos en memoria
+            const base64 = await readPhotoAsBase64(ruta); // NOSONAR
+            if (base64) {
+                fotografias[nombreDeArchivo(ruta)] = base64;
+                incluidas++;
+            }
+        } catch (e) {
+            console.warn(`No se pudo leer la fotografía ${ruta}`, e);
+        }
+    }
+
+    return { fotografias, incluidas, total: rutas.length, excedeLimite: false, bytes };
+}
+
+/**
+ * Respaldo sin Telegram: guarda el archivo cifrado en la caché del teléfono y
+ * abre el menú Compartir de Android para que la modista lo envíe o lo guarde.
+ * En el navegador lo descarga. El archivo sigue cifrado: sin la contraseña
+ * maestra no sirve a quien lo encuentre.
+ */
+async function compartirArchivo(contenido, nombreArchivo) {
+    if (!Capacitor.isNativePlatform()) {
+        const url = URL.createObjectURL(new Blob([contenido], { type: 'application/json' }));
+        const enlace = document.createElement('a');
+        enlace.href = url;
+        enlace.download = nombreArchivo;
+        enlace.click();
+        URL.revokeObjectURL(url);
+        return;
+    }
+
+    const { uri } = await Filesystem.writeFile({
+        path: nombreArchivo,
+        data: contenido,
+        directory: Directory.Cache,
+        encoding: Encoding.UTF8
+    });
+    try {
+        await Share.share({
+            title: 'Copia de seguridad del taller',
+            text: 'Copia de seguridad cifrada de Atelier Manager. Para abrirla se necesita la contraseña maestra.',
+            files: [uri],
+            dialogTitle: 'Guardar o enviar la copia de seguridad'
+        });
+    } catch (e) {
+        if (!/cancel/i.test(e?.message || '')) throw e;
+        throw new Error('No se guardó la copia: cerraste el menú sin elegir dónde guardarla.');
+    }
+}
+
+// Lee el archivo de respaldo elegido por la modista
+async function leerArchivoComoTexto(file) {
+    try {
+        return await file.text();
+    } catch (error_) {
+        throw new Error('Error al leer el archivo.', { cause: error_ });
+    }
+}
+
 export function useBackupRestore(toast, callbacks = {}) {
     const { sendTelegramDocument } = useTelegramBot();
 
@@ -85,46 +170,6 @@ export function useBackupRestore(toast, callbacks = {}) {
         }
     }
 
-    /**
-     * Lee del disco todas las fotografías referenciadas por la base de datos.
-     * Si en conjunto pesan más de lo que admite un documento de Telegram, se
-     * devuelven vacías: es preferible un respaldo sin fotos que ningún respaldo,
-     * porque los datos del taller pesan mucho más que las imágenes.
-     */
-    async function recolectarFotografias() {
-        const filas = await getTodasLasFotografias();
-        const rutas = [...new Set(filas.map(f => f.ruta_archivo).filter(Boolean))];
-
-        if (rutas.length === 0) {
-            return { fotografias: {}, incluidas: 0, total: 0, excedeLimite: false, bytes: 0 };
-        }
-
-        let bytes = 0;
-        for (const ruta of rutas) {
-            bytes += await photoSizeInBytes(ruta);
-        }
-
-        if (bytes > PHOTO_BACKUP_LIMIT_BYTES) {
-            return { fotografias: {}, incluidas: 0, total: rutas.length, excedeLimite: true, bytes };
-        }
-
-        const fotografias = {};
-        let incluidas = 0;
-        for (const ruta of rutas) {
-            try {
-                const base64 = await readPhotoAsBase64(ruta);
-                if (base64) {
-                    fotografias[nombreDeArchivo(ruta)] = base64;
-                    incluidas++;
-                }
-            } catch (e) {
-                console.warn(`No se pudo leer la fotografía ${ruta}`, e);
-            }
-        }
-
-        return { fotografias, incluidas, total: rutas.length, excedeLimite: false, bytes };
-    }
-
     async function respaldarBaseDatos(password) {
         toast('Preparando respaldo...', 'info');
 
@@ -172,56 +217,6 @@ export function useBackupRestore(toast, callbacks = {}) {
         );
     }
 
-    /**
-     * Respaldo sin Telegram: guarda el archivo cifrado en la caché del teléfono y
-     * abre el menú Compartir de Android para que la modista lo envíe o lo guarde.
-     * En el navegador lo descarga. El archivo sigue cifrado: sin la contraseña
-     * maestra no sirve a quien lo encuentre.
-     */
-    async function compartirArchivo(contenido, nombreArchivo) {
-        if (!Capacitor.isNativePlatform()) {
-            const url = URL.createObjectURL(new Blob([contenido], { type: 'application/json' }));
-            const enlace = document.createElement('a');
-            enlace.href = url;
-            enlace.download = nombreArchivo;
-            enlace.click();
-            URL.revokeObjectURL(url);
-            return;
-        }
-
-        const { uri } = await Filesystem.writeFile({
-            path: nombreArchivo,
-            data: contenido,
-            directory: Directory.Cache,
-            encoding: Encoding.UTF8
-        });
-        try {
-            await Share.share({
-                title: 'Copia de seguridad del taller',
-                text: 'Copia de seguridad cifrada de Atelier Manager. Para abrirla se necesita la contraseña maestra.',
-                files: [uri],
-                dialogTitle: 'Guardar o enviar la copia de seguridad'
-            });
-        } catch (e) {
-            if (!/cancel/i.test(e?.message || '')) throw e;
-            throw new Error('No se guardó la copia: cerraste el menú sin elegir dónde guardarla.');
-        }
-    }
-
-    function leerArchivoComoTexto(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target.result);
-            reader.onerror = () => reject(new Error('Error al leer el archivo.'));
-            reader.onabort = () => reject(new Error('Lectura de archivo cancelada.'));
-            try {
-                reader.readAsText(file);
-            } catch (err) {
-                reject(new Error('Error al iniciar lectura del archivo.'));
-            }
-        });
-    }
-
     async function restaurarFotografias(fotografias) {
         const nombres = Object.keys(fotografias);
         if (nombres.length === 0) return 0;
@@ -231,7 +226,8 @@ export function useBackupRestore(toast, callbacks = {}) {
         let restauradas = 0;
         for (const nombre of nombres) {
             try {
-                await savePhotoFromBase64(fotografias[nombre], nombre);
+                // Una a la vez, por la misma razón de memoria que al respaldar
+                await savePhotoFromBase64(fotografias[nombre], nombre); // NOSONAR
                 restauradas++;
             } catch (e) {
                 console.warn(`No se pudo restaurar la fotografía ${nombre}`, e);

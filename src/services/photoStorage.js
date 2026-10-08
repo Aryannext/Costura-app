@@ -95,6 +95,8 @@ export async function photoSizeInBytes(ruta) {
         const { size } = await Filesystem.stat(opcionesDeLectura(ruta));
         return typeof size === 'number' ? size : 0;
     } catch (e) {
+        // Una foto que ya no existe pesa 0: no debe frenar el respaldo
+        console.warn('No se pudo medir la foto', ruta, e);
         return 0;
     }
 }

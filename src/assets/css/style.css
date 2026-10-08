@@ -246,7 +246,9 @@ button {
   min-height: 44px; /* Hit target */
 }
 
-button:hover:not(:disabled) {
+/* :where() deja la especificidad igual que antes: las tarjetas que son botones
+   (.boton-tarjeta) no se pintan del color de los botones al pasar el mouse. */
+button:not(:where(.boton-tarjeta)):hover:not(:disabled) {
   background-color: var(--primary-container);
   transform: translateY(-1px);
   box-shadow: var(--shadow-level-2);
@@ -261,6 +263,19 @@ button:disabled {
   cursor: not-allowed;
   background-color: var(--outline-variant);
   color: var(--on-surface-variant);
+}
+
+/* Tarjetas y filas que se tocan. Son <button> de verdad (no <div role="button">)
+   para que funcionen con el teclado y los lectores de pantalla, pero se ven como
+   la tarjeta: cada componente pone su fondo, borde y relleno. */
+button.boton-tarjeta {
+  display: block;
+  width: 100%;
+  min-height: 0;
+  text-align: left;
+  font: inherit;
+  font-weight: inherit;
+  color: inherit;
 }
 
 .btn-secondary {

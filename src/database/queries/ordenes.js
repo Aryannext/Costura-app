@@ -77,15 +77,17 @@ export async function changeEstado(id_orden, id_estado_orden, nombre_estado, cur
     // 1. Update the order status
     if (id_estado_orden === 4) {
         // Entregada
-        set.push({
-            statement: "UPDATE orden_trabajo SET id_estado_orden = ?, fecha_entrega_real = datetime('now','localtime') WHERE id_orden = ?",
-            values: [id_estado_orden, id_orden]
-        });
-        // ALSO update all items (prendas) to 'Entregada' (id_estado_prenda = 4)
-        set.push({
-            statement: "UPDATE prenda SET id_estado_prenda = 4 WHERE id_orden = ?",
-            values: [id_orden]
-        });
+        // Entregar la orden también entrega todas sus prendas (id_estado_prenda = 4)
+        set.push(
+            {
+                statement: "UPDATE orden_trabajo SET id_estado_orden = ?, fecha_entrega_real = datetime('now','localtime') WHERE id_orden = ?",
+                values: [id_estado_orden, id_orden]
+            },
+            {
+                statement: "UPDATE prenda SET id_estado_prenda = 4 WHERE id_orden = ?",
+                values: [id_orden]
+            }
+        );
     } else {
         set.push({
             // Cancelar o reabrir: la orden deja de estar Lista para Entregar (RN-37).

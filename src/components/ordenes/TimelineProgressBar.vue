@@ -2,19 +2,18 @@
   <!-- Franja compacta dentro de la cabecera de la orden. Antes era una tarjeta
        propia de más de 100 px que repetía el estado y empujaba las acciones
        fuera de la pantalla. -->
-  <div class="timeline-progress" v-if="estadoOrden !== 5" role="list" aria-label="Avance de la orden">
-    <div
+  <ol class="timeline-progress" v-if="estadoOrden !== 5" aria-label="Avance de la orden">
+    <li
       v-for="paso in PASOS"
       :key="paso.estado"
       class="step"
       :class="{ completed: estadoOrden >= paso.estado, active: estadoOrden === paso.estado }"
-      role="listitem"
       :aria-current="estadoOrden === paso.estado ? 'step' : undefined"
     >
       <div class="step-bar"></div>
       <span class="step-label">{{ paso.nombre }}</span>
-    </div>
-  </div>
+    </li>
+  </ol>
 </template>
 
 <script setup>
@@ -35,6 +34,9 @@ const PASOS = [
 
 <style scoped>
 .timeline-progress {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 4px;

@@ -30,52 +30,54 @@ export async function guardarConfigTelegram(botToken, chatId) {
  */
 export async function migrarConfigTelegramDesdeLocalStorage() {
     try {
-        for (const clave of [CLAVE_BOT_TOKEN, CLAVE_CHAT_ID]) {
+        // Las dos claves son independientes: se trasladan en paralelo
+        await Promise.all([CLAVE_BOT_TOKEN, CLAVE_CHAT_ID].map(async (clave) => {
             const heredado = localStorage.getItem(clave);
-            if (!heredado) continue;
+            if (!heredado) return;
 
             const actual = await getConfig(clave);
             if (!actual) {
                 await updateConfig(clave, heredado);
             }
             localStorage.removeItem(clave);
-        }
+        }));
     } catch (e) {
         console.error("No se pudo migrar la configuración de Telegram", e);
     }
 }
 
+// Sin parseMode se envía texto plano (útil si el texto trae enlaces)
+async function sendTelegramMessage(text, parseMode = 'Markdown', configOverride = null) {
+    const { botToken, chatId } = configOverride || await leerConfigTelegram();
+    if (!botToken || !chatId) {
+        console.warn("Telegram no configurado. Ignorando mensaje.");
+        return false;
+    }
+
+    try {
+        const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            // Sin parseMode se envía texto plano (útil si el texto trae enlaces)
+            body: JSON.stringify(parseMode
+                ? { chat_id: chatId, text: text, parse_mode: parseMode }
+                : { chat_id: chatId, text: text })
+        });
+
+        if (!response.ok) {
+            console.error("Error Telegram API:", await response.json());
+            return false;
+        }
+        return true;
+    } catch (error) {
+        console.error("Network Error Telegram:", error);
+        return false;
+    }
+}
+
 export function useTelegramBot() {
     const toast = inject('toast', null);
-
-    async function sendTelegramMessage(text, parseMode = 'Markdown', configOverride = null) {
-        const { botToken, chatId } = configOverride || await leerConfigTelegram();
-        if (!botToken || !chatId) {
-            console.warn("Telegram no configurado. Ignorando mensaje.");
-            return false;
-        }
-
-        try {
-            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                // Sin parseMode se envía texto plano (útil si el texto trae enlaces)
-                body: JSON.stringify(parseMode
-                    ? { chat_id: chatId, text: text, parse_mode: parseMode }
-                    : { chat_id: chatId, text: text })
-            });
-
-            if (!response.ok) {
-                console.error("Error Telegram API:", await response.json());
-                return false;
-            }
-            return true;
-        } catch (error) {
-            console.error("Network Error Telegram:", error);
-            return false;
-        }
-    }
 
     async function sendTelegramDocument(fileContent, filename, caption = '') {
         const { botToken, chatId } = await leerConfigTelegram();

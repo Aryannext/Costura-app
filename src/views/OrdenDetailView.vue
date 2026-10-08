@@ -130,9 +130,7 @@ import { usePrendas } from '../composables/usePrendas.js';
 import { usePagos } from '../composables/usePagos.js';
 import { useNotificaciones } from '../composables/useNotificaciones.js';
 import StatusBadge from '../components/common/StatusBadge.vue';
-import PrendaCard from '../components/prendas/PrendaCard.vue';
 import SkeletonLoader from '../components/common/SkeletonLoader.vue';
-import SwipeItem from '../components/common/SwipeItem.vue';
 import TabDetalle from '../components/ordenes/TabDetalle.vue';
 import TabPrendas from '../components/ordenes/TabPrendas.vue';
 import TabPagos from '../components/ordenes/TabPagos.vue';
@@ -352,6 +350,7 @@ async function openObsPrompt(id_prenda) {
         toast('Observación añadida', 'success');
         refrescarTarjeta(id_prenda);
       } catch (err) {
+        console.error('Error al añadir observación', err);
         toast('Error al añadir observación', 'error');
       }
     }

@@ -74,7 +74,8 @@ export const ESTADO_PAGO = Object.freeze({ PENDIENTE: 'Pendiente', PAGADA: 'Paga
  * @returns {'Pagada'|'Pendiente'|null} null si la orden aún no tiene nada que cobrar
  */
 export function estadoDePago(orden) {
-    if (!orden || !(orden.valor_total > 0)) return null;
+    const tieneValor = orden?.valor_total > 0;
+    if (!tieneValor) return null;
     // <= 0 y no === 0: un saldo negativo heredado de la v1 también está saldado.
     return orden.saldo_pendiente <= 0 ? ESTADO_PAGO.PAGADA : ESTADO_PAGO.PENDIENTE;
 }

@@ -31,7 +31,7 @@ export function leerPayload(textoDescifrado) {
         throw new Error('El respaldo no tiene un formato válido.');
     }
 
-    if (datos && datos.formato === FORMATO_RESPALDO && datos.baseDatos) {
+    if (datos?.formato === FORMATO_RESPALDO && datos.baseDatos) {
         return {
             formato: FORMATO_RESPALDO,
             baseDatosJson: JSON.stringify(datos.baseDatos),

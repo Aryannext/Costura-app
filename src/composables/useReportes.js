@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { getDashboardData, getReporteFinanciero } from '../database/queries/reportes.js';
+import { getDashboardData } from '../database/queries/reportes.js';
 import { useAsyncAction } from './useAsyncAction.js';
 
 export function useReportes() {

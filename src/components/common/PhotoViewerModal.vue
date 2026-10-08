@@ -58,7 +58,8 @@ function close() {
 }
 
 .close-btn {
-  background: rgba(255, 255, 255, 0.2);
+  /* Fondo oscuro: la X blanca sobre blanco translúcido no tenía contraste */
+  background: rgba(0, 0, 0, 0.55);
   border: none;
   border-radius: 50%;
   width: 36px;

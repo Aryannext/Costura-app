@@ -1,5 +1,5 @@
 <template>
-  <div class="card cliente-card" role="button" tabindex="0" @click="$emit('click')" @keydown.enter="$emit('click')">
+  <button type="button" class="card cliente-card boton-tarjeta" @click="$emit('click')">
     <div class="cliente-info">
       <h3>{{ cliente.nombre }}</h3>
       <p class="telefono">
@@ -14,7 +14,7 @@
     <div class="cliente-action">
       <span>›</span>
     </div>
-  </div>
+  </button>
 </template>
 
 <script setup>

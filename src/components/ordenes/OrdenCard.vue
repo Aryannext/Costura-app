@@ -1,5 +1,5 @@
 <template>
-  <div class="card orden-card" role="button" tabindex="0" @click="$emit('click')" @keydown.enter="$emit('click')">
+  <button type="button" class="card orden-card boton-tarjeta" @click="$emit('click')">
     <div class="orden-header">
       <span class="orden-id">#{{ orden.id_orden }}</span>
       <StatusBadge :estado="orden.estado_nombre" />
@@ -14,7 +14,7 @@
       <!-- RN-04: se lista para poder completarla, pero aún no cuenta como activa -->
       <p v-if="orden.id_estado_orden === ESTADO_ORDEN.PENDIENTE" class="sin-prendas">Sin prendas: añade al menos una para empezar</p>
     </div>
-  </div>
+  </button>
 </template>
 
 <script setup>

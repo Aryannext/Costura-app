@@ -1,5 +1,5 @@
 <template>
-  <div class="lock-overlay" role="dialog" aria-modal="true" aria-label="Aplicación bloqueada">
+  <dialog open class="lock-overlay" aria-modal="true" aria-label="Aplicación bloqueada">
     <div class="lock-content">
       <svg class="lock-glyph" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -45,7 +45,7 @@
         </button>
       </form>
     </div>
-  </div>
+  </dialog>
 </template>
 
 <script setup>
@@ -94,6 +94,7 @@ async function handleBiometric({ silencioso = false } = {}) {
     unlockAfterBiometrics();
   } catch (err) {
     // Cancelar el lector no es un fallo: queda la contraseña como alternativa.
+    console.warn('Huella no verificada', err);
     if (!silencioso) {
       error.value = 'No se pudo verificar la huella. Usa tu contraseña.';
     }
@@ -123,8 +124,16 @@ async function handleLogout() {
 
 <style scoped>
 .lock-overlay {
+  /* Es un <dialog>: se anulan el tamaño, el borde y el color que trae el navegador */
   position: fixed;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  color: inherit;
   /* Opaco a propósito: detrás sigue montada la vista con datos de clientes. */
   background-color: var(--background);
   z-index: 9999;

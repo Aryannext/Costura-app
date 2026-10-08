@@ -39,22 +39,15 @@ export function useClientes() {
         return execute(async () => {
             validators.validateCliente(clienteData);
             let id;
-            let successMessage = 'Cliente registrado exitosamente';
-
             if (clienteData.id_cliente) {
                 await updateCliente(clienteData.id_cliente, clienteData);
                 id = clienteData.id_cliente;
-                successMessage = 'Cliente actualizado exitosamente';
             } else {
                 id = await createCliente(clienteData);
             }
-            // Passing options dynamically requires us to just return the result and configure execute options. Wait!
-            // I can't easily configure dynamic successMessage here because execute takes static options unless I pass it conditionally.
             return { id, isUpdate: !!clienteData.id_cliente };
         }, {
-            // We'll let the view handle the success message depending on insert/update or we can just say "Cliente guardado".
-            // Since we must remove manual toasts from view, we will just use a generic success message or we can dynamically throw the success message.
-            // Let's use a generic success message:
+            // Un solo mensaje para registrar y para editar
             successMessage: 'Datos del cliente guardados exitosamente',
             toastError: true
         }).then((res) => res?.id);

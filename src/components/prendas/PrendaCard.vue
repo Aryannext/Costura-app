@@ -25,7 +25,8 @@
 
     <!-- Los cuatro estados a la vista: se ve dónde va la prenda y se cambia de un toque.
          El valor viene siempre de la prenda, no de un estado propio (P1-14). -->
-    <div class="estados" role="group" aria-label="Estado de la prenda">
+    <fieldset class="estados">
+      <legend class="sr-only">Estado de la prenda</legend>
       <button
         v-for="e in ESTADOS"
         :key="e.id"
@@ -37,7 +38,7 @@
         :title="bloqueado(e.id) ? 'Primero márcala como Terminada' : undefined"
         @click="cambiarEstado(e.id)"
       >{{ e.nombre }}</button>
-    </div>
+    </fieldset>
 
     <div class="acciones">
       <button type="button" class="accion" :class="{ 'is-abierta': showFotos }" :aria-expanded="showFotos" @click="showFotos = !showFotos">
@@ -56,7 +57,9 @@
 
     <div v-if="showFotos" class="panel fotos-grid">
       <div v-for="f in fotos" :key="f.id_fotografia" class="foto-container">
-        <img :src="resolvePhotoSrc(f.ruta_archivo)" class="foto-thumb" alt="Fotografía de la prenda" role="button" tabindex="0" @click="openPhotoViewer(f)" @keydown.enter="openPhotoViewer(f)" />
+        <button type="button" class="foto-boton" aria-label="Ver la foto en grande" @click="openPhotoViewer(f)">
+          <img :src="resolvePhotoSrc(f.ruta_archivo)" class="foto-thumb" alt="Fotografía de la prenda" />
+        </button>
         <button v-if="!readonly" class="delete-foto-btn" @click.stop="onDeleteFoto(f.id_fotografia)" aria-label="Eliminar foto">×</button>
       </div>
       <button v-if="!readonly" type="button" class="foto-nueva" @click="$emit('take-photo')">
@@ -239,6 +242,10 @@ async function onDeleteFoto(id_fotografia) {
 .btn-cancelar-edicion:hover:not(:disabled) { background: var(--surface-container-low); box-shadow: none; transform: none; }
 
 .estados {
+  /* Es un <fieldset>: se le quitan el borde y el margen que trae el navegador */
+  border: 0;
+  margin: 0;
+  min-inline-size: 0;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 4px;
@@ -300,6 +307,8 @@ async function onDeleteFoto(id_fotografia) {
   gap: 8px;
 }
 .foto-container { position: relative; width: 100%; height: 80px; }
+.foto-boton { display: block; width: 100%; height: 100%; min-height: 0; padding: 0; border: 0; background: none; }
+.foto-boton:hover:not(:disabled) { background: none; transform: none; box-shadow: none; }
 .foto-thumb { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--outline-variant); cursor: pointer; }
 .delete-foto-btn {
   position: absolute;

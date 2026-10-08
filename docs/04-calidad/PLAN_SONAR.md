@@ -43,18 +43,18 @@ La revisión de calidad de `main` falla por dos condiciones:
 
 **Resultado esperado:** al fusionar esta rama, la revisión de calidad de `main` pasa a A en confiabilidad y seguridad.
 
-### Paso 3. Errores que se tragan en silencio (8 problemas, S2486)
+### Paso 3. Errores que se tragan en silencio (8 problemas, S2486) · hecho en la rama `mantenibilidad-sonar`
 
 Bloques `catch` vacíos en `AjustesView.vue` (4), `useNotificacionesLocales.js`, `AppLockScreen.vue`, `photoStorage.js` y `OrdenDetailView.vue`. En cada uno: registrar el error con `console.warn`, o escribir en un comentario por qué se ignora. Es el más útil de los pasos restantes: un error que nadie ve es un error que nadie arregla (relacionado con RNF-19).
 
-### Paso 4. Accesibilidad (11 problemas)
+### Paso 4. Accesibilidad (15 problemas) · hecho en la rama `mantenibilidad-sonar`
 
 - **S6819 (9):** elementos con `role="button"`, `role="list"`, `role="dialog"`, etc. Cambiarlos por el elemento nativo (`<button>`, `<ul>`/`<li>`, `<dialog>`), con su CSS ajustado para que se vean igual. Archivos: `AppHeader.vue`, `OrdenCard.vue`, `PrendaCard.vue`, `ClienteDetailView.vue`, `TimelineProgressBar.vue`, `AppLockScreen.vue`. Las tarjetas a las que hoy se les agregó `role="button"` (`AyudaView.vue`, `ClienteCard.vue`) entran aquí también.
 - **S7924 (2):** contraste insuficiente en `IosActionSheet.vue` y `PhotoViewerModal.vue`.
 
 Hay que revisar en el navegador que cada pantalla se vea igual que antes, con capturas antes y después.
 
-### Paso 5. Limpieza menor (20 problemas)
+### Paso 5. Limpieza menor (20 problemas) · hecho en la rama `mantenibilidad-sonar`
 
 Cambios de una línea, sin efecto en el comportamiento:
 - importaciones sin usar (3);
@@ -70,7 +70,7 @@ Cambios de una línea, sin efecto en el comportamiento:
 - `if` solo dentro de un `else` (2);
 - el nombre del parámetro de `catch`.
 
-### Paso 6. Estructura (19 problemas)
+### Paso 6. Estructura (18 problemas) · hecho en la rama `mantenibilidad-sonar`
 
 - **Complejidad de `useUpdates.js` (S3776, alta):** partir la función de 22 puntos de complejidad en funciones pequeñas, con pruebas antes de tocarla.
 - **Funciones dentro de funciones (S7721, 5):** sacar a nivel de módulo las que no usan el estado del composable.
@@ -83,6 +83,22 @@ Cambios de una línea, sin efecto en el comportamiento:
 - Pruebas unitarias, de punta a punta y de documentación en verde.
 - APK compilado y probado en el emulador.
 - En SonarCloud, la rama `main` con la revisión de calidad en verde y los problemas restantes justificados.
+
+## Resultado de los pasos 3 a 6 (8 de octubre)
+
+Se cerraron los 61 problemas que quedaban en `main` después del PR #5:
+
+| Grupo | Cómo se resolvió |
+| --- | --- |
+| Errores en silencio (8) | Cada `catch` registra el error con `console.warn` o `console.error` |
+| Accesibilidad (15) | Las tarjetas que se tocan son `<button>` de verdad con la clase global `boton-tarjeta`; los estados de la prenda son un `<fieldset>`; el avance de la orden es una `<ol>`; la pantalla de bloqueo es un `<dialog>`; la miniatura de la foto va dentro de un botón; dos colores con más contraste |
+| Limpieza (20) | Cambios de una línea sin efecto en el comportamiento. `!(x > 0)` no se cambió por `x <= 0`, porque con un valor vacío no significan lo mismo |
+| `useUpdates.js` | Funciones pequeñas (`isNewer`, `marcarDisponible`, `avisar`). Antes se escribieron 7 pruebas del comportamiento existente, y siguen pasando |
+| Funciones dentro de composables (5) | Movidas a nivel de módulo; ninguna usaba estado interno |
+| `await` en bucles (8) | En paralelo donde las operaciones son independientes (tamaño de fotos, claves de Telegram). Uno tras otro, con `// NOSONAR` y la razón, en las migraciones, la lectura y escritura de fotos (memoria) y las escrituras sobre la misma conexión |
+| `await` de nivel superior (2) | En `main.js` y en el script de `index.html` |
+
+**Comprobación visual:** se tomaron capturas de ocho pantallas antes y después, a 390 px de ancho: lista de órdenes, clientes, detalle de clienta, detalle de orden, prendas, ayuda, avisos y pantalla de bloqueo. Son idénticas píxel a píxel, salvo un aviso temporal que salió en una sola de las dos tomas.
 
 ## Orden y prioridad
 
