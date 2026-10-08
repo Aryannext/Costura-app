@@ -4,7 +4,7 @@ Planos del sistema **regenerados desde el código fuente**, no desde el diseño 
 
 Están escritos en Mermaid, con el tema neutral (blanco y negro): GitHub y la mayoría de editores los dibujan solos.
 
-> **Versión del esquema documentada:** 7 (`schema_migrations`)
+> **Versión del esquema documentada:** 8 (`schema_migrations`)
 > **Última revisión contra el código:** 7 de octubre de 2026 (rama `integracion-octubre`)
 
 ---
@@ -135,6 +135,7 @@ erDiagram
         TEXT telefono "NOT NULL"
         TEXT direccion
         TEXT fecha_autorizacion_datos "Ley 1581, migración 7"
+        TEXT version_aviso "Ley 1581, migración 8"
     }
     orden_trabajo {
         INTEGER id_orden PK
@@ -404,7 +405,7 @@ flowchart LR
     R --- S4
 ```
 
-**Sin reclamar:** la orden está Lista y han pasado más de 30 días desde la fecha prometida, o desde que quedó Lista si fue después (RN-37 y Ley 1480 art. 18).
+**Sin reclamar:** la orden está Lista y han pasado más de 30 días desde la fecha prometida, o desde que quedó Lista si fue después (RN-37). Es una alerta para la modista, no el procedimiento legal de bienes abandonados.
 
 ### 3.7 Resumen: actor → casos de uso
 
@@ -453,7 +454,7 @@ flowchart TD
     P14 --> P15[WhatsApp se abre con el mensaje y el +57]
 
     P15 --> P16{¿El cliente regresa?}
-    P16 -- No, pasa un mes --> P19[Recordatorio por WhatsApp · Ley 1480 art. 18]
+    P16 -- No, pasa un mes --> P19[Recordatorio por WhatsApp]
     P19 --> P16
     P16 -- Sí --> P17{¿Paga el saldo?}
     P17 -- Sí --> P20[Registrar pago]
@@ -569,7 +570,7 @@ Una orden *Entregada* o *Cancelada* no cambia por sus prendas.
 
 **Próxima a vencer** (RN-38, `clasificarVencimiento`): la fecha estimada cae entre hoy y hoy + N días, ambos incluidos, con N guardado en `configuracion.dias_anticipacion_vencer`.
 
-**Sin reclamar** (RN-37 y Ley 1480 art. 18): la orden está *Lista para Entregar* y pasaron más de N días desde la fecha más tardía entre `orden_trabajo.fecha_lista` y `fecha_entrega_estimada`, con N en `configuracion.dias_sin_reclamar` (30 por defecto). Al cliente no se le cuenta tiempo antes de la fecha prometida. La fecha se sella al entrar en *Lista*, se borra al salir hacia *En Proceso*, *Pendiente*, *Cancelada* o al reabrir, y se conserva al entregar.
+**Sin reclamar** (RN-37, alerta operativa; no reemplaza el procedimiento de la Ley 1480 art. 18): la orden está *Lista para Entregar* y pasaron más de N días desde la fecha más tardía entre `orden_trabajo.fecha_lista` y `fecha_entrega_estimada`, con N en `configuracion.dias_sin_reclamar` (30 por defecto). Al cliente no se le cuenta tiempo antes de la fecha prometida. La fecha se sella al entrar en *Lista*, se borra al salir hacia *En Proceso*, *Pendiente*, *Cancelada* o al reabrir, y se conserva al entregar.
 
 **Acciones manuales** (en `validators.validateCambioManualEstado`):
 

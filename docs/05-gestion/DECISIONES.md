@@ -85,18 +85,22 @@ El documento de requisitos original hablaba de "navegador en la red local" con u
 
 ## D-08. Datos personales (Ley 1581 de 2012)
 
-La app guarda nombre y celular de los clientes de la modista. Ella es la **responsable del tratamiento**. El desarrollador no recibe esos datos porque todo queda en el teléfono (D-06).
+La app guarda nombre y celular de los clientes de la modista. Ella es la **responsable del tratamiento**. El desarrollador no recibe esos datos: la base vive en el teléfono (D-06). Algunos datos sí pasan por servicios externos (ver abajo), y el aviso lo dice.
 
 **Cómo lo cumple la app (7 oct):**
 - **Aviso de privacidad** (`src/services/avisoPrivacidad.js`): para qué se usan los datos, quién es la responsable y qué derechos tiene la clienta. Se ve y se comparte desde **Ajustes → Datos de tus clientas**, y se puede abrir al registrarla.
 - **Autorización previa:** una casilla obligatoria al registrar una clienta, en el formulario de Clientes y en el de una orden nueva. La regla se valida en `createCliente`, en la capa de datos, así que ninguna pantalla puede saltársela.
-- **Prueba de la autorización:** la fecha se guarda en `cliente.fecha_autorizacion_datos` (migración 7).
+- **Prueba de la autorización:** la fecha se guarda en `cliente.fecha_autorizacion_datos` (migración 7) y la versión del aviso que aceptó en `cliente.version_aviso` (migración 8; `VERSION_AVISO` en `avisoPrivacidad.js`). NULL en una autorización anterior quiere decir versión 1.
 - **Clientas registradas antes:** su detalle dice "Sin autorización de datos registrada" y permite enviarles el aviso por WhatsApp y registrar que autorizaron.
-- **Derecho de supresión:** *Borrar sus datos personales*, en el detalle de la clienta, deja el nombre, el celular y la dirección vacíos. Sus órdenes y pagos se conservan sin datos personales, porque son la contabilidad del taller. No se permite con órdenes abiertas o saldo pendiente.
+- **Derecho de supresión:** *Borrar sus datos personales*, en el detalle de la clienta, deja el nombre, el celular y la dirección vacíos. También quita su nombre del historial de avisos de WhatsApp, que guardaba "Hola María 👋". Sus órdenes y pagos se conservan sin datos personales, porque son la contabilidad del taller. No se permite con órdenes abiertas o saldo pendiente.
 
-**Datos que salen del teléfono** (hay que decirlo en la ficha técnica):
-- Los mensajes de WhatsApp que la modista decide enviar.
-- El respaldo cifrado que va a su propio chat de Telegram.
+**Datos que salen del teléfono** (los dicen el aviso, versión 2, y la ficha técnica):
+- Los mensajes de WhatsApp que la modista decide enviar (nombre y número de orden de la clienta).
+- El resumen diario de recordatorios y los recibos que la modista se manda a su propio Telegram (nombres y celulares).
+- El recibo que comparte con la clienta.
+- El respaldo cifrado, que guarda donde ella elija o manda a su Telegram.
+
+**Límites que se dicen en la sustentación (ANA-H01):** esto implementa el aviso, la autorización con prueba y la supresión; **no es una certificación jurídica**. El borrado no alcanza las notas libres que la modista haya escrito en una prenda, que tiene que revisar ella (la app se lo advierte), ni las copias de seguridad hechas antes.
 
 ## D-09. Recibo con los datos del art. 18 de la Ley 1480
 
@@ -104,9 +108,15 @@ Cuando un negocio recibe un bien para prestar un servicio, debe entregar un reci
 - fecha de recepción;
 - identificación del bien y servicio pedido;
 - sumas abonadas;
-- valor y fecha de devolución, si se conocen.
+- valor y fecha de devolución, si se conocen;
+- nombre, dirección y teléfono de quien entrega el bien;
+- término de la garantía.
 
-El recibo de la app incluye todo eso. **No es una factura electrónica.** Una modista independiente normalmente no está obligada a facturar electrónicamente, pero eso depende de su situación tributaria y no lo decide la app.
+El recibo de la app incluye todo eso desde el 7 de octubre (ANA-H02). La dirección sale solo si la clienta la dio. La **garantía** y las **condiciones del taller** se configuran en *Ajustes → Tu taller*:
+- **Garantía:** la que da la dueña (7 de octubre): *seis meses; si una costura se suelta o la prenda quedó grande o pequeña, se ajusta gratis*. Es texto, no un número de días, porque lo importante para la clienta es qué cubre. Si se deja vacía, el recibo no habla de garantía.
+- **Condiciones:** también las de la dueña: *30 días hábiles después de la fecha de entrega para recoger y pagar; ya pagada, la prenda se guarda hasta 6 meses.*
+
+Las condiciones son la regla del taller, **no un permiso para quedarse con la prenda**: antes de disponer de una prenda abandonada hay que cumplir el procedimiento de la ley (ver D-07 y la sección 9 del manual). La app no lo hace (ANA-H05). **No es una factura electrónica.** Una modista independiente normalmente no está obligada a facturar electrónicamente, pero eso depende de su situación tributaria y no lo decide la app.
 
 ## D-10. Reglas de estados en la capa de datos
 

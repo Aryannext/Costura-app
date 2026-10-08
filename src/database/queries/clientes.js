@@ -1,5 +1,5 @@
 import { db, saveDb } from '../connection.js';
-import { MENSAJE_FALTA_AUTORIZACION } from '../../services/avisoPrivacidad.js';
+import { MENSAJE_FALTA_AUTORIZACION, VERSION_AVISO } from '../../services/avisoPrivacidad.js';
 
 // LIMIT -1 en SQLite = sin límite. Con 50 la agenda ocultaba al cliente 51 (A12).
 export async function getAllClientes(limit = -1, offset = 0) {
@@ -22,13 +22,13 @@ export async function getClienteById(id_cliente) {
 
 // Ley 1581: sin autorización de la clienta no se guardan sus datos. Se valida
 // aquí, en la capa de datos, para que ninguna pantalla pueda saltárselo, y se
-// guarda la fecha como prueba de la autorización.
+// guarda la fecha y la versión del aviso como prueba de la autorización.
 export async function createCliente(cliente) {
     if (!db) throw new Error("Database not initialized");
     if (cliente.autoriza_datos !== true) throw new Error(MENSAJE_FALTA_AUTORIZACION);
     const result = await db.run(
-        "INSERT INTO cliente (nombre, telefono, direccion, fecha_autorizacion_datos) VALUES (?, ?, ?, datetime('now','localtime'))",
-        [cliente.nombre, cliente.telefono, cliente.direccion || null]
+        "INSERT INTO cliente (nombre, telefono, direccion, fecha_autorizacion_datos, version_aviso) VALUES (?, ?, ?, datetime('now','localtime'), ?)",
+        [cliente.nombre, cliente.telefono, cliente.direccion || null, VERSION_AVISO]
     );
     await saveDb();
     return result.changes.lastId;
@@ -71,8 +71,8 @@ export async function getOrdenesByCliente(id_cliente) {
 export async function registrarAutorizacionDatos(id_cliente) {
     if (!db) throw new Error("Database not initialized");
     await db.run(
-        "UPDATE cliente SET fecha_autorizacion_datos = datetime('now','localtime') WHERE id_cliente = ? AND fecha_autorizacion_datos IS NULL",
-        [id_cliente]
+        "UPDATE cliente SET fecha_autorizacion_datos = datetime('now','localtime'), version_aviso = ? WHERE id_cliente = ? AND fecha_autorizacion_datos IS NULL",
+        [VERSION_AVISO, id_cliente]
     );
     await saveDb();
 }
@@ -80,6 +80,8 @@ export async function registrarAutorizacionDatos(id_cliente) {
 // Derecho de supresión (Ley 1581): borra nombre, celular y dirección de la clienta.
 // Las órdenes y pagos se conservan sin datos personales, porque son las cuentas
 // del taller. No se permite con órdenes abiertas o saldo pendiente.
+// Los avisos por WhatsApp guardan en el historial la primera línea del mensaje
+// ("Hola María 👋"); esa parte también se borra (ANA-H01).
 export async function anonimizarCliente(id_cliente) {
     if (!db) throw new Error("Database not initialized");
     const pendientes = await db.query(
@@ -90,9 +92,17 @@ export async function anonimizarCliente(id_cliente) {
     if ((pendientes.values?.[0]?.n || 0) > 0) {
         throw new Error('La clienta tiene órdenes abiertas o saldo pendiente. Entrégalas, cóbralas o cancélalas antes de borrar sus datos.');
     }
-    await db.run(
-        "UPDATE cliente SET nombre = 'Clienta retirada', telefono = '', direccion = NULL, fecha_autorizacion_datos = NULL WHERE id_cliente = ?",
-        [id_cliente]
-    );
+    await db.executeSet([
+        {
+            statement: "UPDATE cliente SET nombre = 'Clienta retirada', telefono = '', direccion = NULL, fecha_autorizacion_datos = NULL, version_aviso = NULL WHERE id_cliente = ?",
+            values: [id_cliente]
+        },
+        {
+            statement: `UPDATE notificacion SET mensaje = 'Aviso por WhatsApp preparado'
+                        WHERE mensaje LIKE 'Aviso por WhatsApp preparado:%'
+                          AND id_orden IN (SELECT id_orden FROM orden_trabajo WHERE id_cliente = ?)`,
+            values: [id_cliente]
+        }
+    ], true);
     await saveDb();
 }

@@ -59,6 +59,24 @@ describe('recibo (RF-42, Ley 1480 art. 18)', () => {
         expect(texto).not.toContain('Efectivo');
     });
 
+    it('lleva celular, dirección, garantía y condiciones del taller (ANA-H02)', () => {
+        const texto = construirRecibo(
+            { ...orden, cliente_telefono: '3001234567', cliente_direccion: 'Calle 5 # 3-20' },
+            { markdown: false, garantia: 'Seis meses. Si quedó grande o pequeña, te la ajustamos gratis.', condiciones: 'Tienes 30 días hábiles para recoger.' }
+        );
+        expect(texto).toContain('Celular: 3001234567');
+        expect(texto).toContain('Dirección: Calle 5 # 3-20');
+        expect(texto).toContain('Garantía: Seis meses. Si quedó grande o pequeña, te la ajustamos gratis.');
+        expect(texto).toContain('Condiciones: Tienes 30 días hábiles para recoger.');
+    });
+
+    it('sin garantía configurada no inventa una', () => {
+        const texto = construirRecibo(orden, { markdown: false, garantia: '  ', condiciones: '' });
+        expect(texto).not.toContain('Garantía');
+        expect(texto).not.toContain('Condiciones');
+        expect(texto).not.toContain('Dirección');
+    });
+
     it('sin detalle conserva el formato anterior', () => {
         expect(construirRecibo(orden)).toContain('*Fecha de Recepción:* 01/10/2026');
         expect(construirRecibo(orden)).not.toContain('PRENDAS');

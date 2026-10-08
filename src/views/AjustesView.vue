@@ -19,6 +19,26 @@
           Guardado
         </span>
       </div>
+      <!-- Ley 1480 art. 18: garantía y condiciones que salen al final del recibo -->
+      <div class="card bloque control">
+        <label class="fila-t" for="garantia-recibo">
+          <b>Garantía de tus arreglos</b>
+          <small>Cuánto tiempo y qué cubre. Sale al final del recibo; si la dejas vacía, el recibo no habla de garantía.</small>
+        </label>
+        <textarea id="garantia-recibo" v-model="garantiaRecibo" rows="3" maxlength="300" class="input-taller"></textarea>
+        <label class="fila-t" for="condiciones-recibo">
+          <b>Condiciones para recoger y pagar</b>
+          <small>Salen al final del recibo.</small>
+        </label>
+        <textarea id="condiciones-recibo" v-model="condicionesRecibo" rows="3" maxlength="300" class="input-taller"></textarea>
+        <div class="control-fila">
+          <button class="btn-guardar-taller" :disabled="guardandoRecibo" @click="guardarCondicionesRecibo">Guardar</button>
+          <span v-if="reciboGuardado" class="guardado">
+            <svg class="ic ic16" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg>
+            Guardado
+          </span>
+        </div>
+      </div>
       <div class="card bloque control">
         <div class="control-fila">
           <span class="fila-t">
@@ -232,6 +252,24 @@ async function guardarNombreTaller() {
   }
 }
 
+const garantiaRecibo = ref('');
+const condicionesRecibo = ref('');
+const guardandoRecibo = ref(false);
+const reciboGuardado = ref(false);
+
+async function guardarCondicionesRecibo() {
+  guardandoRecibo.value = true;
+  try {
+    await updateConfig('garantia_recibo', garantiaRecibo.value.trim());
+    await updateConfig('condiciones_recibo', condicionesRecibo.value.trim());
+    reciboGuardado.value = true;
+  } catch (err) {
+    toast('No se pudieron guardar las condiciones del recibo', 'error');
+  } finally {
+    guardandoRecibo.value = false;
+  }
+}
+
 function triggerManualUpdate() {
   manualCheck(toast);
 }
@@ -241,6 +279,8 @@ onMounted(async () => {
   estadoAvisoDiario.value = await estadoAviso();
   try {
     nombreTaller.value = (await getConfig('nombre_taller')) || '';
+    garantiaRecibo.value = (await getConfig('garantia_recibo')) || '';
+    condicionesRecibo.value = (await getConfig('condiciones_recibo')) || '';
   } catch (e) {
     nombreTaller.value = '';
   }

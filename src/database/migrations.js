@@ -224,5 +224,20 @@ export const migrations = [
     statements: [
       `ALTER TABLE cliente ADD COLUMN fecha_autorizacion_datos TEXT;`
     ]
+  },
+  {
+    // ANA-H01 y ANA-H02 (revisión del 7 de octubre): qué versión del aviso de
+    // privacidad aceptó la clienta (NULL en las autorizaciones anteriores, que
+    // fueron con la versión 1), y datos del recibo que pide la Ley 1480 art. 18:
+    // la garantía de los arreglos y las condiciones para recoger y pagar, con
+    // lo que dijo la dueña el 7 de octubre. Las dos se cambian en Ajustes.
+    toVersion: 8,
+    statements: [
+      `ALTER TABLE cliente ADD COLUMN version_aviso TEXT;`,
+      `INSERT OR IGNORE INTO configuracion(clave, valor) VALUES ('garantia_recibo',
+        'Seis meses. Si una costura se suelta o la prenda quedó grande o pequeña, te la ajustamos gratis.');`,
+      `INSERT OR IGNORE INTO configuracion(clave, valor) VALUES ('condiciones_recibo',
+        'Tienes 30 días hábiles después de la fecha de entrega para recoger y pagar tu prenda. Ya pagada, la guardamos hasta 6 meses.');`
+    ]
   }
 ];

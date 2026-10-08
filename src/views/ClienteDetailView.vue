@@ -42,7 +42,7 @@
               Borrar sus datos personales
             </button>
             <div v-else class="confirmar-borrado">
-              <p>Se borran el nombre, el celular y la dirección. Sus órdenes y pagos quedan sin datos personales. No se puede deshacer.</p>
+              <p>Se borran el nombre, el celular y la dirección, también en el historial de avisos. Sus órdenes y pagos quedan sin datos personales. Si escribiste su nombre en las notas de alguna prenda, bórralo tú. No se puede deshacer.</p>
               <div class="acciones-datos">
                 <button type="button" class="btn-small btn-secondary" @click="confirmandoBorrado = false">No</button>
                 <button type="button" class="btn-small btn-peligro" @click="borrarDatos">Sí, borrar</button>

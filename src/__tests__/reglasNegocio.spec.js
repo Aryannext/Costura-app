@@ -55,6 +55,7 @@ import { cargarDiasAnticipacion, guardarDiasAnticipacion } from '../composables/
 import { esOrdenActiva, estadoDePago } from '../services/estadoOrden.js';
 import { clasificarVencimiento, VENCIMIENTO } from '../services/vencimientos.js';
 import { fechaLocalISO, sumarDias } from '../services/fechas.js';
+import { VERSION_AVISO } from '../services/avisoPrivacidad.js';
 
 const O = { PENDIENTE: 1, EN_PROCESO: 2, LISTA: 3, ENTREGADA: 4, CANCELADA: 5 };
 const P = { PENDIENTE: 1, EN_PROCESO: 2, TERMINADA: 3, ENTREGADA: 4 };
@@ -949,6 +950,29 @@ describe('Ley 1581 · datos personales de las clientas', () => {
         expect(c.telefono).toBe('');
         expect(c.fecha_autorizacion_datos).toBeNull();
         expect((await getOrdenById(id)).valor_total).toBe(20000);
+    });
+
+    it('guarda qué versión del aviso aceptó la clienta (ANA-H01)', async () => {
+        const id = await cliente();
+        expect((await getClienteById(id)).version_aviso).toBe(VERSION_AVISO);
+    });
+
+    it('borrar sus datos también quita su nombre del historial de avisos (ANA-H01)', async () => {
+        const { id } = await ordenLista(20000);
+        vi.stubGlobal('window', { open: vi.fn() }); // este archivo corre en Node, sin navegador
+        await useOrdenTelegram(ref(await getOrdenById(id))).avisarWhatsApp('LISTA_ENTREGA');
+        vi.unstubAllGlobals();
+        expect((await getNotificacionesByOrden(id)).some(n => n.mensaje.includes('Ana'))).toBe(true);
+
+        await abonar(id, 20000);
+        await cambiarOrden(id, O.ENTREGADA);
+        const { id_cliente } = await getOrdenById(id);
+        await useClientes().borrarDatosPersonales(id_cliente);
+
+        const avisos = await getNotificacionesByOrden(id);
+        expect(avisos.some(n => n.mensaje === 'Aviso por WhatsApp preparado')).toBe(true);
+        expect(avisos.some(n => n.mensaje.includes('Ana'))).toBe(false);
+        expect((await getClienteById(id_cliente)).version_aviso).toBeNull();
     });
 
     it('no deja borrar los datos si hay una orden abierta o un saldo pendiente', async () => {

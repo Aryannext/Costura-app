@@ -126,7 +126,7 @@ Los respaldos generados por versiones anteriores (que no llevaban fotografías) 
 
 ## 🛡️ Calidad de Código e Integración Continua (CI/CD)
 
-- **Pruebas automatizadas:** **91 pruebas** con Vitest y Vue Test Utils sobre la capa de datos, los composables y los servicios. Cubren las reglas de negocio (validaciones de cliente, prenda, pago y fechas de entrega), el cifrado y la restauración de respaldos, el bloqueo de sesión y el arranque de la aplicación.
+- **Pruebas automatizadas:** **363 pruebas** con Vitest (recuento del 7 de octubre de 2026) y Vue Test Utils sobre la capa de datos, los composables y los servicios. Cubren las reglas de negocio (validaciones de cliente, prenda, pago y fechas de entrega), el cifrado y la restauración de respaldos, el bloqueo de sesión y el arranque de la aplicación.
 - **GitHub Actions:** en cada push y cada pull request a `main` se instalan las dependencias con `npm ci`, se ejecuta `npm run test:unit` y se compila el proyecto. `npm ci` instala exactamente lo que dice el lockfile y falla si `package.json` y `package-lock.json` no concuerdan, de modo que una dependencia sin declarar rompe la CI en lugar de colarse como transitiva.
 - **Trinquete de cobertura:** los umbrales de `vitest.config.js` están fijados justo por debajo de la cobertura real, así que la CI falla si alguien la hace bajar. Al añadir pruebas, hay que subirlos.
 

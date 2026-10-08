@@ -8,7 +8,7 @@ Fuente: *Proyecto Formativo ADSO*, sección 2.5.4 "Productos o resultados del pr
 | --- | --- | --- | --- |
 | 1 | Informe de análisis de requisitos | `docs/01-analisis/Costura.md` y `.docx` | **Existe**; hay que actualizarlo: alcance offline, IDs repetidos, requisitos nuevos |
 | 2 | Diseño arquitectónico en UML | `docs/02-diseno/DIAGRAMAS.md` | **Avanzado**: 16 diagramas verificados contra el código, incluidos casos de uso por actor y despliegue. Faltan el diagrama de clases y una secuencia |
-| 3 | Base de datos e interfaz implementadas | `src/` | **Funciona**: 347 pruebas unitarias y 3 E2E. Quedan P-03, P-04, P-06 y P-07 de `DECISIONES.md` |
+| 3 | Base de datos e interfaz implementadas | `src/` | **Funciona**: 363 pruebas unitarias y 3 E2E (7 oct). Quedan P-04, P-06 y P-07 de `DECISIONES.md` y los hallazgos ANA-H03 y ANA-H04 |
 | 4 | Manual técnico y de usuario **en español e inglés** | `docs/03-manuales/` | Usuario ES listo; ficha técnica corregida. **Faltan**: manual técnico completo y las versiones en inglés |
 | 5 | Artículo de revisión bibliográfica sobre gestión de calidad del software (ES/EN) | — | **No se exige** para graduarse (confirmado el 7 oct). Fuera del plan |
 
@@ -35,7 +35,7 @@ Scrum **no es nuevo**: lo presentaron Schwaber y Sutherland en 1995 y su guía o
 Objetivo: la app en un teléfono real con datos reales.
 1. Compilar el APK y probar en el teléfono (P-06): cámara, WhatsApp, alarma de las 8 a. m., huella.
 2. ~~Obligar a cambiar la clave `admin123`~~ (ya resuelto en la rama de septiembre). Desplegar la imagen Docker en el VPS (P-07).
-3. Agregar el texto de autorización de datos personales (P-03).
+3. ~~Agregar el texto de autorización de datos personales (P-03).~~ Resuelto el 7 oct.
 4. Capgo: hay cuenta, se mantiene (P-05 resuelto). Probar una actualización OTA en el teléfono.
 5. Capacitar a tu mamá 30 minutos y que registre de 5 a 10 órdenes reales.
 6. **Evidencia:** fotos o video corto de ella usándola; anotar sus quejas, porque son el insumo del sprint 2.
