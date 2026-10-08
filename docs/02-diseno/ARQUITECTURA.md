@@ -241,11 +241,14 @@ flowchart LR
 
 Más detalle en el [manual técnico](../03-manuales/MANUAL_TECNICO.md).
 
-## 9. Lo que no existe (y no está dibujado)
+## 9. Fuera del alcance de esta versión
 
-- Módulo de bodega o venta de prendas abandonadas (RF-61 a RF-63).
-- Exportación a Excel o PDF (RF-64, RF-65).
-- Impresión térmica (RF-66, RF-67).
-- Modo oscuro (RF-71).
-- API de WhatsApp Business: solo enlaces `wa.me`.
-- Sincronización entre dispositivos.
+Estas funciones **no se construyeron a propósito**, así que no están dibujadas:
+- bodega y venta de prendas abandonadas (RF-61 a RF-63);
+- exportación a Excel o PDF (RF-64, RF-65);
+- impresión térmica (RF-66, RF-67);
+- modo oscuro (RF-71);
+- API de WhatsApp Business (solo se usan enlaces `wa.me`);
+- sincronización entre dispositivos.
+
+Quedaron escritas como requisitos de una fase posterior. La tabla con la razón de cada una está en el [SRS, sección 1.2](../01-requisitos/SRS.md).

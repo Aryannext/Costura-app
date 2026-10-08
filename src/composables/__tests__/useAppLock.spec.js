@@ -88,6 +88,31 @@ describe('Ciclo de vida: segundo plano y regreso', () => {
         expect(isLocked.value).toBe(true);
     });
 
+    // Visto en el emulador (8 oct 2026): al arrancar en frío, Android muestra la
+    // ventana del permiso de notificaciones antes de que la app registre el
+    // listener. La app sólo recibe el regreso, y antes lo tomaba por una salida
+    // corta y levantaba el bloqueo del arranque sin pedir clave ni huella.
+    it('Un regreso sin salida registrada no levanta el bloqueo del arranque', () => {
+        isLocked.value = true;
+
+        notificarCambioDeEstado({ isActive: true });
+
+        expect(releaseLockAfterShortAbsence).not.toHaveBeenCalled();
+        expect(isLocked.value).toBe(true);
+    });
+
+    it('Si al salir no había sesión que bloquear, el bloqueo que llegue después no se levanta solo', () => {
+        lockSession.mockImplementationOnce(() => {}); // sin sesión, lockSession no bloquea
+
+        notificarCambioDeEstado({ isActive: false });
+        isLocked.value = true; // la sesión se recupera y la app arranca bloqueada
+        vi.setSystemTime(new Date(INICIO + 5_000));
+        notificarCambioDeEstado({ isActive: true });
+
+        expect(releaseLockAfterShortAbsence).not.toHaveBeenCalled();
+        expect(isLocked.value).toBe(true);
+    });
+
     it('Si ya estaba bloqueada antes de salir, volver enseguida no la desbloquea', () => {
         isLocked.value = true;
 

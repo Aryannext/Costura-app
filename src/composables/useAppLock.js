@@ -18,7 +18,8 @@ export function shouldLockAfterBackground(backgroundedAt, now, threshold = BACKG
 }
 
 let backgroundedAt = null;
-let wasLockedBeforeBackground = false;
+// true sólo si fue ESTA salida a segundo plano la que bloqueó la sesión
+let bloqueoPorEstaSalida = false;
 let listenerHandle = null;
 
 /**
@@ -31,21 +32,25 @@ export async function initAppLock() {
     try {
         listenerHandle = await CapacitorApp.addListener('appStateChange', ({ isActive }) => {
             if (!isActive) {
-                wasLockedBeforeBackground = isLocked.value;
+                const yaBloqueada = isLocked.value;
                 backgroundedAt = Date.now();
                 // Se bloquea ya al salir, no al volver, para que la miniatura
                 // del selector de aplicaciones no muestre datos de clientes.
                 lockSession();
+                bloqueoPorEstaSalida = !yaBloqueada && isLocked.value;
                 return;
             }
 
-            // Al volver: una ausencia corta se levanta sola y sin parpadeo, salvo
-            // que la sesión ya estuviera bloqueada antes de salir.
-            if (!wasLockedBeforeBackground && !shouldLockAfterBackground(backgroundedAt, Date.now())) {
+            // Al volver, una ausencia corta se levanta sola y sin parpadeo, pero
+            // sólo si el bloqueo lo puso esta misma salida. Cualquier otro (el del
+            // arranque en frío, uno anterior) pide clave o huella. Antes bastaba
+            // un regreso sin salida registrada para desbloquear: pasaba con la
+            // ventana del permiso de notificaciones al arrancar en frío.
+            if (bloqueoPorEstaSalida && !shouldLockAfterBackground(backgroundedAt, Date.now())) {
                 releaseLockAfterShortAbsence();
             }
             backgroundedAt = null;
-            wasLockedBeforeBackground = false;
+            bloqueoPorEstaSalida = false;
         });
     } catch (e) {
         console.warn("Bloqueo por segundo plano no disponible en este entorno", e);

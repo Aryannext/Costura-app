@@ -22,11 +22,19 @@ Definir qué debe hacer Atelier Manager, una aplicación para gestionar un talle
 
 **La solución.** Una app de Android que funciona sin internet y registra cada prenda con su clienta, arreglo, fecha, avance y saldo. Además prepara los avisos por WhatsApp y guarda copias de seguridad cifradas.
 
-**Fuera del alcance de esta entrega:**
-- Tienda de ropa y venta de prendas abandonadas (D-07).
-- Pasarela de pagos: la app registra pagos, no los procesa (D-05).
-- Varios talleres, varios usuarios o sincronización entre teléfonos.
-- Impresión térmica, exportación a Excel o PDF, y modo oscuro.
+**Fuera del alcance de esta entrega.** IEEE 830 pide que el alcance diga qué hará el producto y también **qué no hará**. Estas funciones se analizaron, quedaron escritas como requisitos de una fase posterior y se decidió no construirlas ahora:
+
+| Función | Requisitos | Por qué no en esta entrega | Decisión |
+| --- | --- | --- | --- |
+| Bodega y venta de prendas abandonadas | RF-61 a RF-63 | La ropa que no recogen sigue siendo de la clienta. La Ley 1480 (art. 18) exige requerirla y seguir un procedimiento antes de disponer de ella; vender a los 30 días sería vender algo ajeno. Además, la dueña no lo necesita para su problema principal | D-07 |
+| Tienda web de ropa de segunda mano | Sin requisito | Es otro producto: necesita servidor, cuentas y pagos entre desconocidos. Ya existe gratis con el catálogo de WhatsApp Business | D-07 |
+| Exportar reportes a Excel o PDF | RF-64, RF-65 | El reporte en pantalla y el recibo compartido cubren lo que la dueña usa hoy | — |
+| Impresora térmica de tickets | RF-66, RF-67 | Cuesta dinero y el número escrito en la bolsa resuelve la identificación | D-02 |
+| Hora configurable del aviso y modo oscuro | RF-69, RF-71 | Mejoras de comodidad; el aviso fijo de las 8:00 funciona | — |
+| Pasarela de pagos | Sin requisito | La app registra pagos, no mueve dinero: así no hay comisiones ni riesgo financiero | D-05 |
+| Varios usuarios, varios talleres o sincronizar teléfonos | RNF-13, RNF-14 (derogados) | Un taller con un teléfono no lo necesita, y obligaría a tener servidor | D-06 |
+
+Que una función esté fuera del alcance **no es un pendiente**: es una decisión con sus razones.
 
 ### 1.3 Definiciones
 
