@@ -23,14 +23,18 @@
 
       <!-- Crear Nuevo -->
       <div v-else class="new-client-box">
-        <input 
-          type="text" 
+        <label for="nuevo-cliente-nombre" class="sr-only">Nombre del cliente</label>
+        <input
+          id="nuevo-cliente-nombre"
+          type="text"
           v-model="nuevoCliente.nombre" 
           placeholder="Nombre del cliente" 
           required 
           class="mb-2"
         />
+        <label for="nuevo-cliente-telefono" class="sr-only">Celular del cliente</label>
         <input
+          id="nuevo-cliente-telefono"
           type="tel"
           v-model="nuevoCliente.telefono"
           placeholder="Celular (ej. 3001234567)"

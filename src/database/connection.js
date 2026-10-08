@@ -5,7 +5,10 @@ import { runMigrations } from './migrationRunner.js';
 import { migrations } from './migrations.js';
 
 export const sqlite = new SQLiteConnection(CapacitorSQLite);
-export let db = null;
+// Referencia viva a propósito: las consultas leen siempre la conexión actual,
+// que es null antes de abrir y después de restaurar una copia (ver
+// cerrarConexionActiva). Un `const` obligaría a cambiar las once consultas.
+export let db = null; // NOSONAR
 
 /**
  * En la versión web la base vive en memoria (sql.js) y sólo sobrevive a una

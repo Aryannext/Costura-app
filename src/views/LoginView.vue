@@ -8,8 +8,9 @@
       
       <form @submit.prevent="handleLogin" class="ios-form">
         <div class="input-group stagger-2">
-          <input 
-            type="text" 
+          <label for="username" class="sr-only">Usuario</label>
+          <input
+            type="text"
             id="username" 
             v-model="username" 
             placeholder="Usuario"
@@ -20,8 +21,9 @@
         </div>
         
         <div class="input-group stagger-3">
-          <input 
-            type="password" 
+          <label for="password" class="sr-only">Contraseña</label>
+          <input
+            type="password"
             id="password" 
             v-model="password" 
             placeholder="Contraseña"

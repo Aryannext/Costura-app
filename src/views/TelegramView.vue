@@ -13,14 +13,14 @@
       </div>
 
       <div class="form-group">
-        <label>Token del Bot</label>
-        <input type="text" class="input-field" v-model="botToken" placeholder="Ej: 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11" />
+        <label for="bot-token">Token del Bot</label>
+        <input id="bot-token" type="text" class="input-field" v-model="botToken" placeholder="Ej: 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11" />
         <small class="hint">Obtén este token desde @BotFather en Telegram.</small>
       </div>
 
       <div class="form-group">
-        <label>ID del Chat (Admin)</label>
-        <input type="text" class="input-field" v-model="chatId" placeholder="Ej: 123456789" />
+        <label for="chat-id">ID del Chat (Admin)</label>
+        <input id="chat-id" type="text" class="input-field" v-model="chatId" placeholder="Ej: 123456789" />
         <small class="hint">El ID de tu chat para recibir notificaciones (usa @userinfobot para saber tu ID).</small>
       </div>
 
@@ -44,7 +44,8 @@
       </div>
 
       <!-- Hidden file input for DB restore -->
-      <input type="file" ref="fileInput" accept=".json" style="display:none" @change="handleRestore" />
+      <label for="archivo-restaurar-telegram" class="sr-only">Archivo de copia de seguridad</label>
+      <input id="archivo-restaurar-telegram" type="file" ref="fileInput" accept=".json" style="display:none" @change="handleRestore" />
     </div>
 
     <CryptoModal 

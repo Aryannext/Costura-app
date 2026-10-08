@@ -6,9 +6,11 @@
     </div>
 
     <div class="search-bar">
-      <input 
-        type="text" 
-        class="input-field" 
+      <label for="buscar-ordenes" class="sr-only">Buscar órdenes por cliente</label>
+      <input
+        id="buscar-ordenes"
+        type="text"
+        class="input-field"
         v-model="searchQuery" 
         placeholder="Buscar por cliente..." 
       />
@@ -97,7 +99,7 @@ onMounted(() => {
   fetchOrdenes();
   // Check if we navigated here with intent to create an order for a client
   if (route.query.cliente) {
-    preselectedClienteId.value = parseInt(route.query.cliente);
+    preselectedClienteId.value = Number.parseInt(route.query.cliente, 10);
     showAddForm.value = true;
   }
 });

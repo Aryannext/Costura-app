@@ -142,6 +142,11 @@ repositories {
     }
 }
 
+// Ver android/build.gradle: versiones bloqueadas en app/gradle.lockfile
+dependencyLocking {
+    lockAllConfigurations()
+}
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"

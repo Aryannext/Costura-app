@@ -16,12 +16,12 @@
 
       <div class="custom-dates" v-if="filterType === 'custom'">
         <div class="filter-group">
-          <label>Inicio</label>
-          <input type="date" class="input-field" v-model="fechaInicio" />
+          <label for="fecha-inicio">Inicio</label>
+          <input id="fecha-inicio" type="date" class="input-field" v-model="fechaInicio" />
         </div>
         <div class="filter-group">
-          <label>Fin</label>
-          <input type="date" class="input-field" v-model="fechaFin" />
+          <label for="fecha-fin">Fin</label>
+          <input id="fecha-fin" type="date" class="input-field" v-model="fechaFin" />
         </div>
       </div>
 
