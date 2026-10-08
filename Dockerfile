@@ -37,7 +37,7 @@ ARG BASE_PATH=/
 # rompe las rutas profundas: al recargar /ordenes/3 el navegador buscaría
 # /ordenes/assets/... Aquí se compila con una base absoluta (BASE_PATH).
 # Se usa el vite fijado en package-lock.json, no npx (que podría descargar otra versión).
-RUN node node_modules/vite/bin/vite.js build --base=$BASE_PATH
+RUN node node_modules/vite/bin/vite.js build --base="$BASE_PATH"
 
 # ---- Etapa 2: servir ----
 # Imagen oficial de nginx que corre como usuario sin privilegios (uid 101), no como
