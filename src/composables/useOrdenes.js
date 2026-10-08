@@ -15,7 +15,8 @@ const historial = ref([]);
  * confirmación, o null si la entrega no necesita confirmarse.
  */
 export function mensajeConfirmacionEntrega(orden) {
-    if (!orden || !(orden.saldo_pendiente > 0)) return null;
+    const debe = orden?.saldo_pendiente > 0;
+    if (!debe) return null;
     return `El cliente todavía debe ${formatearMoneda(orden.saldo_pendiente)} de un total de ${formatearMoneda(orden.valor_total)}. ` +
         `¿Entregar la orden de todos modos?`;
 }

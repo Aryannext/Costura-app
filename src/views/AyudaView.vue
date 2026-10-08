@@ -9,40 +9,40 @@
     </div>
 
     <div class="misiones-list">
-      <div class="card mission-card" role="button" tabindex="0" @click="playDashboardTour" @keydown.enter="playDashboardTour">
+      <button type="button" class="card mission-card boton-tarjeta" @click="playDashboardTour">
         <div class="mission-icon"><Icon name="home" className="mission-svg" /></div>
         <div class="mission-info">
           <h3 class="headline-sm">Tour Rápido</h3>
           <p class="body-sm">Conoce el panel principal y la barra de navegación.</p>
         </div>
         <div class="mission-action">
-          <button class="btn-primary btn-small">Jugar</button>
+          <span class="jugar">Jugar</span>
         </div>
-      </div>
+      </button>
       
       <!-- Misión: Clientes -->
-      <div class="card mission-card" role="button" tabindex="0" @click="playClienteTour" @keydown.enter="playClienteTour">
+      <button type="button" class="card mission-card boton-tarjeta" @click="playClienteTour">
         <div class="mission-icon"><Icon name="users" className="mission-svg" /></div>
         <div class="mission-info">
           <h3 class="headline-sm">Crear un Cliente</h3>
           <p class="body-sm">Descubre cómo registrar a tus clientes en tu agenda.</p>
         </div>
         <div class="mission-action">
-          <button class="btn-primary btn-small">Jugar</button>
+          <span class="jugar">Jugar</span>
         </div>
-      </div>
+      </button>
 
       <!-- Misión: Órdenes -->
-      <div class="card mission-card" role="button" tabindex="0" @click="playOrdenTour" @keydown.enter="playOrdenTour">
+      <button type="button" class="card mission-card boton-tarjeta" @click="playOrdenTour">
         <div class="mission-icon"><Icon name="clipboard" className="mission-svg" /></div>
         <div class="mission-info">
           <h3 class="headline-sm">Tu Primera Orden</h3>
           <p class="body-sm">Aprende paso a paso cómo registrar un trabajo nuevo.</p>
         </div>
         <div class="mission-action">
-          <button class="btn-primary btn-small">Jugar</button>
+          <span class="jugar">Jugar</span>
         </div>
-      </div>
+      </button>
     </div>
   </div>
 </template>
@@ -95,6 +95,18 @@ function playOrdenTour() {
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   background-color: var(--surface-container-lowest);
+}
+/* Se ve como el botón pequeño de la app, pero no es otro botón dentro del botón */
+.jugar {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  background-color: var(--primary);
+  color: var(--on-primary);
+  font-size: 12px;
+  font-weight: 500;
 }
 .mission-card:active {
   transform: scale(0.98);

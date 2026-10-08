@@ -28,35 +28,31 @@
           
           <div v-else class="notification-list">
             <!-- OTA Update Notification -->
-            <div 
+            <button
               v-if="updateAvailable"
-              class="notification-item update-item"
-              role="button"
-              tabindex="0"
+              type="button"
+              class="notification-item update-item boton-tarjeta"
               @click="triggerUpdate"
-              @keydown.enter="triggerUpdate"
             >
               <div class="notif-content">
                 <strong>✨ Nueva versión disponible (v{{ updateVersion }})</strong>
                 <p class="body-sm text-success">¡Toca aquí para actualizar la app!</p>
               </div>
-            </div>
+            </button>
 
-            <div 
-              v-for="orden in urgentOrders" 
-              :key="orden.id_orden" 
-              class="notification-item"
-              role="button"
-              tabindex="0"
+            <button
+              v-for="orden in urgentOrders"
+              :key="orden.id_orden"
+              type="button"
+              class="notification-item boton-tarjeta"
               @click="goToOrder(orden.id_orden)"
-              @keydown.enter="goToOrder(orden.id_orden)"
             >
               <div class="notif-content">
                 <strong>Orden #{{ orden.id_orden }} - {{ orden.cliente_nombre }}</strong>
                 <p class="body-sm text-error" v-if="isAtrasada(orden)">¡Vencida el {{ formatDate(orden.fecha_entrega_estimada) }}!</p>
                 <p class="body-sm text-warning" v-else>Vence el {{ formatDate(orden.fecha_entrega_estimada) }}</p>
               </div>
-            </div>
+            </button>
           </div>
         </div>
       </div>

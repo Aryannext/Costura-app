@@ -30,9 +30,7 @@ export async function runMigrations(db, migrations) {
     const aplicadas = new Set((resultado?.values || []).map(fila => fila.version));
 
     const ordenadas = [...migrations].sort((a, b) => a.toVersion - b.toVersion);
-    const versionQueEntiendeLaApp = ordenadas.length
-        ? ordenadas[ordenadas.length - 1].toVersion
-        : 0;
+    const versionQueEntiendeLaApp = ordenadas.at(-1)?.toVersion ?? 0;
     const versionEnLaBase = aplicadas.size ? Math.max(...aplicadas) : 0;
 
     // Guardia contra reversiones OTA. Capgo tiene `autoUpdate` activado y puede
@@ -49,7 +47,8 @@ export async function runMigrations(db, migrations) {
 
     const pendientes = ordenadas.filter(m => !aplicadas.has(m.toVersion));
     for (const migracion of pendientes) {
-        await aplicarMigracion(db, migracion);
+        // En orden y una a la vez: cada versión parte del esquema que deja la anterior
+        await aplicarMigracion(db, migracion); // NOSONAR
     }
 
     return pendientes.map(m => m.toVersion);
@@ -59,7 +58,8 @@ async function aplicarMigracion(db, migracion) {
     await db.beginTransaction();
     try {
         for (const sentencia of migracion.statements) {
-            await db.execute(sentencia, false);
+            // Las sentencias de una migración dependen de las anteriores
+            await db.execute(sentencia, false); // NOSONAR
         }
         await db.run(
             `INSERT INTO ${TABLA_MIGRACIONES} (version) VALUES (?)`,
@@ -70,8 +70,8 @@ async function aplicarMigracion(db, migracion) {
     } catch (error) {
         try {
             await db.rollbackTransaction();
-        } catch (errorDeRollback) {
-            console.error("Falló también el rollback de la migración", errorDeRollback);
+        } catch (error_) {
+            console.error("Falló también el rollback de la migración", error_);
         }
         // Se propaga a propósito. Arrancar con el esquema a medio aplicar es peor
         // que no arrancar: main.js muestra la pantalla de error crítico y la

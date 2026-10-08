@@ -151,7 +151,7 @@ function handleAction(action) {
   -webkit-backdrop-filter: blur(20px);
   border-radius: 14px;
   font-weight: 600;
-  color: #007aff;
+  color: #0062cc; /* #007aff no llegaba al contraste mínimo sobre blanco */
   border: none;
 }
 

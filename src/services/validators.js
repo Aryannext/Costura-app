@@ -16,7 +16,7 @@ export const validators = {
         }
         
         // Regex para validar teléfonos: opcional +, seguido de 7 a 15 dígitos
-        const phoneRegex = /^\+?[0-9\s\-]{7,15}$/;
+        const phoneRegex = /^\+?[0-9\s-]{7,15}$/;
         if (!phoneRegex.test(cliente.telefono.trim())) {
             throw new Error("El número de teléfono no es válido. Solo se permiten números, espacios y el signo +.");
         }
@@ -148,7 +148,7 @@ export const validators = {
 
     // RN-31: el aviso de orden lista sólo se envía con la orden Lista para Entregar.
     validateAvisoOrdenLista: (orden) => {
-        if (!orden || orden.id_estado_orden !== 3) {
+        if (orden?.id_estado_orden !== 3) {
             throw new Error("Sólo se avisa al cliente cuando la orden está Lista para Entregar.");
         }
         return true;

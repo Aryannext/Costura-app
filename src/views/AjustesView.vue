@@ -246,6 +246,7 @@ async function guardarNombreTaller() {
     await updateConfig('nombre_taller', nombreTaller.value.trim());
     tallerGuardado.value = true;
   } catch (err) {
+    console.error('No se pudo guardar el nombre del taller', err);
     toast('No se pudo guardar el nombre del taller', 'error');
   } finally {
     guardandoTaller.value = false;
@@ -264,6 +265,7 @@ async function guardarCondicionesRecibo() {
     await updateConfig('condiciones_recibo', condicionesRecibo.value.trim());
     reciboGuardado.value = true;
   } catch (err) {
+    console.error('No se pudieron guardar las condiciones del recibo', err);
     toast('No se pudieron guardar las condiciones del recibo', 'error');
   } finally {
     guardandoRecibo.value = false;
@@ -282,6 +284,7 @@ onMounted(async () => {
     garantiaRecibo.value = (await getConfig('garantia_recibo')) || '';
     condicionesRecibo.value = (await getConfig('condiciones_recibo')) || '';
   } catch (e) {
+    console.warn('No se pudieron leer los datos del taller', e);
     nombreTaller.value = '';
   }
 
@@ -289,6 +292,7 @@ onMounted(async () => {
     const { botToken, chatId } = await leerConfigTelegram();
     telegramConectado.value = !!botToken && !!chatId;
   } catch (e) {
+    console.warn('No se pudo leer la configuración de Telegram', e);
     telegramConectado.value = false;
   }
 

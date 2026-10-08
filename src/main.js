@@ -90,4 +90,8 @@ async function bootstrap() {
     }
 }
 
-bootstrap().catch(e => console.error("Fallo inesperado al arrancar", e));
+try {
+    await bootstrap();
+} catch (e) {
+    console.error("Fallo inesperado al arrancar", e);
+}

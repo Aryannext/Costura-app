@@ -133,7 +133,7 @@ export function usePrendas() {
             let rutaGuardada = '';
 
             if (image.base64String) {
-                const fileName = `prenda_${id_prenda}_${new Date().getTime()}.jpeg`;
+                const fileName = `prenda_${id_prenda}_${Date.now()}.jpeg`;
                 rutaGuardada = await savePhotoFromBase64(image.base64String, fileName);
             } else if (image.webPath) {
                 rutaGuardada = image.webPath;

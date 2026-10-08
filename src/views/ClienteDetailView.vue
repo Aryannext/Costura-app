@@ -69,14 +69,12 @@
           </div>
 
           <div v-else class="ordenes-list">
-            <div 
-              v-for="orden in ordenesCliente" 
-              :key="orden.id_orden" 
-              class="card orden-card"
-              role="button"
-              tabindex="0"
+            <button
+              v-for="orden in ordenesCliente"
+              :key="orden.id_orden"
+              type="button"
+              class="card orden-card boton-tarjeta"
               @click="goToOrdenDetail(orden.id_orden)"
-              @keydown.enter="goToOrdenDetail(orden.id_orden)"
             >
               <div class="orden-info">
                 <h4>Orden #{{ orden.id_orden }}</h4>
@@ -92,7 +90,7 @@
               <div class="orden-status">
                 <StatusBadge :estado="orden.estado_nombre" />
               </div>
-            </div>
+            </button>
           </div>
         </div>
 

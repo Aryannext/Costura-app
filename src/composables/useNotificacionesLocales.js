@@ -129,6 +129,7 @@ export function useNotificacionesLocales() {
             }
             return interpretarPermisosAviso(display, exact);
         } catch (e) {
+            console.warn('No se pudo leer el permiso de notificaciones', e);
             return 'no-disponible';
         }
     };

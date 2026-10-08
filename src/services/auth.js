@@ -3,8 +3,7 @@ import {
     updateUltimoAcceso,
     updatePassword,
     isDefaultPassword,
-    DEFAULT_USERNAME,
-    DEFAULT_PASSWORD
+    DEFAULT_USERNAME
 } from '../database/queries/auth.js';
 import bcrypt from 'bcryptjs';
 import { ref } from 'vue';
@@ -29,7 +28,7 @@ export function requiresPasswordChange() {
 
 // Se reexpone desde aquí para que las vistas no tengan que importar nada de la
 // capa de datos sólo para conocer la contraseña de fábrica.
-export { DEFAULT_PASSWORD };
+export { DEFAULT_PASSWORD } from '../database/queries/auth.js';
 
 /**
  * Sesión iniciada pero bloqueada: los datos siguen cargados detrás, y la app

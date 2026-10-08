@@ -46,7 +46,8 @@ export function useNotificaciones() {
                 throw new Error('No se pudo enviar a Telegram (revisa la configuración o el internet). No se registró ningún recordatorio.');
             }
             for (const o of ordenes) {
-                await createNotificacion('Recordatorio para recoger enviado a tu Telegram', o.id_orden, 3);
+                // Una escritura tras otra sobre la misma conexión, en orden
+                await createNotificacion('Recordatorio para recoger enviado a tu Telegram', o.id_orden, 3); // NOSONAR
             }
             return ordenes.length;
         }, { toastError: true });
