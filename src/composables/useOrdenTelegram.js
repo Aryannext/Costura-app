@@ -78,6 +78,15 @@ async function nombreTaller() {
   return (await getConfig('nombre_taller')) || '';
 }
 
+// Recibo con las prendas, pagos y condiciones actuales de la base
+async function reciboCompleto(o, opciones) {
+  const [prendas, pagos, taller, garantia, condiciones] = await Promise.all([
+    getPrendasByOrden(o.id_orden), getPagosByOrden(o.id_orden), nombreTaller(),
+    getConfig('garantia_recibo'), getConfig('condiciones_recibo')
+  ]);
+  return construirRecibo(o, { ...opciones, prendas, pagos, taller, garantia: garantia || '', condiciones: condiciones || '' });
+}
+
 export function useOrdenTelegram(ordenActual) {
   const toast = inject('toast');
   const { sendTelegramMessage } = useTelegramBot();
@@ -89,14 +98,6 @@ export function useOrdenTelegram(ordenActual) {
   async function ordenAlEnviar() {
     if (!ordenActual.value) return null;
     return (await getOrdenById(ordenActual.value.id_orden)) ?? ordenActual.value;
-  }
-
-  async function reciboCompleto(o, opciones) {
-    const [prendas, pagos, taller, garantia, condiciones] = await Promise.all([
-      getPrendasByOrden(o.id_orden), getPagosByOrden(o.id_orden), nombreTaller(),
-      getConfig('garantia_recibo'), getConfig('condiciones_recibo')
-    ]);
-    return construirRecibo(o, { ...opciones, prendas, pagos, taller, garantia: garantia || '', condiciones: condiciones || '' });
   }
 
   // Aviso directo al cliente: abre WhatsApp con el mensaje escrito (D-03).

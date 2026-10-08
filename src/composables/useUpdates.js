@@ -31,75 +31,75 @@ function avisar(toast, mensaje, tipo) {
   toast?.(mensaje, tipo);
 }
 
-export function useUpdates() {
-  async function initUpdates() {
+async function initUpdates() {
+  try {
+    // 1. Notifica a Capgo que la app cargó bien para evitar rollbacks
+    await CapacitorUpdater.notifyAppReady();
+
+    // 2. Revisar si YA hay una actualización descargada y esperando
     try {
-      // 1. Notifica a Capgo que la app cargó bien para evitar rollbacks
-      await CapacitorUpdater.notifyAppReady();
-
-      // 2. Revisar si YA hay una actualización descargada y esperando
-      try {
-        const { bundles } = await CapacitorUpdater.list();
-        const { bundle: currentBundle } = await CapacitorUpdater.current();
-        
-        // Buscar algún bundle descargado con éxito que sea MAYOR que el actual
-        const pendingBundle = bundles?.find(b => 
-          b.id !== currentBundle.id && 
-          b.status === 'success' && 
-          isNewer(b.version, currentBundle.version)
-        );
-        
-        if (pendingBundle) marcarDisponible(pendingBundle);
-      } catch (err) {
-        console.warn("No se pudo verificar lista local de bundles", err);
-      }
-
-      // 3. Escuchar cuando Capgo termine de descargar una actualización
-      CapacitorUpdater.addListener('downloadComplete', (event) => {
-        if (event?.bundle?.version) marcarDisponible(event.bundle);
-      });
-
-      // Alertas de depuración (SOLO para ver por qué falla)
-      CapacitorUpdater.addListener('downloadFailed', (event) => {
-        console.error("Capgo Error - Descarga Fallida: ", event);
-      });
+      const { bundles } = await CapacitorUpdater.list();
+      const { bundle: currentBundle } = await CapacitorUpdater.current();
       
-    } catch (e) {
-      console.error('Error al inicializar actualizaciones OTA:', e);
+      // Buscar algún bundle descargado con éxito que sea MAYOR que el actual
+      const pendingBundle = bundles?.find(b => 
+        b.id !== currentBundle.id && 
+        b.status === 'success' && 
+        isNewer(b.version, currentBundle.version)
+      );
+      
+      if (pendingBundle) marcarDisponible(pendingBundle);
+    } catch (err) {
+      console.warn("No se pudo verificar lista local de bundles", err);
     }
-  }
 
+    // 3. Escuchar cuando Capgo termine de descargar una actualización
+    CapacitorUpdater.addListener('downloadComplete', (event) => {
+      if (event?.bundle?.version) marcarDisponible(event.bundle);
+    });
+
+    // Alertas de depuración (SOLO para ver por qué falla)
+    CapacitorUpdater.addListener('downloadFailed', (event) => {
+      console.error("Capgo Error - Descarga Fallida: ", event);
+    });
+    
+  } catch (e) {
+    console.error('Error al inicializar actualizaciones OTA:', e);
+  }
+}
+
+async function manualCheck(toast) {
+  if (isChecking.value) return;
+  isChecking.value = true;
+  try {
+    avisar(toast, "Buscando actualizaciones en la nube...", "info");
+    const latest = await CapacitorUpdater.getLatest();
+    if (!latest?.url) {
+      avisar(toast, "Ya tienes la versión más reciente instalada.", "info");
+      return;
+    }
+
+    avisar(toast, "¡Actualización encontrada! Descargando...", "info");
+    const bundle = await CapacitorUpdater.download({
+      version: latest.version,
+      url: latest.url
+    });
+    marcarDisponible(bundle);
+    avisar(toast, `¡Descarga completada! (v${bundle.version}). Toca la campana para instalar.`, "success");
+  } catch (e) {
+    // Capgo responde con un error "up_to_date" cuando no hay nada nuevo
+    if (e?.message?.includes('up_to_date')) {
+      avisar(toast, "Estás en la última versión.", "info");
+    } else {
+      avisar(toast, "Error al buscar actualizaciones. Verifica tu conexión.", "error");
+    }
+  } finally {
+    isChecking.value = false;
+  }
+}
+
+export function useUpdates() {
   const showUpdatePrompt = ref(false);
-
-  async function manualCheck(toast) {
-    if (isChecking.value) return;
-    isChecking.value = true;
-    try {
-      avisar(toast, "Buscando actualizaciones en la nube...", "info");
-      const latest = await CapacitorUpdater.getLatest();
-      if (!latest?.url) {
-        avisar(toast, "Ya tienes la versión más reciente instalada.", "info");
-        return;
-      }
-
-      avisar(toast, "¡Actualización encontrada! Descargando...", "info");
-      const bundle = await CapacitorUpdater.download({
-        version: latest.version,
-        url: latest.url
-      });
-      marcarDisponible(bundle);
-      avisar(toast, `¡Descarga completada! (v${bundle.version}). Toca la campana para instalar.`, "success");
-    } catch (e) {
-      // Capgo responde con un error "up_to_date" cuando no hay nada nuevo
-      if (e?.message?.includes('up_to_date')) {
-        avisar(toast, "Estás en la última versión.", "info");
-      } else {
-        avisar(toast, "Error al buscar actualizaciones. Verifica tu conexión.", "error");
-      }
-    } finally {
-      isChecking.value = false;
-    }
-  }
 
   function promptUpdate() {
     if (!updateAvailable.value || !bundleIdToApply.value) return;
