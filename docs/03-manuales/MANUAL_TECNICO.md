@@ -171,7 +171,17 @@ docker compose up -d --build
 - **Pruebas de punta a punta:** 3 recorridos con Playwright en `tests/e2e/`. Se corren a mano; la CI no los ejecuta.
 - **GitHub Actions** en cada cambio: `npm ci`, pruebas con cobertura, compilación y la imagen Docker probada con `curl`.
 - **SonarCloud** revisa confiabilidad y seguridad en cada pull request.
-- **Trinquete de cobertura:** la CI falla si la cobertura baja.
+- **Trinquete de cobertura:** la CI falla si la cobertura baja. Mínimos en `vitest.config.js`, medidos el 8 de octubre de 2026 sobre `database/`, `composables/` y `services/`:
+
+  | Medida | Cobertura |
+  | --- | --- |
+  | Líneas | 65.3 % |
+  | Funciones | 64.2 % |
+  | Sentencias | 62.2 % |
+  | Ramas | 58.8 % |
+
+  Las vistas y componentes se prueban aparte, con Vue Test Utils y Playwright.
+- **Por qué SonarCloud no muestra la cobertura:** el proyecto usa el análisis automático de SonarCloud, que no lee informes de cobertura. Para verla allí habría que pasar al análisis desde GitHub Actions con un `SONAR_TOKEN`.
 
 ## 13. Rendimiento
 
