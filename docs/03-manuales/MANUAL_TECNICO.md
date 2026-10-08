@@ -112,7 +112,8 @@ npx @capgo/cli@latest bundle upload --channel production
 
 - **La versión tiene que ser mayor que la última publicada.** Capgo toma la de `package.json`; con la misma versión rechaza la subida.
 - **Capgo solo cambia la parte web:** pantallas, lógica y migraciones de la base. Un cambio nativo necesita un APK nuevo: un plugin nuevo, permisos de `AndroidManifest.xml` o `build.gradle`.
-- **Si algo sale mal**, desde el panel de Capgo se vuelve a la versión anterior. La app avisa a Capgo al arrancar bien (`notifyAppReady`); si no lo hace, Capgo regresa sola a la versión anterior.
+- **Si algo sale mal y la versión no cambió la base de datos**, desde el panel de Capgo se vuelve a la versión anterior. La app avisa a Capgo cuando arranca bien (`notifyAppReady`); si no lo hace, Capgo regresa sola a la versión anterior.
+- **Si la versión trae una migración** (la 1.2.0 trae la 8), **no se vuelve atrás: se publica una versión nueva corregida.** En cada teléfono que ya la abrió, la base quedó en el esquema nuevo. La versión anterior no lo entiende, `runMigrations` se niega a abrirla y la app queda en la pantalla de "Error Crítico". La vuelta automática de Capgo tampoco sirve, porque esa versión vieja nunca llega a llamar a `notifyAppReady`. Por eso, antes de publicar una versión con migración, hay que probarla en el emulador o en un teléfono de prueba.
 
 ## 7. Base de datos
 
