@@ -126,7 +126,7 @@ Los respaldos generados por versiones anteriores (que no llevaban fotografías) 
 
 ## 🛡️ Calidad de Código e Integración Continua (CI/CD)
 
-- **Pruebas automatizadas:** **363 pruebas** con Vitest (recuento del 7 de octubre de 2026) y Vue Test Utils sobre la capa de datos, los composables y los servicios. Cubren las reglas de negocio (validaciones de cliente, prenda, pago y fechas de entrega), el cifrado y la restauración de respaldos, el bloqueo de sesión y el arranque de la aplicación.
+- **Pruebas automatizadas:** **371 pruebas** con Vitest (recuento del 8 de octubre de 2026) y Vue Test Utils sobre la capa de datos, los composables y los servicios. Cubren las reglas de negocio (validaciones de cliente, prenda, pago y fechas de entrega), el cifrado y la restauración de respaldos, el bloqueo de sesión y el arranque de la aplicación.
 - **GitHub Actions:** en cada push y cada pull request a `main` se instalan las dependencias con `npm ci`, se ejecuta `npm run test:unit` y se compila el proyecto. `npm ci` instala exactamente lo que dice el lockfile y falla si `package.json` y `package-lock.json` no concuerdan, de modo que una dependencia sin declarar rompe la CI en lugar de colarse como transitiva.
 - **Trinquete de cobertura:** los umbrales de `vitest.config.js` están fijados justo por debajo de la cobertura real, así que la CI falla si alguien la hace bajar. Al añadir pruebas, hay que subirlos.
 
@@ -138,7 +138,7 @@ npm run test:unit
 
 ## 📂 Estructura del Código
 
-La aplicación tiene **cuatro capas con dependencias en una sola dirección**: una vista nunca habla con la base de datos, y una consulta nunca sabe de Vue. El plano completo está en [`docs/02-diseno/DIAGRAMAS.md`](docs/02-diseno/DIAGRAMAS.md).
+La aplicación tiene **cuatro capas con dependencias en una sola dirección**: una vista nunca habla con la base de datos, y una consulta nunca sabe de Vue. El plano completo está en [`docs/02-diseno/ARQUITECTURA.md`](docs/02-diseno/ARQUITECTURA.md).
 
 ```
 src/
@@ -187,13 +187,15 @@ Junto a cada carpeta viven sus pruebas en `__tests__/`.
 | [`docs/README.md`](docs/README.md) | Índice de toda la documentación, ordenada por fases |
 | [`docs/05-gestion/PLAN_19_DIAS.md`](docs/05-gestion/PLAN_19_DIAS.md) | Plan de cierre con Scrum hasta la entrega del 25 de octubre de 2026 |
 | [`docs/05-gestion/DECISIONES.md`](docs/05-gestion/DECISIONES.md) | Decisiones argumentadas: WhatsApp, pagos, Docker, tienda web, leyes |
-| [`docs/04-calidad/TRAZABILIDAD.md`](docs/04-calidad/TRAZABILIDAD.md) | **Empieza por aquí.** Cada requisito, su estado real y el archivo que lo implementa. Incluye los defectos abiertos |
-| [`docs/02-diseno/DIAGRAMAS.md`](docs/02-diseno/DIAGRAMAS.md) | Nueve diagramas Mermaid regenerados desde el código: arquitectura, entidad-relación, casos de uso, flujo de negocio, navegación, estados, sesión, respaldo y arranque |
-| [`docs/03-manuales/FICHA_TECNICA.md`](docs/03-manuales/FICHA_TECNICA.md) | Resumen técnico: stack, esquema, plugins, seguridad y despliegue |
+| [`docs/01-requisitos/SRS.md`](docs/01-requisitos/SRS.md) | Requisitos vigentes (IEEE 830) con el estado de cada uno |
+| [`docs/02-diseno/ARQUITECTURA.md`](docs/02-diseno/ARQUITECTURA.md) | Capas, módulos, decisiones, arranque y despliegue |
+| [`docs/02-diseno/MODELO_DE_DATOS.md`](docs/02-diseno/MODELO_DE_DATOS.md) | Diagrama entidad-relación, diccionario de datos y migraciones |
+| [`docs/02-diseno/CASOS_DE_USO.md`](docs/02-diseno/CASOS_DE_USO.md) | Casos de uso por actor, especificaciones y flujo del negocio |
+| [`docs/02-diseno/COMPORTAMIENTO.md`](docs/02-diseno/COMPORTAMIENTO.md) | Navegación, estados y diagramas de secuencia |
+| [`docs/02-diseno/CLASES.md`](docs/02-diseno/CLASES.md) | Diagrama de clases del dominio |
+| [`docs/03-manuales/MANUAL_TECNICO.md`](docs/03-manuales/MANUAL_TECNICO.md) | Instalación, compilación, pruebas y despliegue |
 | [`docs/03-manuales/MANUAL_USUARIO.md`](docs/03-manuales/MANUAL_USUARIO.md) | Guía operativa para el taller |
-| [`docs/01-analisis/Costura.md`](docs/01-analisis/Costura.md) | Especificación original de Fase 1. Documento histórico, no se edita |
-| [`docs/01-analisis/MEJORAS_ADICIONALES_FASE1.md`](docs/01-analisis/MEJORAS_ADICIONALES_FASE1.md) | Valor añadido sobre la especificación original |
-| [`docs/01-analisis/COSTURA_FASE2_REQUISITOS.md`](docs/01-analisis/COSTURA_FASE2_REQUISITOS.md) | Alcance de la siguiente etapa |
+| [`docs/04-calidad/TRAZABILIDAD.md`](docs/04-calidad/TRAZABILIDAD.md) | Cada requisito, su estado real y el archivo que lo implementa |
 
 ---
 

@@ -3,8 +3,9 @@
 Correspondencia entre los requisitos especificados y el código que los implementa. Cada fila se verificó contra `src/`, no contra la intención original.
 
 > **Revisión:** 7 de octubre de 2026 · versión 1.2.0 · esquema 8
-> **Suite de pruebas:** 363 unitarias en verde y 3 E2E (Playwright, a mano), 0 fallos esperados, 0 omitidas
-> Los hallazgos ANA-H01 a ANA-H06 vienen de `docs/01-analisis/REVISION_EQUIPO_ANALISTAS_2026-10-07.md`.
+> **Suite de pruebas:** 371 unitarias en verde y 3 E2E (Playwright, a mano), 0 fallos esperados, 0 omitidas
+> Los hallazgos ANA-H01 a ANA-H06 vienen de [la revisión de analistas](historico/REVISION_EQUIPO_ANALISTAS_2026-10-07.md).
+> Los requisitos vigentes están en el [SRS](../01-requisitos/SRS.md); esta matriz dice **dónde** está implementado cada uno.
 
 Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · ❌ no implementado · 🚧 planificado
 
@@ -51,7 +52,7 @@ Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · 
 | --- | --- | --- |
 | RF-39, RF-40 · aviso automático al cliente | ⚠️ | **Cambió por decisión D-03:** la app prepara el mensaje y abre WhatsApp; la modista pulsa Enviar. Se registra como "aviso preparado", nunca como recibido. El texto original pedía envío automático; la revisión 2 del requisito irá en el SRS (ANA-H03) |
 | RF-41 · historial de notificaciones | ✅ | `database/queries/notificaciones.js` |
-| RF-42 · resumen al cliente | ⚠️ | El recibo (`construirRecibo`) llega al cliente por compartir o WhatsApp. Telegram es solo de la modista (D-04), no del cliente como decía el texto original (ANA-H03) |
+| RF-42 · resumen al cliente | ⚠️ | El recibo (`construirRecibo`) llega al cliente por compartir o WhatsApp. Telegram es solo de la modista (D-03), no del cliente como decía el texto original (ANA-H03) |
 
 ### Reportes y seguimiento · RF-43 a RF-48
 
@@ -87,7 +88,7 @@ Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · 
 | RNF-17 · copia de seguridad descargable | ✅ | Respaldo completo y cifrado con dos destinos: Telegram, o **Ajustes → Guardar copia de seguridad**, que abre Compartir de Android (WhatsApp, Drive, correo) sin necesitar bot. Restaurar desde el mismo menú |
 | RNF-18 · restauración | ✅ | Con instantánea previa y rollback automático |
 | RNF-19 · registro de errores en archivo | ❌ | Sólo `console.error`, ilegible en un APK de producción. Sin telemetría no hay diagnóstico posible en el taller |
-| RNF-20 · separación de capas | ✅ | Cuatro capas. Dos excepciones conocidas, listadas abajo |
+| RNF-20 · separación de capas | ✅ | Cuatro capas. Cinco archivos de presentación leen la base directamente (lecturas simples de una tabla); están listados en [ARQUITECTURA.md](../02-diseno/ARQUITECTURA.md), sección 3, y una prueba falla si aparece otro |
 | RNF-21 a RNF-23 · imágenes | ✅ | JPEG a calidad 60, ancho 1080, en `Directory.Data` |
 | RNF-24 · skeleton loaders | ✅ | `components/common/SkeletonLoader.vue` |
 | RNF-25 · fotos en almacenamiento permanente | ✅ | Se guardan por **nombre de archivo**, no por ruta absoluta: así sobreviven a una reinstalación |
@@ -98,7 +99,7 @@ Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · 
 
 ## Reglas de negocio · RN-01 a RN-40
 
-Las cuarenta reglas de [Costura.md](../01-analisis/Costura.md) son pruebas ejecutables en [`src/__tests__/reglasNegocio.spec.js`](../../src/__tests__/reglasNegocio.spec.js): un bloque por regla, con el mismo identificador, contra SQLite real y a través de los composables que usa la pantalla. Una regla que sólo respeta la interfaz ocultando un botón **no cuenta como cumplida**.
+Las cuarenta reglas del [SRS](../01-requisitos/SRS.md) (sección 3.4) son pruebas ejecutables en [`src/__tests__/reglasNegocio.spec.js`](../../src/__tests__/reglasNegocio.spec.js): un bloque por regla, con el mismo identificador, contra SQLite real y a través de los composables que usa la pantalla. Una regla que sólo respeta la interfaz ocultando un botón **no cuenta como cumplida**.
 
 - Un incumplimiento conocido se escribe con `it.fails` y su defecto. Esa prueba pasa mientras la regla siga rota y **empieza a fallar el día que se corrige**, obligando a convertirla en una prueba normal.
 - La última prueba del archivo lee este catálogo: si se añade una RN sin su bloque, la CI falla.
@@ -124,7 +125,7 @@ Las cuarenta reglas de [Costura.md](../01-analisis/Costura.md) son pruebas ejecu
 
 ## Fase 2 · Pendiente
 
-> **Renumerada.** La especificación original usaba RF-50 y RNF-24 a RNF-27, que ya estaban ocupados por el documento de mejoras de Fase 1. Se desplazó a RF-61 y RNF-28 para que la matriz sea unívoca. La correspondencia está en [COSTURA_FASE2_REQUISITOS.md](../01-analisis/COSTURA_FASE2_REQUISITOS.md).
+> **Renumerada.** La especificación original usaba RF-50 y RNF-24 a RNF-27, que ya estaban ocupados por el documento de mejoras de Fase 1. Se desplazó a RF-61 y RNF-28 para que la matriz sea unívoca. La correspondencia está en [COSTURA_FASE2_REQUISITOS.md](../01-requisitos/historico/COSTURA_FASE2_REQUISITOS.md).
 
 | Req. | Antes | Descripción | Estado |
 | --- | --- | --- | --- |
@@ -213,9 +214,11 @@ Dos sitios saltan de la presentación a la capa de datos sin pasar por su compos
 
 | Documento | Contenido |
 | --- | --- |
-| [Costura.md](../01-analisis/Costura.md) | Especificación original de Fase 1: RF, RNF e historias de usuario |
-| [DIAGRAMAS.md](../02-diseno/DIAGRAMAS.md) | Planos del sistema, regenerados desde el código |
-| [MEJORAS_ADICIONALES_FASE1.md](../01-analisis/MEJORAS_ADICIONALES_FASE1.md) | Valor añadido sobre la especificación original |
-| [COSTURA_FASE2_REQUISITOS.md](../01-analisis/COSTURA_FASE2_REQUISITOS.md) | Alcance de la siguiente etapa |
-| [FICHA_TECNICA.md](../03-manuales/FICHA_TECNICA.md) | Resumen técnico y de despliegue |
+| [SRS.md](../01-requisitos/SRS.md) | Requisitos vigentes con su estado |
+| [Costura.md](../01-requisitos/historico/Costura.md) | Especificación original de Fase 1: RF, RNF e historias de usuario |
+| [ARQUITECTURA.md](../02-diseno/ARQUITECTURA.md) | Arquitectura, módulos y despliegue |
+| [CASOS_DE_USO.md](../02-diseno/CASOS_DE_USO.md) | Casos de uso por actor |
+| [MEJORAS_ADICIONALES_FASE1.md](../01-requisitos/historico/MEJORAS_ADICIONALES_FASE1.md) | Valor añadido sobre la especificación original |
+| [COSTURA_FASE2_REQUISITOS.md](../01-requisitos/historico/COSTURA_FASE2_REQUISITOS.md) | Alcance de la siguiente etapa |
+| [MANUAL_TECNICO.md](../03-manuales/MANUAL_TECNICO.md) | Instalación, compilación, pruebas y despliegue |
 | [MANUAL_USUARIO.md](../03-manuales/MANUAL_USUARIO.md) | Guía operativa para el taller |
