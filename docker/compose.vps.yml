@@ -1,0 +1,20 @@
+# Despliegue en el VPS del portafolio: https://proyectosena.online/costura-app/
+#
+# Lo usa Dokploy (proyecto "Portafolio", servicio costura-app) con
+# "Compose Path" = ./docker/compose.vps.yml.
+#
+# - La app se compila para la subruta /costura-app/ (BASE_PATH).
+# - El contenedor solo escucha dentro del servidor (127.0.0.1:3014). El nginx del
+#   VPS, que atiende proyectosena.online con HTTPS, reenvía /costura-app/ a ese
+#   puerto quitando el prefijo.
+services:
+  web:
+    build:
+      context: ..
+      args:
+        BASE_PATH: /costura-app/
+        # Enlace público del APK para el botón "Descargar App (Android)"
+        VITE_APK_DOWNLOAD_URL: ${VITE_APK_DOWNLOAD_URL:-}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3014:8080"
