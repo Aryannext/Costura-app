@@ -1,0 +1,142 @@
+[
+  {
+    "id": "DG-01",
+    "archivo": "docs/02-diseno/ARQUITECTURA.md",
+    "numero": 1,
+    "linea": 42,
+    "titulo": "## 3. Vista de capas"
+  },
+  {
+    "id": "DG-02",
+    "archivo": "docs/02-diseno/ARQUITECTURA.md",
+    "numero": 2,
+    "linea": 165,
+    "titulo": "## 6. Arranque y migraciones"
+  },
+  {
+    "id": "DG-03",
+    "archivo": "docs/02-diseno/ARQUITECTURA.md",
+    "numero": 3,
+    "linea": 205,
+    "titulo": "## 7. Despliegue"
+  },
+  {
+    "id": "DG-04",
+    "archivo": "docs/02-diseno/CASOS_DE_USO.md",
+    "numero": 1,
+    "linea": 28,
+    "titulo": "### 2.1 Modista · Acceso y seguridad"
+  },
+  {
+    "id": "DG-05",
+    "archivo": "docs/02-diseno/CASOS_DE_USO.md",
+    "numero": 2,
+    "linea": 53,
+    "titulo": "### 2.2 Modista · Clientes y datos personales"
+  },
+  {
+    "id": "DG-06",
+    "archivo": "docs/02-diseno/CASOS_DE_USO.md",
+    "numero": 3,
+    "linea": 82,
+    "titulo": "### 2.3 Modista · Órdenes y prendas"
+  },
+  {
+    "id": "DG-07",
+    "archivo": "docs/02-diseno/CASOS_DE_USO.md",
+    "numero": 4,
+    "linea": 121,
+    "titulo": "### 2.4 Modista · Cobros y consultas"
+  },
+  {
+    "id": "DG-08",
+    "archivo": "docs/02-diseno/CASOS_DE_USO.md",
+    "numero": 5,
+    "linea": 146,
+    "titulo": "### 2.5 Modista · Comunicación"
+  },
+  {
+    "id": "DG-09",
+    "archivo": "docs/02-diseno/CASOS_DE_USO.md",
+    "numero": 6,
+    "linea": 182,
+    "titulo": "### 2.6 Modista · Configuración y copia de seguridad"
+  },
+  {
+    "id": "DG-10",
+    "archivo": "docs/02-diseno/CASOS_DE_USO.md",
+    "numero": 7,
+    "linea": 219,
+    "titulo": "### 2.7 Reloj del sistema"
+  },
+  {
+    "id": "DG-11",
+    "archivo": "docs/02-diseno/CASOS_DE_USO.md",
+    "numero": 8,
+    "linea": 357,
+    "titulo": "## 4. Flujo del negocio"
+  },
+  {
+    "id": "DG-12",
+    "archivo": "docs/02-diseno/CLASES.md",
+    "numero": 1,
+    "linea": 12,
+    "titulo": "## 1. Modelo del dominio"
+  },
+  {
+    "id": "DG-13",
+    "archivo": "docs/02-diseno/COMPORTAMIENTO.md",
+    "numero": 1,
+    "linea": 13,
+    "titulo": "## 1. Navegación"
+  },
+  {
+    "id": "DG-14",
+    "archivo": "docs/02-diseno/COMPORTAMIENTO.md",
+    "numero": 2,
+    "linea": 59,
+    "titulo": "### 2.1 Estado de una prenda (`estado_prenda`)"
+  },
+  {
+    "id": "DG-15",
+    "archivo": "docs/02-diseno/COMPORTAMIENTO.md",
+    "numero": 3,
+    "linea": 73,
+    "titulo": "### 2.2 Estado de una orden (`estado_orden`)"
+  },
+  {
+    "id": "DG-16",
+    "archivo": "docs/02-diseno/COMPORTAMIENTO.md",
+    "numero": 4,
+    "linea": 125,
+    "titulo": "### 3.1 Agregar una prenda"
+  },
+  {
+    "id": "DG-17",
+    "archivo": "docs/02-diseno/COMPORTAMIENTO.md",
+    "numero": 5,
+    "linea": 159,
+    "titulo": "### 3.2 Registrar un abono"
+  },
+  {
+    "id": "DG-18",
+    "archivo": "docs/02-diseno/COMPORTAMIENTO.md",
+    "numero": 6,
+    "linea": 191,
+    "titulo": "### 3.3 Sesión: acceso y bloqueo"
+  },
+  {
+    "id": "DG-19",
+    "archivo": "docs/02-diseno/COMPORTAMIENTO.md",
+    "numero": 7,
+    "linea": 231,
+    "titulo": "### 3.4 Copia de seguridad y restauración"
+  },
+  {
+    "id": "DG-20",
+    "archivo": "docs/02-diseno/MODELO_DE_DATOS.md",
+    "numero": 1,
+    "linea": 14,
+    "titulo": "## 1. Diagrama entidad-relación"
+  }
+]
