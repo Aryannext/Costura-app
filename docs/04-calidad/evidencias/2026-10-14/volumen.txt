@@ -1,0 +1,11 @@
+Prueba de volumen: src/database/__tests__/volumen.sqlite.spec.js
+Fecha: 2026-10-14 · commit efe712b + esta prueba · motor: sql.js (SQLite en WebAssembly) en el PC de desarrollo, no en el teléfono
+Carga: 500 órdenes, 150 clientas, 1000 prendas, 500 abonos · 20 repeticiones por operación · tiempos en milisegundos
+
+Volumen 500 órdenes · 20 repeticiones · ms {"abrirOrden":{"mediana":0.56,"maximo":2.72},"registrarOrden":{"mediana":0.48,"maximo":1.13},"actualizarSaldo":{"mediana":0.38,"maximo":0.7},"listarOrdenes":{"mediana":4.93,"maximo":5.63},"buscarClienta":{"mediana":0.63,"maximo":1.47}}
+✓ Volumen: 500 órdenes, 150 clientas > la base quedó con el volumen esperado 2ms
+✓ Volumen: 500 órdenes, 150 clientas > RNF-01: abrir una orden (datos, prendas, pagos e historial) tarda menos de 2 s 14ms
+✓ Volumen: 500 órdenes, 150 clientas > RNF-02: registrar una orden con una prenda tarda menos de 3 s 11ms
+✓ Volumen: 500 órdenes, 150 clientas > RNF-03: registrar un abono y leer el saldo nuevo tarda menos de 1 s 8ms
+✓ Volumen: 500 órdenes, 150 clientas > listar todas las órdenes y buscar por nombre se mantienen por debajo de 2 s 114ms
+Tests  5 passed (5)

@@ -21,6 +21,8 @@ Proyecto formativo SENA ADSO 2480542 · Centro Tecnológico de la Amazonia, Flor
 | ¿Cómo se instala, compila y despliega? | [MANUAL_TECNICO](03-manuales/MANUAL_TECNICO.md) |
 | ¿Cómo la usa la modista? | [MANUAL_USUARIO](03-manuales/MANUAL_USUARIO.md) |
 | ¿Cómo se probó? ¿Qué falta probar? | [PLAN_DE_PRUEBAS](04-calidad/PLAN_DE_PRUEBAS.md) |
+| ¿Cuáles son los casos de prueba y qué resultado dieron? | [CASOS_DE_PRUEBA](04-calidad/CASOS_DE_PRUEBA.md) e [INFORME_DE_RESULTADOS](04-calidad/INFORME_DE_RESULTADOS.md) |
+| ¿Qué defectos se encontraron y cómo se van a corregir? | [REPORTE_DE_DEFECTOS](04-calidad/REPORTE_DE_DEFECTOS.md) y [PLAN_DE_MEJORA](04-calidad/PLAN_DE_MEJORA.md) |
 | ¿Dónde está implementado cada requisito? | [TRAZABILIDAD](04-calidad/TRAZABILIDAD.md) |
 | ¿Cómo se organizó el trabajo? (Scrum) | [PLAN_19_DIAS](05-gestion/PLAN_19_DIAS.md) |
 | ¿Qué leyes se tuvieron en cuenta? | [DECISIONES](05-gestion/DECISIONES.md): D-08 (Ley 1581) y D-09 (Ley 1480) |
@@ -32,7 +34,7 @@ Proyecto formativo SENA ADSO 2480542 · Centro Tecnológico de la Amazonia, Flor
 | [`01-requisitos/`](01-requisitos/) | Análisis | `SRS.md` | Especificación original (`Costura.md` y `.docx`), mejoras de fase 1, requisitos de fase 2 y el borrador SRS 0.1 de los analistas |
 | [`02-diseno/`](02-diseno/) | Diseño | `ARQUITECTURA.md`, `MODELO_DE_DATOS.md`, `CASOS_DE_USO.md`, `COMPORTAMIENTO.md`, `CLASES.md` | Script MySQL del diseño inicial, que la app **no** usa |
 | [`03-manuales/`](03-manuales/) | Implantación | `MANUAL_TECNICO.md`, `MANUAL_USUARIO.md` | — |
-| [`04-calidad/`](04-calidad/) | Pruebas | `PLAN_DE_PRUEBAS.md`, `TRAZABILIDAD.md` | Auditorías del 6 y 7 de octubre, con sus fallos y cómo se corrigieron |
+| [`04-calidad/`](04-calidad/) | Pruebas | `PLAN_DE_PRUEBAS.md`, `CASOS_DE_PRUEBA.md`, `INFORME_DE_RESULTADOS.md`, `REPORTE_DE_DEFECTOS.md`, `PLAN_DE_MEJORA.md`, `TRAZABILIDAD.md`; evidencias de cada ejecución en `evidencias/` | Auditorías del 6 y 7 de octubre, con sus fallos y cómo se corrigieron |
 | [`05-gestion/`](05-gestion/) | Gestión | `PLAN_19_DIAS.md`, `DECISIONES.md` | — |
 | [`99-archivo/`](99-archivo/) | — | — | Propuestas fuera del alcance (tienda web). Trabajo futuro |
 

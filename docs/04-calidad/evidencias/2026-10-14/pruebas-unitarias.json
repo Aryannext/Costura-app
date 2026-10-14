@@ -1,0 +1,232 @@
+{
+  "fecha": "2026-10-14T18:18:52.079Z",
+  "commit": "efe712b",
+  "total": 388,
+  "pasan": 388,
+  "fallan": 0,
+  "omitidas": 0,
+  "archivos": [
+    {
+      "archivo": "src/__tests__/documentacion.spec.js",
+      "pruebas": 8,
+      "pasan": 8,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/__tests__/main.spec.js",
+      "pruebas": 3,
+      "pasan": 3,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/__tests__/reglasNegocio.spec.js",
+      "pruebas": 82,
+      "pasan": 82,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/__tests__/reporteFinanciero.spec.js",
+      "pruebas": 4,
+      "pasan": 4,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/components/common/__tests__/StatusBadge.spec.js",
+      "pruebas": 1,
+      "pasan": 1,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/components/common/__tests__/SwipeItem.spec.js",
+      "pruebas": 3,
+      "pasan": 3,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/components/ordenes/__tests__/TimelineProgressBar.spec.js",
+      "pruebas": 3,
+      "pasan": 3,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/components/prendas/__tests__/PrendaCard.spec.js",
+      "pruebas": 8,
+      "pasan": 8,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/composables/__tests__/useAppLock.spec.js",
+      "pruebas": 10,
+      "pasan": 10,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/composables/__tests__/useAsyncAction.spec.js",
+      "pruebas": 7,
+      "pasan": 7,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/composables/__tests__/useBackupRestore.spec.js",
+      "pruebas": 3,
+      "pasan": 3,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/composables/__tests__/useNotificacionesLocales.spec.js",
+      "pruebas": 12,
+      "pasan": 12,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/composables/__tests__/useOrdenes.spec.js",
+      "pruebas": 4,
+      "pasan": 4,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/composables/__tests__/useTelegramReports.spec.js",
+      "pruebas": 3,
+      "pasan": 3,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/database/__tests__/busquedaYConfiguracion.sqlite.spec.js",
+      "pruebas": 7,
+      "pasan": 7,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/database/__tests__/connection.spec.js",
+      "pruebas": 10,
+      "pasan": 10,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/database/__tests__/migrationRunner.spec.js",
+      "pruebas": 9,
+      "pasan": 9,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/database/__tests__/saldo.sqlite.spec.js",
+      "pruebas": 37,
+      "pasan": 37,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/database/__tests__/volumen.sqlite.spec.js",
+      "pruebas": 5,
+      "pasan": 5,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/database/queries/__tests__/ordenes.spec.js",
+      "pruebas": 7,
+      "pasan": 7,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/database/queries/__tests__/pagos.spec.js",
+      "pruebas": 3,
+      "pasan": 3,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/database/queries/__tests__/prendas.spec.js",
+      "pruebas": 8,
+      "pasan": 8,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/services/__tests__/backupPayload.spec.js",
+      "pruebas": 5,
+      "pasan": 5,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/services/__tests__/cryptoService.spec.js",
+      "pruebas": 7,
+      "pasan": 7,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/services/__tests__/estadoOrden.spec.js",
+      "pruebas": 18,
+      "pasan": 18,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/services/__tests__/fechas.spec.js",
+      "pruebas": 12,
+      "pasan": 12,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/services/__tests__/formato.spec.js",
+      "pruebas": 4,
+      "pasan": 4,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/services/__tests__/telegramService.spec.js",
+      "pruebas": 2,
+      "pasan": 2,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/services/__tests__/validators.spec.js",
+      "pruebas": 57,
+      "pasan": 57,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/services/__tests__/vencimientos.spec.js",
+      "pruebas": 12,
+      "pasan": 12,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/services/__tests__/whatsapp.spec.js",
+      "pruebas": 8,
+      "pasan": 8,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/views/__tests__/AjustesView.spec.js",
+      "pruebas": 3,
+      "pasan": 3,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/views/__tests__/AyudaView.spec.js",
+      "pruebas": 3,
+      "pasan": 3,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/views/__tests__/DashboardView.spec.js",
+      "pruebas": 7,
+      "pasan": 7,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/views/__tests__/OrdenDetailView.aviso.spec.js",
+      "pruebas": 5,
+      "pasan": 5,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/views/__tests__/OrdenesView.spec.js",
+      "pruebas": 4,
+      "pasan": 4,
+      "fallan": 0
+    },
+    {
+      "archivo": "src/views/__tests__/ReportesView.spec.js",
+      "pruebas": 4,
+      "pasan": 4,
+      "fallan": 0
+    }
+  ]
+}

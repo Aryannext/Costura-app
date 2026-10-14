@@ -1,0 +1,9 @@
+Pruebas de punta a punta (Playwright, Microsoft Edge, servidor de desarrollo en localhost:5173)
+Fecha: 2026-10-14 · commit efe712b · comando: PW_CHANNEL=msedge npx playwright test --reporter=list
+
+ok 1 [chromium] › tests/e2e/flujo-orden.spec.js:13:1 › orden de punta a punta: cliente, fecha anterior, prenda, aviso WhatsApp, pago Bre-B y entrega con deuda (9.8s)
+ok 2 [chromium] › tests/e2e/orden-creation.spec.js:5:3 › Order Creation & Concurrency › handles concurrent order creations cleanly without cross-contamination (13.3s)
+ok 3 [chromium] › tests/e2e/persistence.spec.js:5:5 › Web Persistence E2E (jeep-sqlite IndexedDB) › should persist client data across page reloads (7.7s)
+3 passed (32.2s)
+
+Aviso del navegador en la consola (2 veces): formulario de contraseña sin campo de usuario (accesibilidad). Ver DEF-09.

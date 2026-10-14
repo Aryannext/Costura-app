@@ -2,7 +2,13 @@
 
 Qué se prueba, cómo se prueba y qué falta probar.
 
-> **Revisado:** 7 de octubre de 2026
+> **Revisado:** 14 de octubre de 2026
+
+Documentos de la guía SENA *Aplicación de pruebas de software*, ejecutados el 14 de octubre:
+- [Casos de prueba](CASOS_DE_PRUEBA.md): 28 casos con identificador, descripción, orden, requerimiento, pre y postcondición y resultado esperado.
+- [Informe de resultados](INFORME_DE_RESULTADOS.md): 23 ejecutados, 20 exitosos, 3 fallidos y 5 bloqueados.
+- [Reporte de defectos](REPORTE_DE_DEFECTOS.md): 12 defectos con su ciclo de vida.
+- [Plan de mejora](PLAN_DE_MEJORA.md): causas, objetivos, acciones y seguimiento hasta la entrega.
 
 ---
 
@@ -11,6 +17,8 @@ Qué se prueba, cómo se prueba y qué falta probar.
 | Nivel | Herramienta | Qué cubre | Cuándo corre |
 | --- | --- | --- | --- |
 | Unitarias y de integración | Vitest + Vue Test Utils + sql.js | Las 40 reglas de negocio contra SQLite real, validaciones, saldo, estados, migraciones, copia de seguridad, avisos, recibo y vistas | En cada cambio, en GitHub Actions |
+| Volumen | Vitest + sql.js (`volumen.sqlite.spec.js`) | Abrir, registrar, abonar, listar y buscar con 500 órdenes, contra los límites de RNF-01 a RNF-03 (mide la base, no el teléfono) | En cada cambio, en GitHub Actions |
+| Seguridad | `npm audit` y cabeceras HTTP; OWASP ZAP pendiente | Vulnerabilidades publicadas de las dependencias y cabeceras de la versión web | Antes de cada entrega |
 | Documentación | Vitest (`documentacion.spec.js`) | Que diagramas, módulos, rutas y enlaces coincidan con el código | En cada cambio, en GitHub Actions |
 | De punta a punta | Playwright | Tres recorridos completos en el navegador: crear clienta y orden, el flujo completo de una orden y que los datos sobrevivan a una recarga | A mano antes de cada entrega |
 | Calidad estática | SonarCloud | Confiabilidad y seguridad del código nuevo | En cada pull request |
@@ -64,8 +72,11 @@ Las respuestas van a [DECISIONES.md](../05-gestion/DECISIONES.md) si cambian alg
 | Qué | Por qué no se ha probado | Requisito |
 | --- | --- | --- |
 | Cámara, huella y aviso de las 8:00 en el teléfono de la dueña | Solo se probaron en el emulador de Android | P-06 |
-| Tiempos de respuesta con 500 órdenes | Hay que medirlos en el teléfono real | RNF-01, RNF-02, RNF-03 |
+| Tiempos de respuesta con 500 órdenes en el teléfono | La base ya se midió con 500 órdenes en el PC (milisegundos, CPV-17); falta el teléfono real | RNF-01, RNF-02, RNF-03 |
 | Restaurar una copia con fotos en otro teléfono | Se probó en el emulador | RNF-18 |
 | Prueba de aceptación de la sección 3 | Pendiente de hacer con la dueña | Todo el SRS |
+| Usabilidad con la dueña | Protocolo listo, sin aplicar | RNF-04, RNF-16 |
+| Escaneo con OWASP ZAP y carga con JMeter | Falta instalar las herramientas y autorización para el VPS compartido | CPV-23, CPV-24 |
+| Chrome y Firefox | Las pruebas de punta a punta solo corren en Edge | RNF-15 |
 
 Los informes de auditoría anteriores, con los fallos encontrados y cómo se corrigieron, están en [historico/](historico/).

@@ -1,0 +1,52 @@
+[
+  {
+    "id": "DH-01",
+    "archivo": "docs/04-calidad/historico/AUDITORIA_APP_DOCUMENTACION.md",
+    "numero": 1
+  },
+  {
+    "id": "DH-02",
+    "archivo": "docs/04-calidad/historico/FALLOS_APP_2026-10-06.md",
+    "numero": 1
+  },
+  {
+    "id": "DH-03",
+    "archivo": "docs/04-calidad/historico/REVISION_EQUIPO_ANALISTAS_2026-10-07.md",
+    "numero": 1
+  },
+  {
+    "id": "DH-04",
+    "archivo": "docs/99-archivo/propuesta-venta/ARQUITECTURA.md",
+    "numero": 1
+  },
+  {
+    "id": "DH-05",
+    "archivo": "docs/99-archivo/propuesta-venta/ARQUITECTURA.md",
+    "numero": 2
+  },
+  {
+    "id": "DH-06",
+    "archivo": "docs/99-archivo/propuesta-venta/ARQUITECTURA.md",
+    "numero": 3
+  },
+  {
+    "id": "DH-07",
+    "archivo": "docs/99-archivo/propuesta-venta/ARQUITECTURA.md",
+    "numero": 4
+  },
+  {
+    "id": "DH-08",
+    "archivo": "docs/99-archivo/PROPUESTA_WEB_APP.md",
+    "numero": 1
+  },
+  {
+    "id": "DH-09",
+    "archivo": "docs/99-archivo/PROPUESTA_WEB_APP.md",
+    "numero": 2
+  },
+  {
+    "id": "DH-10",
+    "archivo": "docs/99-archivo/PROPUESTA_WEB_APP.md",
+    "numero": 3
+  }
+]
