@@ -79,23 +79,22 @@ jobs:
   vitrina:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    # Fijada al commit de la v4.2.2: una etiqueta se puede mover, un commit no
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
     - name: Construir la imagen
       run: docker build -t costura-vitrina vitrina
 
-    - name: Levantar el contenedor
-      run: |
-        # Clave de un solo uso, generada en cada ejecución: no queda escrita en el repositorio
-        CLAVE=$(openssl rand -hex 20)
-        echo "::add-mask::$CLAVE"
-        echo "VITRINA_CLAVE_ADMIN=$CLAVE" >> "$GITHUB_ENV"
-        docker run -d --name vitrina -p 8081:8080 -e VITRINA_CLAVE_ADMIN="$CLAVE" costura-vitrina
-        for i in $(seq 1 30); do curl -fs http://localhost:8081/healthz && break; sleep 1; done
-
-    - name: Comprobar la página, la API y que los datos sobreviven a un reinicio
+    # Un solo paso: la clave de administración se genera aquí, en cada ejecución,
+    # y no sale de este paso ni queda escrita en el repositorio
+    - name: Levantar el contenedor y comprobar la página, la API y que los datos sobreviven a un reinicio
       run: |
         set -e
+        CLAVE=$(openssl rand -hex 20)
+        echo "::add-mask::$CLAVE"
+        esperar() { for i in $(seq 1 30); do curl -fs http://localhost:8081/healthz && return 0; sleep 1; done; return 1; }
+        docker run -d --name vitrina -p 8081:8080 -e VITRINA_CLAVE_ADMIN="$CLAVE" costura-vitrina
+        esperar
         curl -fs http://localhost:8081/ | grep -q 'Vitrina de'
         curl -fsI http://localhost:8081/ | grep -qi "content-security-policy: default-src 'self'"
         curl -fs http://localhost:8081/api/prendas | grep -q '"prendas":\[\]'
@@ -103,9 +102,8 @@ jobs:
           -d '{"nombre":"Taller CI","ciudad":"Bogotá","barrio":"Centro","whatsapp":"3001234567","aceptaCondiciones":true}' \
           http://localhost:8081/api/modistas | grep -q '"estado":"pendiente"'
         docker restart vitrina
-        for i in $(seq 1 30); do curl -fs http://localhost:8081/healthz && break; sleep 1; done
-        curl -fs -H "Authorization: Bearer $VITRINA_CLAVE_ADMIN" \
-          http://localhost:8081/api/admin/modistas | grep -q 'Taller CI'
+        esperar
+        curl -fs -H "Authorization: Bearer $CLAVE" http://localhost:8081/api/admin/modistas | grep -q 'Taller CI'
         echo "Imagen de la vitrina verificada"
 
     - name: Registro del contenedor si algo falla
