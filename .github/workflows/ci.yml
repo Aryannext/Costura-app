@@ -74,3 +74,36 @@ jobs:
     - name: Registro del contenedor si algo falla
       if: failure()
       run: docker logs costura
+
+  # Vitrina de Modistas (D-15): imagen propia, con datos en un volumen
+  vitrina:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Construir la imagen
+      run: docker build -t costura-vitrina vitrina
+
+    - name: Levantar el contenedor
+      run: |
+        docker run -d --name vitrina -p 8081:8080 -e VITRINA_CLAVE_ADMIN=clave-de-ci-con-mas-de-24-caracteres costura-vitrina
+        for i in $(seq 1 30); do curl -fs http://localhost:8081/healthz && break; sleep 1; done
+
+    - name: Comprobar la página, la API y que los datos sobreviven a un reinicio
+      run: |
+        set -e
+        curl -fs http://localhost:8081/ | grep -q 'Vitrina de'
+        curl -fsI http://localhost:8081/ | grep -qi "content-security-policy: default-src 'self'"
+        curl -fs http://localhost:8081/api/prendas | grep -q '"prendas":\[\]'
+        curl -fs -X POST -H 'Content-Type: application/json' \
+          -d '{"nombre":"Taller CI","ciudad":"Bogotá","barrio":"Centro","whatsapp":"3001234567","aceptaCondiciones":true}' \
+          http://localhost:8081/api/modistas | grep -q '"estado":"pendiente"'
+        docker restart vitrina
+        for i in $(seq 1 30); do curl -fs http://localhost:8081/healthz && break; sleep 1; done
+        curl -fs -H 'Authorization: Bearer clave-de-ci-con-mas-de-24-caracteres' \
+          http://localhost:8081/api/admin/modistas | grep -q 'Taller CI'
+        echo "Imagen de la vitrina verificada"
+
+    - name: Registro del contenedor si algo falla
+      if: failure()
+      run: docker logs vitrina

@@ -1,0 +1,100 @@
+/* Vitrina de Modistas: tienda de barrio en el celular. Cinta métrica arriba,
+   pestañas Prendas / Arreglos y precios como etiquetas colgantes. */
+:root{
+  --bg:#F6F7F4; --surface:#FFFFFF; --ink:#1C2030; --muted:#5E6476; --line:#DCDFE6;
+  --denim:#2E4A7D; --denim-soft:#E6ECF6; --tape:#EFC04A; --tape-ink:#3A2E06;
+  --ok:#2F7A4F; --wa:#1A7F45; --shade:rgba(10,12,20,.55);
+  --display:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --r:14px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#12141C; --surface:#1B1E29; --ink:#ECEEF4; --muted:#A3A9BA; --line:#2E3242;
+  --denim:#8FAEE6; --denim-soft:#232B40; --tape:#E7B93F; --tape-ink:#2A2104;
+  --ok:#6FCB94; --wa:#1F8F4E; color-scheme:dark}}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--body);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+img{max-width:100%;display:block}
+[hidden]{display:none!important}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--tape);outline-offset:2px;border-radius:6px}
+
+.tape{height:22px;background:
+  repeating-linear-gradient(90deg,var(--tape-ink) 0 1px,transparent 1px 10px) bottom/100% 6px no-repeat,
+  repeating-linear-gradient(90deg,var(--tape-ink) 0 1px,transparent 1px 50px) bottom/100% 12px no-repeat,
+  var(--tape)}
+
+header .wrap{padding-block:28px 18px;display:grid;gap:14px}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(32px,6vw,52px);line-height:1;margin:0;letter-spacing:-.02em;text-wrap:balance}
+h1 em{font-style:normal;color:var(--denim)}
+.lede{color:var(--muted);max-width:60ch;margin:0}
+.search{display:flex;gap:8px;flex-wrap:wrap}
+.search input,.search select{background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:11px 16px;font:inherit;color:var(--ink);min-width:0}
+.search input{flex:1 1 240px}
+
+.tabs{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.tabs .wrap{display:flex;gap:4px}
+.tab{background:none;border:0;padding:14px 14px 12px;font-family:var(--display);font-weight:700;font-size:17px;color:var(--muted);border-bottom:3px solid transparent;cursor:pointer}
+.tab[aria-selected="true"]{color:var(--ink);border-color:var(--denim)}
+.tab small{font:500 12px var(--mono);color:var(--muted)}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;padding-block:16px 4px}
+.chip{background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:6px 14px;font-size:14px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;padding-block:18px 40px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;cursor:pointer;text-align:left;padding:0;transition:transform .15s ease,box-shadow .15s ease}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 24px -12px rgba(0,0,0,.35)}
+.pic{aspect-ratio:4/5;max-width:100%;position:relative;background:var(--denim-soft);overflow:hidden}
+.pic img{width:100%;height:100%;object-fit:cover}
+.tag{position:absolute;top:12px;right:12px;background:var(--surface);color:var(--ink);font:700 15px var(--mono);padding:6px 10px 6px 20px;border-radius:4px 10px 10px 4px;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+.tag::before{content:"";position:absolute;left:7px;top:50%;width:6px;height:6px;border-radius:50%;background:var(--bg);border:1px solid var(--line);transform:translateY(-50%)}
+.body{padding:14px 16px 16px;display:grid;gap:4px;min-width:0}
+.body h3{font-family:var(--display);font-size:18px;margin:0;line-height:1.2}
+.meta{font-size:14px;color:var(--muted)}
+.meas{font:12px var(--mono);color:var(--muted)}
+.unica{font:500 11px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--ok)}
+
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:18px;padding-block:18px 40px}
+.mcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:12px;align-content:start;min-width:0}
+.mhead{display:flex;gap:12px;align-items:center}
+.avatar{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font:800 20px var(--display);color:var(--bg);background:var(--denim);flex:none}
+.mhead h3{font-family:var(--display);margin:0;font-size:19px;line-height:1.2}
+.prices{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:15px}
+.prices li{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed var(--line);padding-bottom:6px}
+.prices b{font:500 14px var(--mono);white-space:nowrap}
+.desc{margin:0;font-size:15px;white-space:pre-line}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;padding:12px 18px;font-weight:700;cursor:pointer;text-decoration:none}
+.btn-wa{background:var(--wa);color:#fff}
+.btn-ghost{background:var(--denim-soft);color:var(--denim)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+
+dialog{border:0;padding:0;background:var(--surface);color:var(--ink);width:min(760px,100%);max-width:100%;max-height:92vh;border-radius:20px;overflow:auto}
+dialog::backdrop{background:var(--shade)}
+.panel{display:grid;grid-template-columns:1fr 1.2fr;position:relative}
+@media (max-width:620px){.panel{grid-template-columns:1fr}dialog{width:100%;margin:auto 0 0;border-radius:20px 20px 0 0}}
+.pinfo{padding:20px;display:grid;gap:12px;align-content:start;min-width:0}
+.pinfo h2{font-family:var(--display);margin:0;font-size:26px;line-height:1.1}
+.price{font:700 26px var(--mono)}
+dl.specs{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0;font-size:15px}
+dl.specs dt{color:var(--muted)}
+dl.specs dd{margin:0;font-family:var(--mono);font-size:14px;overflow-wrap:anywhere}
+.who{display:flex;gap:10px;align-items:center;background:var(--denim-soft);border-radius:12px;padding:10px}
+.who .avatar{width:40px;height:40px;font-size:16px}
+.close{position:absolute;top:10px;right:10px;z-index:1;background:var(--surface);border:1px solid var(--line);border-radius:50%;width:38px;height:38px;cursor:pointer;font-size:18px}
+
+.how{background:var(--ink);color:var(--bg)}
+.how .wrap{padding-block:36px;display:grid;gap:18px}
+.how h2{font-family:var(--display);margin:0;font-size:26px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:0;padding:0;list-style:none;counter-reset:s}
+.steps li{counter-increment:s;border-top:2px solid var(--tape);padding-top:10px;min-width:0}
+.steps li::before{content:"Paso " counter(s);display:block;font:500 12px var(--mono);color:var(--tape);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.empty{padding:40px 0;color:var(--muted);grid-column:1/-1}
+footer .wrap{padding-block:20px;font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}

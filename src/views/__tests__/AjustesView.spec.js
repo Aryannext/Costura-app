@@ -41,7 +41,7 @@ describe('AjustesView', () => {
 
     it('agrupa las opciones por secciones y deja Cerrar sesión aparte', async () => {
         const wrapper = await montar();
-        expect(wrapper.findAll('.grupo-t').map(g => g.text())).toEqual(['Tu taller', 'Datos de tus clientas', 'Notificaciones', 'Copia de seguridad', 'Seguridad', 'Ayuda']);
+        expect(wrapper.findAll('.grupo-t').map(g => g.text())).toEqual(['Tu taller', 'Datos de tus clientas', 'Vender en internet', 'Notificaciones', 'Copia de seguridad', 'Seguridad', 'Ayuda']);
         expect(wrapper.find('.fila--peligro').text()).toContain('Cerrar sesión');
     });
 

@@ -57,6 +57,12 @@ const routes = [
         meta: { requiresAuth: true, index: 2 }
     },
     {
+        path: '/vitrina',
+        name: 'MiVitrina',
+        component: () => import('../views/MiVitrinaView.vue'),
+        meta: { requiresAuth: true, index: 2 }
+    },
+    {
         path: '/ayuda',
         name: 'Ayuda',
         component: () => import('../views/AyudaView.vue'),

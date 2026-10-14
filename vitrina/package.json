@@ -1,0 +1,11 @@
+{
+  "name": "costura-vitrina",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Vitrina de Modistas: página pública y API para las prendas que publican las modistas",
+  "type": "module",
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server.js"
+  }
+}

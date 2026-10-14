@@ -82,6 +82,17 @@
     </section>
 
     <section class="grupo">
+      <h3 class="grupo-t">Vender en internet</h3>
+      <!-- D-15: la única parte de la app que usa un servidor -->
+      <div class="card bloque">
+        <button class="fila" @click="router.push('/vitrina')">
+          <span class="fila-t"><b>Mi vitrina</b><small>Publica las prendas que haces para vender y tus arreglos en la Vitrina de Modistas</small></span>
+          <svg class="ic chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg>
+        </button>
+      </div>
+    </section>
+
+    <section class="grupo">
       <h3 class="grupo-t">Notificaciones</h3>
       <!-- P1-7: el aviso de las 8:00 depende de dos permisos de Android -->
       <div v-if="estadoAvisoDiario !== 'no-disponible'" class="card bloque control">

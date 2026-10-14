@@ -1,4 +1,6 @@
-# Despliegue en el VPS del portafolio: https://proyectosena.online/costura-app/
+# Despliegue en el VPS del portafolio:
+#   https://proyectosena.online/costura-app/  la app (servicio web)
+#   https://proyectosena.online/vitrina/      la Vitrina de Modistas (servicio vitrina, D-15)
 #
 # Lo usa Dokploy (proyecto "Portafolio", servicio costura-app) con
 # "Compose Path" = ./docker/compose.vps.yml.
@@ -18,3 +20,21 @@ services:
     restart: unless-stopped
     ports:
       - "127.0.0.1:3014:8080"
+
+  # Vitrina de Modistas: lo único con datos en el servidor. Solo guarda lo que
+  # las modistas publican (perfil del taller y prendas con foto), nunca clientas.
+  # VITRINA_CLAVE_ADMIN se define en las variables de entorno de Dokploy, no aquí.
+  vitrina:
+    build:
+      context: ../vitrina
+    restart: unless-stopped
+    environment:
+      VITRINA_CLAVE_ADMIN: ${VITRINA_CLAVE_ADMIN:-}
+      VITRINA_CONFIAR_PROXY: "1"
+    volumes:
+      - vitrina-datos:/datos
+    ports:
+      - "127.0.0.1:3015:8080"
+
+volumes:
+  vitrina-datos:

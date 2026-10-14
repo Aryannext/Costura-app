@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vitrina de Modistas</title>
+<meta name="description" content="Prendas hechas a mano por modistas de tu ciudad y talleres para arreglar tu ropa. Escríbeles directo por WhatsApp.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="vitrina.css">
+<script src="vitrina.js" defer></script>
+</head>
+<body>
+<div class="tape" aria-hidden="true"></div>
+
+<header><div class="wrap">
+  <h1>Vitrina de <em>Modistas</em></h1>
+  <p class="lede">Prendas hechas a mano por modistas de tu ciudad, y talleres cerca de ti para arreglar tu ropa. Ves la prenda, el precio y le escribes directo a quien la hizo.</p>
+  <form class="search" id="buscar" role="search">
+    <label for="q" class="sr-only">Buscar</label>
+    <input id="q" type="search" placeholder="Busca: vestido, dobladillo, uniforme…" autocomplete="off">
+    <label for="ciudad" class="sr-only">Ciudad</label>
+    <select id="ciudad"><option value="">Todas las ciudades</option></select>
+  </form>
+</div></header>
+
+<nav class="tabs" role="tablist"><div class="wrap">
+  <button class="tab" role="tab" id="t-prendas" aria-selected="true" aria-controls="v-prendas">Prendas <small id="n-prendas"></small></button>
+  <button class="tab" role="tab" id="t-arreglos" aria-selected="false" aria-controls="v-arreglos">Arreglos <small id="n-modistas"></small></button>
+</div></nav>
+
+<main class="wrap">
+  <section id="v-prendas" role="tabpanel" aria-labelledby="t-prendas">
+    <div class="chips" id="categorias"></div>
+    <div class="grid" id="prendas" aria-live="polite"><p class="empty">Cargando prendas…</p></div>
+  </section>
+  <section id="v-arreglos" role="tabpanel" aria-labelledby="t-arreglos" hidden>
+    <div class="mgrid" id="modistas" aria-live="polite"><p class="empty">Cargando talleres…</p></div>
+  </section>
+</main>
+
+<section class="how"><div class="wrap">
+  <h2>¿Eres modista? Publica desde tu app</h2>
+  <ol class="steps">
+    <li>En la app Costura entras a <b>Ajustes → Mi vitrina</b> y creas tu vitrina con el nombre del taller, el barrio y tu WhatsApp.</li>
+    <li>Cuando la administración la aprueba, tomas la foto de la prenda que terminaste y pones precio, talla y medidas.</li>
+    <li>La prenda aparece aquí y los clientes te escriben por WhatsApp.</li>
+    <li>Cuando la vendes, la marcas como vendida y desaparece de la vitrina.</li>
+  </ol>
+</div></section>
+
+<footer><div class="wrap">Vitrina de Modistas. Los pedidos, pagos y entregas se acuerdan directamente con cada modista.</div></footer>
+
+<dialog id="detalle" aria-labelledby="detalle-titulo"></dialog>
+</body>
+</html>

@@ -62,9 +62,9 @@ flowchart TB
 
 | Capa | Contenido |
 | --- | --- |
-| Presentación | 11 rutas, una vista por ruta, y los componentes de cada módulo |
+| Presentación | 12 rutas, una vista por ruta, y los componentes de cada módulo |
 | Lógica de la aplicación | 18 composables (sección 4.1) |
-| Servicios | 12 módulos (sección 4.2) |
+| Servicios | 13 módulos (sección 4.2) |
 | Acceso a datos | 11 consultas, una por entidad, más conexión y migraciones (sección 4.3) |
 
 **Regla de dependencias:** las flechas van solo hacia abajo. Una consulta SQL no sabe nada de Vue, y un servicio no conoce las pantallas. Los servicios son transversales: los usan tanto la lógica como las consultas (por ejemplo, `estadoOrden`). Qué hay en cada capa está en la sección 4.
@@ -126,6 +126,7 @@ Cada archivo con su responsabilidad. La prueba de documentación comprueba que n
 | `photoStorage` | Guardar, leer y borrar fotos en el almacenamiento de la app |
 | `fechas` | Fechas locales sin errores de zona horaria |
 | `formato` | Pesos colombianos |
+| `vitrina` | Conexión con la Vitrina de Modistas: crear la vitrina, publicar y quitar prendas (D-15). Lo único que usa un servidor |
 
 ### 4.3 Acceso a datos (`src/database/`)
 

@@ -8,7 +8,7 @@ Cómo se mueve la aplicación: sus pantallas, los estados de órdenes y prendas,
 
 ## 1. Navegación
 
-Las 11 rutas de `src/router/index.js`. Cualquier otra dirección vuelve al inicio.
+Las 12 rutas de `src/router/index.js`. Cualquier otra dirección vuelve al inicio.
 
 ```mermaid
 %%{init: {'theme': 'neutral'}}%%
@@ -44,6 +44,7 @@ flowchart TB
     Aju --> Tele["/telegram · bot, copia y reporte diario"]
     Aju --> Clave
     Aju --> Ayuda["/ayuda · tutorial guiado"]
+    Aju --> Vitrina["/vitrina · publicar prendas en la Vitrina de Modistas"]
 ```
 
 - **Guardia de sesión:** sin sesión, cualquier ruta lleva a `/login`. Con la clave de fábrica, cualquier ruta lleva a `/cambiar-clave`.

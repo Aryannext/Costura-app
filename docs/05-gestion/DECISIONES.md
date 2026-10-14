@@ -81,6 +81,8 @@ El documento de requisitos original hablaba de "navegador en la red local" con u
 4. **Obligaciones legales nuevas:** con datos de muchas personas en tu servidor pasas a ser **responsable del tratamiento** (Ley 1581 de 2012). Como portal que conecta vendedores y compradores, también tendrías deberes de información según el Estatuto del Consumidor.
 5. **No resuelve el problema planteado** (D-01). El instructor evalúa contra el problema del proyecto.
 
+**Actualización (14 oct):** se pidió una versión acotada: solo prendas que la modista hizo para vender, sin carrito, con el contacto por WhatsApp. Ver D-15.
+
 **Dónde queda:** como **trabajo futuro (fase 2)** en la sustentación, con estos riesgos ya identificados. Existe una propuesta anterior en `docs/99-archivo/PROPUESTA_WEB_APP.md`.
 
 ## D-08. Datos personales (Ley 1581 de 2012)
@@ -165,6 +167,26 @@ El manual decía que no se podía; el requisito RN-30 decía que sí se podía s
 
 **Lo que se pierde:** la actualización ya no llega sola. Hay que pasar el APK al teléfono. Con un solo teléfono en el taller, eso es aceptable.
 
+## D-15. Vitrina de Modistas: el único servidor con datos, y solo con lo que se publica
+
+**Pedido (14 oct):** una página web para clientes donde las modistas que usan la app publiquen fotos de las prendas que hicieron, con precio y contacto, y donde se encuentren talleres que hacen arreglos.
+
+**Qué se hizo:**
+- **Servidor propio** (`vitrina/`), elegido en lugar de un servicio gratuito de terceros: corre en el mismo VPS que la versión web (D-13), no suma costos y los datos no quedan en manos de otra empresa. Es Node sin dependencias de npm (`node:http`, `node:sqlite`), con su propia imagen Docker y un volumen para la base y las fotos.
+- **Página pública** en `/vitrina/`: prendas con foto, precio, talla y medidas, y talleres con sus precios de arreglos. El botón abre WhatsApp con el mensaje escrito; la venta se cierra entre la clienta y la modista, sin pasarela ni comisiones (D-05).
+- **En la app:** *Ajustes → Mi vitrina* para crear la vitrina, tomar la foto, publicar, marcar vendida, quitar y borrar todo. El código de la vitrina se guarda en `configuracion`, así viaja en la copia de seguridad.
+
+**Qué no cambia de D-06:** las clientas, órdenes, medidas y pagos siguen solo en el teléfono. Al servidor llega únicamente lo que la modista decide publicar: nombre del taller, ciudad, barrio, WhatsApp del taller, horario, servicios y prendas con foto. Lo demás de la app sigue funcionando sin internet.
+
+**Cuidados:**
+1. **Solo prendas propias** (por D-07): la casilla de aceptación dice que la modista publica lo que hizo para vender, nunca ropa de una clienta.
+2. **Ley 1581:** la modista acepta de forma expresa que esos datos se muestren (fecha y versión de las condiciones guardadas en el servidor) y puede borrar su vitrina completa desde la app, con fotos incluidas. Se pide barrio, no dirección.
+3. **Fotos sin ubicación:** el servidor solo acepta JPEG y les quita los metadatos (EXIF con GPS, modelo del teléfono, comentarios) antes de guardarlas.
+4. **Aprobación:** un taller nuevo no se ve hasta que la administración lo aprueba; también se puede suspender. Así no aparecen perfiles falsos.
+5. **Cada modista solo toca lo suyo:** el código de la vitrina se guarda en el servidor como hash; con él solo se editan las prendas propias.
+
+Las pruebas están en `vitrina/__tests__/vitrina.spec.js` (servidor real con SQLite temporal) y en `src/services/__tests__/vitrina.spec.js` y `src/views/__tests__/MiVitrinaView.spec.js` (app). Cómo desplegarla y aprobar talleres: `vitrina/README.md`.
+
 ## Pendientes conocidos (no resueltos en esta versión)
 
 | ID | Pendiente | Riesgo |
@@ -176,3 +198,4 @@ El manual decía que no se podía; el requisito RN-30 decía que sí se podía s
 | P-05 | ~~Actualizaciones remotas~~ **Resuelto (8 oct):** se quitaron porque el servicio cobraba; las versiones nuevas se instalan con un APK (D-14) | — |
 | P-06 | Probar en un teléfono Android real: cámara, alarma de las 8 a. m., huella, abrir WhatsApp | Las pruebas automáticas corren en navegador, no en el teléfono |
 | P-07 | Desplegar la imagen Docker en el VPS con dominio y HTTPS | Sin HTTPS el navegador puede bloquear funciones; para la demo se necesita un enlace estable |
+| P-08 | Desplegar la Vitrina de Modistas (D-15) en el VPS: definir `VITRINA_CLAVE_ADMIN` en Dokploy y agregar el bloque `/vitrina/` de `docker/nginx-vps.conf` al nginx del portafolio | Hasta entonces, *Mi vitrina* en la app muestra que no hay conexión |
