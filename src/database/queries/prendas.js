@@ -198,8 +198,16 @@ export async function getFotografiasByPrenda(id_prenda) {
     return result.values || [];
 }
 
+/**
+ * Borra la fila de una foto y devuelve la ruta de su archivo, para que quien
+ * llama lo borre del teléfono (DEF-06). Devuelve null si la foto no existía o si
+ * otra fila sigue usando el mismo archivo: borrarlo dejaría esa otra sin imagen.
+ */
 export async function deleteFotografia(id_fotografia) {
     if (!db) throw new Error("Database not initialized");
+    const foto = await db.query("SELECT ruta_archivo FROM fotografia WHERE id_fotografia = ?", [id_fotografia]);
+    const ruta = foto.values?.[0]?.ruta_archivo ?? null;
+
     await db.executeSet([
         {
             // El rastro se escribe antes de borrar: después ya no se sabe de qué prenda era.
@@ -211,6 +219,10 @@ export async function deleteFotografia(id_fotografia) {
         },
         { statement: "DELETE FROM fotografia WHERE id_fotografia = ?", values: [id_fotografia] }
     ], true);
+
+    if (!ruta) return null;
+    const otras = await db.query("SELECT COUNT(*) AS n FROM fotografia WHERE ruta_archivo = ?", [ruta]);
+    return otras.values?.[0]?.n > 0 ? null : ruta;
 }
 
 /**

@@ -111,11 +111,11 @@ El detalle de cada uno, con su método de reproducción, está en el [reporte de
 | DEF-03 | Faltan cabeceras de seguridad en la versión web | Media | Nuevo |
 | DEF-04 | Entregar la última prenda cierra la orden con deuda sin advertir | Alta | Verificado |
 | DEF-05 | Cancelar la cámara muestra «Fotografía guardada» | Media | Verificado |
-| DEF-06 | Eliminar una foto deja el archivo en el teléfono | Media | Abierto |
+| DEF-06 | Eliminar una foto deja el archivo en el teléfono | Media | Verificado |
 | DEF-07 | Las órdenes no se ordenan por fecha de entrega | Media | Abierto |
 | DEF-08 | Anular y eliminar solo se alcanzan deslizando el dedo | Media | Abierto |
 | DEF-09 | Formularios de contraseña sin campo de usuario | Baja | Nuevo |
-| DEF-10 | Siete variables de estilo usadas sin definir | Baja | Abierto |
+| DEF-10 | Siete variables de estilo usadas sin definir | Baja | Verificado |
 | DEF-11 | El tutorial dice «Misión Completada» al cerrarlo a medias | Baja | Verificado |
 | DEF-12 | «Recordar a N clientes» cuenta órdenes, no clientas | Baja | Verificado |
 
@@ -147,5 +147,6 @@ Casos que se repitieron después de corregir sus defectos. El resumen de la secc
 | 14 oct | CPV-28, en pruebas de la pantalla con la cámara simulada | Rama `mensajes-foto-y-tutorial` | Exitoso: cancelar no anuncia nada; una foto real y un error se anuncian una vez cada uno. En el teléfono sigue pendiente | DEF-05 → *Verificado* |
 | 14 oct | Método de reproducción de DEF-11, con el driver.js real en Edge | Rama `mensajes-foto-y-tutorial` | Exitoso: cerrar a mitad no dice «Misión Completada»; terminar sí | DEF-11 → *Verificado* |
 | 14 oct | Método de reproducción de DEF-12 | Rama `recordatorios-cuenta-ordenes` | Exitoso: el botón ya no habla de clientes y el aviso cuenta órdenes | DEF-12 → *Verificado* |
+| 14 oct | Métodos de reproducción de DEF-06 y DEF-10 | Rama `fotos-y-estilos` | Exitoso: eliminar una foto borra también su archivo; no queda ninguna variable de CSS sin definir y el formulario se ve con sus bordes, error y foco | DEF-06 y DEF-10 → *Verificado* |
 
 Sobre el mismo commit pasan las 388 pruebas unitarias, con el mínimo de cobertura, y las 3 E2E en Edge. La versión publicada en `/costura-app/` carga con Vue 3.5.43.

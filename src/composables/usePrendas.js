@@ -160,7 +160,10 @@ export function usePrendas() {
 
     const removeFoto = async (id_fotografia) => {
         return execute(async () => {
-            await deleteFotografia(id_fotografia);
+            // Primero la fila, después el archivo (DEF-06). deletePhotoFile no lanza:
+            // si el archivo no se puede borrar, la foto ya salió de la galería y se avisa en consola.
+            const ruta = await deleteFotografia(id_fotografia);
+            if (ruta) await deletePhotoFile(ruta);
         }, {
             successMessage: 'Fotografía eliminada',
             toastError: 'Error al eliminar la fotografía'

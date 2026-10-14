@@ -228,19 +228,19 @@ async function handleEditCliente(clienteData) {
 }
 .back-btn, .edit-btn {
   background: none;
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
+  border: 1px solid var(--outline-variant);
+  color: var(--on-surface);
 }
 .cliente-header {
   margin-bottom: 24px;
 }
 .cliente-header h2 {
   margin: 0 0 8px 0;
-  color: var(--accent-color);
+  color: var(--primary);
 }
 .cliente-header p {
   margin: 4px 0;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
 }
 .section-header {
   display: flex;
@@ -268,7 +268,7 @@ async function handleEditCliente(clienteData) {
   transition: background-color 0.2s;
 }
 .orden-card:active {
-  background-color: var(--border-color);
+  background-color: var(--surface-container-high);
 }
 .orden-info h4 {
   margin: 0 0 4px 0;
@@ -276,11 +276,11 @@ async function handleEditCliente(clienteData) {
 .orden-info p {
   margin: 2px 0;
   font-size: 0.85rem;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
 }
 .empty-state {
   text-align: center;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
   padding: 30px 0;
 }
 .modal-overlay {
@@ -301,7 +301,7 @@ async function handleEditCliente(clienteData) {
 
 .tabs {
   display: flex;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--outline-variant);
   margin-bottom: 16px;
 }
 .tabs button {
@@ -310,7 +310,7 @@ async function handleEditCliente(clienteData) {
   border: none;
   padding: 12px;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
   border-bottom: 2px solid transparent;
 }
 .tabs button.active {
@@ -329,7 +329,7 @@ async function handleEditCliente(clienteData) {
 }
 .notif-header .time {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
 }
 .notif-body {
   display: flex;

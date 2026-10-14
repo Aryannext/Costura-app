@@ -229,7 +229,7 @@ const doughnutOptions = {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--outline-variant);
   padding-bottom: 12px;
 }
 
@@ -332,7 +332,7 @@ const doughnutOptions = {
   justify-content: center;
   align-items: center;
   height: 100%;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
   font-size: 14px;
   font-style: italic;
 }
