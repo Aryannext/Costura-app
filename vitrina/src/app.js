@@ -285,12 +285,16 @@ export function crearVitrina({
         return miVitrina(sql.modista.get(m.id));
     }
 
-    async function publicar(req, m) {
-        const datos = await leerJson(req);
-        if (m.estado === 'suspendida') throw new ErrorHttp(403, 'Tu vitrina está suspendida. Escribe a la administración.');
+    function exigirCupo(m) {
         if (sql.activasDe.get(m.id).n >= reglas.MAX_PRENDAS_ACTIVAS) {
             throw new ErrorDeDatos(`Puedes tener máximo ${reglas.MAX_PRENDAS_ACTIVAS} prendas a la venta. Marca como vendidas o borra algunas.`);
         }
+    }
+
+    async function publicar(req, m) {
+        const datos = await leerJson(req);
+        if (m.estado === 'suspendida') throw new ErrorHttp(403, 'Tu vitrina está suspendida. Escribe a la administración.');
+        exigirCupo(m);
         const p = reglas.prenda(datos);
         const foto = guardarFoto(datos.foto);
         const { lastInsertRowid } = sql.crearPrenda.run(m.id, p.titulo, p.categoria, p.precio, p.talla, p.tela,
@@ -302,6 +306,8 @@ export function crearVitrina({
         const actual = sql.prendaDe.get(id, m.id);
         if (!actual) throw new ErrorHttp(404, 'Esa prenda ya no está en tu vitrina.');
         const p = reglas.prenda(await leerJson(req), { parcial: true });
+        // Volver a publicar una vendida cuenta igual que publicar una nueva
+        if (p.vendida === 0 && actual.vendida === 1) exigirCupo(m);
         sql.editarPrenda.run(p.titulo ?? null, p.categoria ?? null, p.precio ?? null, p.talla ?? null,
             p.tela ?? null, p.medidas ?? null, p.descripcion ?? null, p.vendida ?? null, id);
         return prendaPublica(sql.prendaDe.get(id, m.id));
