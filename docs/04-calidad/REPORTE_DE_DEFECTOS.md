@@ -2,7 +2,7 @@
 
 Un reporte por defecto, con la estructura de la guía SENA *Aplicación de pruebas de software* (sección 1.3): identificador, título, reportado por, asignado a, fecha de creación, severidad, aplicación, descripción, método de reproducción e información adicional. Cada uno tiene su estado en el ciclo de vida de una incidencia.
 
-> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado ese mismo día tras corregir DEF-01, DEF-02 y DEF-04 · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
+> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado ese mismo día tras corregir DEF-01, DEF-02, DEF-04, DEF-05 y DEF-11 · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
 
 ---
 
@@ -41,16 +41,16 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | [DEF-02](#def-02) | Otras seis dependencias con vulnerabilidades críticas o altas | Media | Verificado | CPV-20 | Pruebas del 14 oct |
 | [DEF-03](#def-03) | Faltan cabeceras de seguridad en la versión web | Media | Nuevo | CPV-21 | Pruebas del 14 oct |
 | [DEF-04](#def-04) | Entregar la última prenda cierra la orden con deuda sin advertir | Alta | Verificado | — | Revisión del 8 oct, H11 |
-| [DEF-05](#def-05) | Cancelar la cámara muestra «Fotografía guardada» | Media | Abierto | CPV-28 | Revisión del 8 oct, H17 |
+| [DEF-05](#def-05) | Cancelar la cámara muestra «Fotografía guardada» | Media | Verificado | CPV-28 | Revisión del 8 oct, H17 |
 | [DEF-06](#def-06) | Eliminar una foto deja el archivo en el teléfono | Media | Abierto | — | Revisión del 8 oct, H07 |
 | [DEF-07](#def-07) | Las órdenes no se ordenan por fecha de entrega | Media | Abierto | — | Revisión del 8 oct, H08 |
 | [DEF-08](#def-08) | Anular y eliminar solo se alcanzan deslizando el dedo | Media | Abierto | — | Revisión del 8 oct, H24 |
 | [DEF-09](#def-09) | Formularios de contraseña sin campo de usuario | Baja | Nuevo | CPV-14 a CPV-16 | Pruebas del 14 oct |
 | [DEF-10](#def-10) | Siete variables de estilo usadas sin definir | Baja | Abierto | — | Revisión del 8 oct, H25 |
-| [DEF-11](#def-11) | El tutorial dice «Misión Completada» al cerrarlo a medias | Baja | Abierto | — | Revisión del 8 oct, H26 |
+| [DEF-11](#def-11) | El tutorial dice «Misión Completada» al cerrarlo a medias | Baja | Verificado | — | Revisión del 8 oct, H26 |
 | [DEF-12](#def-12) | «Recordar a N clientes» cuenta órdenes, no clientas | Baja | Abierto | — | Revisión del 8 oct, H18 |
 
-**Por severidad:** 1 crítica, 1 alta, 6 medias y 4 bajas. **Por estado:** 3 verificados (DEF-01, DEF-02 y DEF-04), 2 nuevos (DEF-03 y DEF-09) y 7 abiertos. Ninguno está cerrado: los verificados se cierran en la regresión final (acción A12 del plan de mejora).
+**Por severidad:** 1 crítica, 1 alta, 6 medias y 4 bajas. **Por estado:** 5 verificados (DEF-01, DEF-02, DEF-04, DEF-05 y DEF-11), 2 nuevos (DEF-03 y DEF-09) y 5 abiertos. Ninguno está cerrado: los verificados se cierran en la regresión final (acción A12 del plan de mejora).
 
 ## 3. Reportes
 
@@ -144,11 +144,13 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 8 de octubre de 2026 · confirmado en el código el 14 de octubre |
 | Severidad | Media |
-| Estado | Abierto |
+| Estado | Verificado |
 | Aplicación | Atelier Manager 1.2.0, fotos de la prenda |
 | Descripción | `takePhoto` (`usePrendas.js`) devuelve `null` cuando la modista cancela, pero `useAsyncAction` muestra el `successMessage` siempre que la función no lance error. Incumple RNF-05: «no mostrar éxito si falló» |
 | Método de reproducción | 1. Abrir una prenda. 2. *Fotos* → *Tomar foto*. 3. Cancelar la cámara. Esperado: ningún mensaje. Obtenido por el código: «Fotografía guardada» |
 | Información adicional | Verificado leyendo el código; falta reproducirlo en el teléfono (CPV-26) |
+| Corrección | 14 oct: `takePhoto` ya no tiene mensajes propios; los muestra solo `handleTakePhoto`, y el de éxito solo si hay foto guardada. Al reproducirlo apareció algo más: con una foto real, «Fotografía guardada» salía dos veces, y un error de la cámara también se repetía. Quedan en uno |
+| Verificación | 14 oct. Tres pruebas nuevas de la pantalla contra SQLite real en `OrdenDetailView.aviso.spec.js`, que fallaban antes del cambio: al cancelar no hay aviso ni foto; con una foto real hay una fila y un aviso; con un error de la cámara, un solo mensaje de error. Falta repetir CPV-28 en el teléfono |
 
 <a id="def-06"></a>
 
@@ -252,11 +254,13 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 8 de octubre de 2026 · confirmado el 14 de octubre |
 | Severidad | Baja |
-| Estado | Abierto |
+| Estado | Verificado |
 | Aplicación | Atelier Manager 1.2.0, Ayuda |
 | Descripción | Los recorridos de `useTutorial.js` usan `onDestroyed: handleTourCompletion`, que se ejecuta también cuando se cierra el recorrido sin terminarlo |
 | Método de reproducción | 1. *Ajustes* → *Ayuda*. 2. Empezar un recorrido. 3. Cerrarlo en el segundo paso. Obtenido: «¡Misión Completada!» |
 | Información adicional | Propuesta P6 de PROPUESTA_UX |
+| Corrección | 14 oct: `handleTourCompletion` usa el índice que driver.js le pasa a `onDestroyed`. Solo muestra «¡Misión Completada!» si el recorrido se cerró en el último paso; en los dos casos vuelve a Ayuda |
+| Verificación | 14 oct. Seis pruebas nuevas en `useTutorial.spec.js` (los tres recorridos: cerrado a mitad y terminado); las tres de cerrar a mitad fallaban antes del cambio. En Edge, con el driver.js real: cerrar el recorrido de clientes en el segundo paso no muestra nada, y terminarlo (3 pasos) muestra el aviso una vez |
 
 <a id="def-12"></a>
 

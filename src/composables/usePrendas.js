@@ -145,8 +145,10 @@ export function usePrendas() {
             }
             return null;
         }, {
-            successMessage: 'Fotografía guardada',
-            toastError: true
+            // Sin mensajes propios: execute anunciaba «Fotografía guardada» aunque la
+            // modista cancelara la cámara (DEF-05, RNF-05), y la vista repetía el éxito
+            // y el error. Los muestra solo la vista: el éxito, solo si hay foto guardada.
+            toastError: false
         });
     };
 

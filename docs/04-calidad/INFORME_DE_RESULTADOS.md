@@ -144,5 +144,7 @@ Casos que se repitieron después de corregir sus defectos. El resumen de la secc
 | --- | --- | --- | --- | --- |
 | 14 oct | CPV-20 | `809cfb8` (main, con el PR #15) | Exitoso: `npm audit --omit=dev` y `npm audit` dan 0 vulnerabilidades; el paso nuevo de la CI pasa | DEF-01 y DEF-02 → *Verificado* |
 | 14 oct | CPV-05, con el método de reproducción de DEF-04 | Rama `entrega-prenda-advierte-deuda` | Exitoso: entregar una prenda con saldo pide confirmación, también la última; sin saldo entrega directo | DEF-04 → *Verificado* |
+| 14 oct | CPV-28, en pruebas de la pantalla con la cámara simulada | Rama `mensajes-foto-y-tutorial` | Exitoso: cancelar no anuncia nada; una foto real y un error se anuncian una vez cada uno. En el teléfono sigue pendiente | DEF-05 → *Verificado* |
+| 14 oct | Método de reproducción de DEF-11, con el driver.js real en Edge | Rama `mensajes-foto-y-tutorial` | Exitoso: cerrar a mitad no dice «Misión Completada»; terminar sí | DEF-11 → *Verificado* |
 
 Sobre el mismo commit pasan las 388 pruebas unitarias, con el mínimo de cobertura, y las 3 E2E en Edge. La versión publicada en `/costura-app/` carga con Vue 3.5.43.
