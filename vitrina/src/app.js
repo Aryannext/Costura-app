@@ -10,7 +10,7 @@
  * código de terceros que haya que vigilar.
  */
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
-import { mkdirSync, readFileSync, unlinkSync, writeFileSync, existsSync, statSync } from 'node:fs';
+import { mkdirSync, readFileSync, readdirSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join, extname } from 'node:path';
 import { abrirBaseDatos } from './datos.js';
 import { limpiarJpeg } from './jpeg.js';
@@ -132,6 +132,37 @@ export function crearVitrina({
         borrarPrenda: db.prepare('DELETE FROM prendas WHERE id = ?'),
         borrarModista: db.prepare('DELETE FROM modistas WHERE id = ?'),
         estado: db.prepare('UPDATE modistas SET estado = ? WHERE id = ?'),
+        // Consultas fijas: ningún dato de la petición se vuelve texto SQL.
+        // Un NULL deja el campo como estaba.
+        editarPerfil: db.prepare(`UPDATE modistas SET
+            nombre = COALESCE(?, nombre), ciudad = COALESCE(?, ciudad), barrio = COALESCE(?, barrio),
+            whatsapp = COALESCE(?, whatsapp), horario = COALESCE(?, horario),
+            descripcion = COALESCE(?, descripcion), servicios = COALESCE(?, servicios)
+            WHERE id = ?`),
+        editarPrenda: db.prepare(`UPDATE prendas SET
+            titulo = COALESCE(?, titulo), categoria = COALESCE(?, categoria), precio = COALESCE(?, precio),
+            talla = COALESCE(?, talla), tela = COALESCE(?, tela), medidas = COALESCE(?, medidas),
+            descripcion = COALESCE(?, descripcion), vendida = COALESCE(?, vendida),
+            actualizada_en = strftime('%Y-%m-%dT%H:%M:%SZ', 'now')
+            WHERE id = ?`),
+        prendasPublicas: db.prepare(`SELECT p.* FROM prendas p JOIN modistas m ON m.id = p.modista_id
+            WHERE m.estado = 'aprobada' AND p.vendida = 0
+              AND (?1 IS NULL OR m.ciudad = ?1 COLLATE NOCASE)
+              AND (?2 IS NULL OR p.categoria = ?2)
+              AND (?3 IS NULL OR m.id = ?3)
+              AND (?4 IS NULL OR p.titulo LIKE ?4 ESCAPE '\\' OR p.tela LIKE ?4 ESCAPE '\\'
+                   OR p.descripcion LIKE ?4 ESCAPE '\\' OR m.nombre LIKE ?4 ESCAPE '\\')
+            ORDER BY p.creada_en DESC, p.id DESC LIMIT 200`),
+        modistasPublicas: db.prepare(`SELECT m.*,
+                (SELECT COUNT(*) FROM prendas p WHERE p.modista_id = m.id AND p.vendida = 0) AS prendas
+            FROM modistas m WHERE m.estado = 'aprobada'
+              AND (?1 IS NULL OR m.ciudad = ?1 COLLATE NOCASE)
+              AND (?2 IS NULL OR m.nombre LIKE ?2 ESCAPE '\\' OR m.barrio LIKE ?2 ESCAPE '\\' OR m.servicios LIKE ?2 ESCAPE '\\')
+            ORDER BY m.nombre COLLATE NOCASE`),
+        ciudades: db.prepare("SELECT DISTINCT ciudad FROM modistas WHERE estado = 'aprobada' ORDER BY ciudad COLLATE NOCASE"),
+        fotoGuardada: db.prepare('SELECT foto FROM prendas WHERE foto = ?'),
+        adminTodas: db.prepare('SELECT * FROM modistas ORDER BY creada_en'),
+        adminPorEstado: db.prepare('SELECT * FROM modistas WHERE estado = ? ORDER BY creada_en'),
         token: db.prepare('UPDATE modistas SET token_hash = ? WHERE id = ?')
     };
 
@@ -212,39 +243,22 @@ export function crearVitrina({
 
     // ---------- rutas ----------
 
-    function listarPrendas(url) {
-        const filtros = ["m.estado = 'aprobada'", 'p.vendida = 0'];
-        const valores = [];
-        const ciudad = url.searchParams.get('ciudad');
-        const categoria = url.searchParams.get('categoria');
-        const modista = url.searchParams.get('modista');
+    const parametro = (url, nombre) => url.searchParams.get(nombre) || null;
+    const busqueda = url => {
         const q = (url.searchParams.get('q') || '').trim().slice(0, 60);
-        if (ciudad) { filtros.push('m.ciudad = ? COLLATE NOCASE'); valores.push(ciudad); }
-        if (categoria) { filtros.push('p.categoria = ?'); valores.push(categoria); }
-        if (modista) { filtros.push('m.id = ?'); valores.push(Number(modista) || 0); }
-        if (q) {
-            filtros.push("(p.titulo LIKE ? ESCAPE '\\' OR p.tela LIKE ? ESCAPE '\\' OR p.descripcion LIKE ? ESCAPE '\\' OR m.nombre LIKE ? ESCAPE '\\')");
-            valores.push(patron(q), patron(q), patron(q), patron(q));
-        }
-        const filas = db.prepare(`SELECT p.* FROM prendas p JOIN modistas m ON m.id = p.modista_id
-            WHERE ${filtros.join(' AND ')} ORDER BY p.creada_en DESC, p.id DESC LIMIT 200`).all(...valores);
+        return q ? patron(q) : null;
+    };
+
+    function listarPrendas(url) {
+        const modista = parametro(url, 'modista');
+        const filas = sql.prendasPublicas.all(parametro(url, 'ciudad'), parametro(url, 'categoria'),
+            modista === null ? null : (Number(modista) || 0), busqueda(url));
         return { prendas: filas.map(prendaPublica) };
     }
 
     function listarModistas(url) {
-        const filtros = ["estado = 'aprobada'"];
-        const valores = [];
-        const ciudad = url.searchParams.get('ciudad');
-        const q = (url.searchParams.get('q') || '').trim().slice(0, 60);
-        if (ciudad) { filtros.push('ciudad = ? COLLATE NOCASE'); valores.push(ciudad); }
-        if (q) {
-            filtros.push("(nombre LIKE ? ESCAPE '\\' OR barrio LIKE ? ESCAPE '\\' OR servicios LIKE ? ESCAPE '\\')");
-            valores.push(patron(q), patron(q), patron(q));
-        }
-        const filas = db.prepare(`SELECT m.*, (SELECT COUNT(*) FROM prendas p WHERE p.modista_id = m.id AND p.vendida = 0) AS prendas
-            FROM modistas m WHERE ${filtros.join(' AND ')} ORDER BY nombre COLLATE NOCASE`).all(...valores);
-        const ciudades = db.prepare("SELECT DISTINCT ciudad FROM modistas WHERE estado = 'aprobada' ORDER BY ciudad COLLATE NOCASE")
-            .all().map(f => f.ciudad);
+        const filas = sql.modistasPublicas.all(parametro(url, 'ciudad'), busqueda(url));
+        const ciudades = sql.ciudades.all().map(f => f.ciudad);
         return { modistas: filas.map(m => ({ ...perfilPublico(m), prendas: m.prendas })), ciudades };
     }
 
@@ -265,12 +279,9 @@ export function crearVitrina({
 
     async function actualizarPerfil(req, m) {
         const p = reglas.perfil(await leerJson(req), { parcial: true });
-        if (p.servicios) p.servicios = JSON.stringify(p.servicios);
-        const campos = Object.keys(p);
-        if (campos.length) {
-            db.prepare(`UPDATE modistas SET ${campos.map(c => `${c} = ?`).join(', ')} WHERE id = ?`)
-                .run(...campos.map(c => p[c]), m.id);
-        }
+        const servicios = p.servicios ? JSON.stringify(p.servicios) : null;
+        sql.editarPerfil.run(p.nombre ?? null, p.ciudad ?? null, p.barrio ?? null, p.whatsapp ?? null,
+            p.horario ?? null, p.descripcion ?? null, servicios, m.id);
         return miVitrina(sql.modista.get(m.id));
     }
 
@@ -291,12 +302,8 @@ export function crearVitrina({
         const actual = sql.prendaDe.get(id, m.id);
         if (!actual) throw new ErrorHttp(404, 'Esa prenda ya no está en tu vitrina.');
         const p = reglas.prenda(await leerJson(req), { parcial: true });
-        const campos = Object.keys(p);
-        if (campos.length) {
-            db.prepare(`UPDATE prendas SET ${campos.map(c => `${c} = ?`).join(', ')},
-                actualizada_en = strftime('%Y-%m-%dT%H:%M:%SZ', 'now') WHERE id = ?`)
-                .run(...campos.map(c => p[c]), id);
-        }
+        sql.editarPrenda.run(p.titulo ?? null, p.categoria ?? null, p.precio ?? null, p.talla ?? null,
+            p.tela ?? null, p.medidas ?? null, p.descripcion ?? null, p.vendida ?? null, id);
         return prendaPublica(sql.prendaDe.get(id, m.id));
     }
 
@@ -333,9 +340,7 @@ export function crearVitrina({
 
     function listarAdmin(url) {
         const estado = url.searchParams.get('estado');
-        const filas = estado
-            ? db.prepare('SELECT * FROM modistas WHERE estado = ? ORDER BY creada_en').all(estado)
-            : db.prepare('SELECT * FROM modistas ORDER BY creada_en').all();
+        const filas = estado ? sql.adminPorEstado.all(estado) : sql.adminTodas.all();
         return {
             modistas: filas.map(m => ({
                 ...perfilPublico(m), estado: m.estado, creadaEn: m.creada_en, aceptoTerminosEn: m.acepto_terminos_en,
@@ -344,12 +349,14 @@ export function crearVitrina({
         };
     }
 
+    // Los archivos de la página se leen una vez al arrancar. Una petición solo
+    // elige entre ellos por nombre: nunca arma una ruta en el disco.
+    const estaticos = new Map(readdirSync(carpetaPublica, { withFileTypes: true })
+        .filter(f => f.isFile() && TIPOS[extname(f.name)])
+        .map(f => [f.name, { datos: readFileSync(join(carpetaPublica, f.name)), tipo: TIPOS[extname(f.name)] }]));
+
     function archivoPublico(ruta) {
-        const nombre = ruta === '/' ? 'index.html' : ruta.slice(1);
-        if (!/^[a-z0-9-]+\.(html|js|css|svg)$/.test(nombre)) return null;
-        const archivo = join(carpetaPublica, nombre);
-        if (!existsSync(archivo) || !statSync(archivo).isFile()) return null;
-        return { datos: readFileSync(archivo), tipo: TIPOS[extname(nombre)] };
+        return estaticos.get(ruta === '/' ? 'index.html' : ruta.slice(1)) || null;
     }
 
     // ---------- respuesta ----------
@@ -435,9 +442,16 @@ export function crearVitrina({
 
         const foto = ruta.match(/^\/fotos\/([a-f0-9]{32}\.jpg)$/);
         if (foto) {
-            const archivo = join(carpetaFotos, foto[1]);
-            if (!existsSync(archivo)) throw new ErrorHttp(404, 'No encontrado.');
-            return [200, readFileSync(archivo), {
+            // El nombre del archivo sale de la base, no de la dirección pedida
+            const guardada = sql.fotoGuardada.get(foto[1]);
+            if (!guardada) throw new ErrorHttp(404, 'No encontrado.');
+            let datos;
+            try {
+                datos = readFileSync(join(carpetaFotos, guardada.foto));
+            } catch {
+                throw new ErrorHttp(404, 'No encontrado.');
+            }
+            return [200, datos, {
                 'Content-Type': 'image/jpeg',
                 // El nombre es aleatorio y nunca se reutiliza: se puede guardar en caché
                 'Cache-Control': 'public, max-age=31536000, immutable'
