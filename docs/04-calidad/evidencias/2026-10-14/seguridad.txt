@@ -1,0 +1,48 @@
+Pruebas de seguridad · 2026-10-14 · commit efe712b
+
+1. Dependencias: npm audit --omit=dev (las que viajan dentro del APK y de la web)
+   Total 7: 2 críticas, 5 altas. Todas tienen corrección sin cambios incompatibles.
+
+   @capacitor/android 8.4.0  crítica  GHSA-rvm3-566m-v7fv  afecta >=8.3.5 <8.4.3
+       Contenido remoto puede cargarse con el origen de la app por la ruta interna del proxy HTTP.
+   @capacitor/ios            crítica  GHSA-rvm3-566m-v7fv  (dependencia transitiva; la app no compila para iOS)
+   vue 3.5.38 / @vue/server-renderer  alta  GHSA-g2v6-rqmx-r4w6  afecta <3.5.42
+       XSS en el renderizado en servidor. La app no usa renderizado en servidor.
+   nanoid                    alta     GHSA-28wg-ghj8-5hjv, GHSA-2v37-7h3g-55p8  (generadores personalizados)
+   postcss                   alta     GHSA-r28c-9q8g-f849, GHSA-fxqj-rqcc-2cmp  (herramienta de compilación)
+   source-map-js             alta     GHSA-68fv-2mgg-jv7q  (herramienta de compilación)
+
+   npm audit (incluidas las de desarrollo): 14 en total, 3 críticas, 8 altas, 3 moderadas.
+   Las 7 adicionales son de herramientas de prueba y compilación (vitest, tar, undici,
+   brace-expansion, @xmldom/xmldom) y no llegan al APK ni a la web publicada.
+
+2. Cabeceras HTTP de https://proyectosena.online/costura-app/ (una petición HEAD, sin escaneo)
+   HTTP/1.1 200 OK
+   Server: nginx/1.24.0 (Ubuntu)              <- revela producto, versión y sistema
+   Cache-Control: no-cache
+   X-Content-Type-Options: nosniff            presente
+   Referrer-Policy: strict-origin-when-cross-origin   presente
+   X-Frame-Options: DENY                      presente
+   Strict-Transport-Security                  AUSENTE
+   Content-Security-Policy                    AUSENTE
+   Permissions-Policy                         AUSENTE
+
+   http://proyectosena.online/costura-app/ -> 301 a https://   correcto
+
+3. Exposición del servidor
+   Puerto 3014 del contenedor desde internet: cerrado (solo escucha en 127.0.0.1)   correcto
+   Panel de Dokploy en http://31.97.129.144:3000: responde 200 por HTTP sin cifrar   (infraestructura, fuera del alcance de la app)
+
+4. Controles de seguridad de la app cubiertos por pruebas automáticas (pasan)
+   Cifrado AES-256-GCM de la copia (rechaza contraseña equivocada, datos o IV alterados;
+   600.000 iteraciones de PBKDF2): cryptoService.spec.js.
+   Bloqueo al volver de segundo plano: useAppLock.spec.js.
+   Validación de la clave nueva frente a la de fábrica: validators.spec.js; el cambio
+   obligatorio en el primer ingreso lo recorren las tres pruebas E2E (e2e.txt).
+   Sin prueba automática propia: que la contraseña se guarde con bcrypt (RNF-08); se
+   verificó leyendo src/database/queries/auth.js (genSaltSync(10) y hash) y src/services/auth.js
+   (compareSync).
+
+5. No ejecutado
+   Escaneo con OWASP ZAP (línea base pasiva) y prueba de carga con JMeter: requieren
+   descargar las herramientas y autorización para correrlas contra el VPS compartido.
