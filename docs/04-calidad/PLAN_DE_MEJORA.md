@@ -148,7 +148,7 @@ Estructura de la guía (figura 18). La columna *Estado* se actualiza cada día h
 | A1 | Cristian | 14 oct | 14 oct | PC, Android Studio | `npm audit --omit=dev`: 0 críticas, 0 altas; paso nuevo en la CI | **Hecho** (PR #15): 0 vulnerabilidades y la CI lo comprueba. DEF-01 y DEF-02 *Verificado* |
 | A2 | Cristian | 14 oct | 14 oct | PC | Prueba nueva que reproduce DEF-04 y pasa | **Hecho**: tres pruebas de la vista lo reproducían y ahora pasan. DEF-04 *Verificado* |
 | A3 | Cristian | 16 oct | 16 oct | Revisión del 8 oct | Criterios de cierre de H01, H02, H05 y H21 cumplidos | Pendiente |
-| A4 | Cristian | 16 oct | 16 oct | PC | DEF-05, DEF-11 y DEF-12 *Verificado* | Pendiente |
+| A4 | Cristian | 14 oct | 16 oct | PC | DEF-05, DEF-11 y DEF-12 *Verificado* | **En curso**: DEF-05 y DEF-11 *Verificado* el 14 oct; falta DEF-12 |
 | A5 | Cristian y administración del VPS | 17 oct | 17 oct | Acceso `sudo` al VPS | CPV-21 exitoso | Pendiente |
 | A6 | Cristian | 17 oct | 18 oct | PC | DEF-06, DEF-08, DEF-09 y DEF-10 *Verificado* | Pendiente |
 | A7 | Cristian con la dueña | 18 oct | 18 oct | 30 minutos de la dueña | Decisiones escritas en DECISIONES.md; DEF-07 y H28 resueltos | Pendiente |

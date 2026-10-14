@@ -12,13 +12,18 @@ vi.mock('vue-router', () => ({
     useRoute: () => ({ params: { id: '1' }, query: {} }),
     useRouter: () => ({ push: vi.fn(), back: vi.fn() })
 }));
-vi.mock('@capacitor/camera', () => ({ Camera: {}, CameraResultType: {}, CameraSource: {} }));
+const camara = vi.hoisted(() => ({ getPhoto: vi.fn(), guardar: vi.fn() }));
+vi.mock('@capacitor/camera', () => ({
+    Camera: { getPhoto: (...args) => camara.getPhoto(...args) }, CameraResultType: {}, CameraSource: {}
+}));
 vi.mock('@capacitor/share', () => ({ Share: { share: vi.fn() } }));
 vi.mock('../../composables/useHaptics.js', () => ({
     useHaptics: () => new Proxy({}, { get: () => () => {} })
 }));
 vi.mock('../../services/photoStorage.js', () => ({
-    resolvePhotoSrc: (ruta) => ruta, savePhotoFromBase64: vi.fn(), deletePhotoFile: vi.fn()
+    resolvePhotoSrc: (ruta) => ruta,
+    savePhotoFromBase64: (...args) => camara.guardar(...args),
+    deletePhotoFile: vi.fn()
 }));
 const telegram = vi.hoisted(() => ({ enviar: vi.fn() }));
 vi.mock('../../composables/useTelegramBot.js', () => ({
@@ -183,5 +188,64 @@ describe('OrdenDetailView · entregar prenda por prenda con deuda (RN-30, D-11, 
 
         expect(textoModal(pagada)).toBeNull();
         expect(await estadoPrendas()).toEqual([4]);
+    });
+});
+
+describe('OrdenDetailView · tomar una foto (RNF-05, DEF-05)', () => {
+    async function abrirCamara(toast) {
+        const id_cliente = await createCliente({ nombre: 'Ana', telefono: '3001234567', autoriza_datos: true });
+        const id_orden = await createOrden({ id_cliente, fecha_entrega_estimada: '2099-01-01' });
+        await createPrenda({ id_orden, valor: 20000, descripcion_arreglo: 'Basta', id_tipo_prenda: 1 });
+
+        const wrapper = mount(OrdenDetailView, { global: { provide: { toast } } });
+        await asentar();
+        await wrapper.findAll('.tabs button').find(b => b.text() === 'Prendas').trigger('click');
+        await asentar();
+        await wrapper.findAll('.prenda-card .accion').find(b => b.text().startsWith('Fotos')).trigger('click');
+        await asentar();
+        await wrapper.find('.foto-nueva').trigger('click');
+        await asentar();
+        return wrapper;
+    }
+
+    const avisosDeExito = (toast) => toast.mock.calls.filter(([, tipo]) => tipo === 'success').map(([texto]) => texto);
+    const fotosGuardadas = async () => (await db.query('SELECT COUNT(*) AS n FROM fotografia')).values[0].n;
+
+    beforeEach(() => {
+        camara.getPhoto.mockReset();
+        camara.guardar.mockReset();
+    });
+
+    it('si la modista cancela la cámara, no se anuncia ninguna foto guardada', async () => {
+        camara.getPhoto.mockRejectedValue(new Error('User cancelled photos app'));
+        const toast = vi.fn();
+
+        await abrirCamara(toast);
+
+        expect(avisosDeExito(toast)).not.toContain('Fotografía guardada');
+        expect(await fotosGuardadas()).toBe(0);
+    });
+
+    it('con una foto real, la guarda y lo anuncia una sola vez', async () => {
+        camara.getPhoto.mockResolvedValue({ base64String: 'aGVsbG8=' });
+        camara.guardar.mockResolvedValue('prenda_1_1.jpeg');
+        const toast = vi.fn();
+
+        await abrirCamara(toast);
+
+        expect(avisosDeExito(toast).filter(t => t === 'Fotografía guardada')).toHaveLength(1);
+        expect(await fotosGuardadas()).toBe(1);
+    });
+
+    it('si la cámara falla de verdad, el error se muestra una sola vez y no se anuncia éxito', async () => {
+        vi.spyOn(console, 'error').mockImplementation(() => {});
+        camara.getPhoto.mockRejectedValue(new Error('No hay permiso para usar la cámara'));
+        const toast = vi.fn();
+
+        await abrirCamara(toast);
+
+        const errores = toast.mock.calls.filter(([, tipo]) => tipo === 'error').map(([texto]) => texto);
+        expect(errores).toEqual(['No hay permiso para usar la cámara']);
+        expect(avisosDeExito(toast)).not.toContain('Fotografía guardada');
     });
 });

@@ -7,11 +7,17 @@ export function useTutorial() {
     const router = useRouter();
     const toast = inject('toast');
 
-    const handleTourCompletion = () => {
-        if (toast) {
-            toast('¡Misión Completada! 🌟', 'success');
-        } else {
-            console.log('¡Misión Completada! 🌟');
+    // driver.js llama a onDestroyed tanto al terminar como al cerrar a medias, con
+    // el índice del paso donde estaba. Solo cuenta como completada si se cerró en
+    // el último paso (DEF-11); en los dos casos se vuelve a Ayuda.
+    const handleTourCompletion = (_elemento, _paso, { config, index } = {}) => {
+        const pasos = config?.steps?.length ?? 0;
+        if (pasos > 0 && index === pasos - 1) {
+            if (toast) {
+                toast('¡Misión Completada! 🌟', 'success');
+            } else {
+                console.log('¡Misión Completada! 🌟');
+            }
         }
         router.push('/ayuda');
     };
