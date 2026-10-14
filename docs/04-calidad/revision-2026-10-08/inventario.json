@@ -1,0 +1,258 @@
+[
+  {
+    "archivo": "docs/01-requisitos/historico/Costura.docx",
+    "bytes": 232008,
+    "sha256": "b72126ec2567778c8b300b66e43e5f7777860da6f79991f9280fe4550ba703dc",
+    "tipo": "historico",
+    "sha256_4252f22": "b72126ec2567778c8b300b66e43e5f7777860da6f79991f9280fe4550ba703dc",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/01-requisitos/historico/Costura.md",
+    "bytes": 275128,
+    "sha256": "16ad3335ce7ac00b89347241811ddebb9519ba9a96c5e427a1131b2f184c7d95",
+    "tipo": "historico",
+    "sha256_4252f22": "16ad3335ce7ac00b89347241811ddebb9519ba9a96c5e427a1131b2f184c7d95",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/01-requisitos/historico/COSTURA_FASE2_REQUISITOS.md",
+    "bytes": 5671,
+    "sha256": "8ad06ac7101e31c1c5255a7d1c7b641d084ff4696427bdf2f6955bcbaed9d89b",
+    "tipo": "historico",
+    "sha256_4252f22": "8ad06ac7101e31c1c5255a7d1c7b641d084ff4696427bdf2f6955bcbaed9d89b",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/01-requisitos/historico/MEJORAS_ADICIONALES_FASE1.md",
+    "bytes": 8294,
+    "sha256": "6a09ca0a9c532e1aadbaa7422b1b9cff250ff79a85b56f0adce14f8d241da592",
+    "tipo": "historico",
+    "sha256_4252f22": "6a09ca0a9c532e1aadbaa7422b1b9cff250ff79a85b56f0adce14f8d241da592",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/01-requisitos/historico/SRS_0.1_BORRADOR_ANALISTAS.md",
+    "bytes": 62406,
+    "sha256": "6573f5133c088f193e88ad734f11d8d7da69701c9de211d23b0cec59c26a9938",
+    "tipo": "historico",
+    "sha256_4252f22": "6573f5133c088f193e88ad734f11d8d7da69701c9de211d23b0cec59c26a9938",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/01-requisitos/SRS.md",
+    "bytes": 21733,
+    "sha256": "e877567f4d7c55cef7051747214150b1e388162f3194c28d1d324036103efeb9",
+    "tipo": "vigente",
+    "sha256_4252f22": "d03bce40018ce71938eebdd78c1ae198ffe68edb520a20459f4fad41824d9129",
+    "cambio_desde_revision": true
+  },
+  {
+    "archivo": "docs/02-diseno/ARQUITECTURA.md",
+    "bytes": 13480,
+    "sha256": "bc92216f325ce993778c8c5971793d9b5989d1db0ee1cd36b09aa7f2e71a6ff7",
+    "tipo": "vigente",
+    "sha256_4252f22": "3516f01a1a92417e587ddcab0ebcb58c813c9d4c46b850f0f72d55f012b0f36c",
+    "cambio_desde_revision": true
+  },
+  {
+    "archivo": "docs/02-diseno/CASOS_DE_USO.md",
+    "bytes": 15968,
+    "sha256": "a9a1a8e4a0799b6cdb89b0bd8faf403e3a6c910ce8e92927be3e9dc602f686a0",
+    "tipo": "vigente",
+    "sha256_4252f22": "2850487ef44fc2a284a9eff67b11593fc838d3513145900b49ee1aceb02d6768",
+    "cambio_desde_revision": true
+  },
+  {
+    "archivo": "docs/02-diseno/CLASES.md",
+    "bytes": 4802,
+    "sha256": "8b4211fd1922636f6c9516c6c1ba3d7e52f9fce3b0c3a3c61638ba1b41397693",
+    "tipo": "vigente",
+    "sha256_4252f22": "8b4211fd1922636f6c9516c6c1ba3d7e52f9fce3b0c3a3c61638ba1b41397693",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/02-diseno/COMPORTAMIENTO.md",
+    "bytes": 9932,
+    "sha256": "40477e3a1b2a945d8d1d7b83d758773e1be77491f4394e38b53c92b6624fa269",
+    "tipo": "vigente",
+    "sha256_4252f22": "60f2a03b0d80a6747b0dae9c926610a9ae28ed1f763948f56d13f53dacae30b8",
+    "cambio_desde_revision": true
+  },
+  {
+    "archivo": "docs/02-diseno/historico/script_mysql_original.sql",
+    "bytes": 6025,
+    "sha256": "5992353eb9d5b9e2da82837877d18c9453cf55963315818346dc650ea99b0ed5",
+    "tipo": "historico",
+    "sha256_4252f22": "5992353eb9d5b9e2da82837877d18c9453cf55963315818346dc650ea99b0ed5",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/02-diseno/MODELO_DE_DATOS.md",
+    "bytes": 9005,
+    "sha256": "7d06b053fcd8719f428ea8ffd2b9f0fd955b5a66c44049d094e4ffb154f8a04f",
+    "tipo": "vigente",
+    "sha256_4252f22": "7d06b053fcd8719f428ea8ffd2b9f0fd955b5a66c44049d094e4ffb154f8a04f",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/03-manuales/MANUAL_TECNICO.md",
+    "bytes": 11007,
+    "sha256": "1b28cf7f0022ea058c198cb75f0358edd4af7113a3bc14e58b5c70b1b5c2c45d",
+    "tipo": "vigente",
+    "sha256_4252f22": "134fcf07ceddd4778b4c3586943c80fd59434333634e9b0ff6a5efdc748f58ae",
+    "cambio_desde_revision": true
+  },
+  {
+    "archivo": "docs/03-manuales/MANUAL_USUARIO.md",
+    "bytes": 13986,
+    "sha256": "9d9975df6fdeefc5a4c3b23ef661903b18f8d71369893d0085f6916564b0c201",
+    "tipo": "vigente",
+    "sha256_4252f22": "9d9975df6fdeefc5a4c3b23ef661903b18f8d71369893d0085f6916564b0c201",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/04-calidad/historico/auditoria/resultados.json",
+    "bytes": 4087,
+    "sha256": "fa48527bfd8c67149a7619b596b12cf2be1b8bcaebf48bd7160652c89dccfb93",
+    "tipo": "historico",
+    "sha256_4252f22": "fa48527bfd8c67149a7619b596b12cf2be1b8bcaebf48bd7160652c89dccfb93",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/04-calidad/historico/auditoria/verificar.mjs",
+    "bytes": 12183,
+    "sha256": "80b07d8b39bcc1c860635951e751251cf187a886fc933cb405cd19b4c483779e",
+    "tipo": "historico",
+    "sha256_4252f22": "80b07d8b39bcc1c860635951e751251cf187a886fc933cb405cd19b4c483779e",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/04-calidad/historico/AUDITORIA_APP_DOCUMENTACION.md",
+    "bytes": 25222,
+    "sha256": "c0020150e68a3463c635eba0491f2500aaa4940c44b568d6cedddf75175f4a1b",
+    "tipo": "historico",
+    "sha256_4252f22": "c0020150e68a3463c635eba0491f2500aaa4940c44b568d6cedddf75175f4a1b",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/04-calidad/historico/FALLOS_APP_2026-10-06.md",
+    "bytes": 30735,
+    "sha256": "08db7fddc63acfa56dbc4eb5801b85d20c25da45f8e8f75ebd586f9c107bf0eb",
+    "tipo": "historico",
+    "sha256_4252f22": "08db7fddc63acfa56dbc4eb5801b85d20c25da45f8e8f75ebd586f9c107bf0eb",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/04-calidad/historico/PROTOCOLO_ACEPTACION_BORRADOR.md",
+    "bytes": 17524,
+    "sha256": "40f4e01fa63ea7ae588d771014399f0236d136138bbf4ec97e9cce65d5842683",
+    "tipo": "historico",
+    "sha256_4252f22": "40f4e01fa63ea7ae588d771014399f0236d136138bbf4ec97e9cce65d5842683",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/04-calidad/historico/REVISION_EQUIPO_ANALISTAS_2026-10-07.md",
+    "bytes": 20880,
+    "sha256": "b46914a06e1ef4b2d4d5fcf28a2d31fd9206ca7deeb1c2787e133386eca05367",
+    "tipo": "historico",
+    "sha256_4252f22": "b46914a06e1ef4b2d4d5fcf28a2d31fd9206ca7deeb1c2787e133386eca05367",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/04-calidad/PLAN_DE_PRUEBAS.md",
+    "bytes": 4446,
+    "sha256": "f262dcd442c660fac7723ff7ccb404fb0ee49fba9d5c64e9cf8d114fc48096b1",
+    "tipo": "vigente",
+    "sha256_4252f22": "f262dcd442c660fac7723ff7ccb404fb0ee49fba9d5c64e9cf8d114fc48096b1",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/04-calidad/PLAN_SONAR.md",
+    "bytes": 7662,
+    "sha256": "2eda2c30ab7b9e26b8dd2ed7cf0c9c64d9968f914756494d7e3064058cbd1732",
+    "tipo": "vigente",
+    "sha256_4252f22": "afb104849caeb67443b01bf7aa04debb3f65f822359ba67b59f28827d868b9e4",
+    "cambio_desde_revision": true
+  },
+  {
+    "archivo": "docs/04-calidad/TRAZABILIDAD.md",
+    "bytes": 22825,
+    "sha256": "b87ff5b284c387f214169d627bd1c3b513d220588801a9dd6735bed8e901fed2",
+    "tipo": "vigente",
+    "sha256_4252f22": "b87ff5b284c387f214169d627bd1c3b513d220588801a9dd6735bed8e901fed2",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/05-gestion/DECISIONES.md",
+    "bytes": 14930,
+    "sha256": "8dded1a4f37bca855a2c115481edf65d56cc958511c37efb7ca22e79e2c65b5c",
+    "tipo": "vigente",
+    "sha256_4252f22": "f7d98cef2c8ff95988410b30f4992c6cec43da0fd23f60f0174a4d241733b865",
+    "cambio_desde_revision": true
+  },
+  {
+    "archivo": "docs/05-gestion/PLAN_19_DIAS.md",
+    "bytes": 7562,
+    "sha256": "1ce2a04c7d168e7f0839df98b7dc022d1f70970ebddf374dc7b7054a01847eb8",
+    "tipo": "vigente",
+    "sha256_4252f22": "2f50f8d19ebc3982316754a9b81c86be3a4b046b4e9db978e0b9e797724960b1",
+    "cambio_desde_revision": true
+  },
+  {
+    "archivo": "docs/99-archivo/propuesta-venta/ADR.md",
+    "bytes": 2964,
+    "sha256": "39e325e47b88c1217de4642a7ea384fba833de4d614dbad0ddb1b7b4a364fc0c",
+    "tipo": "historico",
+    "sha256_4252f22": "39e325e47b88c1217de4642a7ea384fba833de4d614dbad0ddb1b7b4a364fc0c",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/99-archivo/propuesta-venta/ARQUITECTURA.md",
+    "bytes": 6610,
+    "sha256": "fdf4f366729908fb782682679a613351f33b66e543cb6ec5678fdf909b3f3986",
+    "tipo": "historico",
+    "sha256_4252f22": "fdf4f366729908fb782682679a613351f33b66e543cb6ec5678fdf909b3f3986",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/99-archivo/propuesta-venta/CONTRATO_API.yaml",
+    "bytes": 5700,
+    "sha256": "7d07e3b72145a6cdcc8e1fb05b6e10b0f29ea0ca2005ab8285eb01198ce58642",
+    "tipo": "historico",
+    "sha256_4252f22": "7d07e3b72145a6cdcc8e1fb05b6e10b0f29ea0ca2005ab8285eb01198ce58642",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/99-archivo/propuesta-venta/PRD.md",
+    "bytes": 14241,
+    "sha256": "fc9e60fbf7fcaf490358269c1b969c556a71ef13ab6f1aeacd2e998f540f6c2e",
+    "tipo": "historico",
+    "sha256_4252f22": "fc9e60fbf7fcaf490358269c1b969c556a71ef13ab6f1aeacd2e998f540f6c2e",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/99-archivo/propuesta-venta/TESTS_ACEPTACION.feature",
+    "bytes": 3288,
+    "sha256": "f5cb4ed1e2f3c95b33faa66862c0e14e6ec6a7463ddca41ee961ff65eeb43d79",
+    "tipo": "historico",
+    "sha256_4252f22": "f5cb4ed1e2f3c95b33faa66862c0e14e6ec6a7463ddca41ee961ff65eeb43d79",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/99-archivo/PROPUESTA_WEB_APP.md",
+    "bytes": 14726,
+    "sha256": "e5c9996d5c257d7a41e2dd1f4d438386f29f86fd30465ec69d586b57f9fd903f",
+    "tipo": "historico",
+    "sha256_4252f22": "e5c9996d5c257d7a41e2dd1f4d438386f29f86fd30465ec69d586b57f9fd903f",
+    "cambio_desde_revision": false
+  },
+  {
+    "archivo": "docs/README.md",
+    "bytes": 3929,
+    "sha256": "519806c2dd74748831827b2f1bbcd499a7ab2f2dd5c327dc016df7f809c7c248",
+    "tipo": "vigente",
+    "sha256_4252f22": "519806c2dd74748831827b2f1bbcd499a7ab2f2dd5c327dc016df7f809c7c248",
+    "cambio_desde_revision": false
+  }
+]
