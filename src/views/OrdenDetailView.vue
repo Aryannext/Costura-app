@@ -121,7 +121,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, inject, watch } from 'vue';
-import { estadoDePago, ESTADO_PAGO, esOrdenActiva } from '../services/estadoOrden.js';
+import { estadoDePago, ESTADO_PAGO, ESTADO_PRENDA, esOrdenActiva } from '../services/estadoOrden.js';
 import { formatearMoneda } from '../services/formato.js';
 import { fechaCorta, diasDeDiferencia } from '../services/fechas.js';
 import { useRoute, useRouter } from 'vue-router';
@@ -296,7 +296,21 @@ function confirmarAnularPago(id_pago) {
   });
 }
 
-async function handleEstadoPrenda(id_prenda, id_estado) {
+// RN-30 y D-11: se puede entregar con deuda, pero siempre advirtiendo. Antes solo
+// advertía el botón Entregar orden; entregando prenda por prenda, la última cerraba
+// la orden con saldo sin decir nada (DEF-04).
+function handleEstadoPrenda(id_prenda, id_estado) {
+  const advertencia = id_estado === ESTADO_PRENDA.ENTREGADA
+    ? mensajeConfirmacionEntrega(ordenActual.value, 'esta prenda')
+    : null;
+  if (advertencia) {
+    requestConfirm(advertencia, () => aplicarEstadoPrenda(id_prenda, id_estado), { textoConfirmar: 'Sí, entregar' });
+    return;
+  }
+  return aplicarEstadoPrenda(id_prenda, id_estado);
+}
+
+async function aplicarEstadoPrenda(id_prenda, id_estado) {
   try {
     const result = await changeEstadoPrenda(id_prenda, id_estado, ordenActual.value.id_orden);
     // El estado de la orden pudo cambiar solo: la cabecera tiene que reflejarlo.

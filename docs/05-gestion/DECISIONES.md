@@ -128,7 +128,7 @@ Antes, las reglas ("no marcar Lista con prendas sin terminar") solo estaban en l
 
 El manual decía que no se podía; el requisito RN-30 decía que sí se podía seguir cobrando después de entregar.
 
-**Se eligió permitir**, porque en el contexto real se fía: la clienta se lleva la ropa y paga el viernes. Bloquearlo haría que la modista mintiera en la app (registrar un pago falso). La app avisa cuánto queda debiendo y el saldo sigue visible en *Pagos pendientes*.
+**Se eligió permitir**, porque en el contexto real se fía: la clienta se lleva la ropa y paga el viernes. Bloquearlo haría que la modista mintiera en la app (registrar un pago falso). La app avisa cuánto queda debiendo y el saldo sigue visible en *Pagos pendientes*. El aviso aparece al tocar *Entregar orden* y también al entregar cada prenda por separado; hasta el 14 de octubre de 2026 este segundo camino no avisaba (DEF-04).
 
 ## D-12. Clave propia y bloqueo al reanudar
 

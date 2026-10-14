@@ -14,6 +14,11 @@ describe('mensajeConfirmacionEntrega (P1-4, RN-30)', () => {
             .toBe('El cliente todavía debe $20.000 de un total de $50.000. ¿Entregar la orden de todos modos?');
     });
 
+    it('entrega de una sola prenda -> el mismo aviso, nombrando la prenda (DEF-04)', () => {
+        expect(mensajeConfirmacionEntrega({ saldo_pendiente: 30000, valor_total: 30000 }, 'esta prenda'))
+            .toBe('El cliente todavía debe $30.000 de un total de $30.000. ¿Entregar esta prenda de todos modos?');
+    });
+
     it('saldo negativo heredado de la v1 -> no se trata como deuda', () => {
         expect(mensajeConfirmacionEntrega({ saldo_pendiente: -40000, valor_total: 60000 })).toBeNull();
     });

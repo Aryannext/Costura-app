@@ -2,7 +2,7 @@
 
 Un reporte por defecto, con la estructura de la guía SENA *Aplicación de pruebas de software* (sección 1.3): identificador, título, reportado por, asignado a, fecha de creación, severidad, aplicación, descripción, método de reproducción e información adicional. Cada uno tiene su estado en el ciclo de vida de una incidencia.
 
-> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado ese mismo día tras el PR #15 · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
+> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado ese mismo día tras corregir DEF-01, DEF-02 y DEF-04 · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
 
 ---
 
@@ -40,7 +40,7 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | [DEF-01](#def-01) | Capacitor Android con una vulnerabilidad crítica publicada | Crítica | Verificado | CPV-20 | Pruebas del 14 oct |
 | [DEF-02](#def-02) | Otras seis dependencias con vulnerabilidades críticas o altas | Media | Verificado | CPV-20 | Pruebas del 14 oct |
 | [DEF-03](#def-03) | Faltan cabeceras de seguridad en la versión web | Media | Nuevo | CPV-21 | Pruebas del 14 oct |
-| [DEF-04](#def-04) | Entregar la última prenda cierra la orden con deuda sin advertir | Alta | Abierto | — | Revisión del 8 oct, H11 |
+| [DEF-04](#def-04) | Entregar la última prenda cierra la orden con deuda sin advertir | Alta | Verificado | — | Revisión del 8 oct, H11 |
 | [DEF-05](#def-05) | Cancelar la cámara muestra «Fotografía guardada» | Media | Abierto | CPV-28 | Revisión del 8 oct, H17 |
 | [DEF-06](#def-06) | Eliminar una foto deja el archivo en el teléfono | Media | Abierto | — | Revisión del 8 oct, H07 |
 | [DEF-07](#def-07) | Las órdenes no se ordenan por fecha de entrega | Media | Abierto | — | Revisión del 8 oct, H08 |
@@ -50,7 +50,7 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | [DEF-11](#def-11) | El tutorial dice «Misión Completada» al cerrarlo a medias | Baja | Abierto | — | Revisión del 8 oct, H26 |
 | [DEF-12](#def-12) | «Recordar a N clientes» cuenta órdenes, no clientas | Baja | Abierto | — | Revisión del 8 oct, H18 |
 
-**Por severidad:** 1 crítica, 1 alta, 6 medias y 4 bajas. **Por estado:** 2 verificados (DEF-01 y DEF-02), 2 nuevos (DEF-03 y DEF-09) y 8 abiertos. Ninguno está cerrado: los verificados se cierran en la regresión final (acción A12 del plan de mejora).
+**Por severidad:** 1 crítica, 1 alta, 6 medias y 4 bajas. **Por estado:** 3 verificados (DEF-01, DEF-02 y DEF-04), 2 nuevos (DEF-03 y DEF-09) y 7 abiertos. Ninguno está cerrado: los verificados se cierran en la regresión final (acción A12 del plan de mejora).
 
 ## 3. Reportes
 
@@ -124,11 +124,13 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 8 de octubre de 2026 · confirmado en el código el 14 de octubre |
 | Severidad | Alta |
-| Estado | Abierto |
+| Estado | Verificado |
 | Aplicación | Atelier Manager 1.2.0, detalle de la orden |
 | Descripción | El botón *Entregar orden* pide confirmación mostrando lo que se debe (`cambiarEstado`, `OrdenDetailView.vue:221`). Marcar *Entregada* prenda por prenda (`handleEstadoPrenda`, línea 299) no la pide, y al entregar la última la orden queda *Entregada* con saldo. La decisión D-11 permite entregar con deuda, pero siempre advirtiendo |
 | Método de reproducción | 1. Orden con dos prendas terminadas, total 40.000 y abono 10.000. 2. En *Prendas*, tocar *Entregada* en la primera. 3. Tocar *Entregada* en la segunda. Esperado: advertencia con 30.000. Obtenido: la orden queda *Entregada* sin advertencia |
 | Información adicional | Puede llevar a entregar ropa sin cobrar. La corrección es mostrar la misma advertencia en ambos caminos, sin bloquear la entrega |
+| Corrección | 14 oct: `handleEstadoPrenda` pide la misma confirmación (`mensajeConfirmacionEntrega(orden, 'esta prenda')`) antes de entregar una prenda con saldo, también la última. Sin saldo entrega directo. La entrega con deuda sigue permitida (D-11) |
+| Verificación | 14 oct. Tres pruebas nuevas contra SQLite real en `OrdenDetailView.aviso.spec.js`: sin confirmar, la prenda no cambia; al confirmar se entrega, y la última vuelve a advertir antes de cerrar la orden; sin saldo no pregunta. En Edge, siguiendo el método de reproducción, aparece «¿Entregar esta prenda de todos modos?» con el saldo. Pasan 392 pruebas unitarias y 3 E2E |
 
 <a id="def-05"></a>
 
