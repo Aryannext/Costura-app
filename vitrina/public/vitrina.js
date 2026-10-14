@@ -89,7 +89,7 @@
 
   function pintarPrendas() {
     vaciarCon($('#categorias'), CATEGORIAS.map((c) =>
-      h('button', { class: 'chip', 'aria-pressed': c === estado.categoria, 'data-cat': c }, c)));
+      h('button', { class: 'chip', 'aria-pressed': String(c === estado.categoria), 'data-cat': c }, c)));
     $('#n-prendas').textContent = estado.prendas.length;
     if (!estado.prendas.length) {
       return vaciarCon($('#prendas'), vacio('Todavía no hay prendas con ese filtro. Prueba con otra ciudad o categoría.'));
