@@ -26,6 +26,8 @@ Cómo está diseñada por dentro: [ARQUITECTURA.md](../02-diseno/ARQUITECTURA.md
 | Android SDK | plataforma 36 | Compilar el APK. Viene con Android Studio |
 | Docker | opcional | Versión web en un VPS |
 
+Si `JAVA_HOME` apunta a otro JDK, la compilación desde la terminal falla con `invalid source release: 21`. En ese caso, antes de `./gradlew` se apunta `JAVA_HOME` al JDK 21. Android Studio usa su propio JDK y no tiene este problema.
+
 ## 2. Estructura del proyecto
 
 ```

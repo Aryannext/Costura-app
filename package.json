@@ -14,10 +14,10 @@
   "dependencies": {
     "@aparajita/capacitor-biometric-auth": "^10.0.0",
     "@capacitor-community/sqlite": "^8.1.0",
-    "@capacitor/android": "^8.4.0",
+    "@capacitor/android": "^8.4.3",
     "@capacitor/app": "^8.1.0",
     "@capacitor/camera": "^8.2.0",
-    "@capacitor/core": "^8.4.0",
+    "@capacitor/core": "^8.4.3",
     "@capacitor/filesystem": "^8.1.2",
     "@capacitor/haptics": "^8.0.2",
     "@capacitor/local-notifications": "^8.2.0",
@@ -31,18 +31,23 @@
     "driver.js": "^1.8.0",
     "jeep-sqlite": "^2.8.0",
     "sql.js": "^1.11.0",
-    "vue": "^3.5.34",
+    "vue": "^3.5.43",
     "vue-chartjs": "^5.3.3",
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
-    "@capacitor/cli": "^8.4.0",
+    "@capacitor/cli": "^8.4.3",
     "@playwright/test": "^1.62.1",
     "@vitejs/plugin-vue": "^6.0.6",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/coverage-v8": "^4.1.11",
     "@vue/test-utils": "^2.4.11",
     "jsdom": "^30.0.1",
     "vite": "^8.0.12",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
+  },
+  "overrides": {
+    "@capacitor/core": "$@capacitor/core",
+    "@capacitor/android": "$@capacitor/android",
+    "@capacitor/ios": "8.4.3"
   }
 }
