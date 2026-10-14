@@ -6,7 +6,7 @@
 # - La app se compila para la subruta /costura-app/ (BASE_PATH).
 # - El contenedor solo escucha dentro del servidor (127.0.0.1:3014). El nginx del
 #   VPS, que atiende proyectosena.online con HTTPS, reenvía /costura-app/ a ese
-#   puerto quitando el prefijo.
+#   puerto quitando el prefijo (docker/nginx-vps.conf).
 services:
   web:
     build:
