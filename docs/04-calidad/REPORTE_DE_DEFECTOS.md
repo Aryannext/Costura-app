@@ -2,7 +2,7 @@
 
 Un reporte por defecto, con la estructura de la guía SENA *Aplicación de pruebas de software* (sección 1.3): identificador, título, reportado por, asignado a, fecha de creación, severidad, aplicación, descripción, método de reproducción e información adicional. Cada uno tiene su estado en el ciclo de vida de una incidencia.
 
-> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado ese mismo día tras corregir DEF-01, DEF-02, DEF-04, DEF-05 y DEF-11 · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
+> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado ese mismo día tras corregir DEF-01, DEF-02, DEF-04, DEF-05, DEF-11 y DEF-12 · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
 
 ---
 
@@ -48,9 +48,9 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | [DEF-09](#def-09) | Formularios de contraseña sin campo de usuario | Baja | Nuevo | CPV-14 a CPV-16 | Pruebas del 14 oct |
 | [DEF-10](#def-10) | Siete variables de estilo usadas sin definir | Baja | Abierto | — | Revisión del 8 oct, H25 |
 | [DEF-11](#def-11) | El tutorial dice «Misión Completada» al cerrarlo a medias | Baja | Verificado | — | Revisión del 8 oct, H26 |
-| [DEF-12](#def-12) | «Recordar a N clientes» cuenta órdenes, no clientas | Baja | Abierto | — | Revisión del 8 oct, H18 |
+| [DEF-12](#def-12) | «Recordar a N clientes» cuenta órdenes, no clientas | Baja | Verificado | — | Revisión del 8 oct, H18 |
 
-**Por severidad:** 1 crítica, 1 alta, 6 medias y 4 bajas. **Por estado:** 5 verificados (DEF-01, DEF-02, DEF-04, DEF-05 y DEF-11), 2 nuevos (DEF-03 y DEF-09) y 5 abiertos. Ninguno está cerrado: los verificados se cierran en la regresión final (acción A12 del plan de mejora).
+**Por severidad:** 1 crítica, 1 alta, 6 medias y 4 bajas. **Por estado:** 6 verificados (DEF-01, DEF-02, DEF-04, DEF-05, DEF-11 y DEF-12), 2 nuevos (DEF-03 y DEF-09) y 4 abiertos. Ninguno está cerrado: los verificados se cierran en la regresión final (acción A12 del plan de mejora).
 
 ## 3. Reportes
 
@@ -274,11 +274,13 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 8 de octubre de 2026 · confirmado el 14 de octubre |
 | Severidad | Baja |
-| Estado | Abierto |
+| Estado | Verificado |
 | Aplicación | Atelier Manager 1.2.0, panel de inicio |
 | Descripción | `DashboardView.vue:110` muestra «Recordar a los N clientes» con `kpis.ordenesListas`. Además, el botón no le escribe a la clienta: le manda a la modista una lista por Telegram |
 | Método de reproducción | 1. Una clienta con dos órdenes listas. 2. Abrir *Inicio*. Esperado: «1 clienta» o «2 órdenes». Obtenido: «Recordar a los 2 clientes» |
 | Información adicional | Propuesta P7 de PROPUESTA_UX: «Preparar recordatorios (N órdenes)» |
+| Corrección | 14 oct: el botón dice «Preparar recordatorios». No lleva número: la tarjeta ya muestra cuántas órdenes están listas, y las que entraron hoy en la lista no se repiten (RN-33). El aviso dice «Te llegó a Telegram la lista con N órdenes para recordar. Ábrela y envía cada WhatsApp.», y si no hay nada nuevo, «Los recordatorios de hoy ya están en tu Telegram.» en lugar de «Ya se les recordó hoy a estos clientes». El manual se corrigió igual |
+| Verificación | 14 oct. Cuatro pruebas nuevas en `DashboardView.spec.js`, que fallaban antes del cambio: el botón no dice «clientes»; el aviso cuenta órdenes, en plural y en singular; y sin órdenes nuevas no afirma que se le recordó a nadie |
 
 ## 4. Otras incidencias abiertas
 

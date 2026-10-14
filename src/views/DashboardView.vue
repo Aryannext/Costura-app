@@ -107,7 +107,9 @@
             </span>
             <button class="btn-recordar" @click="enviarRecordatorios" :disabled="notifLoading">
               <svg class="ic" viewBox="0 0 24 24"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4z"></path></svg>
-              {{ notifLoading ? 'Enviando...' : (kpis.ordenesListas === 1 ? 'Recordar al cliente' : `Recordar a los ${kpis.ordenesListas} clientes`) }}
+              <!-- No le escribe a la clienta: le manda a la modista la lista por Telegram
+                   (RF-40). Antes decía «Recordar a los N clientes» contando órdenes (DEF-12). -->
+              {{ notifLoading ? 'Preparando...' : 'Preparar recordatorios' }}
             </button>
           </div>
         </section>
@@ -161,10 +163,13 @@ function plural(n, singular, varios) {
 async function enviarRecordatorios() {
   try {
     const count = await triggerRecordatorios();
+    // count es de órdenes, no de clientas: una clienta puede tener varias listas
     if (count > 0) {
-      toast(`Te llegó a Telegram la lista de ${count} cliente(s) para recordar por WhatsApp.`, 'success');
+      toast(`Te llegó a Telegram la lista con ${plural(count, 'orden', 'órdenes')} para recordar. Ábrela y envía cada WhatsApp.`, 'success');
     } else {
-      toast('Ya se les recordó hoy a estos clientes.', 'info');
+      // RN-33: cada orden entra en la lista una vez al día. Eso no significa que
+      // la clienta ya recibió el WhatsApp.
+      toast('Los recordatorios de hoy ya están en tu Telegram.', 'info');
     }
   } catch (err) {
     // El composable ya mostró el error

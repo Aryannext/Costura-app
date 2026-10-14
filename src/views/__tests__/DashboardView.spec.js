@@ -119,3 +119,51 @@ describe('DashboardView · qué hacer hoy', () => {
         expect(datos.triggerRecordatorios).toHaveBeenCalledTimes(1);
     });
 });
+
+describe('DashboardView · recordatorios por Telegram (DEF-12, RF-40)', () => {
+    async function montarConToast() {
+        const toast = vi.fn();
+        const wrapper = mount(DashboardView, { global: { provide: { toast } } });
+        await flushPromises();
+        return { wrapper, toast };
+    }
+
+    it('el botón no llama clientes a las órdenes: dice que prepara la lista', async () => {
+        const { wrapper } = await montarConToast();
+        const boton = wrapper.find('.btn-recordar').text();
+
+        expect(boton).not.toMatch(/client/i);
+        expect(boton).toBe('Preparar recordatorios');
+    });
+
+    it('al terminar dice cuántas órdenes van en la lista y que falta enviar cada WhatsApp', async () => {
+        const { wrapper, toast } = await montarConToast();
+
+        await wrapper.find('.btn-recordar').trigger('click');
+        await flushPromises();
+
+        expect(toast).toHaveBeenCalledWith(
+            'Te llegó a Telegram la lista con 3 órdenes para recordar. Ábrela y envía cada WhatsApp.', 'success');
+    });
+
+    it('con una sola orden lo dice en singular', async () => {
+        const { wrapper, toast } = await montarConToast();
+        datos.triggerRecordatorios.mockResolvedValueOnce(1);
+
+        await wrapper.find('.btn-recordar').trigger('click');
+        await flushPromises();
+
+        expect(toast).toHaveBeenCalledWith(
+            'Te llegó a Telegram la lista con 1 orden para recordar. Ábrela y envía cada WhatsApp.', 'success');
+    });
+
+    it('si hoy ya se mandaron todas, no dice que se le recordó a nadie', async () => {
+        const { wrapper, toast } = await montarConToast();
+        datos.triggerRecordatorios.mockResolvedValueOnce(0);
+
+        await wrapper.find('.btn-recordar').trigger('click');
+        await flushPromises();
+
+        expect(toast).toHaveBeenCalledWith('Los recordatorios de hoy ya están en tu Telegram.', 'info');
+    });
+});
