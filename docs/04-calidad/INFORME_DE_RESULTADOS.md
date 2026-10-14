@@ -109,15 +109,15 @@ El detalle de cada uno, con su método de reproducción, está en el [reporte de
 | DEF-01 | Capacitor Android con una vulnerabilidad crítica publicada | Crítica | Verificado |
 | DEF-02 | Otras seis dependencias con vulnerabilidades críticas o altas | Media | Verificado |
 | DEF-03 | Faltan cabeceras de seguridad en la versión web | Media | Nuevo |
-| DEF-04 | Entregar la última prenda cierra la orden con deuda sin advertir | Alta | Abierto |
-| DEF-05 | Cancelar la cámara muestra «Fotografía guardada» | Media | Abierto |
+| DEF-04 | Entregar la última prenda cierra la orden con deuda sin advertir | Alta | Verificado |
+| DEF-05 | Cancelar la cámara muestra «Fotografía guardada» | Media | Verificado |
 | DEF-06 | Eliminar una foto deja el archivo en el teléfono | Media | Abierto |
 | DEF-07 | Las órdenes no se ordenan por fecha de entrega | Media | Abierto |
 | DEF-08 | Anular y eliminar solo se alcanzan deslizando el dedo | Media | Abierto |
 | DEF-09 | Formularios de contraseña sin campo de usuario | Baja | Nuevo |
 | DEF-10 | Siete variables de estilo usadas sin definir | Baja | Abierto |
-| DEF-11 | El tutorial dice «Misión Completada» al cerrarlo a medias | Baja | Abierto |
-| DEF-12 | «Recordar a N clientes» cuenta órdenes, no clientas | Baja | Abierto |
+| DEF-11 | El tutorial dice «Misión Completada» al cerrarlo a medias | Baja | Verificado |
+| DEF-12 | «Recordar a N clientes» cuenta órdenes, no clientas | Baja | Verificado |
 
 **Análisis** (guía, sección 1.3):
 - **Impacto:** DEF-01 afecta al APK que se instala en el taller. DEF-04 puede hacer entregar ropa sin cobrar. Los demás no alteran datos.
@@ -146,5 +146,6 @@ Casos que se repitieron después de corregir sus defectos. El resumen de la secc
 | 14 oct | CPV-05, con el método de reproducción de DEF-04 | Rama `entrega-prenda-advierte-deuda` | Exitoso: entregar una prenda con saldo pide confirmación, también la última; sin saldo entrega directo | DEF-04 → *Verificado* |
 | 14 oct | CPV-28, en pruebas de la pantalla con la cámara simulada | Rama `mensajes-foto-y-tutorial` | Exitoso: cancelar no anuncia nada; una foto real y un error se anuncian una vez cada uno. En el teléfono sigue pendiente | DEF-05 → *Verificado* |
 | 14 oct | Método de reproducción de DEF-11, con el driver.js real en Edge | Rama `mensajes-foto-y-tutorial` | Exitoso: cerrar a mitad no dice «Misión Completada»; terminar sí | DEF-11 → *Verificado* |
+| 14 oct | Método de reproducción de DEF-12 | Rama `recordatorios-cuenta-ordenes` | Exitoso: el botón ya no habla de clientes y el aviso cuenta órdenes | DEF-12 → *Verificado* |
 
 Sobre el mismo commit pasan las 388 pruebas unitarias, con el mínimo de cobertura, y las 3 E2E en Edge. La versión publicada en `/costura-app/` carga con Vue 3.5.43.
