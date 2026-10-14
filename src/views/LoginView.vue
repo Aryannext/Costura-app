@@ -253,7 +253,7 @@ async function handleBiometricLogin() {
 }
 
 .error-message {
-  color: var(--error-color);
+  color: var(--error);
   font-size: 14px;
   text-align: center;
   animation: shake 0.4s ease-in-out;

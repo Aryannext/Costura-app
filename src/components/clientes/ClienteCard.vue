@@ -36,7 +36,7 @@ defineEmits(['click']);
   transition: background-color 0.2s;
 }
 .cliente-card:active {
-  background-color: var(--border-color);
+  background-color: var(--surface-container-high);
 }
 h3 {
   margin: 0 0 4px 0;
@@ -44,7 +44,7 @@ h3 {
 }
 p {
   margin: 0 0 4px 0;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
   font-size: 0.9rem;
 }
 .direccion {
@@ -52,6 +52,6 @@ p {
 }
 .cliente-action {
   font-size: 1.5rem;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
 }
 </style>

@@ -12,7 +12,7 @@ vi.mock('vue-router', () => ({
     useRoute: () => ({ params: { id: '1' }, query: {} }),
     useRouter: () => ({ push: vi.fn(), back: vi.fn() })
 }));
-const camara = vi.hoisted(() => ({ getPhoto: vi.fn(), guardar: vi.fn() }));
+const camara = vi.hoisted(() => ({ getPhoto: vi.fn(), guardar: vi.fn(), borrar: vi.fn() }));
 vi.mock('@capacitor/camera', () => ({
     Camera: { getPhoto: (...args) => camara.getPhoto(...args) }, CameraResultType: {}, CameraSource: {}
 }));
@@ -23,7 +23,7 @@ vi.mock('../../composables/useHaptics.js', () => ({
 vi.mock('../../services/photoStorage.js', () => ({
     resolvePhotoSrc: (ruta) => ruta,
     savePhotoFromBase64: (...args) => camara.guardar(...args),
-    deletePhotoFile: vi.fn()
+    deletePhotoFile: (...args) => camara.borrar(...args)
 }));
 const telegram = vi.hoisted(() => ({ enviar: vi.fn() }));
 vi.mock('../../composables/useTelegramBot.js', () => ({
@@ -36,7 +36,7 @@ import { migrations } from '../../database/migrations.js';
 import { runMigrations } from '../../database/migrationRunner.js';
 import { createCliente } from '../../database/queries/clientes.js';
 import { createOrden } from '../../database/queries/ordenes.js';
-import { createPrenda } from '../../database/queries/prendas.js';
+import { createPrenda, saveFotografia } from '../../database/queries/prendas.js';
 import { registrarPago } from '../../database/queries/pagos.js';
 import OrdenDetailView from '../OrdenDetailView.vue';
 
@@ -247,5 +247,30 @@ describe('OrdenDetailView · tomar una foto (RNF-05, DEF-05)', () => {
         const errores = toast.mock.calls.filter(([, tipo]) => tipo === 'error').map(([texto]) => texto);
         expect(errores).toEqual(['No hay permiso para usar la cámara']);
         expect(avisosDeExito(toast)).not.toContain('Fotografía guardada');
+    });
+});
+
+describe('OrdenDetailView · eliminar una foto (RF-32, RN-40, DEF-06)', () => {
+    it('borra la fila y también el archivo del teléfono, sin tocar la prenda', async () => {
+        camara.borrar.mockReset().mockResolvedValue(true);
+        vi.spyOn(window, 'confirm').mockReturnValue(true);
+        const id_cliente = await createCliente({ nombre: 'Ana', telefono: '3001234567', autoriza_datos: true });
+        const id_orden = await createOrden({ id_cliente, fecha_entrega_estimada: '2099-01-01' });
+        const id_prenda = await createPrenda({ id_orden, valor: 20000, descripcion_arreglo: 'Basta', id_tipo_prenda: 1 });
+        await saveFotografia(id_prenda, 'prenda_1_123.jpeg');
+
+        const wrapper = mount(OrdenDetailView, { global: { provide: { toast: vi.fn() } } });
+        await asentar();
+        await wrapper.findAll('.tabs button').find(b => b.text() === 'Prendas').trigger('click');
+        await asentar();
+        await wrapper.findAll('.prenda-card .accion').find(b => b.text().startsWith('Fotos')).trigger('click');
+        await asentar();
+
+        await wrapper.find('.delete-foto-btn').trigger('click');
+        await asentar();
+
+        expect(camara.borrar).toHaveBeenCalledWith('prenda_1_123.jpeg');
+        expect((await db.query('SELECT COUNT(*) AS n FROM fotografia')).values[0].n).toBe(0);
+        expect((await db.query('SELECT COUNT(*) AS n FROM prenda')).values[0].n).toBe(1);
     });
 });

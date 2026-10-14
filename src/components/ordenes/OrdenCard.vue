@@ -47,7 +47,7 @@ function formatDate(dateStr) {
 }
 .orden-card:active {
   transform: scale(0.98);
-  background-color: var(--border-color);
+  background-color: var(--surface-container-high);
 }
 .orden-header {
   display: flex;
@@ -56,18 +56,18 @@ function formatDate(dateStr) {
 }
 .orden-id {
   font-weight: bold;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
 }
 .orden-body h4 {
   margin: 0 0 4px 0;
-  color: var(--text-primary);
+  color: var(--on-surface);
 }
 .orden-body p {
   margin: 2px 0;
   font-size: 0.9rem;
 }
 .deuda {
-  color: var(--error-color);
+  color: var(--error);
   font-weight: bold;
 }
 .pagada {

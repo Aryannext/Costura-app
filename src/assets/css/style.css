@@ -21,6 +21,7 @@
   --on-primary: #ffffff;
   --primary-container: #4f46e5;
   --on-primary-container: #dad7ff;
+  --primary-fixed: #e2dfff; /* tono claro del primario: anillo de foco de los campos (DEF-10) */
 
   --secondary: #4648d4;
   --on-secondary: #ffffff;

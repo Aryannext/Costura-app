@@ -104,7 +104,7 @@ async function handleAddCliente(clienteData) {
 }
 .empty-state {
   text-align: center;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
   padding: 40px 0;
 }
 .clientes-list {

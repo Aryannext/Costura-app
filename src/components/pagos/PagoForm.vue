@@ -125,7 +125,7 @@ function handleSubmit() {
 .btn-link {
   background: none;
   border: none;
-  color: var(--accent-color);
+  color: var(--primary);
   cursor: pointer;
   padding: 0;
   text-decoration: underline;
@@ -136,13 +136,8 @@ function handleSubmit() {
   justify-content: flex-end;
   margin-top: 20px;
 }
-.btn-secondary {
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-}
 .error-message {
-  color: var(--error-color);
+  color: var(--error);
   margin-bottom: 16px;
   font-size: 0.9em;
 }

@@ -2,7 +2,7 @@
 
 Un reporte por defecto, con la estructura de la guía SENA *Aplicación de pruebas de software* (sección 1.3): identificador, título, reportado por, asignado a, fecha de creación, severidad, aplicación, descripción, método de reproducción e información adicional. Cada uno tiene su estado en el ciclo de vida de una incidencia.
 
-> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado ese mismo día tras corregir DEF-01, DEF-02, DEF-04, DEF-05, DEF-11 y DEF-12 · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
+> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado ese mismo día tras corregir DEF-01, DEF-02, DEF-04, DEF-05, DEF-06, DEF-10, DEF-11 y DEF-12 · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
 
 ---
 
@@ -42,15 +42,15 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | [DEF-03](#def-03) | Faltan cabeceras de seguridad en la versión web | Media | Nuevo | CPV-21 | Pruebas del 14 oct |
 | [DEF-04](#def-04) | Entregar la última prenda cierra la orden con deuda sin advertir | Alta | Verificado | — | Revisión del 8 oct, H11 |
 | [DEF-05](#def-05) | Cancelar la cámara muestra «Fotografía guardada» | Media | Verificado | CPV-28 | Revisión del 8 oct, H17 |
-| [DEF-06](#def-06) | Eliminar una foto deja el archivo en el teléfono | Media | Abierto | — | Revisión del 8 oct, H07 |
+| [DEF-06](#def-06) | Eliminar una foto deja el archivo en el teléfono | Media | Verificado | — | Revisión del 8 oct, H07 |
 | [DEF-07](#def-07) | Las órdenes no se ordenan por fecha de entrega | Media | Abierto | — | Revisión del 8 oct, H08 |
 | [DEF-08](#def-08) | Anular y eliminar solo se alcanzan deslizando el dedo | Media | Abierto | — | Revisión del 8 oct, H24 |
 | [DEF-09](#def-09) | Formularios de contraseña sin campo de usuario | Baja | Nuevo | CPV-14 a CPV-16 | Pruebas del 14 oct |
-| [DEF-10](#def-10) | Siete variables de estilo usadas sin definir | Baja | Abierto | — | Revisión del 8 oct, H25 |
+| [DEF-10](#def-10) | Siete variables de estilo usadas sin definir | Baja | Verificado | — | Revisión del 8 oct, H25 |
 | [DEF-11](#def-11) | El tutorial dice «Misión Completada» al cerrarlo a medias | Baja | Verificado | — | Revisión del 8 oct, H26 |
 | [DEF-12](#def-12) | «Recordar a N clientes» cuenta órdenes, no clientas | Baja | Verificado | — | Revisión del 8 oct, H18 |
 
-**Por severidad:** 1 crítica, 1 alta, 6 medias y 4 bajas. **Por estado:** 6 verificados (DEF-01, DEF-02, DEF-04, DEF-05, DEF-11 y DEF-12), 2 nuevos (DEF-03 y DEF-09) y 4 abiertos. Ninguno está cerrado: los verificados se cierran en la regresión final (acción A12 del plan de mejora).
+**Por severidad:** 1 crítica, 1 alta, 6 medias y 4 bajas. **Por estado:** 8 verificados (DEF-01, DEF-02, DEF-04, DEF-05, DEF-06, DEF-10, DEF-11 y DEF-12), 2 nuevos (DEF-03 y DEF-09) y 2 abiertos (DEF-07 y DEF-08). Ninguno está cerrado: los verificados se cierran en la regresión final (acción A12 del plan de mejora).
 
 ## 3. Reportes
 
@@ -164,11 +164,13 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 8 de octubre de 2026 · confirmado el 14 de octubre |
 | Severidad | Media |
-| Estado | Abierto |
+| Estado | Verificado |
 | Aplicación | Atelier Manager 1.2.0, fotos de la prenda |
 | Descripción | `removeFoto` (`usePrendas.js:159`) llama a `deleteFotografia`, que borra la fila y escribe el historial, pero no llama a `deletePhotoFile`. Eliminar una prenda sí borra sus archivos (línea 83). La foto desaparece de la galería y sigue ocupando espacio |
 | Método de reproducción | 1. Tomar una foto. 2. Eliminarla. 3. Revisar la carpeta de datos de la app. Esperado: archivo borrado. Obtenido: el archivo sigue ahí |
 | Información adicional | Relacionado con la supresión de datos personales (H01) |
+| Corrección | 14 oct: `deleteFotografia` devuelve la ruta del archivo, salvo que otra foto siga usando el mismo archivo, y `removeFoto` lo borra con `deletePhotoFile` después de borrar la fila, igual que al eliminar una prenda. Si el archivo no se puede borrar, la foto ya salió de la galería y queda un aviso en consola |
+| Verificación | 14 oct. Pruebas nuevas que fallaban antes del cambio: en la pantalla (`OrdenDetailView.aviso.spec.js`), eliminar una foto pide borrar su archivo y deja la prenda intacta; contra SQLite real (`fotografias.sqlite.spec.js`), la consulta devuelve la ruta, no la da por libre si otra foto la usa, y deja el rastro en el historial. Borrar el archivo de verdad en Android queda para CPV-26 |
 
 <a id="def-07"></a>
 
@@ -236,11 +238,13 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 8 de octubre de 2026 · confirmado el 14 de octubre |
 | Severidad | Baja |
-| Estado | Abierto |
+| Estado | Verificado |
 | Aplicación | Atelier Manager 1.2.0, estilos |
 | Descripción | `--border-color` (10 usos), `--text-secondary` (10), `--text-primary` (6), `--error-color` (6), `--bg-secondary` (4), `--accent-color` (2) y `--primary-fixed` (1) no se definen en ningún archivo. Esas declaraciones quedan inválidas: pueden perderse bordes, el color de los errores o el anillo de foco |
 | Método de reproducción | Buscar `var(--border-color` y `--border-color:` en `src/`: hay usos y ninguna definición |
 | Información adicional | Se cambian por los tokens que ya existen; no hace falta rediseñar |
+| Corrección | 14 oct, en 11 archivos: bordes a `--outline-variant`, fondo de tarjeta pulsada a `--surface-container-high`, textos a `--on-surface` y `--on-surface-variant`, errores a `--error` y acentos a `--primary`. Se quitó la regla local de `.btn-secondary` de los cuatro formularios: siendo inválida, dejaba «Cancelar» sin borde en lugar del estilo global. Para el anillo de foco se agregó el token `--primary-fixed` (#e2dfff), porque ningún token existente era un tono claro del primario |
+| Verificación | 14 oct. Prueba nueva `estilos.spec.js`, que fallaba antes con las 7 variables: toda `var(--x)` sin respaldo tiene definición. En Edge, en el formulario de orden, «Cancelar» tiene borde de 1 px `#c7c4d8`, el mensaje de error sale en `#ba1a1a` y el campo enfocado muestra el anillo `#e2dfff` de 3 px |
 
 <a id="def-11"></a>
 
