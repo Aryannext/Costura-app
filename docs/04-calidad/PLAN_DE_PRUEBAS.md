@@ -18,7 +18,7 @@ Documentos de la guía SENA *Aplicación de pruebas de software*, ejecutados el 
 | --- | --- | --- | --- |
 | Unitarias y de integración | Vitest + Vue Test Utils + sql.js | Las 40 reglas de negocio contra SQLite real, validaciones, saldo, estados, migraciones, copia de seguridad, avisos, recibo y vistas | En cada cambio, en GitHub Actions |
 | Volumen | Vitest + sql.js (`volumen.sqlite.spec.js`) | Abrir, registrar, abonar, listar y buscar con 500 órdenes, contra los límites de RNF-01 a RNF-03 (mide la base, no el teléfono) | En cada cambio, en GitHub Actions |
-| Seguridad | `npm audit` y cabeceras HTTP; OWASP ZAP pendiente | Vulnerabilidades publicadas de las dependencias y cabeceras de la versión web | Antes de cada entrega |
+| Seguridad | `npm audit --omit=dev --audit-level=high` en la CI; cabeceras HTTP; OWASP ZAP pendiente | Vulnerabilidades publicadas de las dependencias y cabeceras de la versión web | La auditoría en cada cambio, en GitHub Actions; las cabeceras antes de cada entrega |
 | Documentación | Vitest (`documentacion.spec.js`) | Que diagramas, módulos, rutas y enlaces coincidan con el código | En cada cambio, en GitHub Actions |
 | De punta a punta | Playwright | Tres recorridos completos en el navegador: crear clienta y orden, el flujo completo de una orden y que los datos sobrevivan a una recarga | A mano antes de cada entrega |
 | Calidad estática | SonarCloud | Confiabilidad y seguridad del código nuevo | En cada pull request |

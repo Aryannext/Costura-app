@@ -2,7 +2,7 @@
 
 Un reporte por defecto, con la estructura de la guía SENA *Aplicación de pruebas de software* (sección 1.3): identificador, título, reportado por, asignado a, fecha de creación, severidad, aplicación, descripción, método de reproducción e información adicional. Cada uno tiene su estado en el ciclo de vida de una incidencia.
 
-> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026 · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
+> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado ese mismo día tras el PR #15 · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
 
 ---
 
@@ -37,8 +37,8 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 
 | ID | Título | Severidad | Estado | Caso | Origen |
 | --- | --- | --- | --- | --- | --- |
-| [DEF-01](#def-01) | Capacitor Android con una vulnerabilidad crítica publicada | Crítica | Nuevo | CPV-20 | Pruebas del 14 oct |
-| [DEF-02](#def-02) | Otras seis dependencias con vulnerabilidades críticas o altas | Media | Nuevo | CPV-20 | Pruebas del 14 oct |
+| [DEF-01](#def-01) | Capacitor Android con una vulnerabilidad crítica publicada | Crítica | Verificado | CPV-20 | Pruebas del 14 oct |
+| [DEF-02](#def-02) | Otras seis dependencias con vulnerabilidades críticas o altas | Media | Verificado | CPV-20 | Pruebas del 14 oct |
 | [DEF-03](#def-03) | Faltan cabeceras de seguridad en la versión web | Media | Nuevo | CPV-21 | Pruebas del 14 oct |
 | [DEF-04](#def-04) | Entregar la última prenda cierra la orden con deuda sin advertir | Alta | Abierto | — | Revisión del 8 oct, H11 |
 | [DEF-05](#def-05) | Cancelar la cámara muestra «Fotografía guardada» | Media | Abierto | CPV-28 | Revisión del 8 oct, H17 |
@@ -50,7 +50,7 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | [DEF-11](#def-11) | El tutorial dice «Misión Completada» al cerrarlo a medias | Baja | Abierto | — | Revisión del 8 oct, H26 |
 | [DEF-12](#def-12) | «Recordar a N clientes» cuenta órdenes, no clientas | Baja | Abierto | — | Revisión del 8 oct, H18 |
 
-**Por severidad:** 1 crítica, 1 alta, 6 medias y 4 bajas. Ninguno está cerrado.
+**Por severidad:** 1 crítica, 1 alta, 6 medias y 4 bajas. **Por estado:** 2 verificados (DEF-01 y DEF-02), 2 nuevos (DEF-03 y DEF-09) y 8 abiertos. Ninguno está cerrado: los verificados se cierran en la regresión final (acción A12 del plan de mejora).
 
 ## 3. Reportes
 
@@ -66,11 +66,13 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía (desarrollador) |
 | Fecha de creación | 14 de octubre de 2026 |
 | Severidad | Crítica (la que asigna el aviso) |
-| Estado | Nuevo |
+| Estado | Verificado |
 | Aplicación | Atelier Manager 1.2.0, APK de Android |
 | Descripción | El aviso publica que, en las versiones 8.3.5 a 8.4.2, contenido remoto puede cargarse con el origen de la app a través de la ruta interna del proxy HTTP. La app carga solo sus propios archivos, lo que reduce la exposición, pero la librería viaja dentro del APK. Hay corrección en la 8.4.3 sin cambios incompatibles |
 | Método de reproducción | 1. `npm ci`. 2. `npm audit --omit=dev`. Resultado: `@capacitor/android critical >=8.3.5 <8.4.3` |
 | Información adicional | `npm ls` muestra `@capacitor/android@8.4.0`. Al actualizar hay que compilar el APK otra vez y repetir CPV-26 en el teléfono. Evidencia: [seguridad.txt](evidencias/2026-10-14/seguridad.txt) |
+| Corrección | PR #15 (`809cfb8`, 14 oct): `@capacitor/android`, `core` y `cli` en 8.4.3. Un `overrides` deja una sola copia de `@capacitor/core` en el árbol |
+| Verificación | 14 oct, sobre `809cfb8`. `npm audit --omit=dev` da 0 vulnerabilidades, y el paso nuevo de la CI que lo comprueba pasa. `./gradlew assembleDebug` compiló con JDK 21 en la rama del PR (`beeeaf2`, mismas dependencias). Pasa a *Cerrado* cuando el APK nuevo supere CPV-26 en el teléfono |
 
 <a id="def-02"></a>
 
@@ -84,11 +86,13 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 14 de octubre de 2026 |
 | Severidad | Media |
-| Estado | Nuevo |
+| Estado | Verificado |
 | Aplicación | Atelier Manager 1.2.0, dependencias de producción |
 | Descripción | `@capacitor/ios` tiene el mismo aviso crítico que DEF-01, pero la app no se compila para iOS. Las otras cinco son altas. El aviso de Vue (GHSA-g2v6-rqmx-r4w6) afecta el renderizado en servidor, que la app no usa. `nanoid`, `postcss` y `source-map-js` actúan al compilar. Por eso la severidad real es media, aunque todas tienen corrección |
 | Método de reproducción | `npm audit --omit=dev` |
 | Información adicional | Se corrigen junto con DEF-01 con `npm audit fix` y la suite completa. Las 7 vulnerabilidades adicionales de las herramientas de desarrollo no llegan al APK |
+| Corrección | PR #15: `vue` 3.5.43, `@capacitor/ios` 8.4.3 por `overrides`, `vitest` 4.1.11 y las transitivas actualizadas |
+| Verificación | 14 oct, sobre `809cfb8`. `npm audit` da 0 vulnerabilidades, también en desarrollo. Pasan 388 pruebas unitarias y 3 E2E, y la versión web publicada carga con Vue 3.5.43 |
 
 <a id="def-03"></a>
 
