@@ -145,7 +145,7 @@ Estructura de la guía (figura 18). La columna *Estado* se actualiza cada día h
 
 | Acción | Responsable | Inicio | Fin | Recursos | Indicador de seguimiento | Estado |
 | --- | --- | --- | --- | --- | --- | --- |
-| A1 | Cristian | 15 oct | 15 oct | PC, Android Studio | `npm audit --omit=dev`: 0 críticas, 0 altas; paso nuevo en la CI | Pendiente |
+| A1 | Cristian | 14 oct | 14 oct | PC, Android Studio | `npm audit --omit=dev`: 0 críticas, 0 altas; paso nuevo en la CI | **Hecho** (PR #15): 0 vulnerabilidades y la CI lo comprueba. DEF-01 y DEF-02 *Verificado* |
 | A2 | Cristian | 15 oct | 15 oct | PC | Prueba nueva que reproduce DEF-04 y pasa | Pendiente |
 | A3 | Cristian | 16 oct | 16 oct | Revisión del 8 oct | Criterios de cierre de H01, H02, H05 y H21 cumplidos | Pendiente |
 | A4 | Cristian | 16 oct | 16 oct | PC | DEF-05, DEF-11 y DEF-12 *Verificado* | Pendiente |

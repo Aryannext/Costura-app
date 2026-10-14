@@ -46,3 +46,9 @@ Pruebas de seguridad · 2026-10-14 · commit efe712b
 5. No ejecutado
    Escaneo con OWASP ZAP (línea base pasiva) y prueba de carga con JMeter: requieren
    descargar las herramientas y autorización para correrlas contra el VPS compartido.
+
+6. Reprueba de CPV-20 tras el PR #15 · 14 oct 2026 · commit 809cfb8 (main)
+   npm audit --omit=dev   -> found 0 vulnerabilities
+   npm audit              -> found 0 vulnerabilities
+   @capacitor/android, core, cli e ios en 8.4.3 (una sola copia de core); vue 3.5.43
+   CI de main: paso "Audit production dependencies" = success

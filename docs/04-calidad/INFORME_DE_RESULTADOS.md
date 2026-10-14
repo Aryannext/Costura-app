@@ -76,7 +76,7 @@ De los ejecutados pasa el 87 % (20 de 23). Los bloqueados son los que dependen d
 | CPV-17 | Volumen: 500 órdenes | Exitoso | Ver sección 4 |
 | CPV-18 | Copia de seguridad cifrada | Exitoso | |
 | CPV-19 | Bloqueo al volver de segundo plano | Exitoso | |
-| CPV-20 | Dependencias sin vulnerabilidades conocidas | **Fallido** | 2 críticas y 5 altas en producción (DEF-01, DEF-02) |
+| CPV-20 | Dependencias sin vulnerabilidades conocidas | **Fallido** | 2 críticas y 5 altas en producción (DEF-01, DEF-02). En la reprueba tras el PR #15: exitoso (sección 7) |
 | CPV-21 | Cabeceras de seguridad de la versión web | **Fallido** | Faltan CSP, HSTS y Permissions-Policy; `Server` muestra la versión (DEF-03) |
 | CPV-22 | La documentación coincide con el código | Exitoso | Comprueba estructura, no exactitud (H14) |
 | CPV-23 | Escaneo de seguridad con OWASP ZAP | Bloqueado | ZAP no instalado; falta autorización para el VPS compartido |
@@ -106,8 +106,8 @@ El detalle de cada uno, con su método de reproducción, está en el [reporte de
 
 | ID | Título | Severidad | Estado |
 | --- | --- | --- | --- |
-| DEF-01 | Capacitor Android con una vulnerabilidad crítica publicada | Crítica | Nuevo |
-| DEF-02 | Otras seis dependencias con vulnerabilidades críticas o altas | Media | Nuevo |
+| DEF-01 | Capacitor Android con una vulnerabilidad crítica publicada | Crítica | Verificado |
+| DEF-02 | Otras seis dependencias con vulnerabilidades críticas o altas | Media | Verificado |
 | DEF-03 | Faltan cabeceras de seguridad en la versión web | Media | Nuevo |
 | DEF-04 | Entregar la última prenda cierra la orden con deuda sin advertir | Alta | Abierto |
 | DEF-05 | Cancelar la cámara muestra «Fotografía guardada» | Media | Abierto |
@@ -130,8 +130,18 @@ El detalle de cada uno, con su método de reproducción, está en el [reporte de
 1. **La lógica del taller es sólida.** Pasan las 388 pruebas automáticas y las 3 de punta a punta, y las 40 reglas de negocio tienen cada una su prueba contra SQLite real. Ninguna prueba de reglas falló.
 2. **Con 500 órdenes la base responde en milisegundos.** El margen frente a los límites del SRS es amplio, pero la medición que cuenta es la del teléfono.
 3. **La seguridad de la entrega necesita atención antes de instalar en el taller:**
-   - Actualizar Capacitor y las demás dependencias (DEF-01, DEF-02).
+   - Actualizar Capacitor y las demás dependencias (DEF-01, DEF-02). Hecho el mismo 14 de octubre (sección 7).
    - Completar las cabeceras de la versión web (DEF-03).
 4. **Los defectos abiertos son de interfaz y de mensajes**, no de cálculo. El más importante es DEF-04, porque toca el dinero.
 5. **No se puede declarar la app aceptada.** Faltan la aceptación con la dueña, el teléfono real y la usabilidad (CPV-25 a CPV-27). Los resultados de esta ejecución no los reemplazan.
 6. Las acciones, su prioridad y su seguimiento están en el [plan de mejora](PLAN_DE_MEJORA.md).
+
+## 7. Repruebas
+
+Casos que se repitieron después de corregir sus defectos. El resumen de la sección 2 no cambia: describe la ejecución original. La regresión completa queda para la acción A12 del plan de mejora.
+
+| Fecha | Caso | Commit | Resultado | Defectos |
+| --- | --- | --- | --- | --- |
+| 14 oct | CPV-20 | `809cfb8` (main, con el PR #15) | Exitoso: `npm audit --omit=dev` y `npm audit` dan 0 vulnerabilidades; el paso nuevo de la CI pasa | DEF-01 y DEF-02 → *Verificado* |
+
+Sobre el mismo commit pasan las 388 pruebas unitarias, con el mínimo de cobertura, y las 3 E2E en Edge. La versión publicada en `/costura-app/` carga con Vue 3.5.43.
