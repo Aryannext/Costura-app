@@ -32,6 +32,7 @@ import { runMigrations } from '../../database/migrationRunner.js';
 import { createCliente } from '../../database/queries/clientes.js';
 import { createOrden } from '../../database/queries/ordenes.js';
 import { createPrenda } from '../../database/queries/prendas.js';
+import { registrarPago } from '../../database/queries/pagos.js';
 import OrdenDetailView from '../OrdenDetailView.vue';
 
 async function asentar() {
@@ -117,5 +118,70 @@ describe('OrdenDetailView · aviso al quedar la orden Lista para Entregar', () =
 
         await marcar(wrapper, 1, 3);
         expect(textoModal(wrapper)).toContain('Todas las prendas están terminadas');
+    });
+});
+
+describe('OrdenDetailView · entregar prenda por prenda con deuda (RN-30, D-11, DEF-04)', () => {
+    const estadoPrendas = async () =>
+        (await db.query('SELECT id_estado_prenda FROM prenda ORDER BY id_prenda')).values.map(p => p.id_estado_prenda);
+    const estadoOrden = async () =>
+        (await db.query('SELECT id_estado_orden FROM orden_trabajo')).values[0].id_estado_orden;
+    const botonDelModal = (wrapper, texto) =>
+        wrapper.find('.confirm-modal').findAll('button').find(b => b.text() === texto);
+
+    async function ordenTerminada(valores) {
+        const wrapper = await montarOrdenConPrendas(valores);
+        for (let i = 0; i < valores.length; i++) await marcar(wrapper, i, 3);
+        // Terminar la última ofrece avisar por WhatsApp; aquí no interesa
+        if (textoModal(wrapper)) await botonDelModal(wrapper, 'Cancelar').trigger('click');
+        await asentar();
+        return wrapper;
+    }
+
+    it('entregar una prenda con saldo pide confirmación mostrando lo que se debe, y sin confirmar no la entrega', async () => {
+        const wrapper = await ordenTerminada([20000, 10000]);
+
+        await marcar(wrapper, 0, 4);
+
+        expect(textoModal(wrapper)).toContain('$30.000');
+        expect(await estadoPrendas()).toEqual([3, 3]);
+
+        await botonDelModal(wrapper, 'Cancelar').trigger('click');
+        await asentar();
+        expect(await estadoPrendas()).toEqual([3, 3]);
+    });
+
+    it('al confirmar la entrega; la última prenda también advierte antes de cerrar la orden con deuda', async () => {
+        const wrapper = await ordenTerminada([20000, 10000]);
+
+        await marcar(wrapper, 0, 4);
+        await botonDelModal(wrapper, 'Sí, entregar').trigger('click');
+        await asentar();
+        expect(await estadoPrendas()).toEqual([4, 3]);
+
+        await marcar(wrapper, 1, 4);
+        expect(textoModal(wrapper)).toContain('$30.000');
+        expect(await estadoOrden()).not.toBe(4);
+
+        await botonDelModal(wrapper, 'Sí, entregar').trigger('click');
+        await asentar();
+        expect(await estadoPrendas()).toEqual([4, 4]);
+        expect(await estadoOrden()).toBe(4);
+    });
+
+    it('sin saldo pendiente entrega directo, sin preguntar', async () => {
+        const wrapper = await ordenTerminada([20000]);
+        await registrarPago({ id_orden: 1, valor: 20000, id_metodo_pago: 1 });
+        wrapper.unmount();
+
+        const pagada = mount(OrdenDetailView, { global: { provide: { toast: vi.fn() } } });
+        await asentar();
+        await pagada.findAll('.tabs button').find(b => b.text() === 'Prendas').trigger('click');
+        await asentar();
+
+        await marcar(pagada, 0, 4);
+
+        expect(textoModal(pagada)).toBeNull();
+        expect(await estadoPrendas()).toEqual([4]);
     });
 });

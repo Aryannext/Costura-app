@@ -113,7 +113,7 @@ flowchart LR
 
 - **Crear orden** siempre incluye elegir a la clienta o registrarla ahí mismo. Pide la fecha de recepción (hoy o un día anterior) y la fecha prometida.
 - **Cambiar estado de una prenda** mueve sola la orden ([COMPORTAMIENTO.md](COMPORTAMIENTO.md), sección 2.2). Si era la última prenda por terminar, la app ofrece avisar al cliente.
-- **Entregar orden** pide confirmación si el cliente todavía debe (RN-30).
+- **Entregar orden** pide confirmación si el cliente todavía debe (RN-30). Entregar una prenda suelta pide la misma confirmación.
 - **Cancelar** y **reabrir** son las únicas acciones que cambian el estado de la orden a mano.
 
 ### 2.4 Modista · Cobros y consultas
@@ -312,7 +312,7 @@ flowchart LR
 | Requisitos | RF-48, RN-30, RN-36 |
 | Precondición | La orden está *Lista para Entregar* |
 | Flujo principal | 1. En el detalle toca *Entregar orden*. 2. La orden pasa a *Entregada* con la fecha y hora de entrega |
-| Flujo alterno | 1a. Si el cliente debe, la app muestra cuánto y pide confirmación. Se puede entregar fiado y seguir cobrando después |
+| Flujo alterno | 1a. Si el cliente debe, la app muestra cuánto y pide confirmación. Se puede entregar fiado y seguir cobrando después. 1b. Si entrega prenda por prenda, cada entrega con saldo pide la misma confirmación, también la última, que cierra la orden |
 | Postcondición | Orden *Entregada*, todas sus prendas *Entregada*, fecha de entrega real registrada |
 
 ### CU-07 · Avisar al cliente por WhatsApp
