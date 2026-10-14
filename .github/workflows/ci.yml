@@ -78,9 +78,15 @@ jobs:
   # Vitrina de Modistas (D-15): imagen propia, con datos en un volumen
   vitrina:
     runs-on: ubuntu-latest
+    # Solo lee el código: el token del trabajo no puede escribir nada
+    permissions:
+      contents: read
     steps:
-    # Fijada al commit de la v4.2.2: una etiqueta se puede mover, un commit no
+    # Fijada al commit de la v4.2.2: una etiqueta se puede mover, un commit no.
+    # Sin guardar credenciales en .git: los pasos siguientes no las necesitan
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        persist-credentials: false
 
     - name: Construir la imagen
       run: docker build -t costura-vitrina vitrina
