@@ -86,7 +86,11 @@ jobs:
 
     - name: Levantar el contenedor
       run: |
-        docker run -d --name vitrina -p 8081:8080 -e VITRINA_CLAVE_ADMIN=clave-de-ci-con-mas-de-24-caracteres costura-vitrina
+        # Clave de un solo uso, generada en cada ejecución: no queda escrita en el repositorio
+        CLAVE=$(openssl rand -hex 20)
+        echo "::add-mask::$CLAVE"
+        echo "VITRINA_CLAVE_ADMIN=$CLAVE" >> "$GITHUB_ENV"
+        docker run -d --name vitrina -p 8081:8080 -e VITRINA_CLAVE_ADMIN="$CLAVE" costura-vitrina
         for i in $(seq 1 30); do curl -fs http://localhost:8081/healthz && break; sleep 1; done
 
     - name: Comprobar la página, la API y que los datos sobreviven a un reinicio
@@ -100,7 +104,7 @@ jobs:
           http://localhost:8081/api/modistas | grep -q '"estado":"pendiente"'
         docker restart vitrina
         for i in $(seq 1 30); do curl -fs http://localhost:8081/healthz && break; sleep 1; done
-        curl -fs -H 'Authorization: Bearer clave-de-ci-con-mas-de-24-caracteres' \
+        curl -fs -H "Authorization: Bearer $VITRINA_CLAVE_ADMIN" \
           http://localhost:8081/api/admin/modistas | grep -q 'Taller CI'
         echo "Imagen de la vitrina verificada"
 
