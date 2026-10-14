@@ -32,3 +32,24 @@ describe('SwipeItem', () => {
         expect(wrapper.find('.swipe-actions').exists()).toBe(false);
     });
 });
+
+describe('SwipeItem · la acción sin deslizar (DEF-08)', () => {
+    const conBoton = {
+        default: `<template #default="{ accion, disponible }">
+            <button v-if="disponible" type="button" class="boton-visible" @click="accion">Anular</button>
+        </template>`
+    };
+
+    it('el contenido recibe la acción, para mostrarla en un botón que sirve con ratón y teclado', async () => {
+        const wrapper = mount(SwipeItem, { slots: conBoton });
+
+        await wrapper.find('.boton-visible').trigger('click');
+
+        expect(wrapper.emitted('delete')).toHaveLength(1);
+    });
+
+    it('deshabilitado, el contenido sabe que no hay acción', () => {
+        const wrapper = mount(SwipeItem, { props: { disabled: true }, slots: conBoton });
+        expect(wrapper.find('.boton-visible').exists()).toBe(false);
+    });
+});

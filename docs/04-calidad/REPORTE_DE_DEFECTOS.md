@@ -2,7 +2,7 @@
 
 Un reporte por defecto, con la estructura de la guía SENA *Aplicación de pruebas de software* (sección 1.3): identificador, título, reportado por, asignado a, fecha de creación, severidad, aplicación, descripción, método de reproducción e información adicional. Cada uno tiene su estado en el ciclo de vida de una incidencia.
 
-> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado ese mismo día tras corregir DEF-01, DEF-02, DEF-04, DEF-05, DEF-06, DEF-10, DEF-11 y DEF-12 · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
+> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado ese mismo día tras corregir todos los defectos salvo DEF-03 y DEF-07 · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
 
 ---
 
@@ -44,13 +44,13 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | [DEF-05](#def-05) | Cancelar la cámara muestra «Fotografía guardada» | Media | Verificado | CPV-28 | Revisión del 8 oct, H17 |
 | [DEF-06](#def-06) | Eliminar una foto deja el archivo en el teléfono | Media | Verificado | — | Revisión del 8 oct, H07 |
 | [DEF-07](#def-07) | Las órdenes no se ordenan por fecha de entrega | Media | Abierto | — | Revisión del 8 oct, H08 |
-| [DEF-08](#def-08) | Anular y eliminar solo se alcanzan deslizando el dedo | Media | Abierto | — | Revisión del 8 oct, H24 |
-| [DEF-09](#def-09) | Formularios de contraseña sin campo de usuario | Baja | Nuevo | CPV-14 a CPV-16 | Pruebas del 14 oct |
+| [DEF-08](#def-08) | Anular y eliminar solo se alcanzan deslizando el dedo | Media | Verificado | — | Revisión del 8 oct, H24 |
+| [DEF-09](#def-09) | Formularios de contraseña sin campo de usuario | Baja | Verificado | CPV-14 a CPV-16 | Pruebas del 14 oct |
 | [DEF-10](#def-10) | Siete variables de estilo usadas sin definir | Baja | Verificado | — | Revisión del 8 oct, H25 |
 | [DEF-11](#def-11) | El tutorial dice «Misión Completada» al cerrarlo a medias | Baja | Verificado | — | Revisión del 8 oct, H26 |
 | [DEF-12](#def-12) | «Recordar a N clientes» cuenta órdenes, no clientas | Baja | Verificado | — | Revisión del 8 oct, H18 |
 
-**Por severidad:** 1 crítica, 1 alta, 6 medias y 4 bajas. **Por estado:** 8 verificados (DEF-01, DEF-02, DEF-04, DEF-05, DEF-06, DEF-10, DEF-11 y DEF-12), 2 nuevos (DEF-03 y DEF-09) y 2 abiertos (DEF-07 y DEF-08). Ninguno está cerrado: los verificados se cierran en la regresión final (acción A12 del plan de mejora).
+**Por severidad:** 1 crítica, 1 alta, 6 medias y 4 bajas. **Por estado:** 10 verificados, 1 nuevo (DEF-03) y 1 abierto (DEF-07). Ninguno está cerrado: los verificados se cierran en la regresión final (acción A12 del plan de mejora).
 
 ## 3. Reportes
 
@@ -202,11 +202,13 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 8 de octubre de 2026 · confirmado el 14 de octubre |
 | Severidad | Media |
-| Estado | Abierto |
+| Estado | Verificado |
 | Aplicación | Atelier Manager 1.2.0, listas de pagos y prendas |
 | Descripción | El botón de la acción solo aparece con `touchstart`, `touchmove` y `touchend`. En la versión web con ratón, o con teclado, no hay forma de anular un pago |
 | Método de reproducción | 1. Abrir la versión web en un computador. 2. Ir a *Pagos* de una orden con un abono. 3. Intentar anularlo con el ratón o con Tab. Obtenido: no hay acción visible |
 | Información adicional | Propuesta P4 de [PROPUESTA_UX](revision-2026-10-08/PROPUESTA_UX.md) |
+| Corrección | 14 oct: `SwipeItem` le pasa a su contenido la misma acción y si está disponible. Cada pago vigente muestra un botón **Anular**, y cada prenda que se puede eliminar, una papelera con nombre accesible «Eliminar prenda» (solo ícono, porque con texto cuatro botones no caben en 360 px). Los dos abren la misma confirmación que el gesto, que se conserva. Si la acción no está disponible, el botón no aparece |
+| Verificación | 14 oct. Pruebas nuevas que fallaban antes del cambio: en `SwipeItem.spec.js`, el contenido recibe la acción; en `OrdenDetailView.aviso.spec.js`, contra SQLite real, Eliminar y Anular abren la confirmación, y un pago anulado no ofrece Anular. En Edge, a 390 y a 360 px: los botones caben, se alcanzan con el teclado y Enter abre la confirmación; cerrarla no borra nada |
 
 <a id="def-09"></a>
 
@@ -220,11 +222,13 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 14 de octubre de 2026 |
 | Severidad | Baja |
-| Estado | Nuevo |
+| Estado | Verificado |
 | Aplicación | Atelier Manager 1.2.0, cambio de clave y pantalla de bloqueo |
 | Descripción | `CambiarPasswordView.vue` y `AppLockScreen.vue` tienen campos de contraseña sin un campo de usuario, ni siquiera oculto. Chromium lo marca como problema de accesibilidad y los gestores de contraseñas no saben a qué cuenta pertenecen |
 | Método de reproducción | `PW_CHANNEL=msedge npx playwright test` y revisar la consola: «Password forms should have (optionally hidden) username fields» (2 veces) |
 | Información adicional | Basta un campo `username` oculto con `autocomplete="username"` |
+| Corrección | 14 oct: los dos formularios tienen un campo `username` oculto, con `autocomplete="username"` y el usuario de la sesión. No se ve ni recibe el foco con Tab |
+| Verificación | 14 oct. `formulariosContrasena.spec.js`, que fallaba antes del cambio: los dos formularios tienen el campo, con el usuario, oculto y fuera del orden de tabulación. En las tres pruebas E2E en Edge, el aviso de la consola pasó de 2 a 0 |
 
 <a id="def-10"></a>
 

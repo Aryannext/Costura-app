@@ -18,6 +18,8 @@
     </div>
 
     <form @submit.prevent="handleSubmit" class="card password-form">
+      <!-- De qué cuenta es la clave, para el navegador y los gestores de contraseñas (DEF-09) -->
+      <input type="text" name="username" autocomplete="username" :value="username" hidden tabindex="-1" readonly />
       <div class="form-group">
         <label for="actual">Contraseña actual</label>
         <input
@@ -72,9 +74,9 @@
 </template>
 
 <script setup>
-import { ref, inject } from 'vue';
+import { ref, inject, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { changePassword, logout, requiresPasswordChange, DEFAULT_PASSWORD } from '../services/auth.js';
+import { changePassword, logout, requiresPasswordChange, getCurrentUser, DEFAULT_PASSWORD } from '../services/auth.js';
 import { validators, MIN_PASSWORD_LENGTH } from '../services/validators.js';
 
 const router = useRouter();
@@ -85,6 +87,11 @@ const nueva = ref('');
 const confirmacion = ref('');
 const error = ref('');
 const loading = ref(false);
+const username = ref('');
+
+onMounted(async () => {
+  username.value = (await getCurrentUser())?.username || '';
+});
 
 // Se captura al entrar: al guardar, la obligación desaparece y la pantalla no
 // debe cambiar de forma mientras se sale de ella.

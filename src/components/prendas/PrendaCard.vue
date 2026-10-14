@@ -53,6 +53,12 @@
         <svg class="ic" viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg>
         Editar
       </button>
+      <!-- La misma acción que deslizar la tarjeta, para ratón y teclado (DEF-08).
+           Solo ícono: con texto, cuatro botones no caben en 360 px. -->
+      <button v-if="eliminable" type="button" class="accion accion--eliminar"
+              aria-label="Eliminar prenda" title="Eliminar prenda" @click="$emit('eliminar')">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path></svg>
+      </button>
     </div>
 
     <div v-if="showFotos" class="panel fotos-grid">
@@ -110,10 +116,15 @@ const props = defineProps({
   readonly: {
     type: Boolean,
     default: false
+  },
+  // Se puede eliminar: la orden está abierta y la prenda no se ha entregado
+  eliminable: {
+    type: Boolean,
+    default: false
   }
 });
 
-const emit = defineEmits(['take-photo', 'add-obs', 'estado-changed', 'prenda-actualizada']);
+const emit = defineEmits(['take-photo', 'add-obs', 'estado-changed', 'prenda-actualizada', 'eliminar']);
 
 const { fetchFotos, fetchObservaciones, removeFoto, editPrenda } = usePrendas();
 const toast = inject('toast', null);
@@ -286,6 +297,7 @@ async function onDeleteFoto(id_fotografia) {
 }
 .accion:hover:not(:disabled) { background: var(--surface-container-low); box-shadow: none; transform: none; }
 .accion.is-abierta { background: var(--surface-container); border-color: var(--primary); }
+.accion--eliminar { flex: 0 0 44px; color: var(--error); }
 .cnt {
   min-width: 20px;
   height: 20px;

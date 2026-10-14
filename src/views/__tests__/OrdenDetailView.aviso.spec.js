@@ -274,3 +274,61 @@ describe('OrdenDetailView · eliminar una foto (RF-32, RN-40, DEF-06)', () => {
         expect((await db.query('SELECT COUNT(*) AS n FROM prenda')).values[0].n).toBe(1);
     });
 });
+
+describe('OrdenDetailView · eliminar y anular sin deslizar (DEF-08)', () => {
+    const hoja = () => document.body.querySelector('.ios-action-sheet')?.textContent ?? '';
+
+    async function abrirPestana(wrapper, nombre) {
+        await wrapper.findAll('.tabs button').find(b => b.text() === nombre).trigger('click');
+        await asentar();
+    }
+
+    async function ordenConPago() {
+        const id_cliente = await createCliente({ nombre: 'Ana', telefono: '3001234567', autoriza_datos: true });
+        const id_orden = await createOrden({ id_cliente, fecha_entrega_estimada: '2099-01-01' });
+        await createPrenda({ id_orden, valor: 20000, descripcion_arreglo: 'Basta', id_tipo_prenda: 1 });
+        await registrarPago({ id_orden, valor: 5000, id_metodo_pago: 1 });
+        const wrapper = mount(OrdenDetailView, { global: { provide: { toast: vi.fn() } }, attachTo: document.body });
+        await asentar();
+        return wrapper;
+    }
+
+    it('cada prenda tiene un botón Eliminar que abre la misma confirmación que el gesto', async () => {
+        const wrapper = await ordenConPago();
+        await abrirPestana(wrapper, 'Prendas');
+
+        // Solo ícono: el nombre accesible es lo que oyen el lector de pantalla y el teclado
+        const boton = wrapper.find('.prenda-card button[aria-label="Eliminar prenda"]');
+        expect(boton.attributes('type')).toBe('button');
+
+        await boton.trigger('click');
+        await asentar();
+        expect(hoja()).toContain('Eliminar Prenda');
+        wrapper.unmount();
+    });
+
+    it('cada pago vigente tiene un botón Anular que abre la misma confirmación que el gesto', async () => {
+        const wrapper = await ordenConPago();
+        await abrirPestana(wrapper, 'Pagos');
+
+        const boton = wrapper.findAll('.pago-card button').find(b => b.text() === 'Anular');
+        expect(boton?.attributes('type')).toBe('button');
+
+        await boton.trigger('click');
+        await asentar();
+        expect(hoja()).toContain('Anular Pago');
+        wrapper.unmount();
+    });
+
+    it('un pago ya anulado no ofrece anularlo otra vez', async () => {
+        const wrapper = await ordenConPago();
+        await db.run("UPDATE pago SET anulado_en = datetime('now','localtime'), motivo_anulacion = 'Prueba'");
+        wrapper.unmount();
+
+        const otra = mount(OrdenDetailView, { global: { provide: { toast: vi.fn() } } });
+        await asentar();
+        await abrirPestana(otra, 'Pagos');
+
+        expect(otra.findAll('.pago-card button').some(b => b.text() === 'Anular')).toBe(false);
+    });
+});

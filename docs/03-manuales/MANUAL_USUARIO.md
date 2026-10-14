@@ -87,8 +87,8 @@ Debajo hay tres pestañas. Si la orden todavía tiene prendas por terminar se ab
 
 **Corregir errores**
 
-- **Un pago mal registrado** (repetido, o con el valor equivocado): desliza el pago hacia la izquierda y toca **Anular**. La app te pide el motivo. El pago **no desaparece**: queda tachado con la fecha y el motivo, deja de contar en el saldo y queda anotado en el historial de la orden. Así nunca pierdes el rastro de un dinero que entró y salió. Luego registra el pago correcto.
-- **Una prenda que no debía estar**: deslízala hacia la izquierda y toca **Eliminar**. Se borran también sus fotos y notas, y queda anotado en el historial. No se puede eliminar una prenda ya entregada, ni tocar las prendas de una orden entregada o cancelada.
+- **Un pago mal registrado** (repetido, o con el valor equivocado): toca **Anular** en el pago, o deslízalo hacia la izquierda y toca **Anular**. La app te pide el motivo. El pago **no desaparece**: queda tachado con la fecha y el motivo, deja de contar en el saldo y queda anotado en el historial de la orden. Así nunca pierdes el rastro de un dinero que entró y salió. Luego registra el pago correcto.
+- **Una prenda que no debía estar**: toca la papelera en su tarjeta, o deslízala hacia la izquierda y toca **Eliminar**. Se borran también sus fotos y notas, y queda anotado en el historial. No se puede eliminar una prenda ya entregada, ni tocar las prendas de una orden entregada o cancelada.
 
 ---
 
