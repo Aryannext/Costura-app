@@ -13,7 +13,24 @@ import { migrarConfigTelegramDesdeLocalStorage } from './composables/useTelegram
 import { normalizarRutasDeFotos } from './database/queries/prendas.js';
 import { useNotificacionesLocales } from './composables/useNotificacionesLocales.js';
 
+// Desinstala cualquier service worker de una versión vieja (caché fantasma).
+// Antes era un <script> en línea en index.html; la CSP solo deja ejecutar los
+// archivos de la app (DEF-03). Si falla, la app abre igual.
+async function borrarServiceWorkersViejos() {
+    if (!('serviceWorker' in navigator)) return;
+    try {
+        const registros = await navigator.serviceWorker.getRegistrations();
+        // Independientes entre sí: se desinstalan todos a la vez
+        await Promise.all(registros.map(registro => registro.unregister()));
+        if (registros.length) console.log(`ServiceWorker antiguo eliminado (${registros.length}).`);
+    } catch (e) {
+        console.warn('No se pudieron revisar los service workers', e);
+    }
+}
+
 async function bootstrap() {
+    // No se espera a propósito: no debe retrasar el arranque, y ya maneja sus errores
+    void borrarServiceWorkersViejos();
     try {
         await initDatabase();
         await setupDefaultUser();

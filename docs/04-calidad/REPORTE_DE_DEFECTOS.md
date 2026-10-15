@@ -2,7 +2,7 @@
 
 Un reporte por defecto, con la estructura de la guía SENA *Aplicación de pruebas de software* (sección 1.3): identificador, título, reportado por, asignado a, fecha de creación, severidad, aplicación, descripción, método de reproducción e información adicional. Cada uno tiene su estado en el ciclo de vida de una incidencia.
 
-> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado ese mismo día tras corregir todos los defectos salvo DEF-03 y DEF-07 · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
+> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado el 15 de octubre con la corrección de DEF-03 y el nuevo DEF-13 · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
 
 ---
 
@@ -39,7 +39,7 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | --- | --- | --- | --- | --- | --- |
 | [DEF-01](#def-01) | Capacitor Android con una vulnerabilidad crítica publicada | Crítica | Verificado | CPV-20 | Pruebas del 14 oct |
 | [DEF-02](#def-02) | Otras seis dependencias con vulnerabilidades críticas o altas | Media | Verificado | CPV-20 | Pruebas del 14 oct |
-| [DEF-03](#def-03) | Faltan cabeceras de seguridad en la versión web | Media | Nuevo | CPV-21 | Pruebas del 14 oct |
+| [DEF-03](#def-03) | Faltan cabeceras de seguridad en la versión web | Media | Reabierto | CPV-21 | Pruebas del 14 oct |
 | [DEF-04](#def-04) | Entregar la última prenda cierra la orden con deuda sin advertir | Alta | Verificado | — | Revisión del 8 oct, H11 |
 | [DEF-05](#def-05) | Cancelar la cámara muestra «Fotografía guardada» | Media | Verificado | CPV-28 | Revisión del 8 oct, H17 |
 | [DEF-06](#def-06) | Eliminar una foto deja el archivo en el teléfono | Media | Verificado | — | Revisión del 8 oct, H07 |
@@ -49,8 +49,9 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | [DEF-10](#def-10) | Siete variables de estilo usadas sin definir | Baja | Verificado | — | Revisión del 8 oct, H25 |
 | [DEF-11](#def-11) | El tutorial dice «Misión Completada» al cerrarlo a medias | Baja | Verificado | — | Revisión del 8 oct, H26 |
 | [DEF-12](#def-12) | «Recordar a N clientes» cuenta órdenes, no clientas | Baja | Verificado | — | Revisión del 8 oct, H18 |
+| [DEF-13](#def-13) | En la versión web, «Tomar foto» abre un menú vacío | Media | Nuevo | — | Pruebas del 15 oct (CSP) |
 
-**Por severidad:** 1 crítica, 1 alta, 6 medias y 4 bajas. **Por estado:** 10 verificados, 1 nuevo (DEF-03) y 1 abierto (DEF-07). Ninguno está cerrado: los verificados se cierran en la regresión final (acción A12 del plan de mejora).
+**Por severidad:** 1 crítica, 1 alta, 7 medias y 4 bajas. **Por estado:** 10 verificados, 1 reabierto (DEF-03, corregido y pendiente de verificar en producción), 1 nuevo (DEF-13) y 1 abierto (DEF-07). Ninguno está cerrado: los verificados se cierran en la regresión final (acción A12 del plan de mejora).
 
 ## 3. Reportes
 
@@ -106,11 +107,13 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía (contenedor) y administración del VPS (nginx del servidor) |
 | Fecha de creación | 14 de octubre de 2026 |
 | Severidad | Media |
-| Estado | Nuevo |
+| Estado | Reabierto |
 | Aplicación | Versión web en `https://proyectosena.online/costura-app/` |
 | Descripción | Están `X-Frame-Options`, `X-Content-Type-Options` y `Referrer-Policy`, y HTTP redirige a HTTPS. Faltan una política de contenido que limite de dónde se cargan scripts, la orden al navegador de usar siempre HTTPS y la política de permisos. `Server: nginx/1.24.0 (Ubuntu)` muestra producto, versión y sistema |
 | Método de reproducción | `curl -I https://proyectosena.online/costura-app/` |
 | Información adicional | La CSP va en `docker/seguridad.inc` (contenedor). HSTS y `server_tokens off` van en el nginx del servidor, que es compartido. La CSP debe permitir Google Fonts mientras la app las cargue (H30) |
+| Corrección | 15 oct. **Contenedor:** `docker/seguridad.inc` agrega `Content-Security-Policy` (`script-src 'self' 'wasm-unsafe-eval'`, Google Fonts, `connect-src` solo a Telegram, `frame-ancestors 'none'`, `object-src 'none'`) y `Permissions-Policy` (solo la cámara); `docker/nginx.conf` tiene `server_tokens off`. El script en línea de `index.html` pasó a `main.js`, porque la CSP lo habría bloqueado. **VPS:** `docker/nginx-vps.conf` oculta la versión solo en `/costura-app/`. HSTS queda fuera del repositorio: el navegador lo aplica a todo `proyectosena.online`, así que lo decide quien administra el dominio |
+| Verificación | 15 oct, antes de desplegar. `despliegue.spec.js`, que fallaba antes: la CSP, la política de permisos, `server_tokens off` y que `index.html` no tenga scripts en línea. La app compilada recorrida en Edge con las cabeceras reales (arranque con SQLite en WebAssembly, orden con prenda, Reportes, tutorial, recarga con bloqueo) dio 0 violaciones de la CSP; el control (un script en línea inyectado) sí quedó bloqueado. La CI comprueba las cabeceras sobre la imagen Docker. Pasa a *Verificado* con `curl -I` en producción, después del despliegue y del cambio en el nginx del VPS |
 
 <a id="def-04"></a>
 
@@ -289,6 +292,24 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Información adicional | Propuesta P7 de PROPUESTA_UX: «Preparar recordatorios (N órdenes)» |
 | Corrección | 14 oct: el botón dice «Preparar recordatorios». No lleva número: la tarjeta ya muestra cuántas órdenes están listas, y las que entraron hoy en la lista no se repiten (RN-33). El aviso dice «Te llegó a Telegram la lista con N órdenes para recordar. Ábrela y envía cada WhatsApp.», y si no hay nada nuevo, «Los recordatorios de hoy ya están en tu Telegram.» en lugar de «Ya se les recordó hoy a estos clientes». El manual se corrigió igual |
 | Verificación | 14 oct. Cuatro pruebas nuevas en `DashboardView.spec.js`, que fallaban antes del cambio: el botón no dice «clientes»; el aviso cuenta órdenes, en plural y en singular; y sin órdenes nuevas no afirma que se le recordó a nadie |
+
+<a id="def-13"></a>
+
+### DEF-13 · En la versión web, «Tomar foto» abre un menú vacío
+
+| Campo | Valor |
+| --- | --- |
+| Identificador | DEF-13 |
+| Título | La cámara web de Capacitor necesita `@ionic/pwa-elements`, que la app no carga |
+| Reportado por | Prueba de la CSP del 15 oct 2026, al recorrer la app compilada |
+| Asignado a | Cristian Cantillo Mejía |
+| Fecha de creación | 15 de octubre de 2026 |
+| Severidad | Media |
+| Estado | Nuevo |
+| Aplicación | Atelier Manager 1.2.0, versión web (en el APK la cámara usa el plugin nativo) |
+| Descripción | En el navegador, `Camera.getPhoto` con `CameraSource.Prompt` crea un elemento `pwa-action-sheet` para elegir cámara o galería. Ese componente viene en `@ionic/pwa-elements`, que no está instalado ni registrado: el menú aparece vacío y no se puede adjuntar ninguna foto. No lo causa la CSP: sin ella pasa igual |
+| Método de reproducción | 1. Abrir la versión web. 2. Una prenda → *Fotos* → *Tomar foto*. Esperado: elegir cámara o galería. Obtenido: un `pwa-action-sheet` sin opciones |
+| Información adicional | Se corrige instalando y registrando `@ionic/pwa-elements` (`defineCustomElements(window)` en `main.js`), o en la web usando `CameraSource.Photos`. Hay que revisar la CSP después: los componentes de Stencil cargan sus propios archivos |
 
 ## 4. Otras incidencias abiertas
 

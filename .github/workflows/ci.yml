@@ -69,6 +69,14 @@ jobs:
         # SQLite del navegador: el .wasm con su tipo correcto
         WASM=$(docker exec costura sh -c 'cd /usr/share/nginx/html && find . -name "*.wasm" | head -1' | sed 's#^\.##')
         curl -fsI "http://localhost:8080$WASM" | grep -qi 'content-type: application/wasm'
+        # DEF-03: política de contenido y de permisos en la página y en sus archivos,
+        # y nginx sin decir su versión
+        for RUTA in / /ordenes/3 "$JS" "$WASM"; do
+          CABECERAS=$(curl -fsI "http://localhost:8080$RUTA")
+          echo "$CABECERAS" | grep -qi "content-security-policy: default-src 'self'"
+          echo "$CABECERAS" | grep -qi 'permissions-policy: camera=(self)'
+          if echo "$CABECERAS" | grep -qiE '^server: nginx/[0-9]'; then echo "nginx dice su versión en $RUTA"; exit 1; fi
+        done
         echo "Imagen web verificada"
 
     - name: Registro del contenedor si algo falla

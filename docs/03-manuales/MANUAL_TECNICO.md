@@ -179,6 +179,10 @@ docker compose up -d --build
 - Detrás de un proxy con dominio y HTTPS, se apunta al puerto 8080.
 - **En una subruta** (por ejemplo `proyectosena.online/costura-app/`) se construye con `--build-arg BASE_PATH=/costura-app/`, y el proxy reenvía `/costura-app/` a la raíz del contenedor. La app arma sus enlaces, sus rutas y la ubicación de `sql-wasm.wasm` con esa base, así que una recarga en una ruta interna sigue funcionando.
 - Para el botón de descarga del APK en el login, se define `VITE_APK_DOWNLOAD_URL` al construir.
+- **Cabeceras de seguridad** (`docker/seguridad.inc`, en cada respuesta): `Content-Security-Policy`, `Permissions-Policy`, `X-Frame-Options`, `X-Content-Type-Options` y `Referrer-Policy`. El nginx del contenedor tiene `server_tokens off`. La CI comprueba todo esto sobre la imagen real.
+  - **La CSP solo deja scripts propios.** Por eso `index.html` no lleva scripts en línea; una prueba lo comprueba. Si la app empieza a hablarle a otro servicio, hay que agregarlo a `connect-src`, o el navegador bloqueará la petición.
+  - **El APK no pasa por nginx:** estas cabeceras no lo afectan.
+  - **En el VPS**, `docker/nginx-vps.conf` oculta la versión en `/costura-app/`. HSTS (`Strict-Transport-Security`) no está en el repositorio: el navegador lo aplica a todo el dominio, así que se decide en el `server` de `proyectosena.online`, junto con los demás proyectos.
 
 ## 13. Calidad e integración continua
 
