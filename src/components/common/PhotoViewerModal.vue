@@ -11,7 +11,7 @@
         </div>
         
         <div class="photo-viewer-content" @click.self="close" @keydown.esc="close">
-          <img :src="resolvePhotoSrc(photoUrl)" class="photo-img" alt="Fotografía de la prenda" />
+          <img :src="src" class="photo-img" alt="Fotografía de la prenda" />
         </div>
       </div>
     </transition>
@@ -19,8 +19,9 @@
 </template>
 
 <script setup>
+import { ref, watch } from 'vue';
 import { useHaptics } from '../../composables/useHaptics.js';
-import { resolvePhotoSrc } from '../../services/photoStorage.js';
+import { cargarFotoSrc } from '../../services/photoStorage.js';
 
 const props = defineProps({
   show: Boolean,
@@ -28,6 +29,10 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:show']);
+
+// En la versión web la foto se lee del navegador (DEF-14); en el teléfono es la ruta nativa
+const src = ref('');
+watch(() => props.photoUrl, async (ruta) => { src.value = await cargarFotoSrc(ruta); }, { immediate: true });
 const { hapticSelection } = useHaptics();
 
 function close() {

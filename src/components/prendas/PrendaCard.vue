@@ -64,7 +64,7 @@
     <div v-if="showFotos" class="panel fotos-grid">
       <div v-for="f in fotos" :key="f.id_fotografia" class="foto-container">
         <button type="button" class="foto-boton" aria-label="Ver la foto en grande" @click="openPhotoViewer(f)">
-          <img :src="resolvePhotoSrc(f.ruta_archivo)" class="foto-thumb" alt="Fotografía de la prenda" />
+          <img :src="srcFotos[f.id_fotografia]" class="foto-thumb" alt="Fotografía de la prenda" />
         </button>
         <button v-if="!readonly" class="delete-foto-btn" @click.stop="onDeleteFoto(f.id_fotografia)" aria-label="Eliminar foto">×</button>
       </div>
@@ -98,7 +98,7 @@
 import { ref, computed, watch, inject } from 'vue';
 import PhotoViewerModal from '../common/PhotoViewerModal.vue';
 import { usePrendas } from '../../composables/usePrendas.js';
-import { resolvePhotoSrc } from '../../services/photoStorage.js';
+import { cargarFotoSrc } from '../../services/photoStorage.js';
 import { formatearMoneda } from '../../services/formato.js';
 
 const ESTADOS = [
@@ -134,6 +134,7 @@ const showObs = ref(false);
 const fotos = ref([]);
 const observaciones = ref([]);
 const fotosCargadas = ref(false);
+const srcFotos = ref({});
 const notasCargadas = ref(false);
 
 // Antes de abrir el panel, el conteo sale de lo que ya trae la prenda.
@@ -183,6 +184,9 @@ async function saveEdit() {
 async function cargarFotos() {
   fotos.value = (await fetchFotos(props.prenda.id_prenda)) || [];
   fotosCargadas.value = true;
+  // En la versión web las fotos se leen del navegador (DEF-14); en el teléfono es la ruta nativa
+  const fuentes = await Promise.all(fotos.value.map(async f => [f.id_fotografia, await cargarFotoSrc(f.ruta_archivo)]));
+  srcFotos.value = Object.fromEntries(fuentes);
 }
 
 async function cargarNotas() {

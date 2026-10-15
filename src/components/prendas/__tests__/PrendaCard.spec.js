@@ -4,7 +4,7 @@ import { mount } from '@vue/test-utils';
 vi.mock('../../../composables/usePrendas.js', () => ({
     usePrendas: () => ({ fetchFotos: vi.fn(), fetchObservaciones: vi.fn(), removeFoto: vi.fn(), editPrenda: vi.fn() })
 }));
-vi.mock('../../../services/photoStorage.js', () => ({ resolvePhotoSrc: (ruta) => ruta }));
+vi.mock('../../../services/photoStorage.js', () => ({ resolvePhotoSrc: (ruta) => ruta, cargarFotoSrc: async (ruta) => ruta }));
 
 import PrendaCard from '../PrendaCard.vue';
 

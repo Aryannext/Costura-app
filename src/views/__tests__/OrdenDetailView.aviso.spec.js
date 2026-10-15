@@ -22,6 +22,7 @@ vi.mock('../../composables/useHaptics.js', () => ({
 }));
 vi.mock('../../services/photoStorage.js', () => ({
     resolvePhotoSrc: (ruta) => ruta,
+    cargarFotoSrc: async (ruta) => ruta,
     savePhotoFromBase64: (...args) => camara.guardar(...args),
     deletePhotoFile: (...args) => camara.borrar(...args)
 }));

@@ -31,6 +31,8 @@ vi.mock('vue', () => ({
 }));
 vi.mock('../router/index.js', () => ({ default: {} }));
 vi.mock('../App.vue', () => ({ default: {} }));
+const pwa = vi.hoisted(() => ({ definir: vi.fn() }));
+vi.mock('@ionic/pwa-elements/loader', () => ({ defineCustomElements: (...args) => pwa.definir(...args) }));
 
 // La primera importación de main.js transforma todo su árbol; con la suite completa
 // en paralelo (y más con cobertura) pasaba de los 5 s por defecto.
@@ -88,5 +90,16 @@ describe('main.js bootstrap', { timeout: 30000 }, () => {
         const { createApp } = await import('vue');
         expect(createApp).toHaveBeenCalledTimes(1);
         expect(document.body.innerHTML).not.toContain('Error Crítico');
+    });
+
+    // DEF-13: en el navegador, la cámara de Capacitor dibuja su menú y su visor con
+    // los componentes de @ionic/pwa-elements; sin registrarlos, el menú sale vacío.
+    it('en la versión web registra los componentes de la cámara', async () => {
+        conn.initDatabase.mockResolvedValueOnce();
+
+        await import('../main.js?pwa=1');
+        await new Promise(process.nextTick);
+
+        expect(pwa.definir).toHaveBeenCalledWith(window);
     });
 });
