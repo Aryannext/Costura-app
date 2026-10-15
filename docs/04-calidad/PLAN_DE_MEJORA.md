@@ -150,7 +150,7 @@ Estructura de la guía (figura 18). La columna *Estado* se actualiza cada día h
 | A3 | Cristian | 16 oct | 16 oct | Revisión del 8 oct | Criterios de cierre de H01, H02, H05 y H21 cumplidos | Pendiente |
 | A4 | Cristian | 14 oct | 16 oct | PC | DEF-05, DEF-11 y DEF-12 *Verificado* | **Hecho**: DEF-05, DEF-11 y DEF-12 *Verificado* el 14 oct |
 | A5 | Cristian y administración del VPS | 17 oct | 17 oct | Acceso `sudo` al VPS | CPV-21 exitoso | Pendiente |
-| A6 | Cristian | 14 oct | 18 oct | PC | DEF-06, DEF-08, DEF-09 y DEF-10 *Verificado* | **En curso**: DEF-06 y DEF-10 *Verificado* el 14 oct; faltan DEF-08 y DEF-09 |
+| A6 | Cristian | 14 oct | 18 oct | PC | DEF-06, DEF-08, DEF-09 y DEF-10 *Verificado* | **Hecho**: DEF-06, DEF-08, DEF-09 y DEF-10 *Verificado* el 14 oct |
 | A7 | Cristian con la dueña | 18 oct | 18 oct | 30 minutos de la dueña | Decisiones escritas en DECISIONES.md; DEF-07 y H28 resueltos | Pendiente |
 | A8 | Cristian | 19 oct | 19 oct | Teléfono Android | CPV-26 ejecutado; tiempos de RNF-01 a RNF-03 en el teléfono | Pendiente |
 | A9 | Cristian con la dueña | 19 oct | 20 oct | Teléfono de la dueña, 1 hora | CPV-25 y CPV-27 con la hoja llenada | Pendiente |

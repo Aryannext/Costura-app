@@ -13,6 +13,9 @@
       </p>
 
       <form @submit.prevent="handleUnlock" class="lock-form">
+        <!-- De qué cuenta es la clave, para el navegador y los gestores de contraseñas (DEF-09) -->
+        <label for="lock-usuario" hidden>Usuario</label>
+        <input id="lock-usuario" type="text" name="username" autocomplete="username" :value="username" hidden tabindex="-1" readonly />
         <label for="lock-password" class="sr-only">Contraseña</label>
         <input
           id="lock-password"

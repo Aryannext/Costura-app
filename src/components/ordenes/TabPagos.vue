@@ -24,6 +24,7 @@
         :disabled="!!pago.anulado_en"
         textoAccion="Anular"
         @delete="$emit('delete-pago', pago.id_pago)"
+        v-slot="{ accion, disponible }"
       >
         <div class="card pago-card" :class="{ anulado: pago.anulado_en }">
           <div class="pago-info">
@@ -32,8 +33,11 @@
               Anulado el {{ formatTime(pago.anulado_en) }} · {{ pago.motivo_anulacion }}
             </p>
           </div>
-          <div class="pago-fecha">
-            {{ formatTime(pago.fecha_pago) }}
+          <div class="pago-lado">
+            <div class="pago-fecha">
+              {{ formatTime(pago.fecha_pago) }}
+            </div>
+            <button v-if="disponible" type="button" class="pago-anular" @click="accion">Anular</button>
           </div>
         </div>
       </SwipeItem>
@@ -71,6 +75,18 @@ function formatTime(dateStr) {
 .pago-card { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-radius: var(--radius-lg); }
 .valor-pago { color: var(--success-color, #10b981); font-weight: 700; font-size: 1.1em; }
 .pago-fecha { color: var(--on-surface-variant); font-size: 0.85em; }
+.pago-lado { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.pago-anular {
+  background: none;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-pill);
+  color: var(--error);
+  font-size: 0.8em;
+  font-weight: 600;
+  padding: 4px 12px;
+  min-height: 32px;
+  cursor: pointer;
+}
 .pago-card.anulado { opacity: 0.6; }
 .pago-card.anulado .valor-pago { color: var(--on-surface-variant); text-decoration: line-through; }
 .pago-anulacion { margin: 4px 0 0; color: var(--error); font-size: 0.8em; }

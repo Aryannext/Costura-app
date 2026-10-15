@@ -7,7 +7,9 @@
       </button>
     </div>
     <div class="swipe-content" :style="{ transform: `translateX(${currentX}px)`, transition: isSwiping ? 'none' : 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)' }">
-      <slot></slot>
+      <!-- El gesto solo existe con el dedo. El contenido recibe la misma acción para
+           mostrarla en un botón que sirva con ratón y teclado (DEF-08). -->
+      <slot :accion="onDelete" :disponible="!disabled"></slot>
     </div>
   </div>
 </template>

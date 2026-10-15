@@ -29,9 +29,12 @@
         :key="prenda.id_prenda"
         :disabled="orden.id_estado_orden === 4 || orden.id_estado_orden === 5 || prenda.id_estado_prenda === 4"
         @delete="$emit('delete-prenda', prenda.id_prenda)"
+        v-slot="{ accion, disponible }"
       >
-        <PrendaCard 
+        <PrendaCard
           :prenda="prenda"
+          :eliminable="disponible"
+          @eliminar="accion"
           :readonly="orden.id_estado_orden === 4 || orden.id_estado_orden === 5"
           @take-photo="$emit('take-photo', prenda.id_prenda)"
           @add-obs="$emit('add-obs', prenda.id_prenda)"
