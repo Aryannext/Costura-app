@@ -263,7 +263,8 @@ function irAPorCobrar() {
 .fila-t { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .fila-t b { font-size: 15px; font-weight: 600; }
 .fila-t small { font-size: 12px; color: var(--on-surface-variant); }
-.texto-error { color: var(--error) !important; }
+/* Más específico que .fila-t small, que la dejaría gris (Sonar css:S9423) */
+.fila-t .texto-error { color: var(--error); }
 
 .listas { display: flex; flex-direction: column; gap: 12px; }
 .btn-recordar { display: flex; align-items: center; justify-content: center; gap: 8px; background: transparent; border: 1px solid var(--outline-variant); color: var(--primary); }

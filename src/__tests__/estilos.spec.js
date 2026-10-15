@@ -37,3 +37,15 @@ describe('Variables de CSS (DEF-10)', () => {
         expect([...new Set(sinDefinir)]).toEqual([]);
     });
 });
+
+describe('Sin !important (SonarCloud css:S9423)', () => {
+    it('ninguna regla usa !important: la especificidad se resuelve con el selector', () => {
+        const conImportant = fuentes.flatMap(({ ruta, texto }) =>
+            texto.split(/\r?\n/)
+                .map((linea, i) => ({ linea, n: i + 1 }))
+                .filter(({ linea }) => /!\s*important/i.test(linea))
+                .map(({ n }) => `${ruta}:${n}`));
+
+        expect(conImportant).toEqual([]);
+    });
+});

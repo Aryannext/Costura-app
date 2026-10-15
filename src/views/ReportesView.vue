@@ -233,10 +233,13 @@ const doughnutOptions = {
   padding-bottom: 12px;
 }
 
-.active-filter {
-  background-color: var(--primary-container) !important;
-  color: var(--on-primary-container) !important;
-  border-color: var(--primary-container) !important;
+/* Gana por especificidad a .btn-ghost y a su :hover, que le quitaban el color
+   al filtro activo (Sonar css:S9423) */
+.btn-ghost.active-filter,
+.btn-ghost.active-filter:hover:not(:disabled) {
+  background-color: var(--primary-container);
+  color: var(--on-primary-container);
+  border-color: var(--primary-container);
 }
 
 .custom-dates {
