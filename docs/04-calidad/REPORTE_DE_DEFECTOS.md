@@ -2,7 +2,7 @@
 
 Un reporte por defecto, con la estructura de la guía SENA *Aplicación de pruebas de software* (sección 1.3): identificador, título, reportado por, asignado a, fecha de creación, severidad, aplicación, descripción, método de reproducción e información adicional. Cada uno tiene su estado en el ciclo de vida de una incidencia.
 
-> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado el 15 de octubre: DEF-03 verificado en producción y DEF-13 nuevo · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
+> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado el 15 de octubre: DEF-03 verificado en producción, y DEF-13 y DEF-14 corregidos · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
 
 ---
 
@@ -49,9 +49,10 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | [DEF-10](#def-10) | Siete variables de estilo usadas sin definir | Baja | Verificado | — | Revisión del 8 oct, H25 |
 | [DEF-11](#def-11) | El tutorial dice «Misión Completada» al cerrarlo a medias | Baja | Verificado | — | Revisión del 8 oct, H26 |
 | [DEF-12](#def-12) | «Recordar a N clientes» cuenta órdenes, no clientas | Baja | Verificado | — | Revisión del 8 oct, H18 |
-| [DEF-13](#def-13) | En la versión web, «Tomar foto» abre un menú vacío | Media | Nuevo | — | Pruebas del 15 oct (CSP) |
+| [DEF-13](#def-13) | En la versión web, «Tomar foto» abre un menú vacío | Media | Verificado | — | Pruebas del 15 oct (CSP) |
+| [DEF-14](#def-14) | En la versión web, la foto guardada no se ve | Media | Verificado | — | Verificación de DEF-13, 15 oct |
 
-**Por severidad:** 1 crítica, 1 alta, 7 medias y 4 bajas. **Por estado:** 11 verificados, 1 nuevo (DEF-13) y 1 abierto (DEF-07). Ninguno está cerrado: los verificados se cierran en la regresión final (acción A12 del plan de mejora).
+**Por severidad:** 1 crítica, 1 alta, 8 medias y 4 bajas. **Por estado:** 13 verificados y 1 abierto (DEF-07). Ninguno está cerrado: los verificados se cierran en la regresión final (acción A12 del plan de mejora).
 
 ## 3. Reportes
 
@@ -307,11 +308,33 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 15 de octubre de 2026 |
 | Severidad | Media |
-| Estado | Nuevo |
+| Estado | Verificado |
 | Aplicación | Atelier Manager 1.2.0, versión web (en el APK la cámara usa el plugin nativo) |
 | Descripción | En el navegador, `Camera.getPhoto` con `CameraSource.Prompt` crea un elemento `pwa-action-sheet` para elegir cámara o galería. Ese componente viene en `@ionic/pwa-elements`, que no está instalado ni registrado: el menú aparece vacío y no se puede adjuntar ninguna foto. No lo causa la CSP: sin ella pasa igual |
 | Método de reproducción | 1. Abrir la versión web. 2. Una prenda → *Fotos* → *Tomar foto*. Esperado: elegir cámara o galería. Obtenido: un `pwa-action-sheet` sin opciones |
 | Información adicional | Se corrige instalando y registrando `@ionic/pwa-elements` (`defineCustomElements(window)` en `main.js`), o en la web usando `CameraSource.Photos`. Hay que revisar la CSP después: los componentes de Stencil cargan sus propios archivos |
+| Corrección | 15 oct: `@ionic/pwa-elements` 3.4.0 instalado, y `main.js` registra sus componentes solo en la versión web (`defineCustomElements(window)`). En el APK no se cargan |
+| Verificación | 15 oct. `main.spec.js`: en la web se registran los componentes (fallaba antes). En la app compilada en Edge con la CSP real: el menú muestra «From Photos» y «Take Picture», el selector de archivos abre y la foto se guarda; el recorrido completo da 0 violaciones de la CSP. `npm audit --omit=dev`: 0 vulnerabilidades. La cámara del computador («Take Picture») no se probó: el navegador de pruebas no tiene cámara |
+
+<a id="def-14"></a>
+
+### DEF-14 · En la versión web, la foto guardada no se ve
+
+| Campo | Valor |
+| --- | --- |
+| Identificador | DEF-14 |
+| Título | `resolvePhotoSrc` arma en la web una URL que el servidor no tiene |
+| Reportado por | Verificación de DEF-13, 15 oct 2026 |
+| Asignado a | Cristian Cantillo Mejía |
+| Fecha de creación | 15 de octubre de 2026 |
+| Severidad | Media |
+| Estado | Verificado |
+| Aplicación | Atelier Manager 1.2.0, versión web (en el APK la ruta nativa funciona) |
+| Descripción | Con DEF-13 corregido, la foto se adjunta y se guarda, pero la miniatura y el visor quedaban en blanco. En el navegador, Filesystem guarda los archivos dentro de IndexedDB, y `resolvePhotoSrc` armaba `/DATA/prenda_…`, que el servidor responde con `index.html` |
+| Método de reproducción | En la versión web, adjuntar una foto desde la galería y abrir *Fotos*. Esperado: la miniatura. Obtenido: una imagen rota |
+| Información adicional | Hallado al verificar DEF-13 y corregido en el mismo PR, porque sin esto adjuntar una foto en la web no serviría de nada |
+| Corrección | 15 oct: `cargarFotoSrc` en `photoStorage.js`. En el navegador lee el archivo una sola vez y lo entrega como `data:` URL, que la CSP permite; si no puede leerlo, devuelve vacío sin romper. En el teléfono devuelve la ruta nativa de siempre. `PrendaCard` y `PhotoViewerModal` la usan |
+| Verificación | 15 oct. `photoStorage.spec.js` (5 pruebas, fallaban antes): data URL en el navegador, una sola lectura por archivo, sin romper si falta, data/http tal cual y ruta nativa en el teléfono. En la app compilada en Edge con la CSP real: la miniatura y el visor cargan la foto (`data:image/jpeg`) y no hay violaciones |
 
 ## 4. Otras incidencias abiertas
 

@@ -182,6 +182,9 @@ docker compose up -d --build
 - **Cabeceras de seguridad** (`docker/seguridad.inc`, en cada respuesta): `Content-Security-Policy`, `Permissions-Policy`, `X-Frame-Options`, `X-Content-Type-Options` y `Referrer-Policy`. El nginx del contenedor tiene `server_tokens off`. La CI comprueba todo esto sobre la imagen real.
   - **La CSP solo deja scripts propios.** Por eso `index.html` no lleva scripts en línea; una prueba lo comprueba. Si la app empieza a hablarle a otro servicio, hay que agregarlo a `connect-src`, o el navegador bloqueará la petición.
   - **El APK no pasa por nginx:** estas cabeceras no lo afectan.
+- **Fotos en la versión web:**
+  - La cámara de Capacitor dibuja su menú y su visor con `@ionic/pwa-elements`, que `main.js` registra solo en el navegador.
+  - Las fotos se guardan dentro del navegador (IndexedDB), igual que la base, así que no hay una URL en el servidor. `cargarFotoSrc` (`services/photoStorage.js`) las lee y las muestra como `data:` URL.
   - **En el VPS**, `docker/nginx-vps.conf` oculta la versión en `/costura-app/`. HSTS (`Strict-Transport-Security`) no está en el repositorio: el navegador lo aplica a todo el dominio, así que se decide en el `server` de `proyectosena.online`, junto con los demás proyectos.
 
 ## 13. Calidad e integración continua

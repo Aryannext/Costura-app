@@ -69,6 +69,31 @@ function opcionesDeLectura(ruta) {
         : { path: ruta, directory: Directory.Data };
 }
 
+const fotosWeb = new Map();
+
+/**
+ * URL para un `<img>` que sirve también en la versión web (DEF-14). En el navegador
+ * Filesystem guarda las fotos dentro de IndexedDB: no hay una URL que el servidor
+ * pueda entregar, así que se leen una vez y se entregan como data URL. En el
+ * teléfono es lo mismo que `resolvePhotoSrc`. Nunca lanza: si no se puede leer,
+ * devuelve vacío.
+ */
+export async function cargarFotoSrc(ruta) {
+    if (!ruta) return '';
+    if (ruta.startsWith('http') || ruta.startsWith('data:')) return ruta;
+    if (Capacitor.isNativePlatform()) return resolvePhotoSrc(ruta);
+    if (fotosWeb.has(ruta)) return fotosWeb.get(ruta);
+    try {
+        const { data } = await Filesystem.readFile(opcionesDeLectura(ruta));
+        const src = typeof data === 'string' ? `data:image/jpeg;base64,${data}` : URL.createObjectURL(data);
+        fotosWeb.set(ruta, src);
+        return src;
+    } catch (e) {
+        console.warn('No se pudo leer la foto', ruta, e);
+        return '';
+    }
+}
+
 export async function readPhotoAsBase64(ruta) {
     const { data } = await Filesystem.readFile(opcionesDeLectura(ruta));
     return typeof data === 'string' ? data : null;

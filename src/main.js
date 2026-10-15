@@ -12,6 +12,7 @@ import { initPhotoStorage } from './services/photoStorage.js';
 import { migrarConfigTelegramDesdeLocalStorage } from './composables/useTelegramBot.js';
 import { normalizarRutasDeFotos } from './database/queries/prendas.js';
 import { useNotificacionesLocales } from './composables/useNotificacionesLocales.js';
+import { defineCustomElements as definirComponentesPwa } from '@ionic/pwa-elements/loader';
 
 // Desinstala cualquier service worker de una versión vieja (caché fantasma).
 // Antes era un <script> en línea en index.html; la CSP solo deja ejecutar los
@@ -31,6 +32,12 @@ async function borrarServiceWorkersViejos() {
 async function bootstrap() {
     // No se espera a propósito: no debe retrasar el arranque, y ya maneja sus errores
     void borrarServiceWorkersViejos();
+
+    // En el navegador, la cámara de Capacitor dibuja su menú (cámara o galería) y su
+    // visor con estos componentes; sin ellos el menú salía vacío (DEF-13). En el APK
+    // la cámara es nativa y no los usa.
+    if (!Capacitor.isNativePlatform()) definirComponentesPwa(window);
+
     try {
         await initDatabase();
         await setupDefaultUser();
