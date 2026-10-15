@@ -54,4 +54,15 @@ describe('Formularios de contraseña con su campo de usuario (DEF-09)', () => {
         expect(campo.attributes('hidden')).toBeDefined();
         expect(campo.attributes('tabindex')).toBe('-1');
     });
+
+    // SonarCloud (Web:InputWithoutLabelCheck): todo campo tiene su etiqueta, aunque esté oculto
+    for (const [nombre, componente] of [['bloqueo', AppLockScreen], ['cambio de clave', CambiarPasswordView]]) {
+        it(`en ${nombre}, el campo de usuario tiene su etiqueta asociada`, async () => {
+            const campo = await campoDeUsuario(componente);
+            const id = campo.attributes('id');
+
+            expect(id).toBeTruthy();
+            expect(document.querySelector(`label[for="${id}"]`) ?? campo.element.form.querySelector(`label[for="${id}"]`)).not.toBeNull();
+        });
+    }
 });

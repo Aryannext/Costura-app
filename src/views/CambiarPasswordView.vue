@@ -19,7 +19,8 @@
 
     <form @submit.prevent="handleSubmit" class="card password-form">
       <!-- De qué cuenta es la clave, para el navegador y los gestores de contraseñas (DEF-09) -->
-      <input type="text" name="username" autocomplete="username" :value="username" hidden tabindex="-1" readonly />
+      <label for="cambio-usuario" hidden>Usuario</label>
+      <input id="cambio-usuario" type="text" name="username" autocomplete="username" :value="username" hidden tabindex="-1" readonly />
       <div class="form-group">
         <label for="actual">Contraseña actual</label>
         <input
