@@ -108,7 +108,7 @@ El detalle de cada uno, con su método de reproducción, está en el [reporte de
 | --- | --- | --- | --- |
 | DEF-01 | Capacitor Android con una vulnerabilidad crítica publicada | Crítica | Verificado |
 | DEF-02 | Otras seis dependencias con vulnerabilidades críticas o altas | Media | Verificado |
-| DEF-03 | Faltan cabeceras de seguridad en la versión web | Media | Nuevo |
+| DEF-03 | Faltan cabeceras de seguridad en la versión web | Media | Reabierto |
 | DEF-04 | Entregar la última prenda cierra la orden con deuda sin advertir | Alta | Verificado |
 | DEF-05 | Cancelar la cámara muestra «Fotografía guardada» | Media | Verificado |
 | DEF-06 | Eliminar una foto deja el archivo en el teléfono | Media | Verificado |
@@ -118,6 +118,7 @@ El detalle de cada uno, con su método de reproducción, está en el [reporte de
 | DEF-10 | Siete variables de estilo usadas sin definir | Baja | Verificado |
 | DEF-11 | El tutorial dice «Misión Completada» al cerrarlo a medias | Baja | Verificado |
 | DEF-12 | «Recordar a N clientes» cuenta órdenes, no clientas | Baja | Verificado |
+| DEF-13 | En la versión web, «Tomar foto» abre un menú vacío | Media | Nuevo |
 
 **Análisis** (guía, sección 1.3):
 - **Impacto:** DEF-01 afecta al APK que se instala en el taller. DEF-04 puede hacer entregar ropa sin cobrar. Los demás no alteran datos.
@@ -149,5 +150,6 @@ Casos que se repitieron después de corregir sus defectos. El resumen de la secc
 | 14 oct | Método de reproducción de DEF-12 | Rama `recordatorios-cuenta-ordenes` | Exitoso: el botón ya no habla de clientes y el aviso cuenta órdenes | DEF-12 → *Verificado* |
 | 14 oct | Métodos de reproducción de DEF-06 y DEF-10 | Rama `fotos-y-estilos` | Exitoso: eliminar una foto borra también su archivo; no queda ninguna variable de CSS sin definir y el formulario se ve con sus bordes, error y foco | DEF-06 y DEF-10 → *Verificado* |
 | 14 oct | CPV-14 a CPV-16 y los métodos de reproducción de DEF-08 y DEF-09, en Edge | Rama `acciones-y-formularios` | Exitoso: sin el aviso de formularios de contraseña en la consola; Eliminar y Anular se alcanzan con ratón y teclado | DEF-08 y DEF-09 → *Verificado* |
+| 15 oct | CPV-21, con las cabeceras del contenedor aplicadas a la app compilada en Edge | Rama `cabeceras-seguridad` | Exitoso antes de desplegar: CSP y política de permisos presentes, 0 violaciones en el recorrido. Encontró DEF-13. En producción queda pendiente | DEF-03 → *Reabierto*; DEF-13 → *Nuevo* |
 
 Sobre el mismo commit pasan las 388 pruebas unitarias, con el mínimo de cobertura, y las 3 E2E en Edge. La versión publicada en `/costura-app/` carga con Vue 3.5.43.
