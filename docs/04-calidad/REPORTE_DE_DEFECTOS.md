@@ -2,7 +2,7 @@
 
 Un reporte por defecto, con la estructura de la guía SENA *Aplicación de pruebas de software* (sección 1.3): identificador, título, reportado por, asignado a, fecha de creación, severidad, aplicación, descripción, método de reproducción e información adicional. Cada uno tiene su estado en el ciclo de vida de una incidencia.
 
-> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado el 15 de octubre con la corrección de DEF-03 y el nuevo DEF-13 · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
+> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado el 15 de octubre: DEF-03 verificado en producción y DEF-13 nuevo · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
 
 ---
 
@@ -39,7 +39,7 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | --- | --- | --- | --- | --- | --- |
 | [DEF-01](#def-01) | Capacitor Android con una vulnerabilidad crítica publicada | Crítica | Verificado | CPV-20 | Pruebas del 14 oct |
 | [DEF-02](#def-02) | Otras seis dependencias con vulnerabilidades críticas o altas | Media | Verificado | CPV-20 | Pruebas del 14 oct |
-| [DEF-03](#def-03) | Faltan cabeceras de seguridad en la versión web | Media | Reabierto | CPV-21 | Pruebas del 14 oct |
+| [DEF-03](#def-03) | Faltan cabeceras de seguridad en la versión web | Media | Verificado | CPV-21 | Pruebas del 14 oct |
 | [DEF-04](#def-04) | Entregar la última prenda cierra la orden con deuda sin advertir | Alta | Verificado | — | Revisión del 8 oct, H11 |
 | [DEF-05](#def-05) | Cancelar la cámara muestra «Fotografía guardada» | Media | Verificado | CPV-28 | Revisión del 8 oct, H17 |
 | [DEF-06](#def-06) | Eliminar una foto deja el archivo en el teléfono | Media | Verificado | — | Revisión del 8 oct, H07 |
@@ -51,7 +51,7 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | [DEF-12](#def-12) | «Recordar a N clientes» cuenta órdenes, no clientas | Baja | Verificado | — | Revisión del 8 oct, H18 |
 | [DEF-13](#def-13) | En la versión web, «Tomar foto» abre un menú vacío | Media | Nuevo | — | Pruebas del 15 oct (CSP) |
 
-**Por severidad:** 1 crítica, 1 alta, 7 medias y 4 bajas. **Por estado:** 10 verificados, 1 reabierto (DEF-03, corregido y pendiente de verificar en producción), 1 nuevo (DEF-13) y 1 abierto (DEF-07). Ninguno está cerrado: los verificados se cierran en la regresión final (acción A12 del plan de mejora).
+**Por severidad:** 1 crítica, 1 alta, 7 medias y 4 bajas. **Por estado:** 11 verificados, 1 nuevo (DEF-13) y 1 abierto (DEF-07). Ninguno está cerrado: los verificados se cierran en la regresión final (acción A12 del plan de mejora).
 
 ## 3. Reportes
 
@@ -107,13 +107,15 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía (contenedor) y administración del VPS (nginx del servidor) |
 | Fecha de creación | 14 de octubre de 2026 |
 | Severidad | Media |
-| Estado | Reabierto |
+| Estado | Verificado |
 | Aplicación | Versión web en `https://proyectosena.online/costura-app/` |
 | Descripción | Están `X-Frame-Options`, `X-Content-Type-Options` y `Referrer-Policy`, y HTTP redirige a HTTPS. Faltan una política de contenido que limite de dónde se cargan scripts, la orden al navegador de usar siempre HTTPS y la política de permisos. `Server: nginx/1.24.0 (Ubuntu)` muestra producto, versión y sistema |
 | Método de reproducción | `curl -I https://proyectosena.online/costura-app/` |
 | Información adicional | La CSP va en `docker/seguridad.inc` (contenedor). HSTS y `server_tokens off` van en el nginx del servidor, que es compartido. La CSP debe permitir Google Fonts mientras la app las cargue (H30) |
 | Corrección | 15 oct. **Contenedor:** `docker/seguridad.inc` agrega `Content-Security-Policy` (`script-src 'self' 'wasm-unsafe-eval'`, Google Fonts, `connect-src` solo a Telegram, `frame-ancestors 'none'`, `object-src 'none'`) y `Permissions-Policy` (solo la cámara); `docker/nginx.conf` tiene `server_tokens off`. El script en línea de `index.html` pasó a `main.js`, porque la CSP lo habría bloqueado. **VPS:** `docker/nginx-vps.conf` oculta la versión solo en `/costura-app/`. HSTS queda fuera del repositorio: el navegador lo aplica a todo `proyectosena.online`, así que lo decide quien administra el dominio |
 | Verificación | 15 oct, antes de desplegar. `despliegue.spec.js`, que fallaba antes: la CSP, la política de permisos, `server_tokens off` y que `index.html` no tenga scripts en línea. La app compilada recorrida en Edge con las cabeceras reales (arranque con SQLite en WebAssembly, orden con prenda, Reportes, tutorial, recarga con bloqueo) dio 0 violaciones de la CSP; el control (un script en línea inyectado) sí quedó bloqueado. La CI comprueba las cabeceras sobre la imagen Docker. Pasa a *Verificado* con `curl -I` en producción, después del despliegue y del cambio en el nginx del VPS |
+| Verificación en producción | 15 oct, con `37be3fe` desplegado y el nginx del VPS actualizado. `curl -I https://proyectosena.online/costura-app/` (y una ruta interna y el `.wasm`): `Content-Security-Policy` y `Permissions-Policy` presentes, `Server: nginx` sin versión. En el navegador, la app arranca con SQLite y abre el inicio de sesión sin errores ni bloqueos de la CSP. Los demás sitios del dominio responden igual que antes |
+| Pendiente fuera de este defecto | **HSTS.** El navegador lo aplica a todo `proyectosena.online`, no solo a `/costura-app/`, así que se decide en el `server` del dominio junto con los demás proyectos. Todo el dominio ya redirige de HTTP a HTTPS |
 
 <a id="def-04"></a>
 
