@@ -52,3 +52,17 @@ Pruebas de seguridad · 2026-10-14 · commit efe712b
    npm audit              -> found 0 vulnerabilities
    @capacitor/android, core, cli e ios en 8.4.3 (una sola copia de core); vue 3.5.43
    CI de main: paso "Audit production dependencies" = success
+
+7. Reprueba de CPV-21 en producción · 15 oct 2026 · commit 37be3fe, nginx del VPS actualizado
+   curl -I https://proyectosena.online/costura-app/
+   HTTP/1.1 200 OK
+   Server: nginx                                   <- sin versión
+   X-Content-Type-Options: nosniff
+   Referrer-Policy: strict-origin-when-cross-origin
+   X-Frame-Options: DENY
+   Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; ...
+   Permissions-Policy: camera=(self), microphone=(), geolocation=(), ...
+   /costura-app/ordenes/3 y /costura-app/assets/sql-wasm.wasm: 200, Server: nginx
+   Navegador: la app arranca con SQLite y abre el inicio de sesión, sin errores ni bloqueos de la CSP
+   Otros sitios del dominio (/, /taller/, /sgpd, /sincronizacion/): responden igual que antes
+   Strict-Transport-Security: no se envía; es decisión del dominio, no de la app

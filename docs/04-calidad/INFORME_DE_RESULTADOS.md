@@ -77,7 +77,7 @@ De los ejecutados pasa el 87 % (20 de 23). Los bloqueados son los que dependen d
 | CPV-18 | Copia de seguridad cifrada | Exitoso | |
 | CPV-19 | Bloqueo al volver de segundo plano | Exitoso | |
 | CPV-20 | Dependencias sin vulnerabilidades conocidas | **Fallido** | 2 críticas y 5 altas en producción (DEF-01, DEF-02). En la reprueba tras el PR #15: exitoso (sección 7) |
-| CPV-21 | Cabeceras de seguridad de la versión web | **Fallido** | Faltan CSP, HSTS y Permissions-Policy; `Server` muestra la versión (DEF-03) |
+| CPV-21 | Cabeceras de seguridad de la versión web | **Fallido** | Faltan CSP, HSTS y Permissions-Policy; `Server` muestra la versión (DEF-03). En la reprueba del 15 oct en producción: exitoso salvo HSTS, que es decisión del dominio (sección 7) |
 | CPV-22 | La documentación coincide con el código | Exitoso | Comprueba estructura, no exactitud (H14) |
 | CPV-23 | Escaneo de seguridad con OWASP ZAP | Bloqueado | ZAP no instalado; falta autorización para el VPS compartido |
 | CPV-24 | Carga de la versión web con JMeter | Bloqueado | JMeter no instalado; falta autorización para el VPS compartido |
@@ -108,7 +108,7 @@ El detalle de cada uno, con su método de reproducción, está en el [reporte de
 | --- | --- | --- | --- |
 | DEF-01 | Capacitor Android con una vulnerabilidad crítica publicada | Crítica | Verificado |
 | DEF-02 | Otras seis dependencias con vulnerabilidades críticas o altas | Media | Verificado |
-| DEF-03 | Faltan cabeceras de seguridad en la versión web | Media | Reabierto |
+| DEF-03 | Faltan cabeceras de seguridad en la versión web | Media | Verificado |
 | DEF-04 | Entregar la última prenda cierra la orden con deuda sin advertir | Alta | Verificado |
 | DEF-05 | Cancelar la cámara muestra «Fotografía guardada» | Media | Verificado |
 | DEF-06 | Eliminar una foto deja el archivo en el teléfono | Media | Verificado |
@@ -151,5 +151,6 @@ Casos que se repitieron después de corregir sus defectos. El resumen de la secc
 | 14 oct | Métodos de reproducción de DEF-06 y DEF-10 | Rama `fotos-y-estilos` | Exitoso: eliminar una foto borra también su archivo; no queda ninguna variable de CSS sin definir y el formulario se ve con sus bordes, error y foco | DEF-06 y DEF-10 → *Verificado* |
 | 14 oct | CPV-14 a CPV-16 y los métodos de reproducción de DEF-08 y DEF-09, en Edge | Rama `acciones-y-formularios` | Exitoso: sin el aviso de formularios de contraseña en la consola; Eliminar y Anular se alcanzan con ratón y teclado | DEF-08 y DEF-09 → *Verificado* |
 | 15 oct | CPV-21, con las cabeceras del contenedor aplicadas a la app compilada en Edge | Rama `cabeceras-seguridad` | Exitoso antes de desplegar: CSP y política de permisos presentes, 0 violaciones en el recorrido. Encontró DEF-13. En producción queda pendiente | DEF-03 → *Reabierto*; DEF-13 → *Nuevo* |
+| 15 oct | CPV-21 en producción, con `curl -I` y en el navegador | `37be3fe` desplegado y nginx del VPS actualizado | Exitoso: CSP y política de permisos presentes, `Server: nginx` sin versión, la app arranca sin bloqueos. HSTS no se evalúa: es decisión del dominio | DEF-03 → *Verificado* |
 
 Sobre el mismo commit pasan las 388 pruebas unitarias, con el mínimo de cobertura, y las 3 E2E en Edge. La versión publicada en `/costura-app/` carga con Vue 3.5.43.
