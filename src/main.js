@@ -20,17 +20,17 @@ async function borrarServiceWorkersViejos() {
     if (!('serviceWorker' in navigator)) return;
     try {
         const registros = await navigator.serviceWorker.getRegistrations();
-        for (const registro of registros) {
-            await registro.unregister();
-            console.log('ServiceWorker antiguo eliminado.');
-        }
+        // Independientes entre sí: se desinstalan todos a la vez
+        await Promise.all(registros.map(registro => registro.unregister()));
+        if (registros.length) console.log(`ServiceWorker antiguo eliminado (${registros.length}).`);
     } catch (e) {
         console.warn('No se pudieron revisar los service workers', e);
     }
 }
 
 async function bootstrap() {
-    borrarServiceWorkersViejos();
+    // No se espera a propósito: no debe retrasar el arranque, y ya maneja sus errores
+    void borrarServiceWorkersViejos();
     try {
         await initDatabase();
         await setupDefaultUser();
