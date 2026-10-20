@@ -2,7 +2,7 @@
 
 Un reporte por defecto, con la estructura de la guía SENA *Aplicación de pruebas de software* (sección 1.3): identificador, título, reportado por, asignado a, fecha de creación, severidad, aplicación, descripción, método de reproducción e información adicional. Cada uno tiene su estado en el ciclo de vida de una incidencia.
 
-> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado el 15 de octubre: DEF-03 verificado en producción, y DEF-13 y DEF-14 corregidos · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
+> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado el 15 de octubre (DEF-03 verificado en producción, y DEF-13 y DEF-14 corregidos) y el 20 de octubre: regresión en la web y el APK, 13 defectos cerrados y DEF-15 y DEF-16 nuevos · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
 
 ---
 
@@ -37,22 +37,24 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 
 | ID | Título | Severidad | Estado | Caso | Origen |
 | --- | --- | --- | --- | --- | --- |
-| [DEF-01](#def-01) | Capacitor Android con una vulnerabilidad crítica publicada | Crítica | Verificado | CPV-20 | Pruebas del 14 oct |
-| [DEF-02](#def-02) | Otras seis dependencias con vulnerabilidades críticas o altas | Media | Verificado | CPV-20 | Pruebas del 14 oct |
-| [DEF-03](#def-03) | Faltan cabeceras de seguridad en la versión web | Media | Verificado | CPV-21 | Pruebas del 14 oct |
-| [DEF-04](#def-04) | Entregar la última prenda cierra la orden con deuda sin advertir | Alta | Verificado | — | Revisión del 8 oct, H11 |
-| [DEF-05](#def-05) | Cancelar la cámara muestra «Fotografía guardada» | Media | Verificado | CPV-28 | Revisión del 8 oct, H17 |
-| [DEF-06](#def-06) | Eliminar una foto deja el archivo en el teléfono | Media | Verificado | — | Revisión del 8 oct, H07 |
+| [DEF-01](#def-01) | Capacitor Android con una vulnerabilidad crítica publicada | Crítica | Cerrado | CPV-20 | Pruebas del 14 oct |
+| [DEF-02](#def-02) | Otras seis dependencias con vulnerabilidades críticas o altas | Media | Cerrado | CPV-20 | Pruebas del 14 oct |
+| [DEF-03](#def-03) | Faltan cabeceras de seguridad en la versión web | Media | Cerrado | CPV-21 | Pruebas del 14 oct |
+| [DEF-04](#def-04) | Entregar la última prenda cierra la orden con deuda sin advertir | Alta | Cerrado | — | Revisión del 8 oct, H11 |
+| [DEF-05](#def-05) | Cancelar la cámara muestra «Fotografía guardada» | Media | Cerrado | CPV-28 | Revisión del 8 oct, H17 |
+| [DEF-06](#def-06) | Eliminar una foto deja el archivo en el teléfono | Media | Cerrado | — | Revisión del 8 oct, H07 |
 | [DEF-07](#def-07) | Las órdenes no se ordenan por fecha de entrega | Media | Abierto | — | Revisión del 8 oct, H08 |
-| [DEF-08](#def-08) | Anular y eliminar solo se alcanzan deslizando el dedo | Media | Verificado | — | Revisión del 8 oct, H24 |
-| [DEF-09](#def-09) | Formularios de contraseña sin campo de usuario | Baja | Verificado | CPV-14 a CPV-16 | Pruebas del 14 oct |
-| [DEF-10](#def-10) | Siete variables de estilo usadas sin definir | Baja | Verificado | — | Revisión del 8 oct, H25 |
-| [DEF-11](#def-11) | El tutorial dice «Misión Completada» al cerrarlo a medias | Baja | Verificado | — | Revisión del 8 oct, H26 |
-| [DEF-12](#def-12) | «Recordar a N clientes» cuenta órdenes, no clientas | Baja | Verificado | — | Revisión del 8 oct, H18 |
-| [DEF-13](#def-13) | En la versión web, «Tomar foto» abre un menú vacío | Media | Verificado | — | Pruebas del 15 oct (CSP) |
-| [DEF-14](#def-14) | En la versión web, la foto guardada no se ve | Media | Verificado | — | Verificación de DEF-13, 15 oct |
+| [DEF-08](#def-08) | Anular y eliminar solo se alcanzan deslizando el dedo | Media | Cerrado | — | Revisión del 8 oct, H24 |
+| [DEF-09](#def-09) | Formularios de contraseña sin campo de usuario | Baja | Cerrado | CPV-14 a CPV-16 | Pruebas del 14 oct |
+| [DEF-10](#def-10) | Siete variables de estilo usadas sin definir | Baja | Cerrado | — | Revisión del 8 oct, H25 |
+| [DEF-11](#def-11) | El tutorial dice «Misión Completada» al cerrarlo a medias | Baja | Cerrado | — | Revisión del 8 oct, H26 |
+| [DEF-12](#def-12) | «Recordar a N clientes» cuenta órdenes, no clientas | Baja | Cerrado | — | Revisión del 8 oct, H18 |
+| [DEF-13](#def-13) | En la versión web, «Tomar foto» abre un menú vacío | Media | Cerrado | — | Pruebas del 15 oct (CSP) |
+| [DEF-14](#def-14) | En la versión web, la foto guardada no se ve | Media | Cerrado | — | Verificación de DEF-13, 15 oct |
+| [DEF-15](#def-15) | El menú de la cámara está en inglés | Baja | Nuevo | CPV-31 | Regresión del 20 oct |
+| [DEF-16](#def-16) | La confirmación para borrar una foto está en inglés | Baja | Nuevo | CPV-31 | Regresión del 20 oct |
 
-**Por severidad:** 1 crítica, 1 alta, 8 medias y 4 bajas. **Por estado:** 13 verificados y 1 abierto (DEF-07). Ninguno está cerrado: los verificados se cierran en la regresión final (acción A12 del plan de mejora).
+**Por severidad:** 1 crítica, 1 alta, 8 medias y 6 bajas. **Por estado:** 13 cerrados, 1 abierto (DEF-07) y 2 nuevos (DEF-15 y DEF-16). Los 13 se cerraron en la regresión del 20 de octubre (acción A12 del plan de mejora): sus pruebas pasaron sobre el commit publicado, en la web y en el APK ([ejecución del 20 oct](EJECUCION_2026-10-20.md)).
 
 ## 3. Reportes
 
@@ -68,13 +70,14 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía (desarrollador) |
 | Fecha de creación | 14 de octubre de 2026 |
 | Severidad | Crítica (la que asigna el aviso) |
-| Estado | Verificado |
+| Estado | Cerrado |
 | Aplicación | Atelier Manager 1.2.0, APK de Android |
 | Descripción | El aviso publica que, en las versiones 8.3.5 a 8.4.2, contenido remoto puede cargarse con el origen de la app a través de la ruta interna del proxy HTTP. La app carga solo sus propios archivos, lo que reduce la exposición, pero la librería viaja dentro del APK. Hay corrección en la 8.4.3 sin cambios incompatibles |
 | Método de reproducción | 1. `npm ci`. 2. `npm audit --omit=dev`. Resultado: `@capacitor/android critical >=8.3.5 <8.4.3` |
 | Información adicional | `npm ls` muestra `@capacitor/android@8.4.0`. Al actualizar hay que compilar el APK otra vez y repetir CPV-26 en el teléfono. Evidencia: [seguridad.txt](evidencias/2026-10-14/seguridad.txt) |
 | Corrección | PR #15 (`809cfb8`, 14 oct): `@capacitor/android`, `core` y `cli` en 8.4.3. Un `overrides` deja una sola copia de `@capacitor/core` en el árbol |
 | Verificación | 14 oct, sobre `809cfb8`. `npm audit --omit=dev` da 0 vulnerabilidades, y el paso nuevo de la CI que lo comprueba pasa. `./gradlew assembleDebug` compiló con JDK 21 en la rama del PR (`beeeaf2`, mismas dependencias). Pasa a *Cerrado* cuando el APK nuevo supere CPV-26 en el teléfono |
+| Cierre | 20 oct, regresión: `npm audit --omit=dev` y `npm audit` dan 0 vulnerabilidades sobre `6a09fd3` (CPV-20, [ejecución del 20 oct](EJECUCION_2026-10-20.md)) |
 
 <a id="def-02"></a>
 
@@ -88,13 +91,14 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 14 de octubre de 2026 |
 | Severidad | Media |
-| Estado | Verificado |
+| Estado | Cerrado |
 | Aplicación | Atelier Manager 1.2.0, dependencias de producción |
 | Descripción | `@capacitor/ios` tiene el mismo aviso crítico que DEF-01, pero la app no se compila para iOS. Las otras cinco son altas. El aviso de Vue (GHSA-g2v6-rqmx-r4w6) afecta el renderizado en servidor, que la app no usa. `nanoid`, `postcss` y `source-map-js` actúan al compilar. Por eso la severidad real es media, aunque todas tienen corrección |
 | Método de reproducción | `npm audit --omit=dev` |
 | Información adicional | Se corrigen junto con DEF-01 con `npm audit fix` y la suite completa. Las 7 vulnerabilidades adicionales de las herramientas de desarrollo no llegan al APK |
 | Corrección | PR #15: `vue` 3.5.43, `@capacitor/ios` 8.4.3 por `overrides`, `vitest` 4.1.11 y las transitivas actualizadas |
 | Verificación | 14 oct, sobre `809cfb8`. `npm audit` da 0 vulnerabilidades, también en desarrollo. Pasan 388 pruebas unitarias y 3 E2E, y la versión web publicada carga con Vue 3.5.43 |
+| Cierre | 20 oct, regresión: `npm audit` da 0 vulnerabilidades (CPV-20, [ejecución del 20 oct](EJECUCION_2026-10-20.md)) |
 
 <a id="def-03"></a>
 
@@ -108,13 +112,14 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía (contenedor) y administración del VPS (nginx del servidor) |
 | Fecha de creación | 14 de octubre de 2026 |
 | Severidad | Media |
-| Estado | Verificado |
+| Estado | Cerrado |
 | Aplicación | Versión web en `https://proyectosena.online/costura-app/` |
 | Descripción | Están `X-Frame-Options`, `X-Content-Type-Options` y `Referrer-Policy`, y HTTP redirige a HTTPS. Faltan una política de contenido que limite de dónde se cargan scripts, la orden al navegador de usar siempre HTTPS y la política de permisos. `Server: nginx/1.24.0 (Ubuntu)` muestra producto, versión y sistema |
 | Método de reproducción | `curl -I https://proyectosena.online/costura-app/` |
 | Información adicional | La CSP va en `docker/seguridad.inc` (contenedor). HSTS y `server_tokens off` van en el nginx del servidor, que es compartido. La CSP debe permitir Google Fonts mientras la app las cargue (H30) |
 | Corrección | 15 oct. **Contenedor:** `docker/seguridad.inc` agrega `Content-Security-Policy` (`script-src 'self' 'wasm-unsafe-eval'`, Google Fonts, `connect-src` solo a Telegram, `frame-ancestors 'none'`, `object-src 'none'`) y `Permissions-Policy` (solo la cámara); `docker/nginx.conf` tiene `server_tokens off`. El script en línea de `index.html` pasó a `main.js`, porque la CSP lo habría bloqueado. **VPS:** `docker/nginx-vps.conf` oculta la versión solo en `/costura-app/`. HSTS queda fuera del repositorio: el navegador lo aplica a todo `proyectosena.online`, así que lo decide quien administra el dominio |
 | Verificación | 15 oct, antes de desplegar. `despliegue.spec.js`, que fallaba antes: la CSP, la política de permisos, `server_tokens off` y que `index.html` no tenga scripts en línea. La app compilada recorrida en Edge con las cabeceras reales (arranque con SQLite en WebAssembly, orden con prenda, Reportes, tutorial, recarga con bloqueo) dio 0 violaciones de la CSP; el control (un script en línea inyectado) sí quedó bloqueado. La CI comprueba las cabeceras sobre la imagen Docker. Pasa a *Verificado* con `curl -I` en producción, después del despliegue y del cambio en el nginx del VPS |
+| Cierre | 20 oct, regresión: las cabeceras siguen en producción y el recorrido completo con la CSP real da 0 violaciones (CPV-21, [ejecución del 20 oct](EJECUCION_2026-10-20.md)). HSTS sigue fuera: es decisión del dominio |
 | Verificación en producción | 15 oct, con `37be3fe` desplegado y el nginx del VPS actualizado. `curl -I https://proyectosena.online/costura-app/` (y una ruta interna y el `.wasm`): `Content-Security-Policy` y `Permissions-Policy` presentes, `Server: nginx` sin versión. En el navegador, la app arranca con SQLite y abre el inicio de sesión sin errores ni bloqueos de la CSP. Los demás sitios del dominio responden igual que antes |
 | Pendiente fuera de este defecto | **HSTS.** El navegador lo aplica a todo `proyectosena.online`, no solo a `/costura-app/`, así que se decide en el `server` del dominio junto con los demás proyectos. Todo el dominio ya redirige de HTTP a HTTPS |
 
@@ -130,13 +135,14 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 8 de octubre de 2026 · confirmado en el código el 14 de octubre |
 | Severidad | Alta |
-| Estado | Verificado |
+| Estado | Cerrado |
 | Aplicación | Atelier Manager 1.2.0, detalle de la orden |
 | Descripción | El botón *Entregar orden* pide confirmación mostrando lo que se debe (`cambiarEstado`, `OrdenDetailView.vue:221`). Marcar *Entregada* prenda por prenda (`handleEstadoPrenda`, línea 299) no la pide, y al entregar la última la orden queda *Entregada* con saldo. La decisión D-11 permite entregar con deuda, pero siempre advirtiendo |
 | Método de reproducción | 1. Orden con dos prendas terminadas, total 40.000 y abono 10.000. 2. En *Prendas*, tocar *Entregada* en la primera. 3. Tocar *Entregada* en la segunda. Esperado: advertencia con 30.000. Obtenido: la orden queda *Entregada* sin advertencia |
 | Información adicional | Puede llevar a entregar ropa sin cobrar. La corrección es mostrar la misma advertencia en ambos caminos, sin bloquear la entrega |
 | Corrección | 14 oct: `handleEstadoPrenda` pide la misma confirmación (`mensajeConfirmacionEntrega(orden, 'esta prenda')`) antes de entregar una prenda con saldo, también la última. Sin saldo entrega directo. La entrega con deuda sigue permitida (D-11) |
 | Verificación | 14 oct. Tres pruebas nuevas contra SQLite real en `OrdenDetailView.aviso.spec.js`: sin confirmar, la prenda no cambia; al confirmar se entrega, y la última vuelve a advertir antes de cerrar la orden; sin saldo no pregunta. En Edge, siguiendo el método de reproducción, aparece «¿Entregar esta prenda de todos modos?» con el saldo. Pasan 392 pruebas unitarias y 3 E2E |
+| Cierre | 20 oct, regresión: sus pruebas de `OrdenDetailView.aviso.spec.js` pasan entre las 431, y en el APK entregar con saldo pide confirmación con el monto (CPV-16, [ejecución del 20 oct](EJECUCION_2026-10-20.md)) |
 
 <a id="def-05"></a>
 
@@ -150,13 +156,14 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 8 de octubre de 2026 · confirmado en el código el 14 de octubre |
 | Severidad | Media |
-| Estado | Verificado |
+| Estado | Cerrado |
 | Aplicación | Atelier Manager 1.2.0, fotos de la prenda |
 | Descripción | `takePhoto` (`usePrendas.js`) devuelve `null` cuando la modista cancela, pero `useAsyncAction` muestra el `successMessage` siempre que la función no lance error. Incumple RNF-05: «no mostrar éxito si falló» |
 | Método de reproducción | 1. Abrir una prenda. 2. *Fotos* → *Tomar foto*. 3. Cancelar la cámara. Esperado: ningún mensaje. Obtenido por el código: «Fotografía guardada» |
 | Información adicional | Verificado leyendo el código; falta reproducirlo en el teléfono (CPV-26) |
 | Corrección | 14 oct: `takePhoto` ya no tiene mensajes propios; los muestra solo `handleTakePhoto`, y el de éxito solo si hay foto guardada. Al reproducirlo apareció algo más: con una foto real, «Fotografía guardada» salía dos veces, y un error de la cámara también se repetía. Quedan en uno |
 | Verificación | 14 oct. Tres pruebas nuevas de la pantalla contra SQLite real en `OrdenDetailView.aviso.spec.js`, que fallaban antes del cambio: al cancelar no hay aviso ni foto; con una foto real hay una fila y un aviso; con un error de la cámara, un solo mensaje de error. Falta repetir CPV-28 en el teléfono |
+| Cierre | 20 oct: reproducido por primera vez en Android (emulador). Cancelar la cámara no muestra ningún aviso ni agrega fotos (CPV-28, [ejecución del 20 oct](EJECUCION_2026-10-20.md)) |
 
 <a id="def-06"></a>
 
@@ -170,13 +177,14 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 8 de octubre de 2026 · confirmado el 14 de octubre |
 | Severidad | Media |
-| Estado | Verificado |
+| Estado | Cerrado |
 | Aplicación | Atelier Manager 1.2.0, fotos de la prenda |
 | Descripción | `removeFoto` (`usePrendas.js:159`) llama a `deleteFotografia`, que borra la fila y escribe el historial, pero no llama a `deletePhotoFile`. Eliminar una prenda sí borra sus archivos (línea 83). La foto desaparece de la galería y sigue ocupando espacio |
 | Método de reproducción | 1. Tomar una foto. 2. Eliminarla. 3. Revisar la carpeta de datos de la app. Esperado: archivo borrado. Obtenido: el archivo sigue ahí |
 | Información adicional | Relacionado con la supresión de datos personales (H01) |
 | Corrección | 14 oct: `deleteFotografia` devuelve la ruta del archivo, salvo que otra foto siga usando el mismo archivo, y `removeFoto` lo borra con `deletePhotoFile` después de borrar la fila, igual que al eliminar una prenda. Si el archivo no se puede borrar, la foto ya salió de la galería y queda un aviso en consola |
 | Verificación | 14 oct. Pruebas nuevas que fallaban antes del cambio: en la pantalla (`OrdenDetailView.aviso.spec.js`), eliminar una foto pide borrar su archivo y deja la prenda intacta; contra SQLite real (`fotografias.sqlite.spec.js`), la consulta devuelve la ruta, no la da por libre si otra foto la usa, y deja el rastro en el historial. Borrar el archivo de verdad en Android queda para CPV-26 |
+| Cierre | 20 oct: en el APK, borrar una foto borra también `prenda_….jpeg` de `files/` (CPV-30, [ejecución del 20 oct](EJECUCION_2026-10-20.md)) |
 
 <a id="def-07"></a>
 
@@ -208,13 +216,14 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 8 de octubre de 2026 · confirmado el 14 de octubre |
 | Severidad | Media |
-| Estado | Verificado |
+| Estado | Cerrado |
 | Aplicación | Atelier Manager 1.2.0, listas de pagos y prendas |
 | Descripción | El botón de la acción solo aparece con `touchstart`, `touchmove` y `touchend`. En la versión web con ratón, o con teclado, no hay forma de anular un pago |
 | Método de reproducción | 1. Abrir la versión web en un computador. 2. Ir a *Pagos* de una orden con un abono. 3. Intentar anularlo con el ratón o con Tab. Obtenido: no hay acción visible |
 | Información adicional | Propuesta P4 de [PROPUESTA_UX](revision-2026-10-08/PROPUESTA_UX.md) |
 | Corrección | 14 oct: `SwipeItem` le pasa a su contenido la misma acción y si está disponible. Cada pago vigente muestra un botón **Anular**, y cada prenda que se puede eliminar, una papelera con nombre accesible «Eliminar prenda» (solo ícono, porque con texto cuatro botones no caben en 360 px). Los dos abren la misma confirmación que el gesto, que se conserva. Si la acción no está disponible, el botón no aparece |
 | Verificación | 14 oct. Pruebas nuevas que fallaban antes del cambio: en `SwipeItem.spec.js`, el contenido recibe la acción; en `OrdenDetailView.aviso.spec.js`, contra SQLite real, Eliminar y Anular abren la confirmación, y un pago anulado no ofrece Anular. En Edge, a 390 y a 360 px: los botones caben, se alcanzan con el teclado y Enter abre la confirmación; cerrarla no borra nada |
+| Cierre | 20 oct, regresión: sus pruebas pasan entre las 431 y las E2E pasan en Edge ([ejecución del 20 oct](EJECUCION_2026-10-20.md)) |
 
 <a id="def-09"></a>
 
@@ -228,13 +237,14 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 14 de octubre de 2026 |
 | Severidad | Baja |
-| Estado | Verificado |
+| Estado | Cerrado |
 | Aplicación | Atelier Manager 1.2.0, cambio de clave y pantalla de bloqueo |
 | Descripción | `CambiarPasswordView.vue` y `AppLockScreen.vue` tienen campos de contraseña sin un campo de usuario, ni siquiera oculto. Chromium lo marca como problema de accesibilidad y los gestores de contraseñas no saben a qué cuenta pertenecen |
 | Método de reproducción | `PW_CHANNEL=msedge npx playwright test` y revisar la consola: «Password forms should have (optionally hidden) username fields» (2 veces) |
 | Información adicional | Basta un campo `username` oculto con `autocomplete="username"` |
 | Corrección | 14 oct: los dos formularios tienen un campo `username` oculto, con `autocomplete="username"` y el usuario de la sesión. No se ve ni recibe el foco con Tab |
 | Verificación | 14 oct. `formulariosContrasena.spec.js`, que fallaba antes del cambio: los dos formularios tienen el campo, con el usuario, oculto y fuera del orden de tabulación. En las tres pruebas E2E en Edge, el aviso de la consola pasó de 2 a 0 |
+| Cierre | 20 oct, regresión: `formulariosContrasena.spec.js` pasa y la versión publicada carga sin errores en la consola (CPV-32, [ejecución del 20 oct](EJECUCION_2026-10-20.md)) |
 
 <a id="def-10"></a>
 
@@ -248,13 +258,14 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 8 de octubre de 2026 · confirmado el 14 de octubre |
 | Severidad | Baja |
-| Estado | Verificado |
+| Estado | Cerrado |
 | Aplicación | Atelier Manager 1.2.0, estilos |
 | Descripción | `--border-color` (10 usos), `--text-secondary` (10), `--text-primary` (6), `--error-color` (6), `--bg-secondary` (4), `--accent-color` (2) y `--primary-fixed` (1) no se definen en ningún archivo. Esas declaraciones quedan inválidas: pueden perderse bordes, el color de los errores o el anillo de foco |
 | Método de reproducción | Buscar `var(--border-color` y `--border-color:` en `src/`: hay usos y ninguna definición |
 | Información adicional | Se cambian por los tokens que ya existen; no hace falta rediseñar |
 | Corrección | 14 oct, en 11 archivos: bordes a `--outline-variant`, fondo de tarjeta pulsada a `--surface-container-high`, textos a `--on-surface` y `--on-surface-variant`, errores a `--error` y acentos a `--primary`. Se quitó la regla local de `.btn-secondary` de los cuatro formularios: siendo inválida, dejaba «Cancelar» sin borde en lugar del estilo global. Para el anillo de foco se agregó el token `--primary-fixed` (#e2dfff), porque ningún token existente era un tono claro del primario |
 | Verificación | 14 oct. Prueba nueva `estilos.spec.js`, que fallaba antes con las 7 variables: toda `var(--x)` sin respaldo tiene definición. En Edge, en el formulario de orden, «Cancelar» tiene borde de 1 px `#c7c4d8`, el mensaje de error sale en `#ba1a1a` y el campo enfocado muestra el anillo `#e2dfff` de 3 px |
+| Cierre | 20 oct, regresión: `estilos.spec.js` pasa: ninguna variable de CSS sin definir ([ejecución del 20 oct](EJECUCION_2026-10-20.md)) |
 
 <a id="def-11"></a>
 
@@ -268,13 +279,14 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 8 de octubre de 2026 · confirmado el 14 de octubre |
 | Severidad | Baja |
-| Estado | Verificado |
+| Estado | Cerrado |
 | Aplicación | Atelier Manager 1.2.0, Ayuda |
 | Descripción | Los recorridos de `useTutorial.js` usan `onDestroyed: handleTourCompletion`, que se ejecuta también cuando se cierra el recorrido sin terminarlo |
 | Método de reproducción | 1. *Ajustes* → *Ayuda*. 2. Empezar un recorrido. 3. Cerrarlo en el segundo paso. Obtenido: «¡Misión Completada!» |
 | Información adicional | Propuesta P6 de PROPUESTA_UX |
 | Corrección | 14 oct: `handleTourCompletion` usa el índice que driver.js le pasa a `onDestroyed`. Solo muestra «¡Misión Completada!» si el recorrido se cerró en el último paso; en los dos casos vuelve a Ayuda |
 | Verificación | 14 oct. Seis pruebas nuevas en `useTutorial.spec.js` (los tres recorridos: cerrado a mitad y terminado); las tres de cerrar a mitad fallaban antes del cambio. En Edge, con el driver.js real: cerrar el recorrido de clientes en el segundo paso no muestra nada, y terminarlo (3 pasos) muestra el aviso una vez |
+| Cierre | 20 oct, regresión: `useTutorial.spec.js` pasa y el tutorial abre y cierra con la CSP real ([ejecución del 20 oct](EJECUCION_2026-10-20.md)) |
 
 <a id="def-12"></a>
 
@@ -288,13 +300,14 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 8 de octubre de 2026 · confirmado el 14 de octubre |
 | Severidad | Baja |
-| Estado | Verificado |
+| Estado | Cerrado |
 | Aplicación | Atelier Manager 1.2.0, panel de inicio |
 | Descripción | `DashboardView.vue:110` muestra «Recordar a los N clientes» con `kpis.ordenesListas`. Además, el botón no le escribe a la clienta: le manda a la modista una lista por Telegram |
 | Método de reproducción | 1. Una clienta con dos órdenes listas. 2. Abrir *Inicio*. Esperado: «1 clienta» o «2 órdenes». Obtenido: «Recordar a los 2 clientes» |
 | Información adicional | Propuesta P7 de PROPUESTA_UX: «Preparar recordatorios (N órdenes)» |
 | Corrección | 14 oct: el botón dice «Preparar recordatorios». No lleva número: la tarjeta ya muestra cuántas órdenes están listas, y las que entraron hoy en la lista no se repiten (RN-33). El aviso dice «Te llegó a Telegram la lista con N órdenes para recordar. Ábrela y envía cada WhatsApp.», y si no hay nada nuevo, «Los recordatorios de hoy ya están en tu Telegram.» en lugar de «Ya se les recordó hoy a estos clientes». El manual se corrigió igual |
 | Verificación | 14 oct. Cuatro pruebas nuevas en `DashboardView.spec.js`, que fallaban antes del cambio: el botón no dice «clientes»; el aviso cuenta órdenes, en plural y en singular; y sin órdenes nuevas no afirma que se le recordó a nadie |
+| Cierre | 20 oct, regresión: sus pruebas de `DashboardView.spec.js` pasan entre las 431 ([ejecución del 20 oct](EJECUCION_2026-10-20.md)) |
 
 <a id="def-13"></a>
 
@@ -308,13 +321,14 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 15 de octubre de 2026 |
 | Severidad | Media |
-| Estado | Verificado |
+| Estado | Cerrado |
 | Aplicación | Atelier Manager 1.2.0, versión web (en el APK la cámara usa el plugin nativo) |
 | Descripción | En el navegador, `Camera.getPhoto` con `CameraSource.Prompt` crea un elemento `pwa-action-sheet` para elegir cámara o galería. Ese componente viene en `@ionic/pwa-elements`, que no está instalado ni registrado: el menú aparece vacío y no se puede adjuntar ninguna foto. No lo causa la CSP: sin ella pasa igual |
 | Método de reproducción | 1. Abrir la versión web. 2. Una prenda → *Fotos* → *Tomar foto*. Esperado: elegir cámara o galería. Obtenido: un `pwa-action-sheet` sin opciones |
 | Información adicional | Se corrige instalando y registrando `@ionic/pwa-elements` (`defineCustomElements(window)` en `main.js`), o en la web usando `CameraSource.Photos`. Hay que revisar la CSP después: los componentes de Stencil cargan sus propios archivos |
 | Corrección | 15 oct: `@ionic/pwa-elements` 3.4.0 instalado, y `main.js` registra sus componentes solo en la versión web (`defineCustomElements(window)`). En el APK no se cargan |
 | Verificación | 15 oct. `main.spec.js`: en la web se registran los componentes (fallaba antes). En la app compilada en Edge con la CSP real: el menú muestra «From Photos» y «Take Picture», el selector de archivos abre y la foto se guarda; el recorrido completo da 0 violaciones de la CSP. `npm audit --omit=dev`: 0 vulnerabilidades. La cámara del computador («Take Picture») no se probó: el navegador de pruebas no tiene cámara |
+| Cierre | 20 oct, regresión: en la compilación de producción con la CSP real se adjunta una foto desde archivo (CPV-30, [ejecución del 20 oct](EJECUCION_2026-10-20.md)). Los textos del menú quedan en DEF-15 |
 
 <a id="def-14"></a>
 
@@ -328,13 +342,50 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 15 de octubre de 2026 |
 | Severidad | Media |
-| Estado | Verificado |
+| Estado | Cerrado |
 | Aplicación | Atelier Manager 1.2.0, versión web (en el APK la ruta nativa funciona) |
 | Descripción | Con DEF-13 corregido, la foto se adjunta y se guarda, pero la miniatura y el visor quedaban en blanco. En el navegador, Filesystem guarda los archivos dentro de IndexedDB, y `resolvePhotoSrc` armaba `/DATA/prenda_…`, que el servidor responde con `index.html` |
 | Método de reproducción | En la versión web, adjuntar una foto desde la galería y abrir *Fotos*. Esperado: la miniatura. Obtenido: una imagen rota |
 | Información adicional | Hallado al verificar DEF-13 y corregido en el mismo PR, porque sin esto adjuntar una foto en la web no serviría de nada |
 | Corrección | 15 oct: `cargarFotoSrc` en `photoStorage.js`. En el navegador lee el archivo una sola vez y lo entrega como `data:` URL, que la CSP permite; si no puede leerlo, devuelve vacío sin romper. En el teléfono devuelve la ruta nativa de siempre. `PrendaCard` y `PhotoViewerModal` la usan |
 | Verificación | 15 oct. `photoStorage.spec.js` (5 pruebas, fallaban antes): data URL en el navegador, una sola lectura por archivo, sin romper si falta, data/http tal cual y ruta nativa en el teléfono. En la app compilada en Edge con la CSP real: la miniatura y el visor cargan la foto (`data:image/jpeg`) y no hay violaciones |
+| Cierre | 20 oct, regresión: la miniatura muestra la foto (`data:image/jpeg`, 64×64) en la compilación de producción (CPV-30, [ejecución del 20 oct](EJECUCION_2026-10-20.md)) |
+
+<a id="def-15"></a>
+
+### DEF-15 · El menú de la cámara está en inglés
+
+| Campo | Valor |
+| --- | --- |
+| Identificador | DEF-15 |
+| Título | `Camera.getPhoto` no recibe textos, y el plugin usa los suyos en inglés |
+| Reportado por | Regresión del 20 oct 2026 (CPV-31, INC-04) |
+| Asignado a | Cristian Cantillo Mejía |
+| Fecha de creación | 20 de octubre de 2026 |
+| Severidad | Baja |
+| Estado | Nuevo |
+| Aplicación | Atelier Manager 1.2.0 (`6a09fd3`), APK y versión web |
+| Descripción | Al tocar *Tomar foto*, el menú dice «Photo», «From Photos» y «Take Picture». Toda la app está en español y la usuaria es una modista en Colombia. El SRS no tiene un requisito de idioma: el requisito se deriva de la interfaz y de quién la usa. `usePrendas.js` llama a `Camera.getPhoto` con `CameraSource.Prompt` y sin `promptLabelHeader`, `promptLabelPhoto`, `promptLabelPicture` ni `promptLabelCancel`. El plugin pone por defecto los textos en inglés (`LegacyCameraFlow.java`, líneas 148 a 152) |
+| Método de reproducción | 1. En el APK, una prenda → *Fotos* → *Tomar foto*. Esperado: opciones en español. Obtenido: «Photo / From Photos / Take Picture» |
+| Información adicional | **Configuración:** pasa igual con el teléfono en inglés y con la app en español de Colombia (`cmd locale set-app-locales com.costura.app --locales es-CO`), porque los textos no salen del idioma del teléfono. En la web, el menú de `@ionic/pwa-elements` muestra los mismos textos: el registro de DEF-13 del 15 oct ya los anotó. **Datos y orden:** no influyen. **Impacto:** la modista tiene que adivinar cuál opción abre la cámara; no se pierden datos. Capturas: `evidencias/2026-10-20/capturas/apk-07` y `apk-08` |
+
+<a id="def-16"></a>
+
+### DEF-16 · La confirmación para borrar una foto está en inglés
+
+| Campo | Valor |
+| --- | --- |
+| Identificador | DEF-16 |
+| Título | `PrendaCard` confirma con `window.confirm`, que en el APK muestra «CANCEL / OK» |
+| Reportado por | Regresión del 20 oct 2026 (CPV-31, INC-05) |
+| Asignado a | Cristian Cantillo Mejía |
+| Fecha de creación | 20 de octubre de 2026 |
+| Severidad | Baja |
+| Estado | Nuevo |
+| Aplicación | Atelier Manager 1.2.0 (`6a09fd3`), APK |
+| Descripción | Para borrar una foto, `onDeleteFoto` (`PrendaCard.vue:217`) usa el `confirm()` del navegador. En el APK, Capacitor lo dibuja con los botones fijos «OK» y «Cancel» (`BridgeWebChromeClient.java`), aunque la pregunta esté en español. El resto de la app confirma con su propio modal, en español. Es el único `confirm()`, `alert()` o `prompt()` de `src/`. Requisito derivado, como en DEF-15 |
+| Método de reproducción | 1. En el APK, abrir *Fotos* de una prenda con foto. 2. Tocar la × de la miniatura. Esperado: botones en español, como en los demás avisos. Obtenido: «¿Estás seguro de eliminar esta fotografía?» con «CANCEL» y «OK» |
+| Información adicional | **Configuración:** igual con la app en `es-CO`, porque Capacitor no traduce esos botones. En el navegador los botones los pone el navegador, en su idioma. **Datos y orden:** no influyen. **Impacto:** ninguno en los datos; la foto solo se borra con «OK». Captura: `evidencias/2026-10-20/capturas/apk-11-confirm-ingles-con-app-en-es-CO.png` |
 
 ## 4. Otras incidencias abiertas
 

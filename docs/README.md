@@ -34,7 +34,7 @@ Proyecto formativo SENA ADSO 2480542 · Centro Tecnológico de la Amazonia, Flor
 | [`01-requisitos/`](01-requisitos/) | Análisis | `SRS.md` | Especificación original (`Costura.md` y `.docx`), mejoras de fase 1, requisitos de fase 2 y el borrador SRS 0.1 de los analistas |
 | [`02-diseno/`](02-diseno/) | Diseño | `ARQUITECTURA.md`, `MODELO_DE_DATOS.md`, `CASOS_DE_USO.md`, `COMPORTAMIENTO.md`, `CLASES.md` | Script MySQL del diseño inicial, que la app **no** usa |
 | [`03-manuales/`](03-manuales/) | Implantación | `MANUAL_TECNICO.md`, `MANUAL_USUARIO.md` | — |
-| [`04-calidad/`](04-calidad/) | Pruebas | `PLAN_DE_PRUEBAS.md`, `CASOS_DE_PRUEBA.md`, `INFORME_DE_RESULTADOS.md`, `REPORTE_DE_DEFECTOS.md`, `PLAN_DE_MEJORA.md`, `TRAZABILIDAD.md`; evidencias de cada ejecución en `evidencias/` | Auditorías del 6 y 7 de octubre, con sus fallos y cómo se corrigieron |
+| [`04-calidad/`](04-calidad/) | Pruebas | `PLAN_DE_PRUEBAS.md`, `CASOS_DE_PRUEBA.md`, `INFORME_DE_RESULTADOS.md`, `EJECUCION_2026-10-20.md`, `INFORME_DE_RESULTADOS_2026-10-20.md`, `REPORTE_DE_DEFECTOS.md`, `PLAN_DE_MEJORA.md`, `TRAZABILIDAD.md`; evidencias de cada ejecución en `evidencias/` | Auditorías del 6 y 7 de octubre, con sus fallos y cómo se corrigieron |
 | [`05-gestion/`](05-gestion/) | Gestión | `PLAN_19_DIAS.md`, `DECISIONES.md` | — |
 | [`99-archivo/`](99-archivo/) | — | — | Propuestas fuera del alcance (tienda web). Trabajo futuro |
 

@@ -1,0 +1,59 @@
+
+Running 3 tests using 1 worker
+
+  x  1 [chromium] › tests\e2e\flujo-orden.spec.js:13:1 › orden de punta a punta: cliente, fecha anterior, prenda, aviso WhatsApp, pago Bre-B y entrega con deuda (30.1s)
+[WebServer] 2:06:59 p.m. [vite] (client) [console.error] [useAsyncAction Error]: Error: Error: BeginTransaction: BeginTransaction: cannot start a transaction within a transaction
+[WebServer]     at CapacitorSQLiteWeb.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/web.js?v=c494716b:143:19)
+[WebServer]     at async SQLiteDBConnection.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/definitions.js?v=c494716b:483:29)
+[WebServer]     at async createOrden (http://localhost:5173/src/database/queries/ordenes.js:32:5)
+[WebServer]     at async execute.successMessage (http://localhost:5173/src/composables/useOrdenes.js:50:24)
+[WebServer]     at async execute (http://localhost:5173/src/composables/useAsyncAction.js:37:28)
+[WebServer]     at async handleAddOrden (http://localhost:5173/src/views/OrdenesView.vue:80:16)
+[WebServer] 2:06:59 p.m. [vite] (client) [console.error] [useAsyncAction Error]: Error: Error: BeginTransaction: BeginTransaction: cannot start a transaction within a transaction
+[WebServer]     at CapacitorSQLiteWeb.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/web.js?v=c494716b:143:19)
+[WebServer]     at async SQLiteDBConnection.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/definitions.js?v=c494716b:483:29)
+[WebServer]     at async createOrden (http://localhost:5173/src/database/queries/ordenes.js:32:5)
+[WebServer]     at async execute.successMessage (http://localhost:5173/src/composables/useOrdenes.js:50:24)
+[WebServer]     at async execute (http://localhost:5173/src/composables/useAsyncAction.js:37:28)
+[WebServer]     at async handleAddOrden (http://localhost:5173/src/views/OrdenesView.vue:80:16)
+  ok 2 [chromium] › tests\e2e\orden-creation.spec.js:5:3 › Order Creation & Concurrency › handles concurrent order creations cleanly without cross-contamination (29.8s)
+BROWSER CONSOLE: [vite] connecting...
+BROWSER CONSOLE: [vite] connected.
+BROWSER CONSOLE: #### getVersion new res: [{"columns":["user_version"],"values":[[0]]}]
+BROWSER CONSOLE: Default admin user created.
+BROWSER CONSOLE: [vite] connecting...
+BROWSER CONSOLE: [vite] connected.
+BROWSER CONSOLE: #### getVersion new res: [{"columns":["user_version"],"values":[[0]]}]
+  ok 3 [chromium] › tests\e2e\persistence.spec.js:5:5 › Web Persistence E2E (jeep-sqlite IndexedDB) › should persist client data across page reloads (15.1s)
+
+
+  1) [chromium] › tests\e2e\flujo-orden.spec.js:13:1 › orden de punta a punta: cliente, fecha anterior, prenda, aviso WhatsApp, pago Bre-B y entrega con deuda 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.orden-header h2')
+    Expected substring: "Orden #"
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" with timeout 10000ms
+      - waiting for locator('.orden-header h2')
+      - Test timeout of 30000ms exceeded.
+
+
+      42 |   await page.fill('#fecha_recepcion', recibida.iso);
+      43 |   await page.getByRole('button', { name: 'Crear Orden' }).click();
+    > 44 |   await expect(page.locator('.orden-header h2')).toContainText('Orden #', { timeout: 10000 });
+         |                                                  ^
+      45 |   await expect(page.locator('.cliente-fechas')).toContainText(`Recibida el ${recibida.dia} `);
+      46 |
+      47 |   // 3. Agregar una prenda
+        at <repo>\tests\e2e\flujo-orden.spec.js:44:50
+
+    Error Context: test-results\flujo-orden-orden-de-punta-3d80e-o-Bre-B-y-entrega-con-deuda-chromium\error-context.md
+
+  1 failed
+    [chromium] › tests\e2e\flujo-orden.spec.js:13:1 › orden de punta a punta: cliente, fecha anterior, prenda, aviso WhatsApp, pago Bre-B y entrega con deuda 
+  2 passed (1.6m)

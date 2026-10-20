@@ -2,6 +2,8 @@
 
 Resultado de la ejecución de los [casos de prueba](CASOS_DE_PRUEBA.md) de la versión 1.2.0, con la estructura de la guía SENA *Aplicación de pruebas de software* (sección 1.3): alcance, resumen, defectos y conclusiones.
 
+> **Hay una ejecución más reciente:** la regresión del 20 de octubre en la web publicada y el APK, con su propio [informe](INFORME_DE_RESULTADOS_2026-10-20.md). Este documento describe la ejecución del 14 de octubre.
+
 > **Fecha de ejecución:** 14 de octubre de 2026 · **Commit probado:** `efe712b` (main) más la prueba de volumen nueva · **Responsable:** Cristian Cantillo Mejía · **Evidencias:** [evidencias/2026-10-14/](evidencias/2026-10-14/)
 
 ---
@@ -140,7 +142,7 @@ El detalle de cada uno, con su método de reproducción, está en el [reporte de
 
 ## 7. Repruebas
 
-Casos que se repitieron después de corregir sus defectos. El resumen de la sección 2 no cambia: describe la ejecución original. La regresión completa queda para la acción A12 del plan de mejora.
+Casos que se repitieron después de corregir sus defectos. El resumen de la sección 2 no cambia: describe la ejecución original. La regresión completa (acción A12) se hizo el 20 de octubre: [informe del 20 oct](INFORME_DE_RESULTADOS_2026-10-20.md).
 
 | Fecha | Caso | Commit | Resultado | Defectos |
 | --- | --- | --- | --- | --- |

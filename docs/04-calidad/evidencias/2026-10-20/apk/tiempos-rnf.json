@@ -1,0 +1,63 @@
+{
+  "pasos": [
+    {
+      "paso": "Abono mayor que el saldo: el botón queda deshabilitado",
+      "resultado": "OK",
+      "dato": "Saldo Pendiente: $15.000"
+    },
+    {
+      "paso": "Entregar con deuda pide confirmación con el saldo (RN-30)",
+      "resultado": "OK"
+    },
+    {
+      "paso": "RNF-02: registrar orden con clienta nueva, 5 veces",
+      "resultado": "OK"
+    },
+    {
+      "paso": "RNF-03: registrar abono y ver el saldo, 5 veces",
+      "resultado": "OK",
+      "dato": "saldo final $25.000"
+    },
+    {
+      "paso": "RNF-01: abrir una orden desde la lista, 5 veces",
+      "resultado": "OK"
+    }
+  ],
+  "tiempos": {
+    "RNF-02 registrar orden": {
+      "muestras": [
+        1286,
+        1061,
+        1036,
+        1341,
+        1963
+      ],
+      "mediana": 1286,
+      "maximo": 1963
+    },
+    "RNF-03 registrar abono": {
+      "muestras": [
+        867,
+        808,
+        802,
+        926,
+        999
+      ],
+      "mediana": 867,
+      "maximo": 999
+    },
+    "RNF-01 abrir orden": {
+      "muestras": [
+        634,
+        528,
+        464,
+        455,
+        370
+      ],
+      "mediana": 464,
+      "maximo": 634
+    }
+  },
+  "errores": [],
+  "fallidos": []
+}

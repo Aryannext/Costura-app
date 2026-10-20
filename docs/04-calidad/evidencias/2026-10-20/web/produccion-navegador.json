@@ -1,0 +1,26 @@
+[
+  {
+    "nombre": "360px",
+    "ingresoMs": 25416,
+    "url": "/costura-app/login",
+    "desbordeHorizontal": false,
+    "titulo": "Costura App",
+    "vue": true,
+    "pwa": true,
+    "violaciones": [],
+    "errores": [],
+    "fallidos": []
+  },
+  {
+    "nombre": "escritorio",
+    "ingresoMs": 16444,
+    "url": "/costura-app/login",
+    "desbordeHorizontal": false,
+    "titulo": "Costura App",
+    "vue": true,
+    "pwa": true,
+    "violaciones": [],
+    "errores": [],
+    "fallidos": []
+  }
+]

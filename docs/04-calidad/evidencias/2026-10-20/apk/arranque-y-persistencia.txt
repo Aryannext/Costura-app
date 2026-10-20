@@ -1,0 +1,23 @@
+{"vueltas":[{"vuelta":1,"primerCuadroMs":5697,"pantallaUsableMs":10626,"pantalla":"bloqueo"},{"vuelta":2,"primerCuadroMs":6240,"pantallaUsableMs":10080,"pantalla":"bloqueo"},{"vuelta":3,"primerCuadroMs":6581,"pantallaUsableMs":12722,"pantalla":"bloqueo"}]}
+{"vueltas":[{"vuelta":1,"primerCuadroMs":6873,"pantallaUsableMs":10355,"pantalla":"bloqueo"},{"vuelta":2,"primerCuadroMs":4965,"pantallaUsableMs":8546,"pantalla":"bloqueo"}]}
+{
+  "vueltas": [
+    {
+      "vuelta": 1,
+      "primerCuadroMs": 6873,
+      "pantallaUsableMs": 10355,
+      "pantalla": "bloqueo"
+    },
+    {
+      "vuelta": 2,
+      "primerCuadroMs": 4965,
+      "pantallaUsableMs": 8546,
+      "pantalla": "bloqueo"
+    }
+  ],
+  "persistencia": {
+    "clienta": "sigue en la lista",
+    "porCobrar": "Total por cobrar: $35.000",
+    "orden": "Orden #1 Entregada Clienta APK 1792522083399 Recibida el 20 oct · Entrega el 21 oct Pendiente En proceso Lista Entregada"
+  }
+}

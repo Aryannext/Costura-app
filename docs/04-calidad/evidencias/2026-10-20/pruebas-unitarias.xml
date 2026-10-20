@@ -1,0 +1,1185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="431" failures="0" errors="0" time="41.4489677">
+    <testsuite name="src/__tests__/despliegue.spec.js" timestamp="2026-10-20T18:42:29.021Z" hostname="Pipi_2026" tests="4" failures="0" errors="0" skipped="0" time="0.0252878">
+        <testcase classname="src/__tests__/despliegue.spec.js" name="Cabeceras de seguridad del contenedor (DEF-03) &gt; envía una CSP que solo deja ejecutar scripts propios" time="0.0157229">
+        </testcase>
+        <testcase classname="src/__tests__/despliegue.spec.js" name="Cabeceras de seguridad del contenedor (DEF-03) &gt; envía una política de permisos que solo deja la cámara" time="0.0010254">
+        </testcase>
+        <testcase classname="src/__tests__/despliegue.spec.js" name="Cabeceras de seguridad del contenedor (DEF-03) &gt; el nginx del contenedor no dice su versión" time="0.0020453">
+        </testcase>
+        <testcase classname="src/__tests__/despliegue.spec.js" name="Cabeceras de seguridad del contenedor (DEF-03) &gt; index.html no tiene scripts en línea, que la CSP bloquearía" time="0.0015804">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/__tests__/documentacion.spec.js" timestamp="2026-10-20T18:42:29.032Z" hostname="Pipi_2026" tests="8" failures="0" errors="0" skipped="0" time="1.3976626">
+        <testcase classname="src/__tests__/documentacion.spec.js" name="Modelo de datos &gt; el diagrama entidad-relación tiene exactamente las tablas y columnas reales" time="0.0101049">
+        </testcase>
+        <testcase classname="src/__tests__/documentacion.spec.js" name="Modelo de datos &gt; los documentos dicen la versión real del esquema" time="0.0071128">
+        </testcase>
+        <testcase classname="src/__tests__/documentacion.spec.js" name="Arquitectura &gt; nombra cada composable, servicio y consulta que existe" time="0.0111301">
+        </testcase>
+        <testcase classname="src/__tests__/documentacion.spec.js" name="Arquitectura &gt; lista exactamente las vistas y componentes que leen la base sin pasar por un composable" time="0.0653887">
+        </testcase>
+        <testcase classname="src/__tests__/documentacion.spec.js" name="Navegación &gt; el diagrama tiene todas las rutas del router y dice cuántas son" time="0.0351411">
+        </testcase>
+        <testcase classname="src/__tests__/documentacion.spec.js" name="Diagrama de clases &gt; cada método dibujado es una función que existe en el código" time="1.0665702">
+        </testcase>
+        <testcase classname="src/__tests__/documentacion.spec.js" name="Forma de los documentos &gt; ningún enlace entre documentos está roto" time="0.0551353">
+        </testcase>
+        <testcase classname="src/__tests__/documentacion.spec.js" name="Forma de los documentos &gt; los diagramas no llevan emojis ni colores" time="0.0089624">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/__tests__/estilos.spec.js" timestamp="2026-10-20T18:42:29.038Z" hostname="Pipi_2026" tests="2" failures="0" errors="0" skipped="0" time="0.1159994">
+        <testcase classname="src/__tests__/estilos.spec.js" name="Variables de CSS (DEF-10) &gt; cada var(--x) sin valor de respaldo tiene su definición" time="0.0543911">
+        </testcase>
+        <testcase classname="src/__tests__/estilos.spec.js" name="Sin !important (SonarCloud css:S9423) &gt; ninguna regla usa !important: la especificidad se resuelve con el selector" time="0.0524655">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/__tests__/main.spec.js" timestamp="2026-10-20T18:42:29.041Z" hostname="Pipi_2026" tests="4" failures="0" errors="0" skipped="0" time="12.6811867">
+        <testcase classname="src/__tests__/main.spec.js" name="main.js bootstrap &gt; should show a fatal error screen when initDatabase fails and not mount Vue" time="12.201293">
+            <system-err>
+Failed to initialize database Error: Disk full
+    at <repo>/src/__tests__/main.spec.js:49:49
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithCancel (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/__tests__/main.spec.js" name="main.js bootstrap &gt; should mount Vue when initialization succeeds" time="0.1580668">
+            <system-err>
+Fallo al programar notificaciones CapacitorException [Error]: Notifications not supported in this browser.
+    at LocalNotificationsWeb.unavailable (<repo>\node_modules\@capacitor\core\dist\index.cjs.js:283:16)
+    at LocalNotificationsWeb.checkPermissions (<repo>\node_modules\@capacitor\local-notifications\dist\plugin.cjs.js:129:24)
+    at <repo>\node_modules\@capacitor\core\dist\index.cjs.js:121:35
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at Object.scheduleDailyReminders (<repo>/src/composables/useNotificacionesLocales.js:91:28)
+    at bootstrap (<repo>/src/main.js?success=1:84:9)
+    at <repo>/src/main.js?success=1:113:5
+    at VitestModuleEvaluator._runInlinedModule (file:///<repo>/node_modules/vitest/dist/module-evaluator.js:206:4)
+    at VitestModuleRunner.directRequest (file:///<repo>/node_modules/vite/dist/node/module-runner.js:1259:59)
+    at VitestModuleRunner.cachedRequest (file:///<repo>/node_modules/vite/dist/node/module-runner.js:1166:73) {
+  code: &apos;UNAVAILABLE&apos;,
+  data: undefined
+}
+
+Fallo inesperado al arrancar TypeError: Cannot read properties of undefined (reading &apos;catch&apos;)
+    at bootstrap (<repo>/src/main.js?success=1:95:18)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at <repo>/src/main.js?success=1:113:5
+    at VitestModuleEvaluator._runInlinedModule (file:///<repo>/node_modules/vitest/dist/module-evaluator.js:206:4)
+    at VitestModuleRunner.directRequest (file:///<repo>/node_modules/vite/dist/node/module-runner.js:1259:59)
+    at VitestModuleRunner.cachedRequest (file:///<repo>/node_modules/vite/dist/node/module-runner.js:1166:73)
+    at <repo>/src/__tests__/main.spec.js:71:9
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/__tests__/main.spec.js" name="main.js bootstrap &gt; should still mount Vue when a startup housekeeping step fails" time="0.0954095">
+            <system-err>
+Fallo en las puestas al día de arranque Error: Ruta de foto ilegible
+    at <repo>/src/__tests__/main.spec.js:83:54
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+Fallo inesperado al arrancar TypeError: Cannot read properties of undefined (reading &apos;catch&apos;)
+    at bootstrap (<repo>/src/main.js?housekeeping=1:95:18)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at <repo>/src/main.js?housekeeping=1:113:5
+    at VitestModuleEvaluator._runInlinedModule (file:///<repo>/node_modules/vitest/dist/module-evaluator.js:206:4)
+    at VitestModuleRunner.directRequest (file:///<repo>/node_modules/vite/dist/node/module-runner.js:1259:59)
+    at VitestModuleRunner.cachedRequest (file:///<repo>/node_modules/vite/dist/node/module-runner.js:1166:73)
+    at <repo>/src/__tests__/main.spec.js:85:9
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/__tests__/main.spec.js" name="main.js bootstrap &gt; en la versión web registra los componentes de la cámara" time="0.2206363">
+            <system-err>
+Fallo al programar notificaciones CapacitorException [Error]: Notifications not supported in this browser.
+    at LocalNotificationsWeb.unavailable (<repo>\node_modules\@capacitor\core\dist\index.cjs.js:283:16)
+    at LocalNotificationsWeb.checkPermissions (<repo>\node_modules\@capacitor\local-notifications\dist\plugin.cjs.js:129:24)
+    at <repo>\node_modules\@capacitor\core\dist\index.cjs.js:121:35
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at Object.scheduleDailyReminders (<repo>/src/composables/useNotificacionesLocales.js:91:28)
+    at bootstrap (<repo>/src/main.js?pwa=1:84:9)
+    at <repo>/src/main.js?pwa=1:113:5
+    at VitestModuleEvaluator._runInlinedModule (file:///<repo>/node_modules/vitest/dist/module-evaluator.js:206:4)
+    at VitestModuleRunner.directRequest (file:///<repo>/node_modules/vite/dist/node/module-runner.js:1259:59)
+    at VitestModuleRunner.cachedRequest (file:///<repo>/node_modules/vite/dist/node/module-runner.js:1166:73) {
+  code: &apos;UNAVAILABLE&apos;,
+  data: undefined
+}
+
+Fallo inesperado al arrancar TypeError: Cannot read properties of undefined (reading &apos;catch&apos;)
+    at bootstrap (<repo>/src/main.js?pwa=1:95:18)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at <repo>/src/main.js?pwa=1:113:5
+    at VitestModuleEvaluator._runInlinedModule (file:///<repo>/node_modules/vitest/dist/module-evaluator.js:206:4)
+    at VitestModuleRunner.directRequest (file:///<repo>/node_modules/vite/dist/node/module-runner.js:1259:59)
+    at VitestModuleRunner.cachedRequest (file:///<repo>/node_modules/vite/dist/node/module-runner.js:1166:73)
+    at <repo>/src/__tests__/main.spec.js:100:9
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+            </system-err>
+        </testcase>
+    </testsuite>
+    <testsuite name="src/__tests__/reglasNegocio.spec.js" timestamp="2026-10-20T18:42:29.047Z" hostname="Pipi_2026" tests="82" failures="0" errors="0" skipped="0" time="2.9810365">
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-01 · un cliente necesita nombre y teléfono &gt; sin teléfono no se registra" time="0.1495453">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-01 · un cliente necesita nombre y teléfono &gt; sin nombre no se registra" time="0.0333642">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-01 · un cliente necesita nombre y teléfono &gt; con nombre y teléfono sí" time="0.0351343">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-02 · el teléfono no es único &gt; dos clientes pueden compartir el mismo número" time="0.0270291">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-03 · una orden pertenece a un único cliente &gt; no existe una orden sin cliente" time="0.0292111">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-03 · una orden pertenece a un único cliente &gt; la orden guarda exactamente un cliente" time="0.0311532">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-04 · una orden sin prendas no está activa &gt; se crea sin prendas, pero no cuenta como activa" time="0.0333735">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-04 · una orden sin prendas no está activa &gt; con su primera prenda pasa a estar activa" time="0.0406386">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-05 · la entrega no puede ser anterior a la creación &gt; ayer se rechaza" time="0.028258">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-05 · la entrega no puede ser anterior a la creación &gt; hoy mismo se acepta" time="0.0224035">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-06 · Lista para Entregar sólo la asigna el sistema, con todo terminado &gt; pasa sola a Lista cuando se termina la última prenda" time="0.0425097">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-06 · Lista para Entregar sólo la asigna el sistema, con todo terminado &gt; no se puede poner a mano" time="0.0303843">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-07 · entrega parcial de las prendas terminadas &gt; se entrega sólo lo que el cliente reclama, y el resto sigue en la orden" time="0.0402995">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-07 · entrega parcial de las prendas terminadas &gt; una prenda sin terminar no se entrega" time="0.0278721">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-08 · la entrega de cada prenda se registra individualmente &gt; cambia el estado de esa prenda y deja constancia en el historial" time="0.0332454">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-09 · la orden sólo queda Entregada con todas sus prendas entregadas &gt; no se entrega a mano mientras falten prendas por terminar" time="0.023403">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-09 · la orden sólo queda Entregada con todas sus prendas entregadas &gt; al entregar la última prenda, la orden queda Entregada" time="0.0318225">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-09 · la orden sólo queda Entregada con todas sus prendas entregadas &gt; el botón Entregar entrega también cada una de las prendas" time="0.0387767">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-10 · con entregas parciales la orden conserva su estado &gt; una orden Lista con una prenda entregada y otra terminada sigue Lista" time="0.0303214">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-11 · una orden entregada no se cancela &gt; se rechaza" time="0.0279983">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-12 · una orden cancelada no recibe prendas &gt; P1-15: añadir una prenda a una orden cancelada se rechaza" time="0.0330876">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-12 · una orden cancelada no recibe prendas &gt; tampoco a una orden entregada: primero hay que reabrirla" time="0.0350927">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-13 · una orden cancelada no recibe pagos &gt; P1-15: registrar un pago en una orden cancelada se rechaza" time="0.0313043">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-14 · cancelar no elimina los pagos &gt; los pagos siguen registrados y vigentes" time="0.0318607">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-15 · sólo la dueña reabre órdenes &gt; la aplicación tiene una única cuenta y no ofrece forma de crear otras" time="0.2561609">
+            <system-out>
+Default admin user created.
+
+            </system-out>
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-15 · sólo la dueña reabre órdenes &gt; sólo se reabre lo que está entregado" time="0.0283133">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-16 · reabrir deja la orden En Proceso &gt; vuelve a En Proceso y registra la reapertura" time="0.036428">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-17 · con prendas pendientes o en proceso, la orden está En Proceso &gt; entra en En Proceso con la primera prenda y vuelve si una prenda regresa" time="0.0340983">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-18 · toda prenda pertenece a una orden &gt; no se registra una prenda para una orden inexistente" time="0.0222836">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-19 · una prenda necesita la descripción del arreglo &gt; al registrarla" time="0.0238539">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-19 · una prenda necesita la descripción del arreglo &gt; al editarla" time="0.0246015">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-20 · el valor de una prenda es mayor que cero &gt; al registrarla" time="0.0252233">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-20 · el valor de una prenda es mayor que cero &gt; al editarla" time="0.0285195">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-21 · una prenda tiene un solo estado a la vez &gt; el estado es una única columna de la prenda" time="0.0185157">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-22 · una fotografía pertenece a una única prenda &gt; no se guarda una foto sin prenda, y cada foto apunta a una sola" time="0.0219951">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-23 · una prenda puede tener varias fotografías &gt; admite más de una" time="0.0316533">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-24 · toda prenda tiene un tipo &gt; sin tipo no se registra" time="0.0230542">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-25 · todo pago pertenece a una orden &gt; no se registra un pago para una orden inexistente" time="0.0231095">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-26 · un abono es mayor que cero &gt; cero se rechaza" time="0.0357629">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-27 · los abonos no superan el total de la orden &gt; un abono mayor que el saldo se rechaza" time="0.0374695">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-27 · los abonos no superan el total de la orden &gt; P1-16: dos envíos con el mismo saldo en pantalla no superan el total" time="0.026017">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-27 · los abonos no superan el total de la orden &gt; P1-16: dos abonos simultáneos, como un doble toque, no pasan los dos" time="0.0341919">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-28 · una orden está pagada con saldo cero &gt; queda Pagada al saldar la deuda" time="0.040401">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-29 · el saldo nunca es negativo &gt; bajar el precio por debajo de lo pagado se rechaza" time="0.0311352">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-29 · el saldo nunca es negativo &gt; P1-16: un doble envío del mismo abono tampoco lo deja negativo" time="0.0347324">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-30 · una orden entregada sigue recibiendo pagos &gt; se abona después de entregar" time="0.0425494">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-31 · el aviso de orden lista sólo al entrar en Lista para Entregar &gt; la notificación se registra al entrar en Lista, y no antes" time="0.0406113">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-31 · el aviso de orden lista sólo al entrar en Lista para Entregar &gt; P1-17: no se envía el aviso de orden lista si la orden no está Lista" time="0.0305683">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-31 · el aviso de orden lista sólo al entrar en Lista para Entregar &gt; con la orden Lista sí se envía" time="0.0314846">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-31 · el aviso de orden lista sólo al entrar en Lista para Entregar &gt; decide el estado de la base, no el que tenía la pantalla" time="0.0395627">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-32 · el historial de notificaciones guarda fecha y hora &gt; cada notificación tiene su fecha y hora" time="0.0380265">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-33 · un recordatorio automático por orden al día &gt; el segundo envío del día no repite la orden" time="0.0381855">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-33 · un recordatorio automático por orden al día &gt; A02: si Telegram no confirma, no se registra ningún recordatorio" time="0.0351641">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-34 · el resumen de Telegram usa la información actual de la orden &gt; P1-18: el recibo muestra el saldo que hay en la base al enviarlo" time="0.0310011">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-34 · el resumen de Telegram usa la información actual de la orden &gt; P1-18: el recibo muestra la fecha de recepción de la orden" time="0.0328883">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-35 · toda modificación de una orden queda en el historial &gt; crear, añadir prendas, cambiar estados, pagar y anular quedan registrados" time="0.0301088">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-35 · toda modificación de una orden queda en el historial &gt; P1-19: añadir una observación a una prenda queda en el historial" time="0.0279001">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-35 · toda modificación de una orden queda en el historial &gt; P1-19: añadir y borrar una fotografía queda en el historial" time="0.0373">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-35 · toda modificación de una orden queda en el historial &gt; P1-19: si la foto no llega a guardarse, tampoco queda su rastro" time="0.0204875">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-36 · la fecha y hora de entrega se registran solas &gt; se sellan al entregar" time="0.0319266">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-37 · sin reclamar: más de 30 días en Lista para Entregar &gt; Ley 1480 art. 18: terminada antes de lo prometido, el plazo corre desde la fecha prometida" time="0.0324105">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-37 · sin reclamar: más de 30 días en Lista para Entregar &gt; P1-11: una orden que quedó Lista hoy no está sin reclamar aunque su fecha estimada sea antigua" time="0.0286783">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-37 · sin reclamar: más de 30 días en Lista para Entregar &gt; con 30 días en Lista todavía no; con 31, sí" time="0.0317448">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-37 · sin reclamar: más de 30 días en Lista para Entregar &gt; la fecha se sella al quedar Lista y se borra al salir de Lista" time="0.0286954">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-37 · sin reclamar: más de 30 días en Lista para Entregar &gt; una orden que vuelve a quedar Lista empieza la cuenta de cero" time="0.0372238">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-37 · sin reclamar: más de 30 días en Lista para Entregar &gt; entregada o cancelada ya no cuenta" time="0.0478857">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-37 · sin reclamar: más de 30 días en Lista para Entregar &gt; los días salen de la configuración del negocio" time="0.0524334">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-38 · próxima a vencer según el período que configura el negocio &gt; el período sale de la configuración y se puede cambiar" time="0.0249829">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-39 · las observaciones se conservan mientras exista la prenda &gt; siguen ahí después de cambiar el estado y el precio de la prenda" time="0.0378025">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="RN-40 · borrar una fotografía no borra la prenda &gt; la prenda conserva sus datos" time="0.0236955">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="Catálogo de reglas &gt; cada RN del SRS vigente tiene su bloque de pruebas en este archivo" time="0.0299452">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="Trabajos recibidos antes de usar la app (oct 2026) &gt; una orden puede registrarse con la fecha en que se recibió la ropa" time="0.0248804">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="Trabajos recibidos antes de usar la app (oct 2026) &gt; no se acepta una fecha de recepción futura ni una entrega anterior a la recepción" time="0.0198347">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="Trabajos recibidos antes de usar la app (oct 2026) &gt; un abono puede registrarse con fecha pasada y con Bre-B" time="0.0320042">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="P1-8 · el detalle de la orden carga notas y fotos sin una consulta por prenda &gt; cada prenda recibe solo sus notas y fotos" time="0.0428823">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="Ley 1581 · datos personales de las clientas &gt; sin autorización no se registra la clienta" time="0.0288564">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="Ley 1581 · datos personales de las clientas &gt; con autorización se guarda la fecha como prueba" time="0.0219269">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="Ley 1581 · datos personales de las clientas &gt; una clienta antigua sin autorización puede registrarla después" time="0.0209211">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="Ley 1581 · datos personales de las clientas &gt; borrar sus datos deja la orden entregada y pagada, sin nombre ni celular" time="0.0416646">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="Ley 1581 · datos personales de las clientas &gt; guarda qué versión del aviso aceptó la clienta (ANA-H01)" time="0.0217065">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="Ley 1581 · datos personales de las clientas &gt; borrar sus datos también quita su nombre del historial de avisos (ANA-H01)" time="0.0379379">
+        </testcase>
+        <testcase classname="src/__tests__/reglasNegocio.spec.js" name="Ley 1581 · datos personales de las clientas &gt; no deja borrar los datos si hay una orden abierta o un saldo pendiente" time="0.0334666">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/__tests__/reporteFinanciero.spec.js" timestamp="2026-10-20T18:42:29.093Z" hostname="Pipi_2026" tests="4" failures="0" errors="0" skipped="0" time="0.5234166">
+        <testcase classname="src/__tests__/reporteFinanciero.spec.js" name="Reporte financiero &gt; ingresos: suma los pagos del período y no cuenta los anulados" time="0.2413373">
+        </testcase>
+        <testcase classname="src/__tests__/reporteFinanciero.spec.js" name="Reporte financiero &gt; ticket promedio: una orden cancelada no infla el promedio ni cuenta como trabajo" time="0.0987615">
+        </testcase>
+        <testcase classname="src/__tests__/reporteFinanciero.spec.js" name="Reporte financiero &gt; ticket promedio: una orden sin prendas (valor 0) no baja el promedio" time="0.0638878">
+        </testcase>
+        <testcase classname="src/__tests__/reporteFinanciero.spec.js" name="Reporte financiero &gt; el ticket promedio es un número, no un texto" time="0.0493836">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/database/__tests__/busquedaYConfiguracion.sqlite.spec.js" timestamp="2026-10-20T18:42:29.096Z" hostname="Pipi_2026" tests="7" failures="0" errors="0" skipped="0" time="0.2482232">
+        <testcase classname="src/database/__tests__/busquedaYConfiguracion.sqlite.spec.js" name="Búsqueda global &gt; una búsqueda vacía no consulta nada" time="0.0953218">
+        </testcase>
+        <testcase classname="src/database/__tests__/busquedaYConfiguracion.sqlite.spec.js" name="Búsqueda global &gt; encuentra a la clienta por nombre y por teléfono, y sus órdenes por su nombre" time="0.0266162">
+        </testcase>
+        <testcase classname="src/database/__tests__/busquedaYConfiguracion.sqlite.spec.js" name="Búsqueda global &gt; un número busca también la orden con ese número" time="0.0264805">
+        </testcase>
+        <testcase classname="src/database/__tests__/busquedaYConfiguracion.sqlite.spec.js" name="Búsqueda global &gt; sin coincidencias devuelve listas vacías, sin error" time="0.0236962">
+        </testcase>
+        <testcase classname="src/database/__tests__/busquedaYConfiguracion.sqlite.spec.js" name="Configuración de Ajustes &gt; las migraciones dejan los valores iniciales" time="0.0193488">
+        </testcase>
+        <testcase classname="src/database/__tests__/busquedaYConfiguracion.sqlite.spec.js" name="Configuración de Ajustes &gt; guardar crea una clave que no existía y reemplaza una que sí" time="0.0197862">
+        </testcase>
+        <testcase classname="src/database/__tests__/busquedaYConfiguracion.sqlite.spec.js" name="Configuración de Ajustes &gt; una clave inexistente se lee como null" time="0.0158819">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/database/__tests__/connection.spec.js" timestamp="2026-10-20T18:42:29.101Z" hostname="Pipi_2026" tests="10" failures="0" errors="0" skipped="0" time="0.1235045">
+        <testcase classname="src/database/__tests__/connection.spec.js" name="Database Connection &amp; Restore &gt; guardado de la base web &gt; guarda en el navegador después de cada escritura confirmada" time="0.0534593">
+        </testcase>
+        <testcase classname="src/database/__tests__/connection.spec.js" name="Database Connection &amp; Restore &gt; guardado de la base web &gt; dentro de una transacción manual espera al commit" time="0.0141284">
+        </testcase>
+        <testcase classname="src/database/__tests__/connection.spec.js" name="Database Connection &amp; Restore &gt; guardado de la base web &gt; las lecturas no guardan" time="0.0055334">
+        </testcase>
+        <testcase classname="src/database/__tests__/connection.spec.js" name="Database Connection &amp; Restore &gt; guardado de la base web &gt; en Android no envuelve la conexión: SQLite ya escribe en archivo" time="0.0034024">
+        </testcase>
+        <testcase classname="src/database/__tests__/connection.spec.js" name="Database Connection &amp; Restore &gt; importDatabaseFromJson con snapshot y rollback &gt; Restauración correcta -&gt; importa el respaldo y devuelve true" time="0.0071176">
+        </testcase>
+        <testcase classname="src/database/__tests__/connection.spec.js" name="Database Connection &amp; Restore &gt; importDatabaseFromJson con snapshot y rollback &gt; Suelta la conexión ANTES de importar y no la vuelve a guardar encima" time="0.00226">
+        </testcase>
+        <testcase classname="src/database/__tests__/connection.spec.js" name="Database Connection &amp; Restore &gt; importDatabaseFromJson con snapshot y rollback &gt; JSON inválido -&gt; falla antes de tocar la base de datos" time="0.0073376">
+        </testcase>
+        <testcase classname="src/database/__tests__/connection.spec.js" name="Database Connection &amp; Restore &gt; importDatabaseFromJson con snapshot y rollback &gt; Falla la importación -&gt; revierte al snapshot y propaga el error" time="0.0188116">
+            <system-err>
+Error importando backup, iniciando Rollback... Error: Sintaxis SQL inválida en JSON
+    at <repo>/src/database/__tests__/connection.spec.js:169:57
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithCancel (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64
+
+Rollback completado. La base de datos no sufrió daños.
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/database/__tests__/connection.spec.js" name="Database Connection &amp; Restore &gt; importDatabaseFromJson con snapshot y rollback &gt; Falla también el rollback -&gt; error crítico" time="0.0034656">
+            <system-err>
+Error importando backup, iniciando Rollback... Error: Error primario
+    at <repo>/src/database/__tests__/connection.spec.js:183:57
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithCancel (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64
+
+CRÍTICO: Fallo en importación Y en rollback. Error: Error catastrófico en rollback
+    at <repo>/src/database/__tests__/connection.spec.js:184:57
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithCancel (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/database/__tests__/connection.spec.js" name="Database Connection &amp; Restore &gt; importDatabaseFromJson con snapshot y rollback &gt; No se puede crear el snapshot -&gt; no se intenta importar nada" time="0.0024885">
+            <system-err>
+Error exporting database: Error: DB not initialized
+    at <repo>/src/database/__tests__/connection.spec.js:193:55
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithCancel (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64
+
+            </system-err>
+        </testcase>
+    </testsuite>
+    <testsuite name="src/database/__tests__/fotografias.sqlite.spec.js" timestamp="2026-10-20T18:42:29.109Z" hostname="Pipi_2026" tests="3" failures="0" errors="0" skipped="0" time="0.2264586">
+        <testcase classname="src/database/__tests__/fotografias.sqlite.spec.js" name="deleteFotografia &gt; borra la fila, deja rastro en el historial y devuelve la ruta del archivo" time="0.1307522">
+        </testcase>
+        <testcase classname="src/database/__tests__/fotografias.sqlite.spec.js" name="deleteFotografia &gt; si otra foto usa el mismo archivo, no lo da por libre" time="0.0413087">
+        </testcase>
+        <testcase classname="src/database/__tests__/fotografias.sqlite.spec.js" name="deleteFotografia &gt; una foto que ya no existe no devuelve archivo" time="0.0314537">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/database/__tests__/migrationRunner.spec.js" timestamp="2026-10-20T18:42:29.112Z" hostname="Pipi_2026" tests="9" failures="0" errors="0" skipped="0" time="0.0458975">
+        <testcase classname="src/database/__tests__/migrationRunner.spec.js" name="runMigrations &gt; Sin base de datos -&gt; error explícito" time="0.0082539">
+        </testcase>
+        <testcase classname="src/database/__tests__/migrationRunner.spec.js" name="runMigrations &gt; Base nueva -&gt; aplica todas las migraciones y las registra" time="0.0221405">
+        </testcase>
+        <testcase classname="src/database/__tests__/migrationRunner.spec.js" name="runMigrations &gt; Las migraciones se aplican en orden aunque lleguen desordenadas" time="0.0010854">
+        </testcase>
+        <testcase classname="src/database/__tests__/migrationRunner.spec.js" name="runMigrations &gt; Todo aplicado -&gt; no repite nada" time="0.001738">
+        </testcase>
+        <testcase classname="src/database/__tests__/migrationRunner.spec.js" name="runMigrations &gt; Base en la versión 1 -&gt; aplica sólo la 2" time="0.0028419">
+        </testcase>
+        <testcase classname="src/database/__tests__/migrationRunner.spec.js" name="runMigrations &gt; Una sentencia falla -&gt; rollback, no registra la versión y propaga el error" time="0.0015693">
+        </testcase>
+        <testcase classname="src/database/__tests__/migrationRunner.spec.js" name="runMigrations &gt; Una migración fallida detiene las siguientes" time="0.0018383">
+        </testcase>
+        <testcase classname="src/database/__tests__/migrationRunner.spec.js" name="runMigrations &gt; Base más nueva que la aplicación -&gt; se niega a continuar" time="0.0010737">
+        </testcase>
+        <testcase classname="src/database/__tests__/migrationRunner.spec.js" name="runMigrations &gt; Crea la tabla de control antes de consultarla" time="0.0007492">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/database/__tests__/saldo.sqlite.spec.js" timestamp="2026-10-20T18:42:29.118Z" hostname="Pipi_2026" tests="37" failures="0" errors="0" skipped="0" time="1.379165">
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="Saldo de la orden contra SQLite real &gt; crear prenda y pagar deja total y saldo coherentes, y devuelve los ids correctos" time="0.1512053">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="Saldo de la orden contra SQLite real &gt; RN-29: bajar el precio de una prenda ya pagada se rechaza y el saldo no se mueve" time="0.0525818">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="Saldo de la orden contra SQLite real &gt; RN-29: bajar el precio hasta exactamente lo pagado sí se permite" time="0.0406028">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="Saldo de la orden contra SQLite real &gt; con varias prendas, el saldo es la suma de prendas menos la suma de pagos" time="0.0355464">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="Saldo de la orden contra SQLite real &gt; no toca otras órdenes" time="0.0400824">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="Saldo de la orden contra SQLite real &gt; no permite editar una prenda a través de una orden que no es la suya" time="0.0293067">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="P1-16 · el abono se comprueba en la misma sentencia que lo escribe &gt; un abono que ya no cabe en el saldo se rechaza sin dejar rastro, ni en el historial" time="0.0381136">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="P1-16 · el abono se comprueba en la misma sentencia que lo escribe &gt; un pago anulado libera su parte del saldo" time="0.0313632">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="P1-16 · el abono se comprueba en la misma sentencia que lo escribe &gt; P1-15: la base tampoco acepta pagos en una orden cancelada" time="0.032234">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="P1-16 · el abono se comprueba en la misma sentencia que lo escribe &gt; un abono de cero tampoco pasa por la base" time="0.0287146">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="P1-9 · anular pagos contra SQLite real &gt; el pago anulado sigue existiendo, deja de contar en el saldo y queda en el historial" time="0.0335507">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="P1-9 · anular pagos contra SQLite real &gt; un pago no se anula dos veces" time="0.030007">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="P1-9 · anular pagos contra SQLite real &gt; los pagos vigentes se listan antes que los anulados" time="0.0293129">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="P1-9 · anular pagos contra SQLite real &gt; los ingresos del reporte financiero no cuentan los pagos anulados" time="0.0326204">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="P1-9 · anular pagos contra SQLite real &gt; anular un pago deja volver a eliminar prendas que antes lo impedía" time="0.0383783">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="P1-9 · eliminar prendas contra SQLite real &gt; borra la prenda con sus observaciones y fotos, recalcula y lo registra" time="0.0329726">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="P1-9 · eliminar prendas contra SQLite real &gt; RN-29: no elimina si el cliente ya pagó más de lo que quedaría" time="0.0265108">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="P1-9 · eliminar prendas contra SQLite real &gt; no elimina una prenda ya entregada" time="0.020082">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="Estado de la orden derivado de sus prendas contra SQLite real &gt; RN-04 y RN-17: nace Pendiente y pasa sola a En Proceso con la primera prenda" time="0.0247664">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="Estado de la orden derivado de sus prendas contra SQLite real &gt; RN-06 / CP-46: terminar la última prenda pasa la orden sola a Lista y genera la notificación" time="0.0293467">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="Estado de la orden derivado de sus prendas contra SQLite real &gt; RN-17 / CP-47: si una prenda vuelve a En Proceso, la orden también" time="0.0238705">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="Estado de la orden derivado de sus prendas contra SQLite real &gt; RN-17: añadir una prenda a una orden Lista la devuelve a En Proceso" time="0.0233142">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="Estado de la orden derivado de sus prendas contra SQLite real &gt; P1-10: eliminar la única prenda pendiente deja la orden Lista" time="0.0549056">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="Estado de la orden derivado de sus prendas contra SQLite real &gt; RN-04: eliminar la última prenda devuelve la orden a Pendiente" time="0.0446784">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="Estado de la orden derivado de sus prendas contra SQLite real &gt; RN-09 / CP-19: entregar todas las prendas entrega la orden con fecha" time="0.0251248">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="Estado de la orden derivado de sus prendas contra SQLite real &gt; CP-18: no se entrega una prenda sin terminar" time="0.024113">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="Estado de la orden derivado de sus prendas contra SQLite real &gt; RN-16 / CP-22: reabrir una orden entregada la deja En Proceso y registra la reapertura" time="0.0304725">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="RN-04, RN-28 y RN-38 contra SQLite real &gt; RN-04: una orden sin prendas no cuenta como activa, atrasada ni próxima entrega" time="0.0267452">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="RN-04, RN-28 y RN-38 contra SQLite real &gt; RN-04: los recordatorios del día no cuentan órdenes sin prendas" time="0.0258678">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="RN-04, RN-28 y RN-38 contra SQLite real &gt; RN-28 / CP-77 / CP-78: la orden queda Pagada al saldar, y vuelve a Pendiente si se anula un pago" time="0.0329996">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="RN-04, RN-28 y RN-38 contra SQLite real &gt; RN-38: los días de anticipación salen de la configuración del negocio y se pueden cambiar" time="0.0339736">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="RN-04, RN-28 y RN-38 contra SQLite real &gt; HU-36 / CP-75: la lista por cobrar suma exactamente lo que muestra el panel" time="0.0537608">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="Migraciones contra SQLite real &gt; la v2 recalcula los saldos que la v1 dejó descuadrados" time="0.0340145">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="Migraciones contra SQLite real &gt; la v3 conserva los pagos existentes como vigentes" time="0.0234153">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="Migraciones contra SQLite real &gt; la v4 ajusta el estado de las órdenes abiertas a sus prendas y lo registra" time="0.054445">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="Migraciones contra SQLite real &gt; la v5 fecha las órdenes que ya estaban Lista con su última entrada en ese estado" time="0.0304501">
+        </testcase>
+        <testcase classname="src/database/__tests__/saldo.sqlite.spec.js" name="Migraciones contra SQLite real &gt; una base nueva queda en la última versión" time="0.0220512">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/database/__tests__/volumen.sqlite.spec.js" timestamp="2026-10-20T18:42:29.140Z" hostname="Pipi_2026" tests="5" failures="0" errors="0" skipped="0" time="2.6946931">
+        <testcase classname="src/database/__tests__/volumen.sqlite.spec.js" name="Volumen: 500 órdenes, 150 clientas &gt; la base quedó con el volumen esperado" time="0.003195">
+        </testcase>
+        <testcase classname="src/database/__tests__/volumen.sqlite.spec.js" name="Volumen: 500 órdenes, 150 clientas &gt; RNF-01: abrir una orden (datos, prendas, pagos e historial) tarda menos de 2 s" time="0.0444855">
+        </testcase>
+        <testcase classname="src/database/__tests__/volumen.sqlite.spec.js" name="Volumen: 500 órdenes, 150 clientas &gt; RNF-02: registrar una orden con una prenda tarda menos de 3 s" time="0.0409321">
+        </testcase>
+        <testcase classname="src/database/__tests__/volumen.sqlite.spec.js" name="Volumen: 500 órdenes, 150 clientas &gt; RNF-03: registrar un abono y leer el saldo nuevo tarda menos de 1 s" time="0.0393328">
+        </testcase>
+        <testcase classname="src/database/__tests__/volumen.sqlite.spec.js" name="Volumen: 500 órdenes, 150 clientas &gt; listar todas las órdenes y buscar por nombre se mantienen por debajo de 2 s" time="0.4081092">
+            <system-out>
+Volumen 500 órdenes · 20 repeticiones · ms {&quot;abrirOrden&quot;:{&quot;mediana&quot;:1.98,&quot;maximo&quot;:6.72},&quot;registrarOrden&quot;:{&quot;mediana&quot;:2.03,&quot;maximo&quot;:2.87},&quot;actualizarSaldo&quot;:{&quot;mediana&quot;:1.58,&quot;maximo&quot;:10.68},&quot;listarOrdenes&quot;:{&quot;mediana&quot;:17.86,&quot;maximo&quot;:26.37},&quot;buscarClienta&quot;:{&quot;mediana&quot;:1.86,&quot;maximo&quot;:3.25}}
+
+            </system-out>
+        </testcase>
+    </testsuite>
+    <testsuite name="src/composables/__tests__/useAppLock.spec.js" timestamp="2026-10-20T18:42:29.150Z" hostname="Pipi_2026" tests="10" failures="0" errors="0" skipped="0" time="0.0428943">
+        <testcase classname="src/composables/__tests__/useAppLock.spec.js" name="shouldLockAfterBackground &gt; Sin registro de salida -&gt; no bloquea" time="0.0053428">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useAppLock.spec.js" name="shouldLockAfterBackground &gt; Ausencia corta -&gt; no bloquea" time="0.0005086">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useAppLock.spec.js" name="shouldLockAfterBackground &gt; Ausencia justo en el umbral -&gt; bloquea" time="0.0003868">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useAppLock.spec.js" name="shouldLockAfterBackground &gt; Ausencia larga -&gt; bloquea" time="0.0003555">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useAppLock.spec.js" name="Ciclo de vida: segundo plano y regreso &gt; Salir a segundo plano bloquea de inmediato" time="0.0075992">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useAppLock.spec.js" name="Ciclo de vida: segundo plano y regreso &gt; Volver enseguida levanta el bloqueo solo" time="0.0119033">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useAppLock.spec.js" name="Ciclo de vida: segundo plano y regreso &gt; Volver tras el umbral mantiene el bloqueo" time="0.0029737">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useAppLock.spec.js" name="Ciclo de vida: segundo plano y regreso &gt; Un regreso sin salida registrada no levanta el bloqueo del arranque" time="0.0012399">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useAppLock.spec.js" name="Ciclo de vida: segundo plano y regreso &gt; Si al salir no había sesión que bloquear, el bloqueo que llegue después no se levanta solo" time="0.0011931">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useAppLock.spec.js" name="Ciclo de vida: segundo plano y regreso &gt; Si ya estaba bloqueada antes de salir, volver enseguida no la desbloquea" time="0.0027583">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/composables/__tests__/useAsyncAction.spec.js" timestamp="2026-10-20T18:42:29.156Z" hostname="Pipi_2026" tests="7" failures="0" errors="0" skipped="0" time="0.097461">
+        <testcase classname="src/composables/__tests__/useAsyncAction.spec.js" name="useAsyncAction &gt; should handle success flow (loading states and result)" time="0.0624089">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useAsyncAction.spec.js" name="useAsyncAction &gt; should show successMessage only when requested" time="0.0041241">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useAsyncAction.spec.js" name="useAsyncAction &gt; should handle error flow, keep error available, and propagate it by default" time="0.0212783">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useAsyncAction.spec.js" name="useAsyncAction &gt; should show toast for error only when requested (toastError=true)" time="0.0015467">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useAsyncAction.spec.js" name="useAsyncAction &gt; should show custom toast for error if toastError is a string" time="0.0010689">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useAsyncAction.spec.js" name="useAsyncAction &gt; should not propagate error if throwError is false" time="0.0008183">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useAsyncAction.spec.js" name="useAsyncAction &gt; concurrent actions from separate composable instances should not share loading states" time="0.0007698">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/composables/__tests__/useBackupRestore.spec.js" timestamp="2026-10-20T18:42:29.160Z" hostname="Pipi_2026" tests="3" failures="0" errors="0" skipped="0" time="0.0297382">
+        <testcase classname="src/composables/__tests__/useBackupRestore.spec.js" name="RNF-17 · copia de seguridad sin Telegram &gt; en el teléfono guarda el archivo cifrado y abre Compartir, sin usar Telegram" time="0.0216441">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useBackupRestore.spec.js" name="RNF-17 · copia de seguridad sin Telegram &gt; si cierra el menú sin elegir, avisa que no se guardó" time="0.0019897">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useBackupRestore.spec.js" name="RNF-17 · copia de seguridad sin Telegram &gt; por defecto sigue enviando a Telegram" time="0.001145">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/composables/__tests__/useNotificacionesLocales.spec.js" timestamp="2026-10-20T18:42:29.163Z" hostname="Pipi_2026" tests="12" failures="0" errors="0" skipped="0" time="0.0419763">
+        <testcase classname="src/composables/__tests__/useNotificacionesLocales.spec.js" name="construirRecordatorios &gt; Sin entregas -&gt; ningún aviso" time="0.006313">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useNotificacionesLocales.spec.js" name="construirRecordatorios &gt; Un día con entregas -&gt; un aviso a las 8 de ese día" time="0.0042512">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useNotificacionesLocales.spec.js" name="construirRecordatorios &gt; Cada día lleva su propia cuenta, no la del primero" time="0.0008206">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useNotificacionesLocales.spec.js" name="construirRecordatorios &gt; Los identificadores son estables y distintos por día" time="0.0004652">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useNotificacionesLocales.spec.js" name="construirRecordatorios &gt; Singular con una sola orden" time="0.000459">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useNotificacionesLocales.spec.js" name="construirRecordatorios &gt; Si las 8 de hoy ya pasaron, hoy no se programa" time="0.0005185">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useNotificacionesLocales.spec.js" name="construirRecordatorios &gt; Días con cero entregas no generan aviso" time="0.0004828">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useNotificacionesLocales.spec.js" name="construirRecordatorios &gt; Fuera del horizonte de programación -&gt; se descarta" time="0.0005048">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useNotificacionesLocales.spec.js" name="construirRecordatorios &gt; Una fecha ya pasada no se programa" time="0.0003583">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useNotificacionesLocales.spec.js" name="P1-7 · permisos del aviso de las 8:00 &gt; interpreta los permisos de Android" time="0.0011596">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useNotificacionesLocales.spec.js" name="P1-7 · permisos del aviso de las 8:00 &gt; sin alarmas exactas abre el ajuste de Android y rearma los avisos" time="0.004799">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useNotificacionesLocales.spec.js" name="P1-7 · permisos del aviso de las 8:00 &gt; en el navegador (sin plugin nativo) responde no-disponible" time="0.0151989">
+            <system-err>
+No se pudo leer el permiso de notificaciones Error: Not implemented on web.
+    at <repo>/src/composables/__tests__/useNotificacionesLocales.spec.js:139:63
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+            </system-err>
+        </testcase>
+    </testsuite>
+    <testsuite name="src/composables/__tests__/useOrdenes.spec.js" timestamp="2026-10-20T18:42:29.170Z" hostname="Pipi_2026" tests="5" failures="0" errors="0" skipped="0" time="0.0146141">
+        <testcase classname="src/composables/__tests__/useOrdenes.spec.js" name="mensajeConfirmacionEntrega (P1-4, RN-30) &gt; orden pagada -&gt; entrega directa, sin confirmación" time="0.0061626">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useOrdenes.spec.js" name="mensajeConfirmacionEntrega (P1-4, RN-30) &gt; orden con saldo -&gt; pide confirmar mostrando lo que se debe" time="0.0013961">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useOrdenes.spec.js" name="mensajeConfirmacionEntrega (P1-4, RN-30) &gt; entrega de una sola prenda -&gt; el mismo aviso, nombrando la prenda (DEF-04)" time="0.0004909">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useOrdenes.spec.js" name="mensajeConfirmacionEntrega (P1-4, RN-30) &gt; saldo negativo heredado de la v1 -&gt; no se trata como deuda" time="0.0002782">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useOrdenes.spec.js" name="mensajeConfirmacionEntrega (P1-4, RN-30) &gt; sin orden cargada -&gt; null" time="0.0005601">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/composables/__tests__/useTelegramReports.spec.js" timestamp="2026-10-20T18:42:29.173Z" hostname="Pipi_2026" tests="3" failures="0" errors="0" skipped="0" time="0.0178355">
+        <testcase classname="src/composables/__tests__/useTelegramReports.spec.js" name="resumirOrdenes (reporte diario de Telegram) &gt; cuenta las atrasadas por fecha_entrega_estimada (antes daba siempre cero)" time="0.0067252">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useTelegramReports.spec.js" name="resumirOrdenes (reporte diario de Telegram) &gt; RN-04: órdenes sin prendas, entregadas y canceladas no cuentan" time="0.0021779">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useTelegramReports.spec.js" name="resumirOrdenes (reporte diario de Telegram) &gt; una orden que se entrega hoy no está atrasada" time="0.0038315">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/composables/__tests__/useTutorial.spec.js" timestamp="2026-10-20T18:42:29.176Z" hostname="Pipi_2026" tests="6" failures="0" errors="0" skipped="0" time="0.0552204">
+        <testcase classname="src/composables/__tests__/useTutorial.spec.js" name="useTutorial · Misión Completada solo al terminar (DEF-11) &gt; startDashboardTour &gt; cerrarlo a mitad no lo cuenta como completado, pero vuelve a Ayuda" time="0.0328443">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useTutorial.spec.js" name="useTutorial · Misión Completada solo al terminar (DEF-11) &gt; startDashboardTour &gt; llegar al último paso y cerrarlo sí lo cuenta" time="0.0084089">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useTutorial.spec.js" name="useTutorial · Misión Completada solo al terminar (DEF-11) &gt; startClienteTour &gt; cerrarlo a mitad no lo cuenta como completado, pero vuelve a Ayuda" time="0.0010677">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useTutorial.spec.js" name="useTutorial · Misión Completada solo al terminar (DEF-11) &gt; startClienteTour &gt; llegar al último paso y cerrarlo sí lo cuenta" time="0.0005478">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useTutorial.spec.js" name="useTutorial · Misión Completada solo al terminar (DEF-11) &gt; startOrdenTour &gt; cerrarlo a mitad no lo cuenta como completado, pero vuelve a Ayuda" time="0.002565">
+        </testcase>
+        <testcase classname="src/composables/__tests__/useTutorial.spec.js" name="useTutorial · Misión Completada solo al terminar (DEF-11) &gt; startOrdenTour &gt; llegar al último paso y cerrarlo sí lo cuenta" time="0.0006145">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/services/__tests__/backupPayload.spec.js" timestamp="2026-10-20T18:42:29.180Z" hostname="Pipi_2026" tests="5" failures="0" errors="0" skipped="0" time="0.0151495">
+        <testcase classname="src/services/__tests__/backupPayload.spec.js" name="backupPayload &gt; Ida y vuelta del formato nuevo" time="0.006946">
+        </testcase>
+        <testcase classname="src/services/__tests__/backupPayload.spec.js" name="backupPayload &gt; Respaldo sin fotografías -&gt; mapa vacío, no undefined" time="0.0006288">
+        </testcase>
+        <testcase classname="src/services/__tests__/backupPayload.spec.js" name="backupPayload &gt; Respaldo antiguo (exportación de SQLite pelada) -&gt; se sigue pudiendo restaurar" time="0.0005518">
+        </testcase>
+        <testcase classname="src/services/__tests__/backupPayload.spec.js" name="backupPayload &gt; Texto que no es JSON -&gt; error claro" time="0.0021674">
+        </testcase>
+        <testcase classname="src/services/__tests__/backupPayload.spec.js" name="backupPayload &gt; enMegabytes redondea a un decimal" time="0.0004504">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/services/__tests__/cryptoService.spec.js" timestamp="2026-10-20T18:42:29.183Z" hostname="Pipi_2026" tests="7" failures="0" errors="0" skipped="0" time="5.1396455">
+        <testcase classname="src/services/__tests__/cryptoService.spec.js" name="cryptoService &gt; JSON -&gt; cifrado -&gt; descifrado = datos originales" time="0.6448995">
+        </testcase>
+        <testcase classname="src/services/__tests__/cryptoService.spec.js" name="cryptoService &gt; Contraseña incorrecta -&gt; rechazo" time="0.7078675">
+        </testcase>
+        <testcase classname="src/services/__tests__/cryptoService.spec.js" name="cryptoService &gt; Ciphertext alterado -&gt; rechazo" time="0.7826268">
+        </testcase>
+        <testcase classname="src/services/__tests__/cryptoService.spec.js" name="cryptoService &gt; IV alterado -&gt; rechazo" time="0.7676225">
+        </testcase>
+        <testcase classname="src/services/__tests__/cryptoService.spec.js" name="cryptoService &gt; Salt diferente -&gt; no puede descifrar" time="0.8987063">
+        </testcase>
+        <testcase classname="src/services/__tests__/cryptoService.spec.js" name="cryptoService &gt; Dos cifrados del mismo JSON con la misma contraseña -&gt; ciphertext diferente" time="0.9614571">
+        </testcase>
+        <testcase classname="src/services/__tests__/cryptoService.spec.js" name="cryptoService &gt; Verificación de que se utilizan 600.000 iteraciones y el formato es compatible" time="0.3689993">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/services/__tests__/estadoOrden.spec.js" timestamp="2026-10-20T18:42:29.188Z" hostname="Pipi_2026" tests="18" failures="0" errors="0" skipped="0" time="0.0646381">
+        <testcase classname="src/services/__tests__/estadoOrden.spec.js" name="derivarEstadoOrden &gt; RN-04: sin prendas -&gt; Pendiente" time="0.0248224">
+        </testcase>
+        <testcase classname="src/services/__tests__/estadoOrden.spec.js" name="derivarEstadoOrden &gt; RN-17 / CP-47: alguna prenda Pendiente o En Proceso -&gt; En Proceso" time="0.0009216">
+        </testcase>
+        <testcase classname="src/services/__tests__/estadoOrden.spec.js" name="derivarEstadoOrden &gt; RN-06 / CP-46: todas terminadas -&gt; Lista para Entregar" time="0.0009827">
+        </testcase>
+        <testcase classname="src/services/__tests__/estadoOrden.spec.js" name="derivarEstadoOrden &gt; RN-10: entrega parcial de una orden lista -&gt; sigue Lista" time="0.0004432">
+        </testcase>
+        <testcase classname="src/services/__tests__/estadoOrden.spec.js" name="derivarEstadoOrden &gt; RN-09 / CP-19: todas entregadas -&gt; Entregada" time="0.0097446">
+        </testcase>
+        <testcase classname="src/services/__tests__/estadoOrden.spec.js" name="derivarEstadoOrden &gt; Cancelada y Entregada no cambian por sus prendas" time="0.0005544">
+        </testcase>
+        <testcase classname="src/services/__tests__/estadoOrden.spec.js" name="esOrdenActiva (RN-04) &gt; En Proceso y Lista para Entregar son activas" time="0.0006379">
+        </testcase>
+        <testcase classname="src/services/__tests__/estadoOrden.spec.js" name="esOrdenActiva (RN-04) &gt; sin prendas (Pendiente), Entregada y Cancelada no" time="0.0004666">
+        </testcase>
+        <testcase classname="src/services/__tests__/estadoOrden.spec.js" name="estadoDePago (RN-28, HU-37) &gt; CP-77: saldo cero -&gt; Pagada" time="0.0004296">
+        </testcase>
+        <testcase classname="src/services/__tests__/estadoOrden.spec.js" name="estadoDePago (RN-28, HU-37) &gt; CP-78: queda saldo -&gt; Pendiente" time="0.0002984">
+        </testcase>
+        <testcase classname="src/services/__tests__/estadoOrden.spec.js" name="estadoDePago (RN-28, HU-37) &gt; saldo negativo heredado de la v1 -&gt; Pagada" time="0.0002137">
+        </testcase>
+        <testcase classname="src/services/__tests__/estadoOrden.spec.js" name="estadoDePago (RN-28, HU-37) &gt; sin nada que cobrar todavía -&gt; sin estado de pago" time="0.0003773">
+        </testcase>
+        <testcase classname="src/services/__tests__/estadoOrden.spec.js" name="progresoPrendas &gt; cuenta como terminadas las terminadas y las entregadas" time="0.0020407">
+        </testcase>
+        <testcase classname="src/services/__tests__/estadoOrden.spec.js" name="progresoPrendas &gt; sin prendas" time="0.0003676">
+        </testcase>
+        <testcase classname="src/services/__tests__/estadoOrden.spec.js" name="ordenesPorCobrar y totalPorCobrar (HU-36) &gt; CP-75: sólo las que deben, de mayor a menor deuda, incluidas las entregadas" time="0.0006398">
+        </testcase>
+        <testcase classname="src/services/__tests__/estadoOrden.spec.js" name="ordenesPorCobrar y totalPorCobrar (HU-36) &gt; las canceladas no se cobran, igual que en el panel" time="0.0004138">
+        </testcase>
+        <testcase classname="src/services/__tests__/estadoOrden.spec.js" name="ordenesPorCobrar y totalPorCobrar (HU-36) &gt; CP-76: sin deudas la lista queda vacía" time="0.0004775">
+        </testcase>
+        <testcase classname="src/services/__tests__/estadoOrden.spec.js" name="ordenesPorCobrar y totalPorCobrar (HU-36) &gt; no reordena el arreglo original" time="0.0005304">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/services/__tests__/fechas.spec.js" timestamp="2026-10-20T18:42:29.197Z" hostname="Pipi_2026" tests="12" failures="0" errors="0" skipped="0" time="0.02489">
+        <testcase classname="src/services/__tests__/fechas.spec.js" name="fechas para mostrar &gt; fechaCorta con fecha sola o con hora, sin correrse de día" time="0.009043">
+        </testcase>
+        <testcase classname="src/services/__tests__/fechas.spec.js" name="fechas para mostrar &gt; fechaLarga en español con mayúscula inicial" time="0.001531">
+        </testcase>
+        <testcase classname="src/services/__tests__/fechas.spec.js" name="fechas para mostrar &gt; etiquetaDia usa Hoy, Mañana y Ayer, y si no la fecha corta" time="0.0011876">
+        </testcase>
+        <testcase classname="src/services/__tests__/fechas.spec.js" name="fechas &gt; fechaLocalISO &gt; Usa la fecha local, no UTC" time="0.0006308">
+        </testcase>
+        <testcase classname="src/services/__tests__/fechas.spec.js" name="fechas &gt; fechaLocalISO &gt; Rellena mes y día a dos dígitos" time="0.0003795">
+        </testcase>
+        <testcase classname="src/services/__tests__/fechas.spec.js" name="fechas &gt; aFechaLocal &gt; &apos;YYYY-MM-DD&apos; se interpreta como medianoche local" time="0.0008708">
+        </testcase>
+        <testcase classname="src/services/__tests__/fechas.spec.js" name="fechas &gt; aFechaLocal &gt; No se desplaza un día respecto a la cadena recibida" time="0.0009119">
+        </testcase>
+        <testcase classname="src/services/__tests__/fechas.spec.js" name="fechas &gt; aFechaLocal &gt; Una fecha con hora se normaliza a medianoche" time="0.0004623">
+        </testcase>
+        <testcase classname="src/services/__tests__/fechas.spec.js" name="fechas &gt; sumarDias &gt; Desplaza sin modificar la fecha original" time="0.0011515">
+        </testcase>
+        <testcase classname="src/services/__tests__/fechas.spec.js" name="fechas &gt; sumarDias &gt; Acepta desplazamientos negativos" time="0.0008523">
+        </testcase>
+        <testcase classname="src/services/__tests__/fechas.spec.js" name="fechas &gt; diasDeDiferencia &gt; Cuenta días entre medianoches locales" time="0.0005941">
+        </testcase>
+        <testcase classname="src/services/__tests__/fechas.spec.js" name="fechas &gt; diasDeDiferencia &gt; Ignora la hora del extremo inicial" time="0.0006449">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/services/__tests__/formato.spec.js" timestamp="2026-10-20T18:42:29.203Z" hostname="Pipi_2026" tests="4" failures="0" errors="0" skipped="0" time="0.03572">
+        <testcase classname="src/services/__tests__/formato.spec.js" name="formatearMoneda &gt; agrupa los miles con punto y no muestra decimales" time="0.0152719">
+        </testcase>
+        <testcase classname="src/services/__tests__/formato.spec.js" name="formatearMoneda &gt; también agrupa los números de cuatro cifras" time="0.0009997">
+        </testcase>
+        <testcase classname="src/services/__tests__/formato.spec.js" name="formatearMoneda &gt; cero, texto numérico y valores ausentes" time="0.0011984">
+        </testcase>
+        <testcase classname="src/services/__tests__/formato.spec.js" name="formatearMoneda &gt; un saldo negativo heredado lleva el signo delante del símbolo" time="0.0082982">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/services/__tests__/photoStorage.spec.js" timestamp="2026-10-20T18:42:29.206Z" hostname="Pipi_2026" tests="5" failures="0" errors="0" skipped="0" time="0.8755806">
+        <testcase classname="src/services/__tests__/photoStorage.spec.js" name="cargarFotoSrc (DEF-14) &gt; en el navegador lee el archivo y lo entrega como data URL" time="0.8599323">
+        </testcase>
+        <testcase classname="src/services/__tests__/photoStorage.spec.js" name="cargarFotoSrc (DEF-14) &gt; lee cada archivo una sola vez" time="0.0017594">
+        </testcase>
+        <testcase classname="src/services/__tests__/photoStorage.spec.js" name="cargarFotoSrc (DEF-14) &gt; si el archivo no se puede leer, no rompe: devuelve vacío" time="0.0025974">
+        </testcase>
+        <testcase classname="src/services/__tests__/photoStorage.spec.js" name="cargarFotoSrc (DEF-14) &gt; una data URL o una URL web se usan tal cual" time="0.001902">
+        </testcase>
+        <testcase classname="src/services/__tests__/photoStorage.spec.js" name="cargarFotoSrc (DEF-14) &gt; en el teléfono usa la ruta nativa, sin leer el archivo" time="0.0016318">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/services/__tests__/telegramService.spec.js" timestamp="2026-10-20T18:42:29.210Z" hostname="Pipi_2026" tests="2" failures="0" errors="0" skipped="0" time="0.0126952">
+        <testcase classname="src/services/__tests__/telegramService.spec.js" name="telegramService &gt; openTelegram &gt; should throw an Error if telefono is empty" time="0.0068137">
+        </testcase>
+        <testcase classname="src/services/__tests__/telegramService.spec.js" name="telegramService &gt; openTelegram &gt; should call window.open with the correct URL if telefono is valid" time="0.0012028">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/services/__tests__/validators.spec.js" timestamp="2026-10-20T18:42:29.212Z" hostname="Pipi_2026" tests="57" failures="0" errors="0" skipped="0" time="0.0639409">
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateCliente &gt; Nombre y teléfono válidos -&gt; pasa" time="0.0049444">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateCliente &gt; Teléfono con espacios y guiones -&gt; pasa" time="0.0006106">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateCliente &gt; Sin nombre -&gt; rechazo" time="0.0022793">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateCliente &gt; Sin teléfono -&gt; rechazo" time="0.0006823">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateCliente &gt; Teléfono con letras -&gt; rechazo" time="0.0004887">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateCliente &gt; Teléfono demasiado corto -&gt; rechazo" time="0.0005035">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateFechaEntrega &gt; Entrega HOY -&gt; se acepta" time="0.0011946">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateFechaEntrega &gt; Entrega mañana -&gt; se acepta" time="0.0006319">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateFechaEntrega &gt; Entrega ayer -&gt; rechazo" time="0.0007612">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateFechaEntrega &gt; Entrega anterior a una fecha de creación explícita -&gt; rechazo" time="0.0004863">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateFechaEntrega &gt; Entrega el mismo día de la creación -&gt; se acepta" time="0.0003088">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateOrdenAccionPermitida &gt; RN-11: una orden entregada no se puede cancelar" time="0.000856">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateOrdenAccionPermitida &gt; Una orden en proceso sí se puede cancelar" time="0.0003293">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateOrdenAccionPermitida &gt; RN-12: no se añaden prendas a una orden cancelada" time="0.0005049">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateOrdenAccionPermitida &gt; tampoco a una orden entregada: hay que reabrirla" time="0.0005298">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateOrdenAccionPermitida &gt; RN-13: no se registran pagos en una orden cancelada" time="0.00641">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateOrdenAccionPermitida &gt; Sólo se reabren órdenes entregadas" time="0.0007651">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validatePrenda &gt; Prenda completa -&gt; pasa" time="0.0005719">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validatePrenda &gt; Sin descripción -&gt; rechazo" time="0.0008003">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validatePrenda &gt; Sin tipo de prenda -&gt; rechazo" time="0.0026335">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validatePrenda &gt; RN-20: valor cero o negativo -&gt; rechazo" time="0.0007884">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validatePago &gt; Abono dentro del saldo -&gt; pasa" time="0.0004698">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validatePago &gt; Abono exacto del saldo -&gt; pasa" time="0.0005299">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validatePago &gt; RN-26: abono de cero o negativo -&gt; rechazo" time="0.001175">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validatePago &gt; RN-27: abono mayor que el saldo pendiente -&gt; rechazo" time="0.0005022">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateValorPrendaContraPagos &gt; Subir el precio con pagos registrados -&gt; pasa" time="0.0005655">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateValorPrendaContraPagos &gt; Bajar el precio hasta igualar lo pagado -&gt; pasa" time="0.0004183">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateValorPrendaContraPagos &gt; RN-29: bajar el precio por debajo de lo pagado -&gt; rechazo" time="0.0020894">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateValorPrendaContraPagos &gt; RN-29: cuenta las demás prendas de la orden" time="0.0009957">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateValorPrendaContraPagos &gt; RN-20: valor cero o negativo -&gt; rechazo" time="0.0008533">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateCambioManualEstado (RN-06, RN-16, RN-17) &gt; Entregar una orden Lista para Entregar -&gt; pasa" time="0.0007048">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateCambioManualEstado (RN-06, RN-16, RN-17) &gt; Entregar una orden con prendas sin terminar -&gt; rechazo" time="0.0006343">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateCambioManualEstado (RN-06, RN-16, RN-17) &gt; Cancelar una orden abierta -&gt; pasa; una entregada -&gt; rechazo" time="0.0006813">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateCambioManualEstado (RN-06, RN-16, RN-17) &gt; RN-16 / CP-22: reabrir una orden entregada a En Proceso -&gt; pasa" time="0.0004986">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateCambioManualEstado (RN-06, RN-16, RN-17) &gt; Fijar a mano Pendiente, En Proceso o Lista -&gt; rechazo" time="0.0009802">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateAvisoOrdenLista (RN-31) &gt; orden Lista para Entregar -&gt; pasa" time="0.00035">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateAvisoOrdenLista (RN-31) &gt; cualquier otro estado, o sin orden -&gt; rechazo" time="0.0009348">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateCambioEstadoPrenda (CP-18) &gt; Terminada -&gt; Entregada pasa" time="0.0004224">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateCambioEstadoPrenda (CP-18) &gt; Pendiente o En Proceso -&gt; Entregada rechazo" time="0.0009089">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateCambioEstadoPrenda (CP-18) &gt; Retroceder de estado -&gt; pasa" time="0.000519">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateDiasAnticipacion (RN-38) &gt; 0 a 30 días enteros -&gt; pasa" time="0.0005374">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateDiasAnticipacion (RN-38) &gt; fuera de rango, decimal o no numérico -&gt; rechazo" time="0.0028854">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateEliminarPrenda (P1-9) &gt; Prenda pendiente en orden abierta, lo pagado sigue cubierto -&gt; pasa" time="0.0014294">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateEliminarPrenda (P1-9) &gt; Orden entregada -&gt; rechazo" time="0.0016995">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateEliminarPrenda (P1-9) &gt; Orden cancelada -&gt; rechazo" time="0.0006416">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateEliminarPrenda (P1-9) &gt; Prenda ya entregada -&gt; rechazo" time="0.0004456">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateEliminarPrenda (P1-9) &gt; RN-29: sin la prenda el total quedaría por debajo de lo pagado -&gt; rechazo" time="0.0005174">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateAnularPago (P1-9) &gt; Pago vigente con motivo -&gt; pasa" time="0.000378">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateAnularPago (P1-9) &gt; Pago inexistente -&gt; rechazo" time="0.0004428">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateAnularPago (P1-9) &gt; Pago ya anulado -&gt; rechazo" time="0.0004133">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateAnularPago (P1-9) &gt; Sin motivo -&gt; rechazo" time="0.0003789">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateCambioPassword &gt; Cambio correcto -&gt; pasa" time="0.0004776">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateCambioPassword &gt; Sin contraseña actual -&gt; rechazo" time="0.00045">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateCambioPassword &gt; Menos de 8 caracteres -&gt; rechazo" time="0.0007278">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateCambioPassword &gt; Nueva igual a la actual -&gt; rechazo" time="0.0005386">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateCambioPassword &gt; Nueva igual a la de fábrica -&gt; rechazo" time="0.0008516">
+        </testcase>
+        <testcase classname="src/services/__tests__/validators.spec.js" name="validators.validateCambioPassword &gt; Confirmación distinta -&gt; rechazo" time="0.000504">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/services/__tests__/vencimientos.spec.js" timestamp="2026-10-20T18:42:29.238Z" hostname="Pipi_2026" tests="12" failures="0" errors="0" skipped="0" time="0.0226485">
+        <testcase classname="src/services/__tests__/vencimientos.spec.js" name="clasificarVencimiento (RN-38) &gt; fecha anterior a hoy -&gt; atrasada" time="0.0068237">
+        </testcase>
+        <testcase classname="src/services/__tests__/vencimientos.spec.js" name="clasificarVencimiento (RN-38) &gt; hoy -&gt; próxima, no atrasada" time="0.0011841">
+        </testcase>
+        <testcase classname="src/services/__tests__/vencimientos.spec.js" name="clasificarVencimiento (RN-38) &gt; justo al final del período -&gt; próxima" time="0.0005711">
+        </testcase>
+        <testcase classname="src/services/__tests__/vencimientos.spec.js" name="clasificarVencimiento (RN-38) &gt; un día después del período -&gt; nada" time="0.0004549">
+        </testcase>
+        <testcase classname="src/services/__tests__/vencimientos.spec.js" name="clasificarVencimiento (RN-38) &gt; el período lo decide el negocio" time="0.0010387">
+        </testcase>
+        <testcase classname="src/services/__tests__/vencimientos.spec.js" name="clasificarVencimiento (RN-38) &gt; con 0 días sólo avisa lo que se entrega hoy" time="0.0007507">
+        </testcase>
+        <testcase classname="src/services/__tests__/vencimientos.spec.js" name="clasificarVencimiento (RN-38) &gt; cruza el fin de mes" time="0.0007394">
+        </testcase>
+        <testcase classname="src/services/__tests__/vencimientos.spec.js" name="clasificarVencimiento (RN-38) &gt; sin fecha -&gt; nada" time="0.0004639">
+        </testcase>
+        <testcase classname="src/services/__tests__/vencimientos.spec.js" name="interpretarDiasAnticipacion &gt; valor guardado válido" time="0.0009407">
+        </testcase>
+        <testcase classname="src/services/__tests__/vencimientos.spec.js" name="interpretarDiasAnticipacion &gt; vacío, ausente o corrupto -&gt; el valor por defecto" time="0.0008691">
+        </testcase>
+        <testcase classname="src/services/__tests__/vencimientos.spec.js" name="interpretarDiasSinReclamar (RN-37) &gt; valor guardado válido" time="0.000734">
+        </testcase>
+        <testcase classname="src/services/__tests__/vencimientos.spec.js" name="interpretarDiasSinReclamar (RN-37) &gt; vacío, cero, negativo o corrupto -&gt; 30" time="0.0009501">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/services/__tests__/whatsapp.spec.js" timestamp="2026-10-20T18:42:29.244Z" hostname="Pipi_2026" tests="8" failures="0" errors="0" skipped="0" time="0.0209422">
+        <testcase classname="src/services/__tests__/whatsapp.spec.js" name="whatsapp (D-03) &gt; agrega el indicativo 57 a celulares colombianos de 10 dígitos" time="0.0054694">
+        </testcase>
+        <testcase classname="src/services/__tests__/whatsapp.spec.js" name="whatsapp (D-03) &gt; arma el enlace wa.me con el texto codificado y rechaza clientes sin teléfono" time="0.0028699">
+        </testcase>
+        <testcase classname="src/services/__tests__/whatsapp.spec.js" name="whatsapp (D-03) &gt; el aviso de orden lista menciona el saldo solo si hay deuda" time="0.0016819">
+        </testcase>
+        <testcase classname="src/services/__tests__/whatsapp.spec.js" name="whatsapp (D-03) &gt; el aviso de recibido lista las prendas y la fecha prometida" time="0.0010011">
+        </testcase>
+        <testcase classname="src/services/__tests__/whatsapp.spec.js" name="recibo (RF-42, Ley 1480 art. 18) &gt; incluye cada prenda y los abonos vigentes, no los anulados" time="0.0022289">
+        </testcase>
+        <testcase classname="src/services/__tests__/whatsapp.spec.js" name="recibo (RF-42, Ley 1480 art. 18) &gt; lleva celular, dirección, garantía y condiciones del taller (ANA-H02)" time="0.0007588">
+        </testcase>
+        <testcase classname="src/services/__tests__/whatsapp.spec.js" name="recibo (RF-42, Ley 1480 art. 18) &gt; sin garantía configurada no inventa una" time="0.0006943">
+        </testcase>
+        <testcase classname="src/services/__tests__/whatsapp.spec.js" name="recibo (RF-42, Ley 1480 art. 18) &gt; sin detalle conserva el formato anterior" time="0.0005371">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/views/__tests__/AjustesView.spec.js" timestamp="2026-10-20T18:42:29.249Z" hostname="Pipi_2026" tests="3" failures="0" errors="0" skipped="0" time="0.4090696">
+        <testcase classname="src/views/__tests__/AjustesView.spec.js" name="AjustesView &gt; agrupa las opciones por secciones y deja Cerrar sesión aparte" time="0.2606824">
+            <system-err>
+No se pudo leer el permiso de notificaciones CapacitorException [Error]: Notifications not supported in this browser.
+    at LocalNotificationsWeb.unavailable (<repo>\node_modules\@capacitor\core\dist\index.cjs.js:283:16)
+    at LocalNotificationsWeb.checkPermissions (<repo>\node_modules\@capacitor\local-notifications\dist\plugin.cjs.js:129:24)
+    at <repo>\node_modules\@capacitor\core\dist\index.cjs.js:121:35
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at estadoAviso (<repo>/src/composables/useNotificacionesLocales.js:125:33)
+    at <repo>/src/views/AjustesView.vue:268:29 {
+  code: &apos;UNAVAILABLE&apos;,
+  data: undefined
+}
+
+No se pudieron leer los datos del taller Error: Database not initialized
+    at getConfig (<repo>/src/database/queries/configuracion.js:4:20)
+    at <repo>/src/views/AjustesView.vue:270:42
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/views/__tests__/AjustesView.spec.js" name="AjustesView &gt; los días se cambian con + y se guardan solos, con confirmación" time="0.0625176">
+            <system-err>
+No se pudo leer el permiso de notificaciones CapacitorException [Error]: Notifications not supported in this browser.
+    at LocalNotificationsWeb.unavailable (<repo>\node_modules\@capacitor\core\dist\index.cjs.js:283:16)
+    at LocalNotificationsWeb.checkPermissions (<repo>\node_modules\@capacitor\local-notifications\dist\plugin.cjs.js:129:24)
+    at <repo>\node_modules\@capacitor\core\dist\index.cjs.js:121:35
+    at estadoAviso (<repo>/src/composables/useNotificacionesLocales.js:125:33)
+    at <repo>/src/views/AjustesView.vue:268:29 {
+  code: &apos;UNAVAILABLE&apos;,
+  data: undefined
+}
+
+No se pudieron leer los datos del taller Error: Database not initialized
+    at getConfig (<repo>/src/database/queries/configuracion.js:4:20)
+    at <repo>/src/views/AjustesView.vue:270:42
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/views/__tests__/AjustesView.spec.js" name="AjustesView &gt; dice si Telegram está conectado" time="0.0697554">
+            <system-err>
+No se pudo leer el permiso de notificaciones CapacitorException [Error]: Notifications not supported in this browser.
+    at LocalNotificationsWeb.unavailable (<repo>\node_modules\@capacitor\core\dist\index.cjs.js:283:16)
+    at LocalNotificationsWeb.checkPermissions (<repo>\node_modules\@capacitor\local-notifications\dist\plugin.cjs.js:129:24)
+    at <repo>\node_modules\@capacitor\core\dist\index.cjs.js:121:35
+    at estadoAviso (<repo>/src/composables/useNotificacionesLocales.js:125:33)
+    at <repo>/src/views/AjustesView.vue:268:29 {
+  code: &apos;UNAVAILABLE&apos;,
+  data: undefined
+}
+
+No se pudieron leer los datos del taller Error: Database not initialized
+    at getConfig (<repo>/src/database/queries/configuracion.js:4:20)
+    at <repo>/src/views/AjustesView.vue:270:42
+
+No se pudo leer el permiso de notificaciones CapacitorException [Error]: Notifications not supported in this browser.
+    at LocalNotificationsWeb.unavailable (<repo>\node_modules\@capacitor\core\dist\index.cjs.js:283:16)
+    at LocalNotificationsWeb.checkPermissions (<repo>\node_modules\@capacitor\local-notifications\dist\plugin.cjs.js:129:24)
+    at <repo>\node_modules\@capacitor\core\dist\index.cjs.js:121:35
+    at estadoAviso (<repo>/src/composables/useNotificacionesLocales.js:125:33)
+    at <repo>/src/views/AjustesView.vue:268:29 {
+  code: &apos;UNAVAILABLE&apos;,
+  data: undefined
+}
+
+No se pudieron leer los datos del taller Error: Database not initialized
+    at getConfig (<repo>/src/database/queries/configuracion.js:4:20)
+    at <repo>/src/views/AjustesView.vue:270:42
+
+            </system-err>
+        </testcase>
+    </testsuite>
+    <testsuite name="src/views/__tests__/AyudaView.spec.js" timestamp="2026-10-20T18:42:29.253Z" hostname="Pipi_2026" tests="3" failures="0" errors="0" skipped="0" time="0.2840691">
+        <testcase classname="src/views/__tests__/AyudaView.spec.js" name="AyudaView · cada tarjeta arranca su tutorial una sola vez &gt; cada tarjeta es un botón de verdad: el teclado y los lectores de pantalla la entienden" time="0.2147475">
+        </testcase>
+        <testcase classname="src/views/__tests__/AyudaView.spec.js" name="AyudaView · cada tarjeta arranca su tutorial una sola vez &gt; no hay un botón dentro de otro" time="0.033226">
+        </testcase>
+        <testcase classname="src/views/__tests__/AyudaView.spec.js" name="AyudaView · cada tarjeta arranca su tutorial una sola vez &gt; tocar una tarjeta arranca su tutorial una vez" time="0.0312521">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/views/__tests__/DashboardView.spec.js" timestamp="2026-10-20T18:42:29.256Z" hostname="Pipi_2026" tests="11" failures="0" errors="0" skipped="0" time="0.4755084">
+        <testcase classname="src/views/__tests__/DashboardView.spec.js" name="DashboardView · qué hacer hoy &gt; abre con la fecha de hoy" time="0.1817966">
+        </testcase>
+        <testcase classname="src/views/__tests__/DashboardView.spec.js" name="DashboardView · qué hacer hoy &gt; ordena por urgencia: atrasadas, para entregar pronto y listas esperando al cliente" time="0.0363692">
+        </testcase>
+        <testcase classname="src/views/__tests__/DashboardView.spec.js" name="DashboardView · qué hacer hoy &gt; las fechas se leen como &quot;Mañana&quot; o &quot;16 sep&quot;, sin correrse por la zona horaria" time="0.0198988">
+        </testcase>
+        <testcase classname="src/views/__tests__/DashboardView.spec.js" name="DashboardView · qué hacer hoy &gt; P1-13: cada estado se pinta con su propio color" time="0.0232897">
+        </testcase>
+        <testcase classname="src/views/__tests__/DashboardView.spec.js" name="DashboardView · qué hacer hoy &gt; muestra lo que hay por cobrar con separador de miles" time="0.0547956">
+        </testcase>
+        <testcase classname="src/views/__tests__/DashboardView.spec.js" name="DashboardView · qué hacer hoy &gt; HU-36: lo que hay por cobrar lleva a la lista de órdenes por cobrar" time="0.0388758">
+        </testcase>
+        <testcase classname="src/views/__tests__/DashboardView.spec.js" name="DashboardView · qué hacer hoy &gt; el recordatorio a clientes está junto a las órdenes listas" time="0.0240048">
+        </testcase>
+        <testcase classname="src/views/__tests__/DashboardView.spec.js" name="DashboardView · recordatorios por Telegram (DEF-12, RF-40) &gt; el botón no llama clientes a las órdenes: dice que prepara la lista" time="0.0163731">
+        </testcase>
+        <testcase classname="src/views/__tests__/DashboardView.spec.js" name="DashboardView · recordatorios por Telegram (DEF-12, RF-40) &gt; al terminar dice cuántas órdenes van en la lista y que falta enviar cada WhatsApp" time="0.0373011">
+        </testcase>
+        <testcase classname="src/views/__tests__/DashboardView.spec.js" name="DashboardView · recordatorios por Telegram (DEF-12, RF-40) &gt; con una sola orden lo dice en singular" time="0.0123593">
+        </testcase>
+        <testcase classname="src/views/__tests__/DashboardView.spec.js" name="DashboardView · recordatorios por Telegram (DEF-12, RF-40) &gt; si hoy ya se mandaron todas, no dice que se le recordó a nadie" time="0.0111831">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/views/__tests__/formulariosContrasena.spec.js" timestamp="2026-10-20T18:42:29.263Z" hostname="Pipi_2026" tests="5" failures="0" errors="0" skipped="0" time="0.2581021">
+        <testcase classname="src/views/__tests__/formulariosContrasena.spec.js" name="Formularios de contraseña con su campo de usuario (DEF-09) &gt; la pantalla de bloqueo dice de qué cuenta es la clave" time="0.1681184">
+        </testcase>
+        <testcase classname="src/views/__tests__/formulariosContrasena.spec.js" name="Formularios de contraseña con su campo de usuario (DEF-09) &gt; el cambio de clave dice de qué cuenta es la clave" time="0.0225201">
+        </testcase>
+        <testcase classname="src/views/__tests__/formulariosContrasena.spec.js" name="Formularios de contraseña con su campo de usuario (DEF-09) &gt; el campo no estorba: no se ve ni recibe el foco con Tab" time="0.0169096">
+        </testcase>
+        <testcase classname="src/views/__tests__/formulariosContrasena.spec.js" name="Formularios de contraseña con su campo de usuario (DEF-09) &gt; en bloqueo, el campo de usuario tiene su etiqueta asociada" time="0.0235652">
+        </testcase>
+        <testcase classname="src/views/__tests__/formulariosContrasena.spec.js" name="Formularios de contraseña con su campo de usuario (DEF-09) &gt; en cambio de clave, el campo de usuario tiene su etiqueta asociada" time="0.0218539">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/views/__tests__/OrdenDetailView.aviso.spec.js" timestamp="2026-10-20T18:42:29.267Z" hostname="Pipi_2026" tests="15" failures="0" errors="0" skipped="0" time="8.6332971">
+        <testcase classname="src/views/__tests__/OrdenDetailView.aviso.spec.js" name="OrdenDetailView · cabecera &gt; muestra saldo y total con separador de miles, y el estado de pago sin confundirlo con el de la orden" time="0.7838373">
+        </testcase>
+        <testcase classname="src/views/__tests__/OrdenDetailView.aviso.spec.js" name="OrdenDetailView · cabecera &gt; la fecha de entrega sale en rojo sólo si la orden está atrasada" time="0.55817">
+        </testcase>
+        <testcase classname="src/views/__tests__/OrdenDetailView.aviso.spec.js" name="OrdenDetailView · cabecera &gt; mientras quedan prendas por terminar abre en Prendas" time="0.1987744">
+        </testcase>
+        <testcase classname="src/views/__tests__/OrdenDetailView.aviso.spec.js" name="OrdenDetailView · aviso al quedar la orden Lista para Entregar &gt; con una sola prenda, al terminarla ofrece el aviso" time="0.4375036">
+        </testcase>
+        <testcase classname="src/views/__tests__/OrdenDetailView.aviso.spec.js" name="OrdenDetailView · aviso al quedar la orden Lista para Entregar &gt; con dos prendas, terminar la primera no lo ofrece y terminar la segunda sí" time="0.6083791">
+        </testcase>
+        <testcase classname="src/views/__tests__/OrdenDetailView.aviso.spec.js" name="OrdenDetailView · entregar prenda por prenda con deuda (RN-30, D-11, DEF-04) &gt; entregar una prenda con saldo pide confirmación mostrando lo que se debe, y sin confirmar no la entrega" time="0.7076439">
+        </testcase>
+        <testcase classname="src/views/__tests__/OrdenDetailView.aviso.spec.js" name="OrdenDetailView · entregar prenda por prenda con deuda (RN-30, D-11, DEF-04) &gt; al confirmar la entrega; la última prenda también advierte antes de cerrar la orden con deuda" time="0.9428258">
+        </testcase>
+        <testcase classname="src/views/__tests__/OrdenDetailView.aviso.spec.js" name="OrdenDetailView · entregar prenda por prenda con deuda (RN-30, D-11, DEF-04) &gt; sin saldo pendiente entrega directo, sin preguntar" time="0.9779344">
+        </testcase>
+        <testcase classname="src/views/__tests__/OrdenDetailView.aviso.spec.js" name="OrdenDetailView · tomar una foto (RNF-05, DEF-05) &gt; si la modista cancela la cámara, no se anuncia ninguna foto guardada" time="0.3395177">
+        </testcase>
+        <testcase classname="src/views/__tests__/OrdenDetailView.aviso.spec.js" name="OrdenDetailView · tomar una foto (RNF-05, DEF-05) &gt; con una foto real, la guarda y lo anuncia una sola vez" time="0.3556763">
+        </testcase>
+        <testcase classname="src/views/__tests__/OrdenDetailView.aviso.spec.js" name="OrdenDetailView · tomar una foto (RNF-05, DEF-05) &gt; si la cámara falla de verdad, el error se muestra una sola vez y no se anuncia éxito" time="0.3531764">
+        </testcase>
+        <testcase classname="src/views/__tests__/OrdenDetailView.aviso.spec.js" name="OrdenDetailView · eliminar una foto (RF-32, RN-40, DEF-06) &gt; borra la fila y también el archivo del teléfono, sin tocar la prenda" time="0.38657">
+        </testcase>
+        <testcase classname="src/views/__tests__/OrdenDetailView.aviso.spec.js" name="OrdenDetailView · eliminar y anular sin deslizar (DEF-08) &gt; cada prenda tiene un botón Eliminar que abre la misma confirmación que el gesto" time="0.4832565">
+        </testcase>
+        <testcase classname="src/views/__tests__/OrdenDetailView.aviso.spec.js" name="OrdenDetailView · eliminar y anular sin deslizar (DEF-08) &gt; cada pago vigente tiene un botón Anular que abre la misma confirmación que el gesto" time="0.5145858">
+        </testcase>
+        <testcase classname="src/views/__tests__/OrdenDetailView.aviso.spec.js" name="OrdenDetailView · eliminar y anular sin deslizar (DEF-08) &gt; un pago ya anulado no ofrece anularlo otra vez" time="0.9064311">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/views/__tests__/OrdenesView.spec.js" timestamp="2026-10-20T18:42:29.276Z" hostname="Pipi_2026" tests="4" failures="0" errors="0" skipped="0" time="0.4028732">
+        <testcase classname="src/views/__tests__/OrdenesView.spec.js" name="OrdenesView · órdenes por cobrar (HU-36, P1-12) &gt; CP-75: muestra sólo las que deben, con cliente y saldo, de mayor a menor, y el total" time="0.2214589">
+        </testcase>
+        <testcase classname="src/views/__tests__/OrdenesView.spec.js" name="OrdenesView · órdenes por cobrar (HU-36, P1-12) &gt; el panel abre directamente esta pestaña con ?tab=por-cobrar" time="0.0504304">
+        </testcase>
+        <testcase classname="src/views/__tests__/OrdenesView.spec.js" name="OrdenesView · órdenes por cobrar (HU-36, P1-12) &gt; CP-76: sin órdenes con deuda lo dice, sin total" time="0.0229682">
+        </testcase>
+        <testcase classname="src/views/__tests__/OrdenesView.spec.js" name="OrdenesView · órdenes por cobrar (HU-36, P1-12) &gt; la pestaña Activas no cambia" time="0.1026076">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/views/__tests__/ReportesView.spec.js" timestamp="2026-10-20T18:42:29.279Z" hostname="Pipi_2026" tests="4" failures="0" errors="0" skipped="0" time="0.2234125">
+        <testcase classname="src/views/__tests__/ReportesView.spec.js" name="ReportesView.vue &gt; should show toast if dates are empty on submit" time="0.1318886">
+        </testcase>
+        <testcase classname="src/views/__tests__/ReportesView.spec.js" name="ReportesView.vue &gt; should show toast if start date is greater than end date" time="0.0242548">
+        </testcase>
+        <testcase classname="src/views/__tests__/ReportesView.spec.js" name="ReportesView.vue &gt; should show toast if generating report fails" time="0.0374276">
+            <system-err>
+Error: DB Error
+    at <repo>/src/views/__tests__/ReportesView.spec.js:74:63
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithCancel (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (&lt;anonymous&gt;)
+    at runWithTimeout (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64
+
+            </system-err>
+        </testcase>
+        <testcase classname="src/views/__tests__/ReportesView.spec.js" name="ReportesView.vue &gt; should not contain any alert calls" time="0.024178">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/common/__tests__/StatusBadge.spec.js" timestamp="2026-10-20T18:42:29.282Z" hostname="Pipi_2026" tests="1" failures="0" errors="0" skipped="0" time="0.1629893">
+        <testcase classname="src/components/common/__tests__/StatusBadge.spec.js" name="StatusBadge.vue &gt; renders correctly with default props" time="0.1580582">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/common/__tests__/SwipeItem.spec.js" timestamp="2026-10-20T18:42:29.284Z" hostname="Pipi_2026" tests="5" failures="0" errors="0" skipped="0" time="0.8512829">
+        <testcase classname="src/components/common/__tests__/SwipeItem.spec.js" name="SwipeItem &gt; en reposo el botón de eliminar no se ve detrás de la tarjeta" time="0.6504901">
+        </testcase>
+        <testcase classname="src/components/common/__tests__/SwipeItem.spec.js" name="SwipeItem &gt; al deslizar a la izquierda aparece y al tocarlo emite delete" time="0.0663822">
+        </testcase>
+        <testcase classname="src/components/common/__tests__/SwipeItem.spec.js" name="SwipeItem &gt; deshabilitado no tiene acción" time="0.0065733">
+        </testcase>
+        <testcase classname="src/components/common/__tests__/SwipeItem.spec.js" name="SwipeItem · la acción sin deslizar (DEF-08) &gt; el contenido recibe la acción, para mostrarla en un botón que sirve con ratón y teclado" time="0.1121559">
+        </testcase>
+        <testcase classname="src/components/common/__tests__/SwipeItem.spec.js" name="SwipeItem · la acción sin deslizar (DEF-08) &gt; deshabilitado, el contenido sabe que no hay acción" time="0.0071989">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/prendas/__tests__/PrendaCard.spec.js" timestamp="2026-10-20T18:42:29.287Z" hostname="Pipi_2026" tests="8" failures="0" errors="0" skipped="0" time="0.3953179">
+        <testcase classname="src/components/prendas/__tests__/PrendaCard.spec.js" name="PrendaCard · estados a la vista &gt; muestra los cuatro estados y marca el actual" time="0.1680819">
+        </testcase>
+        <testcase classname="src/components/prendas/__tests__/PrendaCard.spec.js" name="PrendaCard · estados a la vista &gt; tocar otro estado lo pide, sin marcarlo hasta que la lista se recargue (P1-14)" time="0.0508284">
+        </testcase>
+        <testcase classname="src/components/prendas/__tests__/PrendaCard.spec.js" name="PrendaCard · estados a la vista &gt; tocar el estado actual no pide nada" time="0.0208923">
+        </testcase>
+        <testcase classname="src/components/prendas/__tests__/PrendaCard.spec.js" name="PrendaCard · estados a la vista &gt; CP-18: Entregada está apagada mientras la prenda no esté terminada" time="0.0625192">
+        </testcase>
+        <testcase classname="src/components/prendas/__tests__/PrendaCard.spec.js" name="PrendaCard · estados a la vista &gt; en una orden cerrada no se cambia nada ni se edita" time="0.0180609">
+        </testcase>
+        <testcase classname="src/components/prendas/__tests__/PrendaCard.spec.js" name="PrendaCard · acciones con nombre &gt; Fotos y Notas muestran cuántas hay" time="0.0118087">
+        </testcase>
+        <testcase classname="src/components/prendas/__tests__/PrendaCard.spec.js" name="PrendaCard · acciones con nombre &gt; abrir Fotos ofrece tomar una" time="0.034861">
+        </testcase>
+        <testcase classname="src/components/prendas/__tests__/PrendaCard.spec.js" name="PrendaCard · acciones con nombre &gt; abrir Notas ofrece añadir una" time="0.0218561">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/ordenes/__tests__/TimelineProgressBar.spec.js" timestamp="2026-10-20T18:42:29.292Z" hostname="Pipi_2026" tests="3" failures="0" errors="0" skipped="0" time="0.170025">
+        <testcase classname="src/components/ordenes/__tests__/TimelineProgressBar.spec.js" name="TimelineProgressBar &gt; usa los mismos nombres que los estados de la orden" time="0.1410428">
+        </testcase>
+        <testcase classname="src/components/ordenes/__tests__/TimelineProgressBar.spec.js" name="TimelineProgressBar &gt; marca como activo sólo el paso actual, y como completados los anteriores" time="0.0194368">
+        </testcase>
+        <testcase classname="src/components/ordenes/__tests__/TimelineProgressBar.spec.js" name="TimelineProgressBar &gt; no se muestra en una orden cancelada" time="0.0043122">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/database/queries/__tests__/ordenes.spec.js" timestamp="2026-10-20T18:42:29.295Z" hostname="Pipi_2026" tests="7" failures="0" errors="0" skipped="0" time="0.0899835">
+        <testcase classname="src/database/queries/__tests__/ordenes.spec.js" name="Ordenes Queries Transactions &gt; createOrden &gt; should successfully use explicit transaction and return run lastId" time="0.0111619">
+        </testcase>
+        <testcase classname="src/database/queries/__tests__/ordenes.spec.js" name="Ordenes Queries Transactions &gt; createOrden &gt; should rollback and bubble up error if run fails" time="0.0046308">
+        </testcase>
+        <testcase classname="src/database/queries/__tests__/ordenes.spec.js" name="Ordenes Queries Transactions &gt; createOrden &gt; should rollback and bubble up error if executeSet fails" time="0.0508826">
+        </testcase>
+        <testcase classname="src/database/queries/__tests__/ordenes.spec.js" name="Ordenes Queries Transactions &gt; createOrden &gt; should NOT rollback if saveDb fails (transaction already committed), and bubble up error" time="0.0015057">
+        </testcase>
+        <testcase classname="src/database/queries/__tests__/ordenes.spec.js" name="Ordenes Queries Transactions &gt; changeEstado &gt; should executeSet with 2 queries for normal state change" time="0.0150528">
+        </testcase>
+        <testcase classname="src/database/queries/__tests__/ordenes.spec.js" name="Ordenes Queries Transactions &gt; changeEstado &gt; should executeSet with 3 queries for Entregada state change (updates prendas)" time="0.000897">
+        </testcase>
+        <testcase classname="src/database/queries/__tests__/ordenes.spec.js" name="Ordenes Queries Transactions &gt; changeEstado &gt; should bubble up error and rollback entirely if executeSet fails" time="0.0007495">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/database/queries/__tests__/pagos.spec.js" timestamp="2026-10-20T18:42:29.299Z" hostname="Pipi_2026" tests="3" failures="0" errors="0" skipped="0" time="0.0222483">
+        <testcase classname="src/database/queries/__tests__/pagos.spec.js" name="Pagos Queries Transactions &gt; should successfully executeSet and return lastId" time="0.0120722">
+        </testcase>
+        <testcase classname="src/database/queries/__tests__/pagos.spec.js" name="Pagos Queries Transactions &gt; traduce el rechazo de la base a un mensaje para la dueña" time="0.004342">
+        </testcase>
+        <testcase classname="src/database/queries/__tests__/pagos.spec.js" name="Pagos Queries Transactions &gt; should bubble up error if executeSet fails" time="0.0010714">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/database/queries/__tests__/prendas.spec.js" timestamp="2026-10-20T18:42:29.302Z" hostname="Pipi_2026" tests="8" failures="0" errors="0" skipped="0" time="0.052667">
+        <testcase classname="src/database/queries/__tests__/prendas.spec.js" name="Prendas Queries Transactions &gt; createPrenda &gt; should successfully executeSet and return lastId on createPrenda" time="0.0123975">
+        </testcase>
+        <testcase classname="src/database/queries/__tests__/prendas.spec.js" name="Prendas Queries Transactions &gt; createPrenda &gt; should bubble up error and rollback on failure in createPrenda" time="0.0101287">
+        </testcase>
+        <testcase classname="src/database/queries/__tests__/prendas.spec.js" name="Prendas Queries Transactions &gt; updateEstadoPrenda &gt; should executeSet with 2 statements when the order state does not change" time="0.0023638">
+        </testcase>
+        <testcase classname="src/database/queries/__tests__/prendas.spec.js" name="Prendas Queries Transactions &gt; updateEstadoPrenda &gt; RN-17: una orden Pendiente con trabajo en curso pasa a En Proceso" time="0.0114364">
+        </testcase>
+        <testcase classname="src/database/queries/__tests__/prendas.spec.js" name="Prendas Queries Transactions &gt; updateEstadoPrenda &gt; should executeSet with 5 statements if auto-transition to Terminada happens" time="0.0029387">
+        </testcase>
+        <testcase classname="src/database/queries/__tests__/prendas.spec.js" name="Prendas Queries Transactions &gt; updateEstadoPrenda &gt; should bubble up error and rollback entirely if executeSet fails" time="0.001452">
+        </testcase>
+        <testcase classname="src/database/queries/__tests__/prendas.spec.js" name="Prendas Queries Transactions &gt; updatePrenda &gt; recalcula la orden desde sus filas en lugar de sumar una diferencia" time="0.0018518">
+        </testcase>
+        <testcase classname="src/database/queries/__tests__/prendas.spec.js" name="Prendas Queries Transactions &gt; updatePrenda &gt; should bubble up error if executeSet fails" time="0.0014995">
+        </testcase>
+    </testsuite>
+</testsuites>

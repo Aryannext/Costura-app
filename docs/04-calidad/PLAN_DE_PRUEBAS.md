@@ -2,13 +2,17 @@
 
 Qué se prueba, cómo se prueba y qué falta probar.
 
-> **Revisado:** 14 de octubre de 2026
+> **Revisado:** 20 de octubre de 2026
 
 Documentos de la guía SENA *Aplicación de pruebas de software*, ejecutados el 14 de octubre:
 - [Casos de prueba](CASOS_DE_PRUEBA.md): 28 casos con identificador, descripción, orden, requerimiento, pre y postcondición y resultado esperado.
 - [Informe de resultados](INFORME_DE_RESULTADOS.md): 23 ejecutados, 20 exitosos, 3 fallidos y 5 bloqueados.
 - [Reporte de defectos](REPORTE_DE_DEFECTOS.md): 12 defectos con su ciclo de vida.
 - [Plan de mejora](PLAN_DE_MEJORA.md): causas, objetivos, acciones y seguimiento hasta la entrega.
+
+Regresión del 20 de octubre, en la web publicada y en el APK:
+- [Ejecución](EJECUCION_2026-10-20.md): calendario, entorno, registro por caso y plataforma, e incidencias INC-01 a INC-08.
+- [Informe de resultados](INFORME_DE_RESULTADOS_2026-10-20.md): 32 casos, 27 ejecutados, 26 exitosos, 1 fallido y 5 bloqueados; 13 defectos cerrados y 2 nuevos.
 
 ---
 
@@ -21,6 +25,7 @@ Documentos de la guía SENA *Aplicación de pruebas de software*, ejecutados el 
 | Seguridad | `npm audit --omit=dev --audit-level=high` en la CI; cabeceras HTTP; OWASP ZAP pendiente | Vulnerabilidades publicadas de las dependencias y cabeceras de la versión web | La auditoría en cada cambio, en GitHub Actions; las cabeceras antes de cada entrega |
 | Documentación | Vitest (`documentacion.spec.js`) | Que diagramas, módulos, rutas y enlaces coincidan con el código | En cada cambio, en GitHub Actions |
 | De punta a punta | Playwright | Tres recorridos completos en el navegador: crear clienta y orden, el flujo completo de una orden y que los datos sobrevivan a una recarga | A mano antes de cada entrega |
+| APK en el emulador | Playwright conectado al WebView del APK debug por CDP, y `adb` | Los mismos pasos en Android con SQLite nativo, tiempos de RNF-01 a RNF-03, arranque, persistencia, bloqueo, cámara y fotos ([scripts](evidencias/2026-10-20/scripts/)) | A mano antes de cada entrega |
 | Calidad estática | SonarCloud | Confiabilidad y seguridad del código nuevo | En cada pull request |
 | Versión web | `curl` en GitHub Actions | La imagen Docker responde, las rutas profundas cargan y los encabezados de seguridad están | En cada cambio |
 | Aceptación | La dueña, en su teléfono | Que la app sirva en el taller real (sección 3) | Antes de la entrega |
@@ -71,12 +76,12 @@ Las respuestas van a [DECISIONES.md](../05-gestion/DECISIONES.md) si cambian alg
 
 | Qué | Por qué no se ha probado | Requisito |
 | --- | --- | --- |
-| Cámara, huella y aviso de las 8:00 en el teléfono de la dueña | Solo se probaron en el emulador de Android | P-06 |
-| Tiempos de respuesta con 500 órdenes en el teléfono | La base ya se midió con 500 órdenes en el PC (milisegundos, CPV-17); falta el teléfono real | RNF-01, RNF-02, RNF-03 |
+| Huella y aviso de las 8:00 en el teléfono de la dueña | La cámara se probó en el emulador el 20 oct (CPV-28, CPV-30); la huella y el aviso necesitan un teléfono real | P-06 |
+| Tiempos de respuesta con 500 órdenes en el teléfono | La base se midió con 500 órdenes en el PC (CPV-17) y la app en el emulador (CPV-29): cumplen. Falta el teléfono real | RNF-01, RNF-02, RNF-03 |
 | Restaurar una copia con fotos en otro teléfono | Se probó en el emulador | RNF-18 |
 | Prueba de aceptación de la sección 3 | Pendiente de hacer con la dueña | Todo el SRS |
 | Usabilidad con la dueña | Protocolo listo, sin aplicar | RNF-04, RNF-16 |
 | Escaneo con OWASP ZAP y carga con JMeter | Falta instalar las herramientas y autorización para el VPS compartido | CPV-23, CPV-24 |
-| Chrome y Firefox | Las pruebas de punta a punta solo corren en Edge | RNF-15 |
+| Chrome y Firefox | Las pruebas de punta a punta corren en Edge, y el APK en el WebView de Android. Chromium de escritorio no arranca en el PC de pruebas (INC-03) | RNF-15 |
 
 Los informes de auditoría anteriores, con los fallos encontrados y cómo se corrigieron, están en [historico/](historico/).
