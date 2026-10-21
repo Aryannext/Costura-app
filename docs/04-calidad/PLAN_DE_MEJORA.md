@@ -163,7 +163,7 @@ Estructura de la guía (figura 18). La columna *Estado* se actualiza cada día h
 | A10 | Cristian | 20 oct | 20 oct | ZAP, JMeter, Java 21 | CPV-23 y CPV-24 con sus informes en `evidencias/` | Pendiente |
 | A11 | Cristian | 20 oct | 21 oct | PC | Criterios de cierre de H09, H10, H12, H13 y H15 cumplidos; prueba documental en verde | Pendiente |
 | A12 | Cristian | 22 oct | 22 oct | PC, teléfono | Informe de resultados nuevo, sin casos fallidos abiertos sin plan | **Hecho** el 20 oct, antes de la fecha: [informe del 20 oct](INFORME_DE_RESULTADOS_2026-10-20.md), en la web publicada y en el APK del emulador. 13 defectos *Cerrado*. El único caso fallido, CPV-31, tiene plan en A13. Lo del teléfono real sigue en A8 |
-| A13 | Cristian | 20 oct | 21 oct | PC, emulador | DEF-15 y DEF-16 *Verificado*; CPV-31 exitoso con la app en `es-CO` | Pendiente |
+| A13 | Cristian | 20 oct | 21 oct | PC, emulador | DEF-15 y DEF-16 *Verificado*; CPV-31 exitoso con la app en `es-CO` | **Hecho** el 21 oct: DEF-15 y DEF-16 *Verificado*, y CPV-31 exitoso en el APK y en la web |
 | A14 | Cristian | 21 oct | 21 oct | PC | Las 3 pruebas de punta a punta pasan 5 veces seguidas con el emulador encendido | Pendiente |
 
 **Cómo se hace el seguimiento:**

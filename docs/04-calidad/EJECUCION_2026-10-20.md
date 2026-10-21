@@ -122,4 +122,5 @@ Ciclo de vida: Nuevo → Abierto → Asignado → Diferido / Reabierto → Verif
 | INC-01 | 20 oct | Nuevo | Diferido | Se descartó un fallo de la app: el error «cannot start a transaction within a transaction» del registro viene de `orden-creation.spec.js`, que lo provoca a propósito |
 | INC-02 | 20 oct | Nuevo | Diferido | Causa leída en `OrdenDetailView.vue` (`onMounted` abre *Prendas* si la orden está pendiente o en proceso) |
 | INC-04, INC-05 | 20 oct | Nuevo | Nuevo | Pasan al reporte de defectos. Sin corregir: probar y corregir son trabajos distintos |
+| INC-04, INC-05 | 21 oct | Nuevo | Verificado | DEF-15 y DEF-16 corregidos (acción A13) y CPV-31 exitoso en la reprueba ([informe, sección 5](INFORME_DE_RESULTADOS_2026-10-20.md#5-repruebas)) |
 | INC-07, INC-08 | 20 oct | Nuevo | Cerrado | No son defectos |

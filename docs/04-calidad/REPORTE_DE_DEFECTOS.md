@@ -2,7 +2,7 @@
 
 Un reporte por defecto, con la estructura de la guía SENA *Aplicación de pruebas de software* (sección 1.3): identificador, título, reportado por, asignado a, fecha de creación, severidad, aplicación, descripción, método de reproducción e información adicional. Cada uno tiene su estado en el ciclo de vida de una incidencia.
 
-> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado el 15 de octubre (DEF-03 verificado en producción, y DEF-13 y DEF-14 corregidos) y el 20 de octubre: regresión en la web y el APK, 13 defectos cerrados y DEF-15 y DEF-16 nuevos · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
+> **Aplicación:** Atelier Manager (Costura App) 1.2.0 · **Corte:** 14 de octubre de 2026, actualizado el 15 de octubre (DEF-03 verificado en producción, y DEF-13 y DEF-14 corregidos) el 20 de octubre (regresión en la web y el APK: 13 defectos cerrados y DEF-15 y DEF-16 nuevos) y el 21 de octubre: DEF-15 y DEF-16 corregidos · **Casos de prueba:** [CASOS_DE_PRUEBA](CASOS_DE_PRUEBA.md) · **Resultados:** [INFORME_DE_RESULTADOS](INFORME_DE_RESULTADOS.md)
 
 ---
 
@@ -51,10 +51,10 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | [DEF-12](#def-12) | «Recordar a N clientes» cuenta órdenes, no clientas | Baja | Cerrado | — | Revisión del 8 oct, H18 |
 | [DEF-13](#def-13) | En la versión web, «Tomar foto» abre un menú vacío | Media | Cerrado | — | Pruebas del 15 oct (CSP) |
 | [DEF-14](#def-14) | En la versión web, la foto guardada no se ve | Media | Cerrado | — | Verificación de DEF-13, 15 oct |
-| [DEF-15](#def-15) | El menú de la cámara está en inglés | Baja | Nuevo | CPV-31 | Regresión del 20 oct |
-| [DEF-16](#def-16) | La confirmación para borrar una foto está en inglés | Baja | Nuevo | CPV-31 | Regresión del 20 oct |
+| [DEF-15](#def-15) | El menú de la cámara está en inglés | Baja | Verificado | CPV-31 | Regresión del 20 oct |
+| [DEF-16](#def-16) | La confirmación para borrar una foto está en inglés | Baja | Verificado | CPV-31 | Regresión del 20 oct |
 
-**Por severidad:** 1 crítica, 1 alta, 8 medias y 6 bajas. **Por estado:** 13 cerrados, 1 abierto (DEF-07) y 2 nuevos (DEF-15 y DEF-16). Los 13 se cerraron en la regresión del 20 de octubre (acción A12 del plan de mejora): sus pruebas pasaron sobre el commit publicado, en la web y en el APK ([ejecución del 20 oct](EJECUCION_2026-10-20.md)).
+**Por severidad:** 1 crítica, 1 alta, 8 medias y 6 bajas. **Por estado:** 13 cerrados, 2 verificados (DEF-15 y DEF-16, corregidos el 21 de octubre) y 1 abierto (DEF-07). Los 13 se cerraron en la regresión del 20 de octubre (acción A12 del plan de mejora): sus pruebas pasaron sobre el commit publicado, en la web y en el APK ([ejecución del 20 oct](EJECUCION_2026-10-20.md)).
 
 ## 3. Reportes
 
@@ -363,11 +363,13 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 20 de octubre de 2026 |
 | Severidad | Baja |
-| Estado | Nuevo |
+| Estado | Verificado |
 | Aplicación | Atelier Manager 1.2.0 (`6a09fd3`), APK y versión web |
 | Descripción | Al tocar *Tomar foto*, el menú dice «Photo», «From Photos» y «Take Picture». Toda la app está en español y la usuaria es una modista en Colombia. El SRS no tiene un requisito de idioma: el requisito se deriva de la interfaz y de quién la usa. `usePrendas.js` llama a `Camera.getPhoto` con `CameraSource.Prompt` y sin `promptLabelHeader`, `promptLabelPhoto`, `promptLabelPicture` ni `promptLabelCancel`. El plugin pone por defecto los textos en inglés (`LegacyCameraFlow.java`, líneas 148 a 152) |
 | Método de reproducción | 1. En el APK, una prenda → *Fotos* → *Tomar foto*. Esperado: opciones en español. Obtenido: «Photo / From Photos / Take Picture» |
 | Información adicional | **Configuración:** pasa igual con el teléfono en inglés y con la app en español de Colombia (`cmd locale set-app-locales com.costura.app --locales es-CO`), porque los textos no salen del idioma del teléfono. En la web, el menú de `@ionic/pwa-elements` muestra los mismos textos: el registro de DEF-13 del 15 oct ya los anotó. **Datos y orden:** no influyen. **Impacto:** la modista tiene que adivinar cuál opción abre la cámara; no se pierden datos. Capturas: `evidencias/2026-10-20/capturas/apk-07` y `apk-08` |
+| Corrección | 21 oct: `takePhoto` (`usePrendas.js`) pasa `promptLabelHeader` «Foto de la prenda», `promptLabelPhoto` «Elegir de la galería», `promptLabelPicture` «Tomar foto» y `promptLabelCancel` «Cancelar». Capacitor y PWA Elements usan esos textos |
+| Verificación | 21 oct. Una prueba nueva en `OrdenDetailView.aviso.spec.js` comprueba las cuatro etiquetas; fallaba antes del cambio. En el APK recompilado, en el emulador con la app en `es-CO`, el menú dice «Foto de la prenda / Elegir de la galería / Tomar foto». En la compilación web de producción con la CSP real, PWA Elements muestra los mismos textos y el recorrido da 0 violaciones. Evidencias en `evidencias/2026-10-21/` |
 
 <a id="def-16"></a>
 
@@ -381,11 +383,13 @@ Los estados son los de la guía (figura 11). *Reabierto* significa, como en la g
 | Asignado a | Cristian Cantillo Mejía |
 | Fecha de creación | 20 de octubre de 2026 |
 | Severidad | Baja |
-| Estado | Nuevo |
+| Estado | Verificado |
 | Aplicación | Atelier Manager 1.2.0 (`6a09fd3`), APK |
 | Descripción | Para borrar una foto, `onDeleteFoto` (`PrendaCard.vue:217`) usa el `confirm()` del navegador. En el APK, Capacitor lo dibuja con los botones fijos «OK» y «Cancel» (`BridgeWebChromeClient.java`), aunque la pregunta esté en español. El resto de la app confirma con su propio modal, en español. Es el único `confirm()`, `alert()` o `prompt()` de `src/`. Requisito derivado, como en DEF-15 |
 | Método de reproducción | 1. En el APK, abrir *Fotos* de una prenda con foto. 2. Tocar la × de la miniatura. Esperado: botones en español, como en los demás avisos. Obtenido: «¿Estás seguro de eliminar esta fotografía?» con «CANCEL» y «OK» |
 | Información adicional | **Configuración:** igual con la app en `es-CO`, porque Capacitor no traduce esos botones. En el navegador los botones los pone el navegador, en su idioma. **Datos y orden:** no influyen. **Impacto:** ninguno en los datos; la foto solo se borra con «OK». Captura: `evidencias/2026-10-20/capturas/apk-11-confirm-ingles-con-app-en-es-CO.png` |
+| Corrección | 21 oct: `OrdenDetailView` entrega su `requestConfirm` con `provide('pedirConfirmacion')`, y `PrendaCard` lo usa en lugar de `confirm()`: «¿Eliminar esta foto? No se puede recuperar.», con «Cancelar» y «Sí, eliminar». Ya no queda ningún `confirm()`, `alert()` ni `prompt()` en `src/` |
+| Verificación | 21 oct. Tres pruebas en `OrdenDetailView.aviso.spec.js`, que fallaban antes del cambio: no se llama a `window.confirm` y el modal está en español; al confirmar se borran la fila y el archivo; al cancelar la foto se queda. En el APK recompilado: el modal de la app aparece en español y, al confirmar, desaparecen la miniatura y `prenda_….jpeg` de `files/`. Evidencias en `evidencias/2026-10-21/` |
 
 ## 4. Otras incidencias abiertas
 

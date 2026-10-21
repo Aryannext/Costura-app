@@ -132,3 +132,11 @@ El detalle de cada uno está en el [reporte de defectos](REPORTE_DE_DEFECTOS.md)
    - **Seguridad y carga sin escaneo** (ZAP y JMeter).
    - **Navegadores:** Chrome y Firefox de escritorio siguen sin probarse.
 6. **Las pruebas de punta a punta fallan cuando el PC está cargado** (INC-01, INC-02), aunque la app esté bien. Una falsa alarma en la CI hace perder tiempo, y la acción A14 las vuelve más robustas.
+
+## 5. Repruebas
+
+Casos que se repitieron después de corregir sus defectos. El resumen de la sección 2 no cambia: describe la ejecución del 20 de octubre.
+
+| Fecha | Caso | Versión | Resultado | Defectos |
+| --- | --- | --- | --- | --- |
+| 21 oct | CPV-31, con la app en `es-CO` | Rama `textos-sistema-es` (APK recompilado y compilación web de producción) | Exitoso: el menú de la cámara dice «Foto de la prenda / Elegir de la galería / Tomar foto» en el APK y en la web; borrar una foto pregunta con el modal de la app («Cancelar / Sí, eliminar») y, al confirmar, se borra el archivo. Recorrido con la CSP real: 0 violaciones. 434 de 434 pruebas unitarias | DEF-15 y DEF-16 → *Verificado* ([evidencias](evidencias/2026-10-21/)) |
