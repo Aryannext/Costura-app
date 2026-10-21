@@ -1,0 +1,68 @@
+{
+  "url": "https://localhost/ordenes",
+  "pasos": [
+    {
+      "paso": "Ingreso con clave de fábrica y cambio obligatorio",
+      "resultado": "OK",
+      "ms": 4088
+    },
+    {
+      "paso": "Teléfono inválido no deja crear la orden (A07)",
+      "resultado": "OK",
+      "ms": 2487
+    },
+    {
+      "paso": "Crear la orden con clienta nueva (RNF-02)",
+      "resultado": "OK",
+      "ms": 1383
+    },
+    {
+      "paso": "Agregar una prenda",
+      "resultado": "OK",
+      "ms": 1812
+    },
+    {
+      "paso": "Terminar la prenda: orden Lista y aviso por WhatsApp con +57",
+      "resultado": "OK",
+      "ms": 767
+    },
+    {
+      "paso": "Abono parcial con Bre-B (RNF-03)",
+      "resultado": "OK",
+      "ms": 1880
+    },
+    {
+      "paso": "Un abono mayor que el saldo no se puede registrar (CPV-06)",
+      "resultado": "OK",
+      "ms": 876
+    },
+    {
+      "paso": "Entregar con deuda pide confirmación con el saldo (RN-30)",
+      "resultado": "OK",
+      "ms": 1516
+    },
+    {
+      "paso": "La clienta guarda la fecha de su autorización (Ley 1581)",
+      "resultado": "OK",
+      "ms": 1062
+    },
+    {
+      "paso": "Abrir la orden desde la lista (RNF-01)",
+      "resultado": "FALLA",
+      "detalle": "locator.waitFor: Timeout 30000ms exceeded. | Call log: | \u001b[2m  - waiting for locator('.orden-card, .ordenes-list > *').filter({ hasText: 'Clienta APK 1792523903103' }).first() to be visible\u001b[22m | "
+    }
+  ],
+  "tiempos": {
+    "RNF-02 registrar orden": 1232,
+    "RNF-03 registrar abono": 426
+  },
+  "errores": [
+    "consola: Failed to load resource: the server responded with a status of 404 (OK)",
+    "consola: Failed to load resource: the server responded with a status of 404 (OK)"
+  ],
+  "fallidos": [
+    "404 https://localhost/ordenes/favicon.svg",
+    "404 https://localhost/clientes/favicon.svg"
+  ],
+  "clienta": "Clienta APK 1792523903103"
+}

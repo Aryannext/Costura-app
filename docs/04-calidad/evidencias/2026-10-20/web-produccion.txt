@@ -1,0 +1,32 @@
+# Producción https://proyectosena.online/costura-app | 2026-10-20T19:04:55Z | DNS fijado a 31.97.129.144 por fallas del DNS local
+## GET /
+HTTP 200 | 2.213402s | 3398 B
+## GET /ordenes/3
+HTTP 200 | 2.245067s | 3398 B
+## GET /login
+HTTP 200 | 2.290150s | 3398 B
+## GET /ajustes
+HTTP 200 | 2.288067s | 3398 B
+## Cabeceras de /
+HTTP/1.1 200 OK
+Server: nginx
+Content-Type: text/html
+Cache-Control: no-cache
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+X-Frame-Options: DENY
+Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.telegram.org; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+Permissions-Policy: camera=(self), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()
+## Script principal: /costura-app/assets/index-DO0A2wsK.js
+HTTP/1.1 200 OK
+Content-Type: application/javascript
+Cache-Control: max-age=31536000
+Cache-Control: public, immutable
+X-Content-Type-Options: nosniff
+Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.telegram.org; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+## Archivo inexistente
+HTTP 404
+## /costura-app sin barra
+HTTP 301 -> https://proyectosena.online/costura-app/
+## HTTP sin cifrar
+HTTP 301 -> https://proyectosena.online/costura-app/

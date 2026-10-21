@@ -1,0 +1,106 @@
+
+Running 8 tests using 1 worker
+
+  ok 1 [chromium] › tests\e2e\flujo-orden.spec.js:13:1 › orden de punta a punta: cliente, fecha anterior, prenda, aviso WhatsApp, pago Bre-B y entrega con deuda (22.4s)
+[WebServer] 2:13:55 p.m. [vite] (client) [console.error] [useAsyncAction Error]: Error: Error: BeginTransaction: BeginTransaction: cannot start a transaction within a transaction
+[WebServer]     at CapacitorSQLiteWeb.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/web.js?v=3d5c9e60:143:19)
+[WebServer]     at async SQLiteDBConnection.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/definitions.js?v=3d5c9e60:483:29)
+[WebServer]     at async createOrden (http://localhost:5173/src/database/queries/ordenes.js:32:5)
+[WebServer]     at async execute.successMessage (http://localhost:5173/src/composables/useOrdenes.js:50:24)
+[WebServer]     at async execute (http://localhost:5173/src/composables/useAsyncAction.js:37:28)
+[WebServer]     at async handleAddOrden (http://localhost:5173/src/views/OrdenesView.vue:80:16)
+[WebServer] 2:13:55 p.m. [vite] (client) [console.error] [useAsyncAction Error]: Error: Error: BeginTransaction: BeginTransaction: cannot start a transaction within a transaction
+[WebServer]     at CapacitorSQLiteWeb.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/web.js?v=3d5c9e60:143:19)
+[WebServer]     at async SQLiteDBConnection.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/definitions.js?v=3d5c9e60:483:29)
+[WebServer]     at async createOrden (http://localhost:5173/src/database/queries/ordenes.js:32:5)
+[WebServer]     at async execute.successMessage (http://localhost:5173/src/composables/useOrdenes.js:50:24)
+[WebServer]     at async execute (http://localhost:5173/src/composables/useAsyncAction.js:37:28)
+[WebServer]     at async handleAddOrden (http://localhost:5173/src/views/OrdenesView.vue:80:16)
+  x  2 [chromium] › tests\e2e\orden-creation.spec.js:5:3 › Order Creation & Concurrency › handles concurrent order creations cleanly without cross-contamination (21.5s)
+  ok 3 [chromium] › tests\e2e\flujo-orden.spec.js:13:1 › orden de punta a punta: cliente, fecha anterior, prenda, aviso WhatsApp, pago Bre-B y entrega con deuda (23.2s)
+[WebServer] 2:14:41 p.m. [vite] (client) [console.error] [useAsyncAction Error]: Error: Error: BeginTransaction: BeginTransaction: cannot start a transaction within a transaction
+[WebServer]     at CapacitorSQLiteWeb.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/web.js?v=3d5c9e60:143:19)
+[WebServer]     at async SQLiteDBConnection.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/definitions.js?v=3d5c9e60:483:29)
+[WebServer]     at async createOrden (http://localhost:5173/src/database/queries/ordenes.js:32:5)
+[WebServer]     at async execute.successMessage (http://localhost:5173/src/composables/useOrdenes.js:50:24)
+[WebServer]     at async execute (http://localhost:5173/src/composables/useAsyncAction.js:37:28)
+[WebServer]     at async handleAddOrden (http://localhost:5173/src/views/OrdenesView.vue:80:16)
+[WebServer] 2:14:41 p.m. [vite] (client) [console.error] [useAsyncAction Error]: Error: Error: BeginTransaction: BeginTransaction: cannot start a transaction within a transaction
+[WebServer]     at CapacitorSQLiteWeb.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/web.js?v=3d5c9e60:143:19)
+[WebServer]     at async SQLiteDBConnection.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/definitions.js?v=3d5c9e60:483:29)
+[WebServer]     at async createOrden (http://localhost:5173/src/database/queries/ordenes.js:32:5)
+[WebServer]     at async execute.successMessage (http://localhost:5173/src/composables/useOrdenes.js:50:24)
+[WebServer]     at async execute (http://localhost:5173/src/composables/useAsyncAction.js:37:28)
+[WebServer]     at async handleAddOrden (http://localhost:5173/src/views/OrdenesView.vue:80:16)
+  ok 4 [chromium] › tests\e2e\orden-creation.spec.js:5:3 › Order Creation & Concurrency › handles concurrent order creations cleanly without cross-contamination (21.2s)
+  ok 5 [chromium] › tests\e2e\flujo-orden.spec.js:13:1 › orden de punta a punta: cliente, fecha anterior, prenda, aviso WhatsApp, pago Bre-B y entrega con deuda (20.0s)
+[WebServer] 2:15:31 p.m. [vite] (client) [console.error] [useAsyncAction Error]: Error: Error: BeginTransaction: BeginTransaction: cannot start a transaction within a transaction
+[WebServer]     at CapacitorSQLiteWeb.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/web.js?v=3d5c9e60:143:19)
+[WebServer]     at async SQLiteDBConnection.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/definitions.js?v=3d5c9e60:483:29)
+[WebServer]     at async createOrden (http://localhost:5173/src/database/queries/ordenes.js:32:5)
+[WebServer]     at async execute.successMessage (http://localhost:5173/src/composables/useOrdenes.js:50:24)
+[WebServer]     at async execute (http://localhost:5173/src/composables/useAsyncAction.js:37:28)
+[WebServer]     at async handleAddOrden (http://localhost:5173/src/views/OrdenesView.vue:80:16)
+[WebServer] 2:15:31 p.m. [vite] (client) [console.error] [useAsyncAction Error]: Error: Error: BeginTransaction: BeginTransaction: cannot start a transaction within a transaction
+[WebServer]     at CapacitorSQLiteWeb.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/web.js?v=3d5c9e60:143:19)
+[WebServer]     at async SQLiteDBConnection.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/definitions.js?v=3d5c9e60:483:29)
+[WebServer]     at async createOrden (http://localhost:5173/src/database/queries/ordenes.js:32:5)
+[WebServer]     at async execute.successMessage (http://localhost:5173/src/composables/useOrdenes.js:50:24)
+[WebServer]     at async execute (http://localhost:5173/src/composables/useAsyncAction.js:37:28)
+[WebServer]     at async handleAddOrden (http://localhost:5173/src/views/OrdenesView.vue:80:16)
+  ok 6 [chromium] › tests\e2e\orden-creation.spec.js:5:3 › Order Creation & Concurrency › handles concurrent order creations cleanly without cross-contamination (18.6s)
+  ok 7 [chromium] › tests\e2e\flujo-orden.spec.js:13:1 › orden de punta a punta: cliente, fecha anterior, prenda, aviso WhatsApp, pago Bre-B y entrega con deuda (18.2s)
+[WebServer] 2:16:10 p.m. [vite] (client) [console.error] [useAsyncAction Error]: Error: Error: BeginTransaction: BeginTransaction: cannot start a transaction within a transaction
+[WebServer]     at CapacitorSQLiteWeb.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/web.js?v=3d5c9e60:143:19)
+[WebServer]     at async SQLiteDBConnection.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/definitions.js?v=3d5c9e60:483:29)
+[WebServer]     at async createOrden (http://localhost:5173/src/database/queries/ordenes.js:32:5)
+[WebServer]     at async execute.successMessage (http://localhost:5173/src/composables/useOrdenes.js:50:24)
+[WebServer]     at async execute (http://localhost:5173/src/composables/useAsyncAction.js:37:28)
+[WebServer]     at async handleAddOrden (http://localhost:5173/src/views/OrdenesView.vue:80:16)
+[WebServer] 2:16:10 p.m. [vite] (client) [console.error] [useAsyncAction Error]: Error: Error: BeginTransaction: BeginTransaction: cannot start a transaction within a transaction
+[WebServer]     at CapacitorSQLiteWeb.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/web.js?v=3d5c9e60:143:19)
+[WebServer]     at async SQLiteDBConnection.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/definitions.js?v=3d5c9e60:483:29)
+[WebServer]     at async createOrden (http://localhost:5173/src/database/queries/ordenes.js:32:5)
+[WebServer]     at async execute.successMessage (http://localhost:5173/src/composables/useOrdenes.js:50:24)
+[WebServer]     at async execute (http://localhost:5173/src/composables/useAsyncAction.js:37:28)
+[WebServer]     at async handleAddOrden (http://localhost:5173/src/views/OrdenesView.vue:80:16)
+  ok 8 [chromium] › tests\e2e\orden-creation.spec.js:5:3 › Order Creation & Concurrency › handles concurrent order creations cleanly without cross-contamination (19.4s)
+
+
+  1) [chromium] › tests\e2e\orden-creation.spec.js:5:3 › Order Creation & Concurrency › handles concurrent order creations cleanly without cross-contamination 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.timeline').first().locator('li')
+    Expected substring: "Orden creada en estado Pendiente"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('.timeline').first().locator('li')
+
+
+      123 |       { timeout: 10000 },
+      124 |     );
+    > 125 |     await expect(page.locator(".timeline").first().locator("li")).toContainText(
+          |                                                                   ^
+      126 |       "Orden creada en estado Pendiente",
+      127 |     );
+      128 |
+        at <repo>\tests\e2e\orden-creation.spec.js:125:67
+
+    Error Context: <scratchpad>\pw-repeticion\orden-creation-Order-Creat-ee724-without-cross-contamination-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    <scratchpad>\pw-repeticion\orden-creation-Order-Creat-ee724-without-cross-contamination-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace <scratchpad>\pw-repeticion\orden-creation-Order-Creat-ee724-without-cross-contamination-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests\e2e\orden-creation.spec.js:5:3 › Order Creation & Concurrency › handles concurrent order creations cleanly without cross-contamination 
+  7 passed (3.1m)
+exit 1

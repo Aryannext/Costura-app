@@ -1,0 +1,33 @@
+{
+  "cabecerasAplicadas": [
+    "X-Content-Type-Options",
+    "Referrer-Policy",
+    "X-Frame-Options",
+    "Content-Security-Policy",
+    "Permissions-Policy"
+  ],
+  "pasos": [
+    "arranque y SQLite (wasm): 0 violaciones",
+    "orden con prenda: 0 violaciones",
+    "foto desde archivo (img data:/blob:): 0 violaciones",
+    "reportes (Chart.js): 0 violaciones",
+    "ayuda y tutorial (driver.js): 0 violaciones",
+    "recarga con bloqueo: 0 violaciones"
+  ],
+  "violaciones": [],
+  "errores": [],
+  "consola": [],
+  "fallidos": [],
+  "fuentesCargadas": [
+    "Inter"
+  ],
+  "fotosEnPantalla": 0,
+  "miniatura": [
+    {
+      "src": "data:image/jpeg;base64,/9j/4AA",
+      "cargada": true,
+      "ancho": 64,
+      "alto": 64
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+
+Running 9 tests using 1 worker
+
+  ok 1 [chromium] › tests\e2e\flujo-orden.spec.js:13:1 › orden de punta a punta: cliente, fecha anterior, prenda, aviso WhatsApp, pago Bre-B y entrega con deuda (22.5s)
+[WebServer] 2:21:24 p.m. [vite] (client) [console.error] [useAsyncAction Error]: Error: Error: BeginTransaction: BeginTransaction: cannot start a transaction within a transaction
+[WebServer]     at CapacitorSQLiteWeb.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/web.js?v=3d5c9e60:143:19)
+[WebServer]     at async SQLiteDBConnection.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/definitions.js?v=3d5c9e60:483:29)
+[WebServer]     at async createOrden (http://localhost:5173/src/database/queries/ordenes.js:32:5)
+[WebServer]     at async execute.successMessage (http://localhost:5173/src/composables/useOrdenes.js:50:24)
+[WebServer]     at async execute (http://localhost:5173/src/composables/useAsyncAction.js:37:28)
+[WebServer]     at async handleAddOrden (http://localhost:5173/src/views/OrdenesView.vue:80:16)
+[WebServer] 2:21:24 p.m. [vite] (client) [console.error] [useAsyncAction Error]: Error: Error: BeginTransaction: BeginTransaction: cannot start a transaction within a transaction
+[WebServer]     at CapacitorSQLiteWeb.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/web.js?v=3d5c9e60:143:19)
+[WebServer]     at async SQLiteDBConnection.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/definitions.js?v=3d5c9e60:483:29)
+[WebServer]     at async createOrden (http://localhost:5173/src/database/queries/ordenes.js:32:5)
+[WebServer]     at async execute.successMessage (http://localhost:5173/src/composables/useOrdenes.js:50:24)
+[WebServer]     at async execute (http://localhost:5173/src/composables/useAsyncAction.js:37:28)
+[WebServer]     at async handleAddOrden (http://localhost:5173/src/views/OrdenesView.vue:80:16)
+  ok 2 [chromium] › tests\e2e\orden-creation.spec.js:5:3 › Order Creation & Concurrency › handles concurrent order creations cleanly without cross-contamination (18.0s)
+BROWSER CONSOLE: [vite] connecting...
+BROWSER CONSOLE: [vite] connected.
+BROWSER CONSOLE: #### getVersion new res: [{"columns":["user_version"],"values":[[0]]}]
+BROWSER CONSOLE: Default admin user created.
+BROWSER CONSOLE: [vite] connecting...
+BROWSER CONSOLE: [vite] connected.
+BROWSER CONSOLE: #### getVersion new res: [{"columns":["user_version"],"values":[[0]]}]
+  ok 3 [chromium] › tests\e2e\persistence.spec.js:5:5 › Web Persistence E2E (jeep-sqlite IndexedDB) › should persist client data across page reloads (13.0s)
+  ok 4 [chromium] › tests\e2e\flujo-orden.spec.js:13:1 › orden de punta a punta: cliente, fecha anterior, prenda, aviso WhatsApp, pago Bre-B y entrega con deuda (18.7s)
+[WebServer] 2:22:15 p.m. [vite] (client) [console.error] [useAsyncAction Error]: Error: Error: BeginTransaction: BeginTransaction: cannot start a transaction within a transaction
+[WebServer]     at CapacitorSQLiteWeb.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/web.js?v=3d5c9e60:143:19)
+[WebServer]     at async SQLiteDBConnection.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/definitions.js?v=3d5c9e60:483:29)
+[WebServer]     at async createOrden (http://localhost:5173/src/database/queries/ordenes.js:32:5)
+[WebServer]     at async execute.successMessage (http://localhost:5173/src/composables/useOrdenes.js:50:24)
+[WebServer]     at async execute (http://localhost:5173/src/composables/useAsyncAction.js:37:28)
+[WebServer]     at async handleAddOrden (http://localhost:5173/src/views/OrdenesView.vue:80:16)
+[WebServer] 2:22:15 p.m. [vite] (client) [console.error] [useAsyncAction Error]: Error: Error: BeginTransaction: BeginTransaction: cannot start a transaction within a transaction
+[WebServer]     at CapacitorSQLiteWeb.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/web.js?v=3d5c9e60:143:19)
+[WebServer]     at async SQLiteDBConnection.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/definitions.js?v=3d5c9e60:483:29)
+[WebServer]     at async createOrden (http://localhost:5173/src/database/queries/ordenes.js:32:5)
+[WebServer]     at async execute.successMessage (http://localhost:5173/src/composables/useOrdenes.js:50:24)
+[WebServer]     at async execute (http://localhost:5173/src/composables/useAsyncAction.js:37:28)
+[WebServer]     at async handleAddOrden (http://localhost:5173/src/views/OrdenesView.vue:80:16)
+  ok 5 [chromium] › tests\e2e\orden-creation.spec.js:5:3 › Order Creation & Concurrency › handles concurrent order creations cleanly without cross-contamination (18.6s)
+BROWSER CONSOLE: [vite] connecting...
+BROWSER CONSOLE: [vite] connected.
+BROWSER CONSOLE: #### getVersion new res: [{"columns":["user_version"],"values":[[0]]}]
+BROWSER CONSOLE: Default admin user created.
+BROWSER CONSOLE: [vite] connecting...
+BROWSER CONSOLE: [vite] connected.
+BROWSER CONSOLE: #### getVersion new res: [{"columns":["user_version"],"values":[[0]]}]
+  ok 6 [chromium] › tests\e2e\persistence.spec.js:5:5 › Web Persistence E2E (jeep-sqlite IndexedDB) › should persist client data across page reloads (12.7s)
+  ok 7 [chromium] › tests\e2e\flujo-orden.spec.js:13:1 › orden de punta a punta: cliente, fecha anterior, prenda, aviso WhatsApp, pago Bre-B y entrega con deuda (15.0s)
+[WebServer] 2:23:03 p.m. [vite] (client) [console.error] [useAsyncAction Error]: Error: Error: BeginTransaction: BeginTransaction: cannot start a transaction within a transaction
+[WebServer]     at CapacitorSQLiteWeb.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/web.js?v=3d5c9e60:143:19)
+[WebServer]     at async SQLiteDBConnection.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/definitions.js?v=3d5c9e60:483:29)
+[WebServer]     at async createOrden (http://localhost:5173/src/database/queries/ordenes.js:32:5)
+[WebServer]     at async execute.successMessage (http://localhost:5173/src/composables/useOrdenes.js:50:24)
+[WebServer]     at async execute (http://localhost:5173/src/composables/useAsyncAction.js:37:28)
+[WebServer]     at async handleAddOrden (http://localhost:5173/src/views/OrdenesView.vue:80:16)
+[WebServer] 2:23:03 p.m. [vite] (client) [console.error] [useAsyncAction Error]: Error: Error: BeginTransaction: BeginTransaction: cannot start a transaction within a transaction
+[WebServer]     at CapacitorSQLiteWeb.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/web.js?v=3d5c9e60:143:19)
+[WebServer]     at async SQLiteDBConnection.beginTransaction (http://localhost:5173/node_modules/@capacitor-community/sqlite/dist/esm/definitions.js?v=3d5c9e60:483:29)
+[WebServer]     at async createOrden (http://localhost:5173/src/database/queries/ordenes.js:32:5)
+[WebServer]     at async execute.successMessage (http://localhost:5173/src/composables/useOrdenes.js:50:24)
+[WebServer]     at async execute (http://localhost:5173/src/composables/useAsyncAction.js:37:28)
+[WebServer]     at async handleAddOrden (http://localhost:5173/src/views/OrdenesView.vue:80:16)
+  ok 8 [chromium] › tests\e2e\orden-creation.spec.js:5:3 › Order Creation & Concurrency › handles concurrent order creations cleanly without cross-contamination (18.6s)
+BROWSER CONSOLE: [vite] connecting...
+BROWSER CONSOLE: [vite] connected.
+BROWSER CONSOLE: #### getVersion new res: [{"columns":["user_version"],"values":[[0]]}]
+BROWSER CONSOLE: Default admin user created.
+BROWSER CONSOLE: [vite] connecting...
+BROWSER CONSOLE: [vite] connected.
+BROWSER CONSOLE: #### getVersion new res: [{"columns":["user_version"],"values":[[0]]}]
+  ok 9 [chromium] › tests\e2e\persistence.spec.js:5:5 › Web Persistence E2E (jeep-sqlite IndexedDB) › should persist client data across page reloads (12.2s)
+
+  9 passed (3.6m)
