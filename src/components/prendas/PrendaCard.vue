@@ -128,6 +128,8 @@ const emit = defineEmits(['take-photo', 'add-obs', 'estado-changed', 'prenda-act
 
 const { fetchFotos, fetchObservaciones, removeFoto, editPrenda } = usePrendas();
 const toast = inject('toast', null);
+// El confirm() del sistema sale con «OK / Cancel» en el APK (DEF-16)
+const pedirConfirmacion = inject('pedirConfirmacion');
 
 const showFotos = ref(false);
 const showObs = ref(false);
@@ -213,15 +215,15 @@ function openPhotoViewer(foto) {
   showViewer.value = true;
 }
 
-async function onDeleteFoto(id_fotografia) {
-  if (confirm("¿Estás seguro de eliminar esta fotografía?")) {
+function onDeleteFoto(id_fotografia) {
+  pedirConfirmacion('¿Eliminar esta foto? No se puede recuperar.', async () => {
     try {
       await removeFoto(id_fotografia);
       await cargarFotos();
     } catch (e) {
       // Error natively handled
     }
-  }
+  }, { textoConfirmar: 'Sí, eliminar' });
 }
 </script>
 

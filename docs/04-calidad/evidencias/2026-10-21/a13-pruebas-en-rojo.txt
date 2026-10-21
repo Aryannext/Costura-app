@@ -1,0 +1,6 @@
+     × DEF-15: el menú para elegir cámara o galería está en español 108ms
+     × DEF-16: pregunta con el modal de la app, en español, y no con el confirm del sistema 109ms
+     × al confirmar borra la fila y también el archivo del teléfono, sin tocar la prenda 104ms
+     × al cancelar la foto se queda 98ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  4 failed | 14 passed (18)

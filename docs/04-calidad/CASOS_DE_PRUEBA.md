@@ -2,7 +2,7 @@
 
 Casos de prueba de la versión 1.2.0, con los elementos de la guía SENA *Aplicación de pruebas de software* (tabla 1): identificador, nombre, descripción, orden de ejecución, requerimiento asociado, precondición, postcondición y resultado esperado. El resultado de cada ejecución está en el [informe de resultados](INFORME_DE_RESULTADOS.md).
 
-> **Fecha:** 14 de octubre de 2026 · **Versión probada:** 1.2.0, esquema 8 · **Requisitos:** [SRS](../01-requisitos/SRS.md)
+> **Fecha:** 14 de octubre de 2026; CPV-29 a CPV-32 agregados el 20 de octubre para la regresión en el APK · **Versión probada:** 1.2.0, esquema 8 · **Requisitos:** [SRS](../01-requisitos/SRS.md) · **Ejecuciones:** [14 oct](INFORME_DE_RESULTADOS.md) y [20 oct, web y APK](EJECUCION_2026-10-20.md)
 
 Los identificadores son `CPV-xx` (caso de prueba vigente). Los `CP-xx` de la especificación original son históricos y no se reutilizan.
 
@@ -27,6 +27,8 @@ La ejecución sigue el flujo de actividades de la guía (figura 2):
 | Regresión de la documentación | CPV-22 | Automático: `src/__tests__/documentacion.spec.js` |
 | No funcional: carga | CPV-24 | Herramienta: Apache JMeter |
 | Aceptación, usabilidad y exploratoria | CPV-25 a CPV-28 | Manual, en el teléfono y con la dueña |
+| Funcional y no funcional en el APK | CPV-29 a CPV-31 | En el emulador de Android: Playwright conectado al WebView por CDP, y `adb` para la cámara y los diálogos ([scripts](evidencias/2026-10-20/scripts/)) |
+| Despliegue | CPV-32 | Automático: `curl` y Playwright contra la versión publicada, sin iniciar sesión |
 
 ## 2. Resumen
 
@@ -60,6 +62,10 @@ La ejecución sigue el flujo de actividades de la guía (figura 2):
 | 26 | CPV-26 | Hardware del teléfono: cámara, huella y aviso de las 8:00 | RF-27, RNF-07, RF-68, RNF-31 |
 | 27 | CPV-27 | Usabilidad con la dueña | RNF-04, RNF-16 |
 | 28 | CPV-28 | Exploratoria: cancelar la cámara no anuncia éxito | RNF-05, RF-27 |
+| 29 | CPV-29 | Tiempos de respuesta en el APK | RNF-01, RNF-02, RNF-03 |
+| 30 | CPV-30 | Tomar, ver y borrar una foto | RF-27, RF-29, RF-32, RNF-25 |
+| 31 | CPV-31 | Exploratoria: los textos del sistema están en español | Derivado: interfaz en español para una modista en Colombia |
+| 32 | CPV-32 | La versión publicada es la del commit probado | D-13, RNF-06 |
 
 ## 3. Casos
 
@@ -426,3 +432,55 @@ La ejecución sigue el flujo de actividades de la guía (figura 2):
 | Postcondición | La prenda no tiene fotos nuevas |
 | Resultado esperado | No aparece «Fotografía guardada» |
 | Evidencia | Inspección de `usePrendas.js` y `useAsyncAction.js`; en el teléfono queda pendiente |
+
+### CPV-29 · Tiempos de respuesta en el APK
+
+| Elemento | Caso de prueba |
+| --- | --- |
+| Descripción | Prueba de rendimiento en Android: los tiempos de RNF-01 a RNF-03 con el SQLite nativo y el puente de Capacitor, que CPV-17 no mide. Se cronometra dentro del WebView (`performance.now()`), del toque a la pantalla actualizada, para no contar la latencia de la conexión de pruebas |
+| Orden de ejecución | 29 |
+| Requerimiento asociado | RNF-01, RNF-02, RNF-03 |
+| Precondición | APK debug del commit probado, instalado en el emulador; sesión iniciada |
+| Pasos | 1. Abrir una orden desde la lista, 5 veces. 2. Registrar una orden con clienta nueva, 5 veces. 3. Registrar un abono de 1.000 pesos, 5 veces, anotando cuándo cambia el saldo |
+| Postcondición | 5 órdenes y 10 abonos de prueba en la base del emulador |
+| Resultado esperado | Máximos por debajo de 2 s, 3 s y 1 s |
+| Evidencia | `apk-medir.mjs` y `apk-abono.mjs` en [evidencias/2026-10-20/scripts/](evidencias/2026-10-20/scripts/). Un emulador no reemplaza el teléfono de la dueña (CPV-26) |
+
+### CPV-30 · Tomar, ver y borrar una foto
+
+| Elemento | Caso de prueba |
+| --- | --- |
+| Descripción | Ciclo completo de una foto: se guarda una vez, se ve en la miniatura y al borrarla no deja el archivo (DEF-06, DEF-13, DEF-14) |
+| Orden de ejecución | 30 |
+| Requerimiento asociado | RF-27, RF-29, RF-32, RNF-25 |
+| Precondición | Una prenda abierta. En el APK, el emulador con su cámara virtual; en la web, la compilación de producción con la CSP real |
+| Pasos | 1. *Fotos* → *Tomar foto* → *Take Picture* (APK) o *From Photos* (web). 2. Tomar o elegir la foto y aceptar. 3. Ver la miniatura. 4. Borrarla con la × y confirmar |
+| Postcondición | La prenda queda sin fotos y sin archivos sueltos en `files/` |
+| Resultado esperado | Un solo aviso «Fotografía guardada»; la miniatura muestra la imagen; al borrar, «Fotografía eliminada» y el archivo desaparece |
+| Evidencia | [capturas](evidencias/2026-10-20/capturas/), `run-as com.costura.app ls files` antes y después |
+
+### CPV-31 · Exploratoria: los textos del sistema están en español
+
+| Elemento | Caso de prueba |
+| --- | --- |
+| Descripción | Prueba exploratoria nacida de CPV-30: los menús y diálogos que dibuja Android o Capacitor, y no la app, también deben estar en español. El SRS no lo pide por escrito; se deriva de que toda la interfaz está en español y la usa una modista en Colombia |
+| Orden de ejecución | 31 |
+| Requerimiento asociado | Derivado (ver descripción) |
+| Precondición | APK con la app en español de Colombia: `adb shell cmd locale set-app-locales com.costura.app --locales es-CO` |
+| Pasos | 1. Abrir el menú de *Tomar foto*. 2. Borrar una foto |
+| Postcondición | Ninguna |
+| Resultado esperado | Opciones y botones en español |
+| Evidencia | [capturas/apk-08](evidencias/2026-10-20/capturas/apk-08-menu-camara-con-app-en-es-CO.png) y [apk-11](evidencias/2026-10-20/capturas/apk-11-confirm-ingles-con-app-en-es-CO.png) |
+
+### CPV-32 · La versión publicada es la del commit probado
+
+| Elemento | Caso de prueba |
+| --- | --- |
+| Descripción | Prueba de despliegue: lo que sirve `proyectosena.online/costura-app/` sale del commit que se probó, y carga bien en un teléfono angosto. Sin iniciar sesión: en producción no se escriben claves |
+| Orden de ejecución | 32 |
+| Requerimiento asociado | D-13, RNF-06 |
+| Precondición | Un commit publicado por Dokploy |
+| Pasos | 1. Compilar ese commit con `--base=/costura-app/` y comparar los archivos que pide `index.html` con los de producción. 2. Pedir rutas profundas y un archivo que no existe. 3. Abrir una ruta profunda en Edge a 360 px y en escritorio |
+| Postcondición | Ninguna |
+| Resultado esperado | Mismos archivos; rutas 200 y archivo inexistente 404; llega al ingreso sin errores, sin violaciones de la CSP y sin desborde horizontal |
+| Evidencia | [web/](evidencias/2026-10-20/web/) |

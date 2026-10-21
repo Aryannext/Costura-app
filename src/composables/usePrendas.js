@@ -116,7 +116,13 @@ export function usePrendas() {
                     width: 1080,
                     allowEditing: false,
                     resultType: CameraResultType.Base64,
-                    source: CameraSource.Prompt
+                    source: CameraSource.Prompt,
+                    // Sin estos textos, Capacitor (APK) y PWA Elements (web) dicen
+                    // «Photo / From Photos / Take Picture» (DEF-15)
+                    promptLabelHeader: 'Foto de la prenda',
+                    promptLabelPhoto: 'Elegir de la galería',
+                    promptLabelPicture: 'Tomar foto',
+                    promptLabelCancel: 'Cancelar'
                 });
             } catch (e) {
                 if (e.message === 'User cancelled photos app' || e.message === 'User cancelled') {

@@ -8,7 +8,7 @@ Plan de mejora a partir del [informe de resultados](INFORME_DE_RESULTADOS.md) de
 5. Planeación.
 6. Seguimiento.
 
-> **Fecha:** 14 de octubre de 2026 · **Responsable:** Cristian Cantillo Mejía · **Plazo final:** entrega del 23 al 25 de octubre de 2026
+> **Fecha:** 14 de octubre de 2026; seguimiento al 20 de octubre, con la [regresión en la web y el APK](INFORME_DE_RESULTADOS_2026-10-20.md) · **Responsable:** Cristian Cantillo Mejía · **Plazo final:** entrega del 23 al 25 de octubre de 2026
 
 ---
 
@@ -112,6 +112,8 @@ Tres categorías (documentación, interfaz y funcional) suman el 71 % de las inc
 | ZAP y JMeter pendientes | Herramientas no instaladas; VPS compartido | O5 | A10. ZAP de línea base y JMeter contra el contenedor local, o en el VPS con autorización |
 | Diagramas y matriz desactualizados (H09, H10, H12, H13, H15) | La prueba documental no revisa exactitud | O3 | A11. Actualizar diagramas de estados, secuencia de bloqueo, capas y trazabilidad |
 | Resultados viejos tras los cambios | Las correcciones pueden romper otra cosa | Todos | A12. Regresión completa y nuevo informe de resultados |
+| Textos del sistema en inglés (DEF-15, DEF-16), hallados en la regresión | Componentes de Capacitor con textos por defecto que nadie revisó en el teléfono | O2 | A13. Pasar a `Camera.getPhoto` las etiquetas en español y confirmar el borrado de fotos con el modal de la app |
+| Pruebas de punta a punta que fallan con el PC cargado (INC-01, INC-02) | Tiempos fijos y una espera que no sigue el cambio automático a *Prendas* | Todos | A14. Esperar estados y no tiempos en `flujo-orden.spec.js`, y abrir *Detalle* antes de leer el historial en `orden-creation.spec.js` |
 
 ### 4.2 Priorización
 
@@ -136,6 +138,10 @@ Primero va lo de mucho impacto y poca dificultad. Lo que depende de la dueña se
 | 10 | A11. Diagramas y trazabilidad | Bastante | Medio | Bastante |
 | 11 | A10. ZAP y JMeter | Bastante | Medio | Bastante |
 | 12 | A12. Regresión e informe final | Poca | Corto | Mucho |
+| 13 | A13. Textos del sistema en español | Poca | Inmediato | Bastante |
+| 14 | A14. Pruebas de punta a punta sin tiempos fijos | Poca | Corto | Bastante |
+
+A13 y A14 se agregaron el 20 de octubre y van al final porque nacieron de la regresión. Son de poca dificultad y se pueden hacer antes de la entrega.
 
 ## 5. Planeación y seguimiento
 
@@ -152,13 +158,15 @@ Estructura de la guía (figura 18). La columna *Estado* se actualiza cada día h
 | A5 | Cristian y administración del VPS | 15 oct | 17 oct | Acceso `sudo` al VPS | CPV-21 exitoso | **Hecho** el 15 oct: CSP, política de permisos y nginx sin versión, verificados en producción. DEF-03 *Verificado*. HSTS queda como decisión del dominio `proyectosena.online` |
 | A6 | Cristian | 14 oct | 18 oct | PC | DEF-06, DEF-08, DEF-09 y DEF-10 *Verificado* | **Hecho**: DEF-06, DEF-08, DEF-09 y DEF-10 *Verificado* el 14 oct |
 | A7 | Cristian con la dueña | 18 oct | 18 oct | 30 minutos de la dueña | Decisiones escritas en DECISIONES.md; DEF-07 y H28 resueltos | Pendiente |
-| A8 | Cristian | 19 oct | 19 oct | Teléfono Android | CPV-26 ejecutado; tiempos de RNF-01 a RNF-03 en el teléfono | Pendiente |
+| A8 | Cristian | 19 oct | 19 oct | Teléfono Android | CPV-26 ejecutado; tiempos de RNF-01 a RNF-03 en el teléfono | **En curso**: el 20 oct el APK nuevo se probó en el emulador de Android 17. Los tiempos cumplen (CPV-29), la cámara funciona (CPV-28, CPV-30) y el bloqueo también (CPV-19). Falta un teléfono real para la huella, el aviso de las 8:00 y los tiempos que cuentan |
 | A9 | Cristian con la dueña | 19 oct | 20 oct | Teléfono de la dueña, 1 hora | CPV-25 y CPV-27 con la hoja llenada | Pendiente |
 | A10 | Cristian | 20 oct | 20 oct | ZAP, JMeter, Java 21 | CPV-23 y CPV-24 con sus informes en `evidencias/` | Pendiente |
 | A11 | Cristian | 20 oct | 21 oct | PC | Criterios de cierre de H09, H10, H12, H13 y H15 cumplidos; prueba documental en verde | Pendiente |
-| A12 | Cristian | 22 oct | 22 oct | PC, teléfono | Informe de resultados nuevo, sin casos fallidos abiertos sin plan | Pendiente |
+| A12 | Cristian | 22 oct | 22 oct | PC, teléfono | Informe de resultados nuevo, sin casos fallidos abiertos sin plan | **Hecho** el 20 oct, antes de la fecha: [informe del 20 oct](INFORME_DE_RESULTADOS_2026-10-20.md), en la web publicada y en el APK del emulador. 13 defectos *Cerrado*. El único caso fallido, CPV-31, tiene plan en A13. Lo del teléfono real sigue en A8 |
+| A13 | Cristian | 20 oct | 21 oct | PC, emulador | DEF-15 y DEF-16 *Verificado*; CPV-31 exitoso con la app en `es-CO` | **Hecho** el 21 oct: DEF-15 y DEF-16 *Verificado*, y CPV-31 exitoso en el APK y en la web |
+| A14 | Cristian | 21 oct | 21 oct | PC | Las 3 pruebas de punta a punta pasan 5 veces seguidas con el emulador encendido | Pendiente |
 
 **Cómo se hace el seguimiento:**
-- Cada defecto corregido pasa a *Reabierto* (vuelve a pruebas) y a *Verificado* cuando su método de reproducción ya no lo muestra. Se cierra con la regresión de A12.
+- Cada defecto corregido pasa a *Reabierto* (vuelve a pruebas) y a *Verificado* cuando su método de reproducción ya no lo muestra. Se cierra con la regresión de A12, que el 20 de octubre cerró DEF-01 a DEF-06 y DEF-08 a DEF-14.
 - Una acción que no se cumpla en su fecha se anota con la causa y la fecha nueva; no se borra.
 - El 22 de octubre se repite este documento con los estados finales, junto al nuevo informe de resultados.

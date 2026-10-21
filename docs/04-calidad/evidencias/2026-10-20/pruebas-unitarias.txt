@@ -1,0 +1,366 @@
+
+ RUN  v4.1.11 <repo>
+      Coverage enabled with v8
+
+ ✓ src/database/__tests__/busquedaYConfiguracion.sqlite.spec.js (7 tests) 248ms
+ ✓ src/database/__tests__/fotografias.sqlite.spec.js (3 tests) 226ms
+ ✓ src/__tests__/documentacion.spec.js (8 tests) 1398ms
+     ✓ cada método dibujado es una función que existe en el código  1067ms
+stdout | src/database/__tests__/volumen.sqlite.spec.js > Volumen: 500 órdenes, 150 clientas > listar todas las órdenes y buscar por nombre se mantienen por debajo de 2 s
+Volumen 500 órdenes · 20 repeticiones · ms {"abrirOrden":{"mediana":1.98,"maximo":6.72},"registrarOrden":{"mediana":2.03,"maximo":2.87},"actualizarSaldo":{"mediana":1.58,"maximo":10.68},"listarOrdenes":{"mediana":17.86,"maximo":26.37},"buscarClienta":{"mediana":1.86,"maximo":3.25}}
+
+ ✓ src/database/__tests__/volumen.sqlite.spec.js (5 tests) 2695ms
+     ✓ listar todas las órdenes y buscar por nombre se mantienen por debajo de 2 s  408ms
+stdout | src/__tests__/reglasNegocio.spec.js > RN-15 · sólo la dueña reabre órdenes > la aplicación tiene una única cuenta y no ofrece forma de crear otras
+Default admin user created.
+
+ ✓ src/database/__tests__/saldo.sqlite.spec.js (37 tests) 1379ms
+ ✓ src/__tests__/reglasNegocio.spec.js (82 tests) 2981ms
+ ✓ src/services/__tests__/photoStorage.spec.js (5 tests) 876ms
+     ✓ en el navegador lee el archivo y lo entrega como data URL  860ms
+stderr | src/database/__tests__/connection.spec.js > Database Connection & Restore > importDatabaseFromJson con snapshot y rollback > Falla la importación -> revierte al snapshot y propaga el error
+Error importando backup, iniciando Rollback... Error: Sintaxis SQL inválida en JSON
+    at <repo>/src/database/__tests__/connection.spec.js:169:57
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64
+
+stderr | src/database/__tests__/connection.spec.js > Database Connection & Restore > importDatabaseFromJson con snapshot y rollback > Falla la importación -> revierte al snapshot y propaga el error
+Rollback completado. La base de datos no sufrió daños.
+
+stderr | src/database/__tests__/connection.spec.js > Database Connection & Restore > importDatabaseFromJson con snapshot y rollback > Falla también el rollback -> error crítico
+Error importando backup, iniciando Rollback... Error: Error primario
+    at <repo>/src/database/__tests__/connection.spec.js:183:57
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64
+
+stderr | src/database/__tests__/connection.spec.js > Database Connection & Restore > importDatabaseFromJson con snapshot y rollback > Falla también el rollback -> error crítico
+CRÍTICO: Fallo en importación Y en rollback. Error: Error catastrófico en rollback
+    at <repo>/src/database/__tests__/connection.spec.js:184:57
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64
+
+stderr | src/database/__tests__/connection.spec.js > Database Connection & Restore > importDatabaseFromJson con snapshot y rollback > No se puede crear el snapshot -> no se intenta importar nada
+Error exporting database: Error: DB not initialized
+    at <repo>/src/database/__tests__/connection.spec.js:193:55
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64
+
+ ✓ src/database/__tests__/connection.spec.js (10 tests) 124ms
+ ✓ src/components/ordenes/__tests__/TimelineProgressBar.spec.js (3 tests) 170ms
+ ✓ src/views/__tests__/AyudaView.spec.js (3 tests) 284ms
+ ✓ src/views/__tests__/OrdenesView.spec.js (4 tests) 403ms
+ ✓ src/components/prendas/__tests__/PrendaCard.spec.js (8 tests) 395ms
+ ✓ src/components/common/__tests__/SwipeItem.spec.js (5 tests) 851ms
+     ✓ en reposo el botón de eliminar no se ve detrás de la tarjeta  650ms
+ ✓ src/services/__tests__/cryptoService.spec.js (7 tests) 5140ms
+     ✓ JSON -> cifrado -> descifrado = datos originales  645ms
+     ✓ Contraseña incorrecta -> rechazo  708ms
+     ✓ Ciphertext alterado -> rechazo  783ms
+     ✓ IV alterado -> rechazo  768ms
+     ✓ Salt diferente -> no puede descifrar  899ms
+     ✓ Dos cifrados del mismo JSON con la misma contraseña -> ciphertext diferente  961ms
+     ✓ Verificación de que se utilizan 600.000 iteraciones y el formato es compatible  369ms
+stderr | src/views/__tests__/ReportesView.spec.js > ReportesView.vue > should show toast if generating report fails
+Error: DB Error
+    at <repo>/src/views/__tests__/ReportesView.spec.js:74:63
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64
+
+ ✓ src/views/__tests__/ReportesView.spec.js (4 tests) 223ms
+ ✓ src/services/__tests__/estadoOrden.spec.js (18 tests) 65ms
+ ✓ src/database/__tests__/migrationRunner.spec.js (9 tests) 46ms
+ ✓ src/components/common/__tests__/StatusBadge.spec.js (1 test) 163ms
+stderr | src/__tests__/main.spec.js > main.js bootstrap > should show a fatal error screen when initDatabase fails and not mount Vue
+Failed to initialize database Error: Disk full
+    at <repo>/src/__tests__/main.spec.js:49:49
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64
+
+stderr | src/__tests__/main.spec.js > main.js bootstrap > should mount Vue when initialization succeeds
+Fallo al programar notificaciones CapacitorException [Error]: Notifications not supported in this browser.
+    at LocalNotificationsWeb.unavailable (<repo>\node_modules\@capacitor\core\dist\index.cjs.js:283:16)
+    at LocalNotificationsWeb.checkPermissions (<repo>\node_modules\@capacitor\local-notifications\dist\plugin.cjs.js:129:24)
+    at <repo>\node_modules\@capacitor\core\dist\index.cjs.js:121:35
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at Object.scheduleDailyReminders (<repo>/src/composables/useNotificacionesLocales.js:91:28)
+    at bootstrap (<repo>/src/main.js?success=1:84:9)
+    at <repo>/src/main.js?success=1:113:5
+    at VitestModuleEvaluator._runInlinedModule (file:///<repo>/node_modules/vitest/dist/module-evaluator.js:206:4)
+    at VitestModuleRunner.directRequest (file:///<repo>/node_modules/vite/dist/node/module-runner.js:1259:59)
+    at VitestModuleRunner.cachedRequest (file:///<repo>/node_modules/vite/dist/node/module-runner.js:1166:73) {
+  code: 'UNAVAILABLE',
+  data: undefined
+}
+
+stderr | src/__tests__/main.spec.js > main.js bootstrap > should mount Vue when initialization succeeds
+Fallo inesperado al arrancar TypeError: Cannot read properties of undefined (reading 'catch')
+    at bootstrap (<repo>/src/main.js?success=1:95:18)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at <repo>/src/main.js?success=1:113:5
+    at VitestModuleEvaluator._runInlinedModule (file:///<repo>/node_modules/vitest/dist/module-evaluator.js:206:4)
+    at VitestModuleRunner.directRequest (file:///<repo>/node_modules/vite/dist/node/module-runner.js:1259:59)
+    at VitestModuleRunner.cachedRequest (file:///<repo>/node_modules/vite/dist/node/module-runner.js:1166:73)
+    at <repo>/src/__tests__/main.spec.js:71:9
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | src/__tests__/main.spec.js > main.js bootstrap > should still mount Vue when a startup housekeeping step fails
+Fallo en las puestas al día de arranque Error: Ruta de foto ilegible
+    at <repo>/src/__tests__/main.spec.js:83:54
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | src/__tests__/main.spec.js > main.js bootstrap > should still mount Vue when a startup housekeeping step fails
+Fallo inesperado al arrancar TypeError: Cannot read properties of undefined (reading 'catch')
+    at bootstrap (<repo>/src/main.js?housekeeping=1:95:18)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at <repo>/src/main.js?housekeeping=1:113:5
+    at VitestModuleEvaluator._runInlinedModule (file:///<repo>/node_modules/vitest/dist/module-evaluator.js:206:4)
+    at VitestModuleRunner.directRequest (file:///<repo>/node_modules/vite/dist/node/module-runner.js:1259:59)
+    at VitestModuleRunner.cachedRequest (file:///<repo>/node_modules/vite/dist/node/module-runner.js:1166:73)
+    at <repo>/src/__tests__/main.spec.js:85:9
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+stderr | src/__tests__/main.spec.js > main.js bootstrap > en la versión web registra los componentes de la cámara
+Fallo al programar notificaciones CapacitorException [Error]: Notifications not supported in this browser.
+    at LocalNotificationsWeb.unavailable (<repo>\node_modules\@capacitor\core\dist\index.cjs.js:283:16)
+    at LocalNotificationsWeb.checkPermissions (<repo>\node_modules\@capacitor\local-notifications\dist\plugin.cjs.js:129:24)
+    at <repo>\node_modules\@capacitor\core\dist\index.cjs.js:121:35
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at Object.scheduleDailyReminders (<repo>/src/composables/useNotificacionesLocales.js:91:28)
+    at bootstrap (<repo>/src/main.js?pwa=1:84:9)
+    at <repo>/src/main.js?pwa=1:113:5
+    at VitestModuleEvaluator._runInlinedModule (file:///<repo>/node_modules/vitest/dist/module-evaluator.js:206:4)
+    at VitestModuleRunner.directRequest (file:///<repo>/node_modules/vite/dist/node/module-runner.js:1259:59)
+    at VitestModuleRunner.cachedRequest (file:///<repo>/node_modules/vite/dist/node/module-runner.js:1166:73) {
+  code: 'UNAVAILABLE',
+  data: undefined
+}
+
+stderr | src/__tests__/main.spec.js > main.js bootstrap > en la versión web registra los componentes de la cámara
+Fallo inesperado al arrancar TypeError: Cannot read properties of undefined (reading 'catch')
+    at bootstrap (<repo>/src/main.js?pwa=1:95:18)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at <repo>/src/main.js?pwa=1:113:5
+    at VitestModuleEvaluator._runInlinedModule (file:///<repo>/node_modules/vitest/dist/module-evaluator.js:206:4)
+    at VitestModuleRunner.directRequest (file:///<repo>/node_modules/vite/dist/node/module-runner.js:1259:59)
+    at VitestModuleRunner.cachedRequest (file:///<repo>/node_modules/vite/dist/node/module-runner.js:1166:73)
+    at <repo>/src/__tests__/main.spec.js:100:9
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+ ✓ src/__tests__/main.spec.js (4 tests) 12681ms
+     ✓ should show a fatal error screen when initDatabase fails and not mount Vue  12201ms
+ ✓ src/views/__tests__/DashboardView.spec.js (11 tests) 476ms
+ ✓ src/views/__tests__/formulariosContrasena.spec.js (5 tests) 258ms
+ ✓ src/__tests__/reporteFinanciero.spec.js (4 tests) 523ms
+stderr | src/views/__tests__/AjustesView.spec.js > AjustesView > agrupa las opciones por secciones y deja Cerrar sesión aparte
+No se pudo leer el permiso de notificaciones CapacitorException [Error]: Notifications not supported in this browser.
+    at LocalNotificationsWeb.unavailable (<repo>\node_modules\@capacitor\core\dist\index.cjs.js:283:16)
+    at LocalNotificationsWeb.checkPermissions (<repo>\node_modules\@capacitor\local-notifications\dist\plugin.cjs.js:129:24)
+    at <repo>\node_modules\@capacitor\core\dist\index.cjs.js:121:35
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at estadoAviso (<repo>/src/composables/useNotificacionesLocales.js:125:33)
+    at <repo>/src/views/AjustesView.vue:268:29 {
+  code: 'UNAVAILABLE',
+  data: undefined
+}
+
+stderr | src/views/__tests__/AjustesView.spec.js > AjustesView > agrupa las opciones por secciones y deja Cerrar sesión aparte
+No se pudieron leer los datos del taller Error: Database not initialized
+    at getConfig (<repo>/src/database/queries/configuracion.js:4:20)
+    at <repo>/src/views/AjustesView.vue:270:42
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+stderr | src/views/__tests__/AjustesView.spec.js > AjustesView > los días se cambian con + y se guardan solos, con confirmación
+No se pudo leer el permiso de notificaciones CapacitorException [Error]: Notifications not supported in this browser.
+    at LocalNotificationsWeb.unavailable (<repo>\node_modules\@capacitor\core\dist\index.cjs.js:283:16)
+    at LocalNotificationsWeb.checkPermissions (<repo>\node_modules\@capacitor\local-notifications\dist\plugin.cjs.js:129:24)
+    at <repo>\node_modules\@capacitor\core\dist\index.cjs.js:121:35
+    at estadoAviso (<repo>/src/composables/useNotificacionesLocales.js:125:33)
+    at <repo>/src/views/AjustesView.vue:268:29 {
+  code: 'UNAVAILABLE',
+  data: undefined
+}
+
+stderr | src/views/__tests__/AjustesView.spec.js > AjustesView > los días se cambian con + y se guardan solos, con confirmación
+No se pudieron leer los datos del taller Error: Database not initialized
+    at getConfig (<repo>/src/database/queries/configuracion.js:4:20)
+    at <repo>/src/views/AjustesView.vue:270:42
+
+stderr | src/views/__tests__/AjustesView.spec.js > AjustesView > dice si Telegram está conectado
+No se pudo leer el permiso de notificaciones CapacitorException [Error]: Notifications not supported in this browser.
+    at LocalNotificationsWeb.unavailable (<repo>\node_modules\@capacitor\core\dist\index.cjs.js:283:16)
+    at LocalNotificationsWeb.checkPermissions (<repo>\node_modules\@capacitor\local-notifications\dist\plugin.cjs.js:129:24)
+    at <repo>\node_modules\@capacitor\core\dist\index.cjs.js:121:35
+    at estadoAviso (<repo>/src/composables/useNotificacionesLocales.js:125:33)
+    at <repo>/src/views/AjustesView.vue:268:29 {
+  code: 'UNAVAILABLE',
+  data: undefined
+}
+
+stderr | src/views/__tests__/AjustesView.spec.js > AjustesView > dice si Telegram está conectado
+No se pudieron leer los datos del taller Error: Database not initialized
+    at getConfig (<repo>/src/database/queries/configuracion.js:4:20)
+    at <repo>/src/views/AjustesView.vue:270:42
+
+stderr | src/views/__tests__/AjustesView.spec.js > AjustesView > dice si Telegram está conectado
+No se pudo leer el permiso de notificaciones CapacitorException [Error]: Notifications not supported in this browser.
+    at LocalNotificationsWeb.unavailable (<repo>\node_modules\@capacitor\core\dist\index.cjs.js:283:16)
+    at LocalNotificationsWeb.checkPermissions (<repo>\node_modules\@capacitor\local-notifications\dist\plugin.cjs.js:129:24)
+    at <repo>\node_modules\@capacitor\core\dist\index.cjs.js:121:35
+    at estadoAviso (<repo>/src/composables/useNotificacionesLocales.js:125:33)
+    at <repo>/src/views/AjustesView.vue:268:29 {
+  code: 'UNAVAILABLE',
+  data: undefined
+}
+
+stderr | src/views/__tests__/AjustesView.spec.js > AjustesView > dice si Telegram está conectado
+No se pudieron leer los datos del taller Error: Database not initialized
+    at getConfig (<repo>/src/database/queries/configuracion.js:4:20)
+    at <repo>/src/views/AjustesView.vue:270:42
+
+ ✓ src/database/queries/__tests__/prendas.spec.js (8 tests) 53ms
+ ✓ src/__tests__/estilos.spec.js (2 tests) 116ms
+ ✓ src/views/__tests__/AjustesView.spec.js (3 tests) 409ms
+ ✓ src/composables/__tests__/useAppLock.spec.js (10 tests) 43ms
+ ✓ src/composables/__tests__/useAsyncAction.spec.js (7 tests) 97ms
+ ✓ src/database/queries/__tests__/ordenes.spec.js (7 tests) 90ms
+ ✓ src/database/queries/__tests__/pagos.spec.js (3 tests) 22ms
+ ✓ src/composables/__tests__/useBackupRestore.spec.js (3 tests) 30ms
+ ✓ src/services/__tests__/backupPayload.spec.js (5 tests) 15ms
+ ✓ src/composables/__tests__/useTutorial.spec.js (6 tests) 55ms
+ ✓ src/services/__tests__/telegramService.spec.js (2 tests) 13ms
+ ✓ src/__tests__/despliegue.spec.js (4 tests) 25ms
+ ✓ src/services/__tests__/validators.spec.js (57 tests) 64ms
+ ✓ src/services/__tests__/formato.spec.js (4 tests) 36ms
+stderr | src/composables/__tests__/useNotificacionesLocales.spec.js > P1-7 · permisos del aviso de las 8:00 > en el navegador (sin plugin nativo) responde no-disponible
+No se pudo leer el permiso de notificaciones Error: Not implemented on web.
+    at <repo>/src/composables/__tests__/useNotificacionesLocales.spec.js:139:63
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at file:///<repo>/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+ ✓ src/composables/__tests__/useNotificacionesLocales.spec.js (12 tests) 42ms
+ ✓ src/views/__tests__/OrdenDetailView.aviso.spec.js (15 tests) 8633ms
+     ✓ muestra saldo y total con separador de miles, y el estado de pago sin confundirlo con el de la orden  784ms
+     ✓ la fecha de entrega sale en rojo sólo si la orden está atrasada  558ms
+     ✓ con una sola prenda, al terminarla ofrece el aviso  438ms
+     ✓ con dos prendas, terminar la primera no lo ofrece y terminar la segunda sí  608ms
+     ✓ entregar una prenda con saldo pide confirmación mostrando lo que se debe, y sin confirmar no la entrega  708ms
+     ✓ al confirmar la entrega; la última prenda también advierte antes de cerrar la orden con deuda  943ms
+     ✓ sin saldo pendiente entrega directo, sin preguntar  978ms
+     ✓ si la modista cancela la cámara, no se anuncia ninguna foto guardada  340ms
+     ✓ con una foto real, la guarda y lo anuncia una sola vez  356ms
+     ✓ si la cámara falla de verdad, el error se muestra una sola vez y no se anuncia éxito  353ms
+     ✓ borra la fila y también el archivo del teléfono, sin tocar la prenda  387ms
+     ✓ cada prenda tiene un botón Eliminar que abre la misma confirmación que el gesto  483ms
+     ✓ cada pago vigente tiene un botón Anular que abre la misma confirmación que el gesto  515ms
+     ✓ un pago ya anulado no ofrece anularlo otra vez  906ms
+ ✓ src/composables/__tests__/useTelegramReports.spec.js (3 tests) 18ms
+ ✓ src/services/__tests__/fechas.spec.js (12 tests) 25ms
+ ✓ src/services/__tests__/vencimientos.spec.js (12 tests) 23ms
+ ✓ src/services/__tests__/whatsapp.spec.js (8 tests) 21ms
+ ✓ src/composables/__tests__/useOrdenes.spec.js (5 tests) 15ms
+
+ Test Files  43 passed (43)
+      Tests  431 passed (431)
+   Start at  13:41:19
+   Duration  69.37s (transform 20.85s, setup 0ms, import 223.40s, tests 41.45s, environment 604.27s)
+
+JUNIT report written to <repo>/docs/04-calidad/evidencias/2026-10-20/pruebas-unitarias.xml
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |    67.9 |    64.07 |   71.05 |   71.18 |                   
+ composables       |   62.71 |    57.71 |   66.46 |   64.17 |                   
+  useAppLock.js    |    90.9 |     92.3 |     100 |      95 | 56                
+  ...syncAction.js |   96.29 |      100 |     100 |   96.29 | 14                
+  ...kupRestore.js |    42.1 |    36.95 |   46.66 |   44.44 | ...62,209,221-260 
+  useClientes.js   |   73.68 |       25 |   66.66 |   73.68 | ...34,43-44,73-74 
+  ...ionNegocio.js |   81.81 |      100 |   66.66 |   81.81 | 17,32             
+  useHaptics.js    |       0 |      100 |       0 |       0 | 6-50              
+  ...ficaciones.js |   92.85 |      100 |      80 |   92.59 | 20-21             
+  ...nesLocales.js |   86.15 |    74.28 |    87.5 |    86.2 | 75-81,109,142,148 
+  ...rdenModals.js |   71.11 |    35.71 |   55.55 |    73.8 | 36-49,78-80       
+  ...enTelegram.js |   66.37 |    63.52 |   93.75 |   73.11 | ...88,210-213,220 
+  useOrdenes.js    |   93.75 |    77.77 |   81.81 |   93.54 | 29-30             
+  usePagos.js      |   96.15 |       50 |     100 |     100 | 31                
+  usePrendas.js    |   82.92 |       75 |   76.92 |   83.33 | ...84-185,190-191 
+  useReportes.js   |       0 |      100 |       0 |       0 | 6-34              
+  useSearch.js     |       0 |        0 |       0 |       0 | 5-30              
+  ...elegramBot.js |       0 |        0 |       0 |       0 | 4-120             
+  ...ramReports.js |   17.39 |       20 |      60 |   18.18 | 24-50             
+  useTutorial.js   |   80.95 |    73.91 |      75 |   84.84 | 19,36,91,134,177  
+ database          |   89.47 |    77.77 |   94.73 |   89.52 |                   
+  connection.js    |    86.9 |       75 |    92.3 |    87.5 | ...02-112,144,149 
+  ...tionRunner.js |   96.55 |    83.33 |     100 |   95.83 | 74                
+ database/queries  |   73.11 |       58 |   77.61 |   84.96 |                   
+  auth.js          |   35.48 |    18.75 |      20 |    42.3 | 17-33,51-55       
+  clientes.js      |   53.84 |    44.73 |    62.5 |   66.66 | 6-11,38-53        
+  configuracion.js |   88.88 |    71.42 |     100 |     100 | 13-28             
+  estadoOrden.js   |    87.5 |    81.25 |     100 |   93.33 | 81                
+  ...ficaciones.js |   58.82 |    35.71 |      75 |   76.92 | 28-38             
+  ordenes.js       |   80.76 |    71.05 |   85.71 |   92.85 | 65,115-116        
+  pagos.js         |   80.76 |    59.09 |     100 |     100 | 6-60,99           
+  prendas.js       |   69.72 |    52.17 |   76.92 |   83.13 | ...63-189,320-329 
+  reportes.js      |   95.74 |       70 |     100 |     100 | 7,109-116,150-190 
+  search.js        |   93.33 |    78.57 |     100 |     100 | 4,38-39           
+ services          |   66.96 |    74.59 |   69.56 |   68.25 |                   
+  auth.js          |       0 |        0 |       0 |       0 | 13-231            
+  ...Privacidad.js |      50 |        0 |       0 |      50 | 11-12             
+  backupPayload.js |     100 |    85.71 |     100 |     100 | 38                
+  cryptoService.js |   87.23 |    66.66 |     100 |   86.66 | ...8-29,95,99,102 
+  fechas.js        |   96.66 |    93.33 |     100 |     100 | 65                
+  photoStorage.js  |   53.44 |       55 |   54.54 |   59.57 | ...5,58-63,98-125 
+  ...ramService.js |   84.21 |    58.33 |     100 |   93.33 | 9                 
+  whatsapp.js      |   88.46 |    77.77 |   81.81 |    90.9 | 51,71             
+-------------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 67.9% ( 1155/1701 )
+Branches     : 64.07% ( 610/952 )
+Functions    : 71.05% ( 243/342 )
+Lines        : 71.18% ( 1082/1520 )
+================================================================================
+exit 0

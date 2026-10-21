@@ -74,7 +74,7 @@ Leyenda: ✅ implementado y verificado · ⚠️ implementado con salvedades · 
 
 | Req. | Estado | Nota |
 | --- | --- | --- |
-| RNF-01 a RNF-03 · rendimiento | ⚠️ | **Sin medir en el teléfono (ANA-H04).** Los índices están creados. Desde el 7 de octubre `getPrendasByOrden` carga notas y fotos de todas las prendas en dos consultas (antes dos por prenda, P1-8) |
+| RNF-01 a RNF-03 · rendimiento | ⚠️ | **Sin medir en el teléfono (ANA-H04).** En el emulador de Android cumplen con margen (CPV-29, 20 oct). Los índices están creados. Desde el 7 de octubre `getPrendasByOrden` carga notas y fotos de todas las prendas en dos consultas (antes dos por prenda, P1-8) |
 | RNF-04 a RNF-06 · usabilidad | ✅ | Registro de orden en tres pantallas; confirmaciones por toast; diseño desde 360 px |
 | RNF-07 · autenticación | ✅ | `services/auth.js` + guardia del router |
 | RNF-08 · contraseñas cifradas | ✅ | bcrypt con salt 10. **Cambio obligatorio** de la clave de fábrica en el primer acceso |

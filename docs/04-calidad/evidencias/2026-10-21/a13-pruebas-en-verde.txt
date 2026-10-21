@@ -1,0 +1,6 @@
+ ✓ src/views/__tests__/OrdenDetailView.aviso.spec.js > OrdenDetailView · entregar prenda por prenda con deuda (RN-30, D-11, DEF-04) > al confirmar la entrega; la última prenda también advierte antes de cerrar la orden con deuda 266ms
+ ✓ src/views/__tests__/OrdenDetailView.aviso.spec.js > OrdenDetailView · tomar una foto (RNF-05, DEF-05) > DEF-15: el menú para elegir cámara o galería está en español 108ms
+ ✓ src/views/__tests__/OrdenDetailView.aviso.spec.js > OrdenDetailView · eliminar una foto (RF-32, RN-40, DEF-06, DEF-16) > DEF-16: pregunta con el modal de la app, en español, y no con el confirm del sistema 130ms
+ ✓ src/views/__tests__/OrdenDetailView.aviso.spec.js > OrdenDetailView · eliminar una foto (RF-32, RN-40, DEF-06, DEF-16) > al confirmar borra la fila y también el archivo del teléfono, sin tocar la prenda 117ms
+ ✓ src/views/__tests__/OrdenDetailView.aviso.spec.js > OrdenDetailView · eliminar una foto (RF-32, RN-40, DEF-06, DEF-16) > al cancelar la foto se queda 139ms
+      Tests  18 passed (18)

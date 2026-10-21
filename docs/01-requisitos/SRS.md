@@ -225,9 +225,9 @@ RF-61 a RF-63 (bodega y venta de prendas abandonadas), RF-64 y RF-65 (exportar),
 
 | ID | Requisito | Estado |
 | --- | --- | --- |
-| RNF-01 | Mostrar una orden en menos de 2 s con hasta 500 órdenes | Parcial: implementado con índices, sin medir en el teléfono |
-| RNF-02 | Registrar una orden en menos de 3 s | Parcial: sin medir en el teléfono |
-| RNF-03 | Actualizar el saldo en menos de 1 s tras un pago | Parcial: sin medir en el teléfono |
+| RNF-01 | Mostrar una orden en menos de 2 s con hasta 500 órdenes | Parcial: implementado con índices; en el emulador, 634 ms como máximo (CPV-29); sin medir en el teléfono |
+| RNF-02 | Registrar una orden en menos de 3 s | Parcial: en el emulador, 1,96 s como máximo (CPV-29); sin medir en el teléfono |
+| RNF-03 | Actualizar el saldo en menos de 1 s tras un pago | Parcial: en el emulador, 805 ms como máximo (CPV-29); sin medir en el teléfono |
 | RNF-04 | Registrar una orden en máximo tres pantallas | Cumple |
 | RNF-05 | Confirmar cada operación exitosa; no mostrar éxito si falló | Cumple |
 | RNF-06 | Verse bien desde 360 px de ancho | Cumple |

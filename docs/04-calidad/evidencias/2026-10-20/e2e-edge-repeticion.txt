@@ -1,0 +1,40 @@
+
+Running 5 tests using 1 worker
+
+  ok 1 [chromium] › tests\e2e\flujo-orden.spec.js:13:1 › orden de punta a punta: cliente, fecha anterior, prenda, aviso WhatsApp, pago Bre-B y entrega con deuda (19.6s)
+  x  2 [chromium] › tests\e2e\flujo-orden.spec.js:13:1 › orden de punta a punta: cliente, fecha anterior, prenda, aviso WhatsApp, pago Bre-B y entrega con deuda (30.1s)
+  ok 3 [chromium] › tests\e2e\flujo-orden.spec.js:13:1 › orden de punta a punta: cliente, fecha anterior, prenda, aviso WhatsApp, pago Bre-B y entrega con deuda (20.0s)
+  ok 4 [chromium] › tests\e2e\flujo-orden.spec.js:13:1 › orden de punta a punta: cliente, fecha anterior, prenda, aviso WhatsApp, pago Bre-B y entrega con deuda (17.8s)
+  ok 5 [chromium] › tests\e2e\flujo-orden.spec.js:13:1 › orden de punta a punta: cliente, fecha anterior, prenda, aviso WhatsApp, pago Bre-B y entrega con deuda (25.6s)
+
+
+  1) [chromium] › tests\e2e\flujo-orden.spec.js:13:1 › orden de punta a punta: cliente, fecha anterior, prenda, aviso WhatsApp, pago Bre-B y entrega con deuda 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('.autorizo')
+    Expected substring: "Autorizó guardar sus datos"
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('.autorizo')
+      - Test timeout of 30000ms exceeded.
+
+
+      83 |   await page.locator('.nav-item', { hasText: 'Clientes' }).click();
+      84 |   await page.locator('.cliente-card, .clientes-list > *').first().click();
+    > 85 |   await expect(page.locator('.autorizo')).toContainText('Autorizó guardar sus datos');
+         |                                           ^
+      86 |
+      87 |   expect(errores).toEqual([]);
+      88 | });
+        at <repo>\tests\e2e\flujo-orden.spec.js:85:43
+
+    Error Context: test-results\flujo-orden-orden-de-punta-3d80e-o-Bre-B-y-entrega-con-deuda-chromium-repeat1\error-context.md
+
+  1 failed
+    [chromium] › tests\e2e\flujo-orden.spec.js:13:1 › orden de punta a punta: cliente, fecha anterior, prenda, aviso WhatsApp, pago Bre-B y entrega con deuda 
+  4 passed (2.1m)

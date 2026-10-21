@@ -238,6 +238,20 @@ describe('OrdenDetailView · tomar una foto (RNF-05, DEF-05)', () => {
         expect(await fotosGuardadas()).toBe(1);
     });
 
+    it('DEF-15: el menú para elegir cámara o galería está en español', async () => {
+        camara.getPhoto.mockRejectedValue(new Error('User cancelled photos app'));
+
+        await abrirCamara(vi.fn());
+
+        // Sin estas etiquetas, Capacitor y PWA Elements dicen «Photo / From Photos / Take Picture»
+        expect(camara.getPhoto).toHaveBeenCalledWith(expect.objectContaining({
+            promptLabelHeader: 'Foto de la prenda',
+            promptLabelPhoto: 'Elegir de la galería',
+            promptLabelPicture: 'Tomar foto',
+            promptLabelCancel: 'Cancelar'
+        }));
+    });
+
     it('si la cámara falla de verdad, el error se muestra una sola vez y no se anuncia éxito', async () => {
         vi.spyOn(console, 'error').mockImplementation(() => {});
         camara.getPhoto.mockRejectedValue(new Error('No hay permiso para usar la cámara'));
@@ -251,10 +265,11 @@ describe('OrdenDetailView · tomar una foto (RNF-05, DEF-05)', () => {
     });
 });
 
-describe('OrdenDetailView · eliminar una foto (RF-32, RN-40, DEF-06)', () => {
-    it('borra la fila y también el archivo del teléfono, sin tocar la prenda', async () => {
+describe('OrdenDetailView · eliminar una foto (RF-32, RN-40, DEF-06, DEF-16)', () => {
+    const contar = async (tabla) => (await db.query(`SELECT COUNT(*) AS n FROM ${tabla}`)).values[0].n;
+
+    async function pedirBorrarFoto() {
         camara.borrar.mockReset().mockResolvedValue(true);
-        vi.spyOn(window, 'confirm').mockReturnValue(true);
         const id_cliente = await createCliente({ nombre: 'Ana', telefono: '3001234567', autoriza_datos: true });
         const id_orden = await createOrden({ id_cliente, fecha_entrega_estimada: '2099-01-01' });
         const id_prenda = await createPrenda({ id_orden, valor: 20000, descripcion_arreglo: 'Basta', id_tipo_prenda: 1 });
@@ -269,10 +284,47 @@ describe('OrdenDetailView · eliminar una foto (RF-32, RN-40, DEF-06)', () => {
 
         await wrapper.find('.delete-foto-btn').trigger('click');
         await asentar();
+        return wrapper;
+    }
+
+    const botonDelModal = (wrapper, texto) => wrapper.find('.confirm-modal').findAll('button').find(b => b.text() === texto);
+
+    it('DEF-16: pregunta con el modal de la app, en español, y no con el confirm del sistema', async () => {
+        const confirmDelSistema = vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+        const wrapper = await pedirBorrarFoto();
+
+        expect(confirmDelSistema).not.toHaveBeenCalled();
+        expect(textoModal(wrapper)).toContain('¿Eliminar esta foto?');
+        expect(botonDelModal(wrapper, 'Cancelar')).toBeDefined();
+        expect(botonDelModal(wrapper, 'Sí, eliminar')).toBeDefined();
+        // Hasta confirmar no se borra nada
+        expect(await contar('fotografia')).toBe(1);
+        expect(camara.borrar).not.toHaveBeenCalled();
+        confirmDelSistema.mockRestore();
+    });
+
+    it('al confirmar borra la fila y también el archivo del teléfono, sin tocar la prenda', async () => {
+        const wrapper = await pedirBorrarFoto();
+
+        await botonDelModal(wrapper, 'Sí, eliminar').trigger('click');
+        await asentar();
 
         expect(camara.borrar).toHaveBeenCalledWith('prenda_1_123.jpeg');
-        expect((await db.query('SELECT COUNT(*) AS n FROM fotografia')).values[0].n).toBe(0);
-        expect((await db.query('SELECT COUNT(*) AS n FROM prenda')).values[0].n).toBe(1);
+        expect(await contar('fotografia')).toBe(0);
+        expect(await contar('prenda')).toBe(1);
+        expect(wrapper.find('.foto-thumb').exists()).toBe(false);
+    });
+
+    it('al cancelar la foto se queda', async () => {
+        const wrapper = await pedirBorrarFoto();
+
+        await botonDelModal(wrapper, 'Cancelar').trigger('click');
+        await asentar();
+
+        expect(textoModal(wrapper)).toBeNull();
+        expect(camara.borrar).not.toHaveBeenCalled();
+        expect(await contar('fotografia')).toBe(1);
     });
 });
 

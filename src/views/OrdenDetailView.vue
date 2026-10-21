@@ -120,7 +120,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, inject, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, inject, provide, watch } from 'vue';
 import { estadoDePago, ESTADO_PAGO, ESTADO_PRENDA, esOrdenActiva } from '../services/estadoOrden.js';
 import { formatearMoneda } from '../services/formato.js';
 import { fechaCorta, diasDeDiferencia } from '../services/fechas.js';
@@ -151,6 +151,8 @@ const {
   showPromptModal, promptMessage, promptTitle, requestPrompt, executePrompt, cancelPrompt,
   showActionSheet, actionSheetTitle, actionSheetMessage, actionSheetActions, openDeleteSheet, handleSheetAction
 } = useOrdenModals();
+// Las tarjetas de prenda confirman con el mismo modal, en español (DEF-16)
+provide('pedirConfirmacion', requestConfirm);
 
 
 // Ordenes logic
